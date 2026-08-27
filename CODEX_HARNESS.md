@@ -37,9 +37,9 @@ Scene names used in Unity, code, and documentation must stay consistent with Bui
 
 Primary project-owned locations:
 
-- Runtime scripts: `client/Assets/Scripts`
-- Editor tools and validation harnesses: `client/Assets/Editor`
-- Project scenes: `client/Assets/Scenes`
+- Runtime scripts: `Assets/Scripts`
+- Editor tools and validation harnesses: `Assets/Editor`
+- Project scenes: `Assets/Scenes`
 - Imported samples and package examples should be treated as third-party unless the task explicitly targets them.
 
 ## 3. Top Priority Rules
@@ -248,7 +248,7 @@ SceneManager.LoadScene("Mixer Interior");
 
 repeated in many scripts.
 
-Do not guess display names as scene names. Check `client/ProjectSettings/EditorBuildSettings.asset` or the scene asset path when uncertain.
+Do not guess display names as scene names. Check `ProjectSettings/EditorBuildSettings.asset` or the scene asset path when uncertain.
 
 ## 7. Inspector Value Protection
 
@@ -332,7 +332,7 @@ When changing Unity YAML scene or prefab files directly:
 - Prefer Unity Editor APIs for complex prefab-instance changes.
 - Do not reorder or regenerate large scene sections unless Unity itself performs the save.
 
-Imported packages, samples, and downloaded model assets should be left alone unless the task explicitly targets them. Prefer project-owned wrapper scripts under `client/Assets/Scripts` and editor tools under `client/Assets/Editor`.
+Imported packages, samples, and downloaded model assets should be left alone unless the task explicitly targets them. Prefer project-owned wrapper scripts under `Assets/Scripts` and editor tools under `Assets/Editor`.
 
 ## 9. XR Input Rules
 
@@ -552,7 +552,7 @@ Avoid:
 - Many fallback paths that make the actual intended setup unclear.
 - Code that tries to repair scene hierarchy automatically without user approval.
 
-Explicit editor-only setup and validation tools are allowed when they are named, menu-driven, and scoped to one known scene or asset family. Examples include project-owned harnesses under `client/Assets/Editor`, such as PPE room validation and setup tools. These tools may create or repair scene setup only when deliberately invoked, not silently at runtime.
+Explicit editor-only setup and validation tools are allowed when they are named, menu-driven, and scoped to one known scene or asset family. Examples include project-owned harnesses under `Assets/Editor`, such as PPE room validation and setup tools. These tools may create or repair scene setup only when deliberately invoked, not silently at runtime.
 
 ### 13.5 Defensive Code Must Not Change Manual Scene Setup
 
@@ -892,7 +892,7 @@ Codex must not:
 Follow the existing project structure first.
 
 ```text
-client/Assets/
+Assets/
   Scripts/
     Common/
     Flow/

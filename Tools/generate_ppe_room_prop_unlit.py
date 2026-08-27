@@ -5,9 +5,9 @@ import uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SCENE = ROOT / "client/Assets/Scenes/3_PPE_Room_Train_Test_mask.unity"
-TEMPLATE = ROOT / "client/Assets/Materials/PPE/Scene Unlit/rubber_boots_3d_model_Unlit.mat"
-MATERIAL_ROOT = ROOT / "client/Assets/Materials/PPE/Scene Unlit"
+SCENE = ROOT / "Assets/Scenes/3_PPE_Room_Train_Test_mask.unity"
+TEMPLATE = ROOT / "Assets/Materials/PPE/Scene Unlit/rubber_boots_3d_model_Unlit.mat"
+MATERIAL_ROOT = ROOT / "Assets/Materials/PPE/Scene Unlit"
 METAL_FBX_GUID = "f62f096ede7f4f0438815bc7c647cf24"
 METAL_ROOT_TRANSFORM = "6466164252249718520"
 BOOTS_TEX_GUID = "5b4e7a852e926504bb9303925535a6f4"
@@ -97,7 +97,7 @@ def patch_fbx_meta(path: Path, entries: list[tuple[str, str]]) -> None:
 
 
 def metal_texture_path(part: int) -> Path:
-    folder = ROOT / "client/Assets/FBX/PPE_B_MetalShelving"
+    folder = ROOT / "Assets/FBX/PPE_B_MetalShelving"
     tripo = folder / f"PPE_B_MetalShelving_tripo_part_{part}_basecolor.JPEG.meta"
     short = folder / f"PPE_B_MetalShelving_part_{part}_basecolor.JPEG.meta"
     if tripo.exists():
@@ -201,10 +201,10 @@ def patch_scene(part_mat_guids: dict[int, str]) -> int:
 
 def main() -> None:
     scba_tex = read_texture_guid(
-        ROOT / "client/Assets/FBX/PPE_A_SCBA_Cylinder/PPE_A_SCBA_Cylinder_basecolor.jpg.meta"
+        ROOT / "Assets/FBX/PPE_A_SCBA_Cylinder/PPE_A_SCBA_Cylinder_basecolor.jpg.meta"
     )
     plank_tex = read_texture_guid(
-        ROOT / "client/Assets/FBX/PPE_B_WoodenPlank/PPE_B_WoodenPlank.jpg.meta"
+        ROOT / "Assets/FBX/PPE_B_WoodenPlank/PPE_B_WoodenPlank.jpg.meta"
     )
     scba_guid = guid_for("PPE_A_SCBA_Cylinder_Unlit")
     plank_guid = guid_for("PPE_B_WoodenPlank_Unlit")
@@ -249,7 +249,7 @@ def main() -> None:
             metal_entries.append((source_name, mat_guid))
 
     patch_fbx_meta(
-        ROOT / "client/Assets/FBX/PPE_A_SCBA_Cylinder/PPE_A_SCBA_Cylinder.fbx.meta",
+        ROOT / "Assets/FBX/PPE_A_SCBA_Cylinder/PPE_A_SCBA_Cylinder.fbx.meta",
         [
             ("Material", scba_guid),
             ("No Name", scba_guid),
@@ -262,7 +262,7 @@ def main() -> None:
         ],
     )
     patch_fbx_meta(
-        ROOT / "client/Assets/FBX/PPE_B_WoodenPlank/PPE_B_WoodenPlank.fbx.meta",
+        ROOT / "Assets/FBX/PPE_B_WoodenPlank/PPE_B_WoodenPlank.fbx.meta",
         [
             ("Material", plank_guid),
             ("No Name", plank_guid),
@@ -272,7 +272,7 @@ def main() -> None:
         ],
     )
     patch_fbx_meta(
-        ROOT / "client/Assets/FBX/PPE_B_MetalShelving/PPE_B_MetalShelving.fbx.meta",
+        ROOT / "Assets/FBX/PPE_B_MetalShelving/PPE_B_MetalShelving.fbx.meta",
         metal_entries,
     )
 

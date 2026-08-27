@@ -1,8 +1,8 @@
-# Generates client/Assets/Shaders/BackgroundGradient.shadergraph
+# Generates Assets/Shaders/BackgroundGradient.shadergraph
 # Note: negative coordinates must use parentheses e.g. (-1200) — bare -1200 is parsed as a PS switch.
 $ErrorActionPreference = "Stop"
 $root = Split-Path $PSScriptRoot -Parent
-$out = Join-Path $root "client\Assets\Shaders\BackgroundGradient.shadergraph"
+$out = Join-Path $root "Assets\Shaders\BackgroundGradient.shadergraph"
 New-Item -ItemType Directory -Force -Path (Split-Path $out) | Out-Null
 
 function Gid { [guid]::NewGuid().ToString("N") }

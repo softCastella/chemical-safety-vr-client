@@ -31,7 +31,7 @@
 
 ### 2.1 Unity 앱
 
-- Unity 프로젝트 기준 경로는 저장소 루트에서 `client`로 이동했다. 현재 기준 파일은 `client/Assets`, `client/Packages`, `client/ProjectSettings`에 있다.
+- Unity 프로젝트 기준 경로는 저장소 루트에서 `client`로 이동했다. 현재 기준 파일은 `Assets`, `Packages`, `ProjectSettings`에 있다.
 - Android 앱 ID는 `com.softcastella.prototype.tyche.jinyoung`이다.
 - `productName`은 `Prototype_Tyche_Jinyoung`이다.
 - 앱 버전은 `0.1.0`, Android 빌드 번호는 `1`이다.
@@ -39,8 +39,8 @@
 - Android 최소 SDK는 현재 `25`, Target SDK는 Unity 자동 선택값이다.
 - 출시용 Android Keystore와 Key Alias는 아직 설정되지 않았다.
 - Meta Quest용 OpenXR 기능과 Oculus Touch Controller Profile은 활성화되어 있다.
-- Meta XR Platform SDK(`com.meta.xr.sdk.platform`) `205.0.0`이 `client/Packages/manifest.json`과 `client/Packages/packages-lock.json`에 등록되어 있다.
-- Meta 개발자 앱은 생성됐고 DUC는 제출·검토 대기 상태다. Quest App ID는 `client/Assets/Resources/OculusPlatformSettings.asset`에 설정되어 있다. App Secret은 Unity나 Git에 넣지 않는다.
+- Meta XR Platform SDK(`com.meta.xr.sdk.platform`) `205.0.0`이 `Packages/manifest.json`과 `Packages/packages-lock.json`에 등록되어 있다.
+- Meta 개발자 앱은 생성됐고 DUC는 제출·검토 대기 상태다. Quest App ID는 `Assets/Resources/OculusPlatformSettings.asset`에 설정되어 있다. App Secret은 Unity나 Git에 넣지 않는다.
 - 빌드 씬은 `0_App`에서 시작해 타이틀·인트로·로딩·PPE 룸으로 이어진다.
 - 현재 PPE 씬의 `AudioManager/PPE Voice Flow.m_KeyboardPresentationRoot`는 `Modal  Keyboard Canvas`를 계속 참조하지만 `m_SkipKeyboardNameInput=true`로 `NameInput` 진입을 임시 우회한다. 재사용 패키지를 만들었더라도 참조와 이름 제출 경로를 정식 전환하기 전에는 키보드 Canvas를 삭제하지 않는다.
 
@@ -115,7 +115,7 @@ Final_VR_Tyche_Pivot/
 - `server/archive`: 공개하지 않지만 삭제하지 않고 보존해야 하는 이전 사이트와 작업 자료다.
 - `shared/contracts`: Unity와 서버가 서로 다른 필드 이름을 사용하는 문제를 막는 공통 데이터 명세다.
 - `infra`: 테스트 서버와 실서버의 배포 구성을 분리한다.
-- 루트 `Tools`: Unity·서버·문서 제작을 함께 지원하는 저장소 공통 도구다. Unity 파일을 직접 참조하는 도구는 `client/Assets`를 명시한다.
+- 루트 `Tools`: Unity·서버·문서 제작을 함께 지원하는 저장소 공통 도구다. Unity 파일을 직접 참조하는 도구는 `Assets`를 명시한다.
 
 공개 개인정보처리방침은 Meta에서 접근 가능한 URL을 안정적으로 유지해야 하므로 이 비공개 모노레포 안으로 합치지 않는다. 현재의 별도 공개 저장소 `tycheworks-safetytrainingvr-privacy`와 GitHub Pages 주소를 계속 사용한다.
 
@@ -135,10 +135,10 @@ Unity 앱은 데이터베이스에 직접 접속하지 않는다. Unity는 HTTPS
 
 ### 4.2 이동 대상
 
-- `Assets` → `client/Assets`
-- `Packages` → `client/Packages`
-- `ProjectSettings` → `client/ProjectSettings`
-- 루트 `Tools`는 유지하고 Unity 직접 참조 경로만 `client/Assets`로 변경
+- `Assets` → `Assets`
+- `Packages` → `Packages`
+- `ProjectSettings` → `ProjectSettings`
+- 루트 `Tools`는 유지하고 Unity 직접 참조 경로만 `Assets`로 변경
 - `tycheworks-site-final-v2-260824` → `server/public/site`
 - 대시보드 HTML과 이후 프런트엔드 코드 → `server/public/dashboard`
 - 새 Express 애플리케이션과 DB migration → `server`
@@ -155,7 +155,7 @@ Unity 앱은 데이터베이스에 직접 접속하지 않는다. Unity는 HTTPS
 1. Unity Hub에 `client`를 프로젝트 경로로 다시 등록한다.
 2. Unity `6000.4.8f1`로 프로젝트를 연다.
 3. 패키지 복원과 스크립트 컴파일이 끝날 때까지 기다린다.
-4. `client/ProjectSettings/EditorBuildSettings.asset`의 빌드 씬 순서를 확인한다.
+4. `ProjectSettings/EditorBuildSettings.asset`의 빌드 씬 순서를 확인한다.
 5. 주요 씬과 프리팹의 Missing Script·Missing Reference를 확인한다.
 6. 이동 전후 주요 `.meta` GUID가 변하지 않았는지 확인한다.
 7. 정적 C# 빌드, Unity Play Mode와 Quest/OpenXR 실행을 각각 구분해 검증한다.
@@ -167,11 +167,11 @@ Express 실행 기반·정적 파일 제공과 사용자 CRUD까지 구성했고
 
 완료된 파일 작업은 다음과 같다.
 
-- `Assets` → `client/Assets` 이동
-- `Packages` → `client/Packages` 이동
-- `ProjectSettings` → `client/ProjectSettings` 이동
+- `Assets` → `Assets` 이동
+- `Packages` → `Packages` 이동
+- `ProjectSettings` → `ProjectSettings` 이동
 - 루트 `server` 폴더 생성
-- `client/Packages`에 Meta XR Platform SDK `205.0.0` 등록
+- `Packages`에 Meta XR Platform SDK `205.0.0` 등록
 - `server` npm 초기화 및 Express `5.2.1` 설치
 - `npm start`, `npm run dev`, `npm test` 스크립트 구성
 - `GET /api/health` 구현과 실제 localhost 응답 검증
@@ -182,7 +182,7 @@ Express 실행 기반·정적 파일 제공과 사용자 CRUD까지 구성했고
 - `client` 생성 폴더용 `.gitignore`, Unity MCP, VS Code, README, AGENTS와 공통 도구 경로 갱신
 - users/external identities migration과 사용자 CRUD 모듈 구현
 - Meta 인증 전 운영 CRUD 비활성화 플래그 적용
-- Unity Hub에서 `client`를 Unity `6000.4.8f1` 프로젝트로 열고 `client/Library` 및 Platform SDK package cache 재생성
+- Unity Hub에서 `client`를 Unity `6000.4.8f1` 프로젝트로 열고 `Library` 및 Platform SDK package cache 재생성
 - Meta Quest App ID 설정과 `OculusPlatformSettings.asset` 생성
 - `MetaPlatformIdentityProbe` 구현 및 시작 씬 `0_App/AppMain` 연결
 - SDK 초기화, entitlement, 앱 범위 사용자 ID와 연령대 조회 코드의 Unity C# 컴파일 확인
@@ -190,9 +190,9 @@ Express 실행 기반·정적 파일 제공과 사용자 CRUD까지 구성했고
 아직 완료로 판단하지 않는 항목은 다음과 같다.
 
 - 프로젝트용 DB와 계정, Meta 사용자 증명 검증, 교육 기록 API는 아직 구현되지 않았다.
-- 루트 `Tools`는 공통 도구 위치로 유지하고 Unity 직접 참조 스크립트는 `client/Assets` 경로로 갱신했다.
+- 루트 `Tools`는 공통 도구 위치로 유지하고 Unity 직접 참조 스크립트는 `Assets` 경로로 갱신했다.
 - 기존 루트 Unity 생성 폴더의 최종 정리가 남아 있다.
-- 기존 루트 `Library/PackageCache`는 새 Unity 프로젝트의 영구 기준 경로가 아니며, 현재 기준은 `client/Library/PackageCache`다. 기존 루트 생성 폴더의 안전한 정리는 별도 작업으로 남긴다.
+- 기존 루트 `Library/PackageCache`는 새 Unity 프로젝트의 영구 기준 경로가 아니며, 현재 기준은 `Library/PackageCache`다. 기존 루트 생성 폴더의 안전한 정리는 별도 작업으로 남긴다.
 - Git 상태에서 `client`는 아직 새 경로로 추적되지 않은 상태다. 기존 변경 보존과 이동 diff 확인이 필요하다.
 - 새 `client` 경로에서 패키지 복원과 C# 컴파일은 완료했다. 전체 Play Mode, Quest/OpenXR 첫 기동, 양안, 입력과 Meta 계정 실연동 검증은 아직 완료하지 않았다.
 
@@ -687,7 +687,7 @@ SDK 설치만으로 키보드 Canvas를 삭제하거나 컨트롤러 가이드�
   3. 입력·Interactor·Raycaster·Collider 경로는 사용하지 않으며 Editor 메뉴 실행만 영향을 받는다.
   4. 저장소 루트를 찾지 못하면 임의 경로를 만들거나 복사하지 않고 기존처럼 명확한 검증 오류로 멈춘다.
   5. UI·텔레포트·PPE Grab·거울·XR 양안 소비자는 영향받지 않는다. 문서 검사 경로만 영향받는다.
-  6. 변경 전 기준은 `client/AGENTS.md` 누락 오류이며, 변경 후 기준은 루트 `AGENTS.md`, 루트 `Docs`, `client/Assets/Docs`를 검사하고 통과하는 것이다.
+  6. 변경 전 기준은 `client/AGENTS.md` 누락 오류이며, 변경 후 기준은 루트 `AGENTS.md`, 루트 `Docs`, `Assets/Docs`를 검사하고 통과하는 것이다.
   7. 정적 코드 확인, Unity C# 컴파일과 `DocumentationPolicyHarness.Validate()` 실제 실행 결과를 구분해 기록한다. Quest/OpenXR 검증 대상은 아니다.
 
 근본 원인은 하네스가 `Application.dataPath/..`를 저장소 루트로 고정해 모노레포의 `client`만 보던 것과, 필수 정책 문구를 이동 전 경로인 ``Assets/Docs``에 정확히 일치시키던 것이다.
@@ -696,14 +696,14 @@ SDK 설치만으로 키보드 Canvas를 삭제하거나 컨트롤러 가이드�
 
 - Unity 프로젝트 루트에서 상위 디렉터리를 탐색해 `AGENTS.md`와 `.git` 또는 `Docs`가 함께 있는 저장소 루트를 선택한다.
 - 문서 분류 검사는 저장소 루트 `Docs`, 현재 Unity 프로젝트의 `Assets/Docs`, 호환용 저장소 루트 `Assets/Docs` 후보를 중복 없이 검사한다.
-- 필수 정책 문구를 현재 기준인 ``Docs``와 ``client/Assets/Docs``에 맞췄다.
+- 필수 정책 문구를 현재 기준인 ``Docs``와 ``Assets/Docs``에 맞췄다.
 - 저장소 루트를 찾지 못할 때 파일을 복사하거나 생성하는 fallback은 추가하지 않았다.
 
 완료한 검증은 다음과 같다.
 
 - Unity에서 `DocumentationPolicyHarness.cs` 재임포트와 Editor C# 컴파일이 성공했다.
 - 같은 Unity 세션에서 `DocumentationPolicyHarness.Validate()`를 다시 실행해 오류 없이 통과했다.
-- 루트 `AGENTS.md`, 루트 `Docs`와 `client/Assets/Docs`가 현재 모노레포 기준 검사 대상에 포함된다.
+- 루트 `AGENTS.md`, 루트 `Docs`와 `Assets/Docs`가 현재 모노레포 기준 검사 대상에 포함된다.
 
 이번 변경은 Editor 문서 검증 경로에만 영향을 주며 런타임, 씬, UI, 입력, Meta SDK와 Quest/OpenXR에는 영향을 주지 않는다. 저장소 구조가 다시 변경될 때에는 하네스를 재실행해 상위 루트 탐색 결과를 다시 확인해야 한다.
 
@@ -766,7 +766,7 @@ SDK 설치만으로 키보드 Canvas를 삭제하거나 컨트롤러 가이드�
 
 Git이 추적하는 파일만 대상으로 경로 길이를 조사했다. 생성 폴더인 `Library`, `Temp`, `Logs`, `UserSettings`는 조사 대상에서 제외했다. 저장소에는 절대경로 260자 이상인 추적 파일은 없었지만, 다음 송풍기 텍스처와 `.meta`가 각각 251자와 256자로 확인돼 Unity 임포트, 압축 해제, 빌드 도구 또는 더 긴 위치의 클론에서 문제가 될 여유가 거의 없었다.
 
-`client/Assets/TripoModels/yellow_industrial_blower_3d_model_Clone1_Clone1`
+`Assets/TripoModels/yellow_industrial_blower_3d_model_Clone1_Clone1`
 
 근본 원인은 동일한 긴 이름이 외부 폴더, FBX, `.fbm` 폴더와 텍스처에 반복된 구조다. FBX 바이너리에는 `.fbm`과 텍스처의 상대경로가 들어 있으므로 내부 FBX·Material·Texture 이름은 바꾸지 않았다. Unity `AssetDatabase.MoveAsset`으로 외부 폴더만 다음과 같이 이동했다.
 
@@ -780,7 +780,7 @@ Git이 추적하는 파일만 대상으로 경로 길이를 조사했다. 생성
 
 루트의 `RPG_FPS_Unused_Recovery_20260804`는 696개 파일, 약 445.82MB의 복구 묶음이다. 2026-08-05 커밋에서 `Assets/RPG_FPS_game_assets_industrial`의 에셋 695개를 Unity `Assets` 밖으로 이동하면서 만들어졌고, 당시 문서에는 대량 삭제·재임포트와 누락된 `Hangar_v2_6 Variant` 부모 참조가 기록돼 있다. 사용자가 당시 폴더를 제거한 뒤 혼합기동 건물 또는 바닥이 선홍색으로 보였다고 확인했으므로, `Unused`라는 폴더명만으로 전체를 삭제 가능한 상태로 판단하지 않는다.
 
-현재 `5_MixerRoom_Unlit_scale.unity`가 실제로 참조하는 RPG FPS 사용본은 다음 `client/Assets` 경로에 존재한다.
+현재 `5_MixerRoom_Unlit_scale.unity`가 실제로 참조하는 RPG FPS 사용본은 다음 `Assets` 경로에 존재한다.
 
 - `Assets/RPG_FPS_game_assets_industrial/Buildings/Industrial/Hangars/Hangar_v2/Source/Hangar_v2_6.FBX`
 - `Assets/RPG_FPS_game_assets_industrial/Buildings/Industrial/Hangars/Hangar_v2/Source/Hangar_v2.mat`
@@ -788,7 +788,7 @@ Git이 추적하는 파일만 대상으로 경로 길이를 조사했다. 생성
 - `Assets/RPG_FPS_game_assets_industrial/Other_props/Support_set/Support_set_v1/Source/Support_set_v1.mat`
 - `Assets/UIs/Facilities/mixer_Romm_A/mixer_room_A.fbx`
 
-복구 폴더의 `Extracted_Prefabs/Hangar_v2_6.FBX`는 현재 사용본과 GUID `d38c6eb5eac83874ca4e1361ff5ff63c`가 중복된다. 따라서 복구 폴더 전체를 `client/Assets/UIs/Facilities/mixer_Romm_A` 또는 다른 `Assets` 하위로 옮기면 Unity가 446MB에 가까운 복구 묶음을 다시 임포트하고 중복 GUID 충돌을 일으킬 수 있다. 복구 폴더는 현재 위치에서 보존하며 전체 이동·삭제하지 않는다.
+복구 폴더의 `Extracted_Prefabs/Hangar_v2_6.FBX`는 현재 사용본과 GUID `d38c6eb5eac83874ca4e1361ff5ff63c`가 중복된다. 따라서 복구 폴더 전체를 `Assets/UIs/Facilities/mixer_Romm_A` 또는 다른 `Assets` 하위로 옮기면 Unity가 446MB에 가까운 복구 묶음을 다시 임포트하고 중복 GUID 충돌을 일으킬 수 있다. 복구 폴더는 현재 위치에서 보존하며 전체 이동·삭제하지 않는다.
 
 현재 Mixer Room Preview Scene의 Renderer 357개를 조사한 결과 누락 Material, 누락 Shader와 미지원 Shader는 각각 0개였다. 위 Hangar·Interior·Support Material은 `Universal Render Pipeline/Simple Lit`을 사용하고 `shader.isSupported=true`이며 각 TGA Base Texture가 로드되는 것을 Unity에서 확인했다. 이는 정적·Editor 검증이며, 과거 선홍색 회귀가 실제 Quest 빌드에서 재발하지 않는지는 Mixer Room 양안 확인이 필요하다.
 
@@ -924,3 +924,94 @@ SPARK와 LOOP 준비중 페이지의 공통 `.line-nav a:hover`가 `#111`로 고
 7. 홈페이지 문의 폼의 `/api/contact`는 현재 서버 라우트가 없어 POST 시 `404`가 발생한다. 문의 저장 또는 메일 전달 정책을 확정한 뒤 별도 구현·검증해야 한다.
 
 정적 파일과 자동 테스트 결과를 실제 브라우저의 시각적 승인으로 확대 해석하지 않는다. 현재 완료 범위는 별도 시안과 자산·CSS 적용, 정적 검사와 서버 테스트까지이며 최종 라우팅 교체와 실브라우저 반응형 승인은 남아 있다.
+
+## 15.11 2026-08-27 Windows에서 Vultr 서버 Codex 바로 접속
+
+### 15.11.1 목적과 적용 범위
+
+Windows PC에서 Vultr의 Chemical Safety VR 서버 작업 공간으로 빠르게 접속할 수 있도록 PowerShell 명령과 바탕화면 바로가기를 구성했다. 이 설정은 로컬 실행 편의만 추가하며 Vultr 서버 파일, Git 저장소, DB, PM2 및 배포 설정은 변경하지 않는다.
+
+접속 대상은 다음과 같다.
+
+- SSH 호스트 별칭: `tycheworks`
+- 서버 프로젝트 경로: `/home/linuxuser/workspace/chemical-safety-vr`
+- 원격 Codex 절대 경로: `/home/linuxuser/.local/bin/codex`
+
+SSH 서버 주소, 개인 키 경로와 인증 정보는 이 문서에 기록하지 않는다. 해당 값은 사용자 PC의 기존 SSH 설정에서 관리한다.
+
+### 15.11.2 생성한 로컬 항목
+
+| 용도 | 경로 |
+|---|---|
+| PowerShell `cvr` 명령 | `C:\Users\user\AppData\Roaming\npm\cvr.cmd` |
+| 바탕화면 바로가기 | `C:\Users\user\Desktop\Chemical Safety VR - Vultr Codex.lnk` |
+
+기존 `C:\Users\user\Desktop\cvr.cmd`는 내용을 먼저 확인했으며 삭제하거나 덮어쓰지 않고 그대로 보존했다.
+
+바탕화면 바로가기는 고정된 Windows PowerShell 실행 파일을 `-NoProfile`로 시작하고 PATH에 설치한 `cvr.cmd`를 호출한다. `cvr.cmd`는 Windows OpenSSH의 절대 경로를 사용해 `tycheworks`에 TTY로 접속한 뒤, 프로젝트 경로로 이동하고 원격 Codex의 절대 경로를 실행한다. 따라서 로컬 PowerShell 프로필과 원격 비대화형 셸의 PATH에 의존하지 않는다.
+
+SSH 연결 또는 Codex 실행이 실패하면 종료 코드를 표시하고 키 입력을 기다린다. 바로가기에도 `-NoExit`를 적용해 오류가 발생해도 창이 즉시 닫히지 않도록 했다.
+
+### 15.11.3 사용 방법
+
+현재 PowerShell 창에서 다음 명령만 실행하면 같은 창에서 서버 Codex 세션이 열린다.
+
+```powershell
+cvr
+```
+
+새 창이 필요하면 바탕화면의 `Chemical Safety VR - Vultr Codex` 바로가기를 더블클릭한다. 실행 흐름은 `Windows PowerShell → ssh tycheworks → /home/linuxuser/workspace/chemical-safety-vr → Codex` 순서다.
+
+### 15.11.4 확인한 환경과 근본 원인
+
+- Windows PowerShell `5.1`과 Windows OpenSSH `9.5p2`를 확인했다.
+- Windows Terminal이 설치되어 있으나 바로가기 대상은 경로가 고정된 Windows PowerShell로 구성했다.
+- 기존 바탕화면 `cvr.cmd`는 Desktop 폴더가 PATH에 포함되지 않아 PowerShell에서 `cvr`만으로 발견되지 않았다.
+- `ssh tycheworks` 연결과 서버 프로젝트 디렉터리 존재는 정상으로 확인했다.
+- 원격 비대화형 SSH에서는 `codex`가 PATH에서 발견되지 않았다.
+- 원격 로그인 셸에서 Codex가 `/home/linuxuser/.local/bin/codex`에 있고 `codex-cli 0.150.1`로 실행됨을 확인했다.
+- 위 두 PATH 문제를 피하기 위해 로컬 PATH 폴더에는 `cvr.cmd`를 별도로 두고, 원격 Codex는 절대 경로로 실행하도록 구성했다.
+
+### 15.11.5 완료한 검증
+
+- 새 `-NoProfile` PowerShell에서 `Get-Command cvr`가 `C:\Users\user\AppData\Roaming\npm\cvr.cmd`를 찾는지 확인했다.
+- 바로가기의 대상, 실행 인수, 작업 폴더와 설명을 다시 읽어 따옴표와 경로가 보존됐는지 확인했다.
+- 바탕화면 바로가기를 실제 실행해 별도 PowerShell 프로세스와 `ssh.exe -tt tycheworks` 프로세스가 생성되는지 확인했다.
+- Vultr에서 `/home/linuxuser/.local/bin/codex`와 Codex code-mode host 프로세스가 실행 중인지 확인했다.
+- 사용자가 실제 열린 세션에서 접속 성공을 확인했다.
+- 원본 모노레포 작업 트리가 변경 전에는 깨끗했으며, 서버 코드·설정에는 변경을 가하지 않았다.
+
+### 15.11.6 다른 PC에서 재설정할 때의 주의사항
+
+`C:\Users\user`가 포함된 로컬 경로는 현재 PC 사용자 계정에만 해당한다. 다른 Windows 계정이나 PC에서는 Desktop, `%APPDATA%\npm`, PowerShell 및 OpenSSH 실제 경로를 다시 확인해야 한다. 또한 `tycheworks` SSH 별칭이 먼저 정상 연결되고, 원격 프로젝트와 Codex 절대 경로가 유지되는지 읽기 전용으로 검증한 뒤 바로가기를 만든다.
+
+## 2026-08-27 클라이언트 저장소 Unity 프로젝트 루트 평탄화
+
+### 적용한 변경
+
+- 별도 클라이언트 저장소 안의 `client/Assets`, `client/Packages`, `client/ProjectSettings`를 각각 저장소 루트의 `Assets`, `Packages`, `ProjectSettings`로 이동했다.
+- 모든 `.meta` 파일과 GUID를 그대로 보존했고, 동일했던 `client/.vsconfig` 중복본은 제거했다.
+- `.gitignore`, VS Code 설정, Codex 하네스 경로, 제작 스크립트, 저장소 안내와 현재 경로를 설명하는 문서를 새 Unity 프로젝트 루트에 맞췄다.
+- Unity Hub에서 잘못 저장소 루트를 열며 생성됐던 빈 프로젝트 설정과 이전 위치의 `Library`, `Logs`, `Temp`, `UserSettings` 캐시는 이동하지 않고 제거했다.
+- 서버 소스는 별도 저장소에 유지하며 이 저장소에 `server/` 트리를 추가하지 않았다.
+
+### 근본 원인과 영향 범위
+
+- 클라이언트와 서버를 별도 저장소로 분리한 뒤에도 기존 모노레포의 `client/` 하위 Unity 프로젝트 구조가 남아 있어, 저장소 루트와 Unity Hub에서 열 프로젝트 경로를 혼동할 수 있었다.
+- 평탄화 후 Unity 프로젝트 루트는 클라이언트 저장소 루트와 동일하다. Unity 내부의 `Assets/...` 경로와 직렬화 GUID는 바뀌지 않으므로 씬·프리팹·머티리얼 참조에는 의도된 변경이 없다.
+- 서버 API, 인증, 텔레메트리, 대시보드 및 서버 저장소 구조에는 변경이 없다.
+
+### 완료한 검증
+
+- Git이 이동된 8,602개 추적 항목을 내용이 동일한 `R100` rename으로 인식하는 것을 확인했다.
+- 루트 `Assets` 8,574개, `Packages` 2개, `ProjectSettings` 26개 추적 파일과 Unity `6000.4.8f1` 버전 파일을 확인했다.
+- 실행 설정과 도구에서 이전 `client/` 프로젝트 경로 참조가 0개인 것을 확인했다.
+- `Packages/manifest.json`, 활성 Build Settings 씬 경로, PowerShell 도구 구문과 `git diff --check`를 정적으로 확인했다.
+- Unity 배치 실행이 새 루트의 `Assets`와 `Library/` 재구성을 인식하고 초기 도메인 로드까지 진행한 것을 확인했다.
+
+### 아직 필요한 수동 검증
+
+- Unity 배치 검증은 Licensing Client 재연결 실패로 C# 전체 컴파일과 `DocumentationPolicyHarness.Validate()` 실행 전에 중단했다. 구조나 C# 컴파일 오류로 완료된 것으로 해석하지 않는다.
+- Unity Hub에서 저장소 루트를 Unity `6000.4.8f1`로 열고 최초 재임포트가 끝난 뒤 Console 컴파일 오류가 없는지 확인한다.
+- `Tools > Documentation > Validate Authoring Policy`를 실행하고 `Assets/Scenes/0_App.unity`의 Build Settings 및 정상 로드를 확인한다.
+- Quest/OpenXR Play Mode와 양안 렌더링은 이번 경로 이전의 정적 검증 범위에 포함하지 않았으며 별도 실기 확인이 필요하다.

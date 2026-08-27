@@ -1174,7 +1174,7 @@ controllerGuideVersionCompleted >= currentControllerGuideVersion
 
 ### 16.10 PPE 데이터 계약 하네스
 
-대시보드가 임의의 5종 PPE나 단일 `장비 선택` 값으로 축약되지 않도록 `client/Assets/Editor/PPETrainingDataContractHarness.cs`를 추가했다.
+대시보드가 임의의 5종 PPE나 단일 `장비 선택` 값으로 축약되지 않도록 `Assets/Editor/PPETrainingDataContractHarness.cs`를 추가했다.
 
 - `PPEItemType` 전체 enum과 씬의 `PPEItemPresentationBinding` 인스턴스를 대조한다.
 - 좌·우 장갑·장화와 좌·우 니트릴 내부 장갑을 서로 다른 수행 단위로 검증한다.

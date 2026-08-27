@@ -6,7 +6,7 @@ Express 서버는 별도 비공개 저장소인 `softCastella/chemical-safety-vr
 
 ## 저장소 구성
 
-- Unity 프로젝트: `client`
+- Unity 프로젝트: 저장소 루트(`Assets`, `Packages`, `ProjectSettings`)
 - 프로젝트 문서와 회귀 보고서: `Docs`
 - 저장소 공용 제작·검증 스크립트: `Tools`
 - Codex 및 에이전트 지침: `.codex`, `AGENTS.md`
@@ -23,15 +23,15 @@ Express 서버는 별도 비공개 저장소인 `softCastella/chemical-safety-vr
 
 ## 빌드 씬
 
-활성 빌드 흐름은 `client/ProjectSettings/EditorBuildSettings.asset`을 기준으로 합니다. 현재 `0_App`, 타이틀, 인트로, `6_LoadingScene_0`, `3_PPE_Room_3mode_loco` 순서이며 Mixer 씬은 후속 콘텐츠로 비활성화되어 있습니다.
+활성 빌드 흐름은 `ProjectSettings/EditorBuildSettings.asset`을 기준으로 합니다. 현재 `0_App`, 타이틀, 인트로, `6_LoadingScene_0`, `3_PPE_Room_3mode_loco` 순서이며 Mixer 씬은 후속 콘텐츠로 비활성화되어 있습니다.
 
 ## 주요 경로
 
-- 런타임 코드: `client/Assets/Scripts`
-- Editor 도구와 검증 하네스: `client/Assets/Editor`
+- 런타임 코드: `Assets/Scripts`
+- Editor 도구와 검증 하네스: `Assets/Editor`
 - 프로젝트 문서와 버그 리포트: `Docs`
 - 지원 스크립트: `Tools`
 
-Unity 프로젝트를 열 때는 저장소 루트가 아니라 `client` 폴더를 선택합니다. `client/Library`, `client/Temp`, `client/Logs`, `client/obj`, `client/UserSettings`와 같은 Unity 생성 폴더는 버전 관리하지 않습니다.
+Unity 프로젝트를 열 때는 저장소 루트를 선택합니다. `Library`, `Temp`, `Logs`, `obj`, `UserSettings`와 같은 Unity 생성 폴더는 버전 관리하지 않습니다.
 
 서버 연동을 확인하거나 최종 문서를 작성할 때는 서버 저장소의 대상 브랜치와 커밋 SHA를 함께 확인합니다. 서로 다른 Codex 대화의 기억이 아니라 양쪽 저장소의 코드, 문서 및 검증 결과를 작업 사실의 기준으로 사용합니다.

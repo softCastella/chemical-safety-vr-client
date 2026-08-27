@@ -169,4 +169,4 @@
 
 - [PPE Room AI 3D 에셋 네이밍 계획 및 적용 기록](../PPE_Room_AI_3D_Asset_Naming_Plan.md)
 - [PPE Room 번호 표면·벤치 머티리얼 회귀 기록](../Bug/2026-07-28_PPE_Room_Numbered_Surface_Pink_Materials.md)
-- [PPE Room 높이·실물 크기 검증 기록](../../client/Assets/Docs/Bug/2026-07-03_PPE_Room_Height_Lighting.md)
+- [PPE Room 높이·실물 크기 검증 기록](../../Assets/Docs/Bug/2026-07-03_PPE_Room_Height_Lighting.md)

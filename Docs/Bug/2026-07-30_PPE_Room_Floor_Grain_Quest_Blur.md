@@ -59,7 +59,7 @@ Prefer a limited floor-only test:
 
 ### 정적 조사 결과
 
-- Android 기본 품질은 `Mobile`이며 [ProjectSettings/QualitySettings.asset](../../client/ProjectSettings/QualitySettings.asset)의 `Android: 0`으로 연결된다.
+- Android 기본 품질은 `Mobile`이며 [ProjectSettings/QualitySettings.asset](../../ProjectSettings/QualitySettings.asset)의 `Android: 0`으로 연결된다.
 - `Assets/Settings/Mobile_RPAsset.asset`은 `m_RenderScale: 0.8`, `m_MSAA: 1`이다. URP의 `MsaaQuality.Disabled` 값이 `1`이므로 Android 경로에서는 MSAA가 꺼져 있다.
 - XR 메인 카메라의 `UniversalAdditionalCameraData`는 `m_AllowXRRendering: 1`이지만 `m_Antialiasing: 0`이다. 카메라의 `m_AllowMSAA: 1`만으로는 Mobile 파이프라인 자산의 비활성 MSAA를 보완하지 못한다.
 - Standalone용 `PC_RPAsset.asset`은 `m_RenderScale: 1`, `m_MSAA: 4`이지만, 메인 카메라의 URP 후처리 안티앨리어싱은 여전히 꺼져 있다. 따라서 Quest Link/Standalone과 Android 빌드의 증상이 같다고 가정하지 않는다.

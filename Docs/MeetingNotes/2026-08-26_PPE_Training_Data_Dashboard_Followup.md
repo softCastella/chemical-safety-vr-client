@@ -313,7 +313,7 @@ Unity의 기존 교육 흐름, PPE Grab, UI, 음성 재생 동작은 이번 회�
 
 기존 화면은 실제 텔레메트리를 사람이 이해할 말로 바꿨지만, 기업이 수행하려는 업무 질문별 정보구조가 충분하지 않았다. 또한 현재 신호로 관찰 가능한 현상과 추가 계약 후 판정할 수 있는 원인을 한 화면에서 명확히 구분할 필요가 있었다.
 
-변경 범위는 `server/public/dashboard/index.html`, `client/Assets/Scripts/PPETrainingTelemetryCapture.cs`, 대시보드 제공 테스트와 이 회의록이다. 텔레메트리에는 `session_started.appVersion`만 추가했으며 서버 API, 사용자 DB 스키마, 교육 상태 전이와 XR 입력 동작은 변경하지 않았다.
+변경 범위는 `server/public/dashboard/index.html`, `Assets/Scripts/PPETrainingTelemetryCapture.cs`, 대시보드 제공 테스트와 이 회의록이다. 텔레메트리에는 `session_started.appVersion`만 추가했으며 서버 API, 사용자 DB 스키마, 교육 상태 전이와 XR 입력 동작은 변경하지 않았다.
 
 ### Unity 변경 전 필수 질문 답변
 

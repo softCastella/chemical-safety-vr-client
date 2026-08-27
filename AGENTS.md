@@ -18,39 +18,39 @@ The Express server is maintained in the private repository `softCastella/chemica
 
 ## Enabled build flow
 
-`client/ProjectSettings/EditorBuildSettings.asset` currently enables these scenes in order:
+`ProjectSettings/EditorBuildSettings.asset` currently enables these scenes in order:
 
-1. `client/Assets/Scenes/0_App.unity`
-2. `client/Assets/Scenes/1_Title.unity`
-3. `client/Assets/Scenes/2_Intro.unity`
-4. `client/Assets/Scenes/6_LoadingScene_0.unity`
-5. `client/Assets/Scenes/3_PPE_Room_3mode_loco.unity`
+1. `Assets/Scenes/0_App.unity`
+2. `Assets/Scenes/1_Title.unity`
+3. `Assets/Scenes/2_Intro.unity`
+4. `Assets/Scenes/6_LoadingScene_0.unity`
+5. `Assets/Scenes/3_PPE_Room_3mode_loco.unity`
 
 `4_InsideMixer`, `5_MixerRoom_Unlit`, and the older loading scene remain disabled follow-up scenes. The disabled `Confined Space Scene_half` entry points to an absent asset and must not be treated as the current primary scene.
 
 ## Project-owned runtime code
 
-- `client/Assets/Scripts/AppSceneBootstrap.cs`
+- `Assets/Scripts/AppSceneBootstrap.cs`
   - Owns application-scene startup behavior.
-- `client/Assets/Scripts/PPEVoiceFlowDirector.cs`
+- `Assets/Scripts/PPEVoiceFlowDirector.cs`
   - Coordinates the current PPE voice and onboarding flow.
-- `client/Assets/Scripts/PPEActionPanelController.cs`
+- `Assets/Scripts/PPEActionPanelController.cs`
   - Owns PPE action-panel interaction and result handling.
-- `client/Assets/Scripts/PhysicalHmdSimulatorGate.cs`
+- `Assets/Scripts/PhysicalHmdSimulatorGate.cs`
   - Separates physical HMD behavior from Editor/Game View simulation.
-- `client/Assets/Scripts/SciFiCardVisual.cs`
+- `Assets/Scripts/SciFiCardVisual.cs`
   - Procedurally builds layered rounded-card meshes, frame, glass, glow, shadow, corner markers, and collider geometry.
-- `client/Assets/Scripts/SciFiCardDepthResponse.cs`
+- `Assets/Scripts/SciFiCardDepthResponse.cs`
   - Adds camera-relative parallax to card background, content, and foreground layers.
 
 The sci-fi card scripts exist, but scene references must be verified before changing their behavior.
 
 ## Project-owned editor tools
 
-- `client/Assets/Editor/SciFiCardMaker.cs`
-- `client/Assets/Editor/PlaneMaker.cs`
-- `client/Assets/Editor/XRHandMaterialMaker.cs`
-- `client/Assets/Editor/BackgroundGradientShaderGenerator.cs`
+- `Assets/Editor/SciFiCardMaker.cs`
+- `Assets/Editor/PlaneMaker.cs`
+- `Assets/Editor/XRHandMaterialMaker.cs`
+- `Assets/Editor/BackgroundGradientShaderGenerator.cs`
 - `Tools/generate_background_shadergraph.ps1`
 - `Tools/generate_background_shadergraph.py`
 
@@ -58,22 +58,22 @@ The sci-fi card scripts exist, but scene references must be verified before chan
 
 Large parts of `Assets` are imported industrial models or Unity package samples. Treat these as third-party/sample content unless the task explicitly targets them:
 
-- `client/Assets/Oculus`
-- `client/Assets/RPG_FPS_game_assets_industrial`
-- `client/Assets/Samples`
-- `client/Assets/TextMesh Pro`
-- `client/Assets/TripoModels`
-- `client/Assets/XRI_Examples`
+- `Assets/Oculus`
+- `Assets/RPG_FPS_game_assets_industrial`
+- `Assets/Samples`
+- `Assets/TextMesh Pro`
+- `Assets/TripoModels`
+- `Assets/XRI_Examples`
 
-Prefer adding project-specific code under `client/Assets/Scripts` and editor-only code under `client/Assets/Editor`.
+Prefer adding project-specific code under `Assets/Scripts` and editor-only code under `Assets/Editor`.
 
 ## Working rules
 
 - Preserve `.meta` files and Unity asset GUIDs.
-- Do not manually edit generated folders: `client/Library`, `client/Temp`, `client/Logs`, or `client/UserSettings`.
+- Do not manually edit generated folders: `Library`, `Temp`, `Logs`, or `UserSettings`.
 - Do not treat generated `.csproj` and `.slnx` files as authoritative project configuration.
-- Check `client/ProjectSettings/EditorBuildSettings.asset` before changing assumptions about the startup scene.
-- Keep runtime code out of `client/Assets/Editor`.
+- Check `ProjectSettings/EditorBuildSettings.asset` before changing assumptions about the startup scene.
+- Keep runtime code out of `Assets/Editor`.
 - When modifying a Unity YAML scene or prefab directly, make small changes and verify file IDs, GUIDs, and serialized references carefully.
 - Prefer Unity-compatible C# APIs supported by the configured Unity version.
 - For XR changes, account for both Android/Quest and Standalone OpenXR unless the requested target is explicit.
@@ -136,7 +136,7 @@ For a reproducible project-owned regression, add a dated report under `Docs/Bug`
 
 - 사용자가 영문 작성을 명시적으로 요청하지 않으면 프로젝트 문서는 한국어로 작성한다.
 - 코드 식별자, 파일 경로, API 이름 및 원문 확인이 필요한 오류 메시지는 정확성을 위해 원래 표기를 유지할 수 있다.
-- 새 문서를 만들기 전에 `Docs`와 `client/Assets/Docs`에서 동일 작업, 기능 또는 오류를 다루는 기존 문서가 있는지 먼저 확인한다.
+- 새 문서를 만들기 전에 `Docs`와 `Assets/Docs`에서 동일 작업, 기능 또는 오류를 다루는 기존 문서가 있는지 먼저 확인한다.
 - 관련 기존 문서가 있으면 새 문서를 만들지 않고 해당 문서에 내용을 추가하거나 기존 내용을 수정한다.
 - 관련 기존 문서가 없거나 사용자가 문서 분리를 명시적으로 요청한 경우에만 새 문서를 만든다.
 - 같은 작업의 중복 문서를 실수로 만들었으면 내용을 기존 기준 문서에 통합하고 중복 문서를 제거한다.
@@ -147,7 +147,7 @@ For a reproducible project-owned regression, add a dated report under `Docs/Bug`
 
 ## Session startup
 
-At the beginning of a task, use this file as orientation, then inspect the files directly relevant to the request. Do not rescan `client/Library`, `client/Temp`, or the full imported asset collection unless necessary.
+At the beginning of a task, use this file as orientation, then inspect the files directly relevant to the request. Do not rescan `Library`, `Temp`, or the full imported asset collection unless necessary.
 
 ## 오늘 작업에서 확인된 판단 실패와 재발 방지 규칙 (2026-08-05)
 
@@ -213,7 +213,7 @@ At the beginning of a task, use this file as orientation, then inspect the files
 - 자식 `Graphic`, `GraphicRaycaster`, `TrackedDeviceGraphicRaycaster`, `Renderer`, `Collider`의 활성 상태, Raycast 설정, 월드 Bounds
 - 동일 씬의 룸 후보 Bounds와 문제 오브젝트의 월드 위치가 그 안에 있는지
 
-`client/Assets/Editor/PPEObjectSpatialDiagnosticHarness.cs`의 `Tools > PPE > Diagnose Selected Object Spatial Context`를 이 선행 조사에 사용한다. 이 하네스는 진단 전용이며 Transform, 입력, 활성 상태, 씬 값을 자동 수정하지 않는다. 공간 진단 없이 카드/모달 입력 로직, Raycaster, 카메라 또는 XR 런타임을 원인으로 단정하지 않는다.
+`Assets/Editor/PPEObjectSpatialDiagnosticHarness.cs`의 `Tools > PPE > Diagnose Selected Object Spatial Context`를 이 선행 조사에 사용한다. 이 하네스는 진단 전용이며 Transform, 입력, 활성 상태, 씬 값을 자동 수정하지 않는다. 공간 진단 없이 카드/모달 입력 로직, Raycaster, 카메라 또는 XR 런타임을 원인으로 단정하지 않는다.
 
 ## 2026-08-06 추가: PPE 결함 시각물 표면·대비 검증
 

@@ -259,7 +259,7 @@ data = [
     ("문서 버전", "v0.7 · 원본 프로토타입 기획서와 동일 버전 유지"),
     ("문서 성격", "발표자료가 아닌 개발·QA·검토용 실무 기획서"),
     ("기준 프로젝트", "Final_VR_Tyche_Pivot/client · Unity 6000.4.8f1"),
-    ("기준 씬", "client/Assets/Scenes/3_PPE_Room_HandTest_scale_0.unity"),
+    ("기준 씬", "Assets/Scenes/3_PPE_Room_HandTest_scale_0.unity"),
     ("실행 경로", "0_App → 1_Title → 2_Intro → 6_LoadingScene_0 → PPE Room"),
     ("관리 원칙", "씬·Prefab·Inspector 작성값을 UI와 Transform의 기준값으로 사용"),
 ]

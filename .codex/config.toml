@@ -1,9 +1,9 @@
 [mcp_servers.unity]
-command = "C:\\Users\\lanoc\\.unity\\relay\\relay_win.exe"
+command = "C:\\Users\\user\\.unity\\relay\\relay_win.exe"
 args = [
   "--mcp",
   "--project-path",
-  "C:\\Users\\lanoc\\OneDrive\\문서\\Workspace\\Unity\\Final_VR_Tyche_Pivot\\client",
+  "C:\\Users\\user\\Documents\\Workspace\\chemical-safety-vr-client",
 ]
 startup_timeout_sec = 30
 tool_timeout_sec = 120

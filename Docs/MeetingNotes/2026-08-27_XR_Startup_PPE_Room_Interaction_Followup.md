@@ -3,8 +3,8 @@
 - 일자: 2026-08-27
 - Unity: `6000.4.8f1`
 - XR: Meta Quest Link / OpenXR
-- 시작 씬: `client/Assets/Scenes/0_App.unity`
-- 주요 작업 씬: `client/Assets/Scenes/3_PPE_Room_3mode_loco.unity`
+- 시작 씬: `Assets/Scenes/0_App.unity`
+- 주요 작업 씬: `Assets/Scenes/3_PPE_Room_3mode_loco.unity`
 - 범위: HMD 기동 동기화, PPE 진열장 충돌, 선택 Marker, 발소리, 태블릿 체크,
   거울 관찰
 
@@ -189,26 +189,26 @@
 
 ### 런타임
 
-- `client/Assets/Scripts/AppSceneBootstrap.cs`
-- `client/Assets/Scripts/TitleSplashController.cs`
-- `client/Assets/Scripts/AudioManager.cs`
-- `client/Assets/Scripts/PPEConfigurableDynamicMoveProvider.cs`
-- `client/Assets/Scripts/HandwrittenSignatureSequence.cs`
-- `client/Assets/Scripts/PPETabletChecklistController.cs`
-- `client/Assets/Scripts/PPEFinaleController.cs`
+- `Assets/Scripts/AppSceneBootstrap.cs`
+- `Assets/Scripts/TitleSplashController.cs`
+- `Assets/Scripts/AudioManager.cs`
+- `Assets/Scripts/PPEConfigurableDynamicMoveProvider.cs`
+- `Assets/Scripts/HandwrittenSignatureSequence.cs`
+- `Assets/Scripts/PPETabletChecklistController.cs`
+- `Assets/Scripts/PPEFinaleController.cs`
 
 ### Editor 및 회귀 검증
 
-- `client/Assets/Editor/AppStartupSynchronizationHarness.cs`
-- `client/Assets/Editor/PPELocomotionPpeRegressionValidationHarness.cs`
-- `client/Assets/Editor/PPETabletSignatureSequenceSync.cs`
-- `client/Assets/Editor/PPERoomEnvironmentCollisionSetup.cs`
+- `Assets/Editor/AppStartupSynchronizationHarness.cs`
+- `Assets/Editor/PPELocomotionPpeRegressionValidationHarness.cs`
+- `Assets/Editor/PPETabletSignatureSequenceSync.cs`
+- `Assets/Editor/PPERoomEnvironmentCollisionSetup.cs`
 
 ### 씬
 
-- `client/Assets/Scenes/0_App.unity`
-- `client/Assets/Scenes/1_Title.unity`
-- `client/Assets/Scenes/3_PPE_Room_3mode_loco.unity`
+- `Assets/Scenes/0_App.unity`
+- `Assets/Scenes/1_Title.unity`
+- `Assets/Scenes/3_PPE_Room_3mode_loco.unity`
 
 ## 완료한 검증
 

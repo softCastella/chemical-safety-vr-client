@@ -481,8 +481,8 @@ XR 카메라와 함께 동작하면 한 프레임에 추가 카메라 렌더링�
 
 ## 관련 기존 기록
 
-- [Meta Quest Link 오디오만 출력되고 영상이 없는 문제](../../client/Assets/Docs/Bug/2026-07-05_Meta-Quest-Link-Audio-Only-No-Video.md)
-- [PPE Room 높이·조명 및 XR 런타임 문제](../../client/Assets/Docs/Bug/2026-07-03_PPE_Room_Height_Lighting.md)
+- [Meta Quest Link 오디오만 출력되고 영상이 없는 문제](../../Assets/Docs/Bug/2026-07-05_Meta-Quest-Link-Audio-Only-No-Video.md)
+- [PPE Room 높이·조명 및 XR 런타임 문제](../../Assets/Docs/Bug/2026-07-03_PPE_Room_Height_Lighting.md)
 - [HandTest Teleport·Ray·Invalid AABB 문제](2026-08-01_PPE_HandTest_Teleport_Ray_Input_Mediation.md)
 - [Hazmat Toggle Grip·검사 패널 활성화 재진입 문제](2026-08-04_PPE_Hazmat_Toggle_Grip_Inspection_Panel.md)
 ## 2026-08-17 추가 재현 사례: PPE 프록시 참조 오류

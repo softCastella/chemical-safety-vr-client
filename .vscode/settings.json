@@ -47,24 +47,14 @@
         "Build/": true,
         "Library/": true,
         "library/": true,
-        "client/Library/": true,
-        "client/library/": true,
         "obj/": true,
         "Obj/": true,
-        "client/obj/": true,
-        "client/Obj/": true,
         "Logs/": true,
         "logs/": true,
-        "client/Logs/": true,
-        "client/logs/": true,
         "ProjectSettings/": true,
-        "client/ProjectSettings/": true,
         "UserSettings/": true,
-        "client/UserSettings/": true,
         "temp/": true,
-        "Temp/": true,
-        "client/temp/": true,
-        "client/Temp/": true
+        "Temp/": true
     },
     "files.associations": {
         "*.asset": "yaml",
@@ -77,5 +67,6 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.enableWorkspaceBasedDevelopment": false
+    "dotnet.enableWorkspaceBasedDevelopment": false,
+    "dotnet.defaultSolution": "chemical-safety-vr-client.slnx"
 }

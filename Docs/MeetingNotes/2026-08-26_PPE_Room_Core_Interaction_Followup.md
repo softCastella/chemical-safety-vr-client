@@ -1,7 +1,7 @@
 # PPE 룸 핵심 상호작용 후속 회의록
 
 - 일자: 2026-08-26
-- 대상 씬: `client/Assets/Scenes/3_PPE_Room_3mode_loco.unity`
+- 대상 씬: `Assets/Scenes/3_PPE_Room_3mode_loco.unity`
 - 범위: PPE Grab, 진열장 접근, 로코모션 방향, 거울 관찰, Exit 복귀, 카드 음성 및 정상 종료 복귀
 
 ## 회의 목적

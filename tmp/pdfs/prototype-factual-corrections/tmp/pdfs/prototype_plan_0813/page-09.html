@@ -1,0 +1,184 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  :root {
+    --navy: #123844;
+    --teal: #177b76;
+    --teal2: #2b9790;
+    --ink: #24363b;
+    --muted: #63757b;
+    --line: #cbd8da;
+    --paper: #ffffff;
+    --soft: #eff6f5;
+    --soft2: #f6f8f8;
+    --amber: #d99522;
+    --amber-soft: #fff5df;
+    --red: #a8493d;
+    --red-soft: #fff0ed;
+    --green: #2b7757;
+    --green-soft: #edf7f1;
+  }
+  html, body { margin: 0; padding: 0; background: #e8edef; color: var(--ink); }
+  body { font-family: "Malgun Gothic", "맑은 고딕", Arial, sans-serif; }
+  .page {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto 8px;
+    padding: 14mm 16mm 15mm;
+    background: var(--paper);
+    overflow: hidden;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+  .topline {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 3mm; margin-bottom: 5mm; border-bottom: 1px solid var(--line);
+    color: var(--muted); font-size: 8pt; letter-spacing: .04em;
+  }
+  .topline strong { color: var(--teal); }
+  .section-no { color: var(--teal); font-size: 8.5pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  h1, h2, h3, h4, p { margin-top: 0; }
+  h1 { margin-bottom: 4mm; color: var(--navy); font-size: 29pt; line-height: 1.25; letter-spacing: -.035em; }
+  h2 { margin: 0 0 4mm; color: var(--navy); font-size: 20pt; line-height: 1.28; letter-spacing: -.025em; }
+  h3 { margin: 4.2mm 0 2.3mm; color: var(--navy); font-size: 12.5pt; line-height: 1.32; }
+  h4 { margin: 2.8mm 0 1.6mm; color: var(--teal); font-size: 10.2pt; }
+  p { margin-bottom: 2.6mm; font-size: 9.3pt; line-height: 1.58; }
+  .lead { color: #3f555b; font-size: 12pt; line-height: 1.55; }
+  .small { color: var(--muted); font-size: 8pt; line-height: 1.5; }
+  .micro { color: var(--muted); font-size: 7.2pt; line-height: 1.45; }
+  .strong { font-weight: 800; color: var(--navy); }
+  .accent { color: var(--teal); font-weight: 800; }
+  .tag {
+    display: inline-block; margin: 0 1.5mm 1.5mm 0; padding: 1.2mm 2.4mm;
+    border-radius: 9px; background: var(--soft); color: var(--teal); font-size: 7.5pt; font-weight: 800;
+  }
+  .tag.amber { background: var(--amber-soft); color: #8b5a0b; }
+  .tag.red { background: var(--red-soft); color: var(--red); }
+  .tag.dark { background: var(--navy); color: white; }
+  .rule { width: 24mm; height: 1.4mm; margin: 4mm 0 7mm; background: var(--teal); }
+  .footer {
+    position: absolute; left: 16mm; right: 16mm; bottom: 7.5mm;
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 2.7mm; border-top: 1px solid var(--line); color: var(--muted); font-size: 7.2pt;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
+  .card { padding: 3.4mm; border: 1px solid var(--line); border-radius: 2.5mm; background: var(--soft2); }
+  .card h3, .card h4 { margin-top: 0; }
+  .card.teal { border-color: #9dc9c5; background: var(--soft); }
+  .card.amber { border-color: #ead19b; background: var(--amber-soft); }
+  .card.red { border-color: #e0b6af; background: var(--red-soft); }
+  .callout {
+    padding: 3mm 3.5mm; border-left: 1.4mm solid var(--teal); border-radius: 1.5mm;
+    background: var(--soft); color: #274b4e; font-size: 9pt; line-height: 1.55;
+  }
+  .callout.amber { border-left-color: var(--amber); background: var(--amber-soft); color: #694b17; }
+  .callout.red { border-left-color: var(--red); background: var(--red-soft); color: #693631; }
+  .callout strong { color: inherit; }
+  ul, ol { margin: 1.5mm 0 0; padding-left: 5mm; font-size: 8.8pt; line-height: 1.48; }
+  li { margin: 0 0 1.5mm; }
+  .tight li { margin-bottom: .9mm; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 2.4mm 0 4mm; }
+  th, td { border: 1px solid var(--line); padding: 2mm 2.2mm; vertical-align: middle; word-break: keep-all; overflow-wrap: anywhere; }
+  th { background: var(--navy); color: white; font-size: 7.8pt; line-height: 1.35; text-align: center; }
+  td { color: #32474c; font-size: 7.7pt; line-height: 1.43; }
+  tr:nth-child(even) td { background: #fbfcfc; }
+  td.center { text-align: center; }
+  td.label { background: var(--soft) !important; color: var(--navy); font-weight: 800; }
+  .compact th, .compact td { padding: 1.55mm 1.8mm; font-size: 7.35pt; line-height: 1.38; }
+  .steps td:first-child { width: 8%; text-align: center; color: var(--teal); font-size: 10pt; font-weight: 900; }
+  .steps td:nth-child(2) { width: 18%; font-weight: 800; color: var(--navy); }
+  .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4mm 4mm; margin-top: 2mm; }
+  .check { position: relative; padding-left: 5mm; font-size: 8.2pt; line-height: 1.45; }
+  .check::before { content: "✓"; position: absolute; left: 0; top: 0; color: var(--teal); font-weight: 900; }
+  .flow { display: flex; align-items: stretch; gap: 1.2mm; margin: 3mm 0 4mm; }
+  .flow .node { flex: 1; min-height: 15mm; padding: 2mm 1mm; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid #a9c8c6; border-radius: 2mm; background: var(--soft); color: var(--navy); font-size: 7.2pt; line-height: 1.35; font-weight: 800; }
+  .flow .arrow { display: flex; align-items: center; color: var(--teal); font-size: 11pt; font-weight: 800; }
+  .metric-strip { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 2.5mm; overflow: hidden; margin: 4mm 0 5mm; }
+  .metric { padding: 3mm; background: var(--soft2); border-right: 1px solid var(--line); }
+  .metric:last-child { border-right: 0; }
+  .metric b { display: block; margin-bottom: 1mm; color: var(--teal); font-size: 12pt; }
+  .metric span { color: var(--muted); font-size: 7.4pt; line-height: 1.35; }
+  .asset-row { display: grid; grid-template-columns: 34mm 34mm 1fr; gap: 3mm; align-items: stretch; margin: 3mm 0 4mm; }
+  .asset-card { height: 31mm; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--line); border-radius: 2.2mm; background: #3a3e40; }
+  .asset-card img { width: 100%; height: 100%; object-fit: contain; }
+  .asset-copy { padding: 3mm; border-radius: 2.2mm; background: var(--soft); border: 1px solid #b8d3d1; }
+  .asset-copy strong { display: block; margin-bottom: 1mm; color: var(--navy); font-size: 10pt; }
+  .timeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2mm; margin: 3mm 0 4mm; }
+  .milestone { min-height: 24mm; padding: 2.6mm; border-top: 1.4mm solid var(--teal); background: var(--soft2); }
+  .milestone b { color: var(--teal); font-size: 8.4pt; }
+  .milestone span { display: block; margin-top: 1.5mm; color: var(--ink); font-size: 7.2pt; line-height: 1.4; }
+  .cover-page { padding-top: 15mm; background: linear-gradient(135deg, #ffffff 0%, #ffffff 68%, #edf6f5 100%); }
+  .cover-kicker { display: inline-block; margin-bottom: 13mm; padding: 1.8mm 3mm; color: white; background: var(--teal); font-size: 8pt; font-weight: 800; letter-spacing: .08em; }
+  .cover-hero { margin-top: 9mm; padding: 7mm; color: white; background: var(--navy); border-radius: 3.5mm; }
+  .cover-hero h3 { margin: 0 0 3mm; color: white; font-size: 13pt; }
+  .cover-scenarios { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .cover-scenario { padding: 4mm; border-radius: 2.5mm; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.22); }
+  .cover-scenario b { display: block; margin-bottom: 1.5mm; color: #8fe0d8; font-size: 11pt; }
+  .cover-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; margin-top: 6mm; }
+  .cover-meta div { padding: 3mm; border: 1px solid var(--line); border-radius: 2mm; background: rgba(255,255,255,.88); }
+  .cover-meta b { display: block; margin-bottom: 1mm; color: var(--teal); font-size: 7.2pt; }
+  .cover-meta span { color: var(--navy); font-size: 8.5pt; font-weight: 800; line-height: 1.35; }
+  .decision { margin-top: 6mm; padding: 4.5mm; background: var(--amber-soft); border: 1px solid #e6c986; border-radius: 2.5mm; }
+  .decision b { color: #7a5110; font-size: 10.5pt; }
+  .decision p { margin: 1.5mm 0 0; color: #684d1e; font-size: 9pt; }
+  .signature { position: absolute; left: 16mm; bottom: 22mm; color: var(--muted); font-size: 8pt; }
+  .status-p0 { color: white !important; background: var(--red) !important; font-weight: 800; }
+  .status-p1 { color: white !important; background: var(--amber) !important; font-weight: 800; }
+  .status-p2 { color: white !important; background: var(--teal) !important; font-weight: 800; }
+  a { color: var(--teal); text-decoration: none; }
+  @media print { body { background: white; } .page { margin: 0; } }
+ body{background:white}.page{margin:0}</style></head><body>
+  <section class="page">
+    <div class="topline"><span><strong>PROTOTYPE PLAN</strong> · 2026.07.30</span><span>06 · 시연 계획</span></div>
+    <div class="section-no">06 · 시연 계획</div>
+    <h2>시연 흐름·화면 기록 계획</h2>
+    
+  <h3>8월 10일 프로토타입 시연 흐름</h3>
+  <div class="flow" style="gap:1mm">
+    <div class="node">콜드 실행</div><div class="arrow">›</div>
+    <div class="node">PPE 시나리오<br>약 5분</div><div class="arrow">›</div>
+    <div class="node">결과·초기화</div><div class="arrow">›</div>
+    <div class="node">밀폐공간 시나리오<br>약 5분</div><div class="arrow">›</div>
+    <div class="node">결과·초기화</div>
+  </div>
+  <table class="compact">
+    <tr><th style="width:15%">시나리오</th><th style="width:15%">목표 시간</th><th style="width:42%">시연 행동</th><th>화면·검증 증빙</th></tr>
+    <tr><td class="label">PPE 안전훈련</td><td class="center">약 5분</td><td>작업정보 안내, 정상/불량 판정, 폐기·재제공, 등지게·테이프를 포함한 PPE 7종 착용, 퀴즈·해설·결과·초기화</td><td>안내 확인, 오류 교정, 7종 완료, 결과 저장</td></tr>
+    <tr><td class="label">밀폐공간 안전훈련</td><td class="center">약 5분</td><td>문서, 전원 OFF·LOTO, 1차 FAIL, 덕트·환기, 2차 PASS, 무전·승인, 퀴즈·해설·결과·초기화</td><td>선행조건, 수치, 환기 게이지, 승인·결과 저장</td></tr>
+    <tr><td class="label">전체 시연</td><td class="center"><strong>약 10분</strong></td><td>두 시나리오를 각각 정상 수행 기준 약 5분으로 연속 시연</td><td>두 시나리오 각 1회 완주</td></tr>
+  </table>
+  <div class="grid-2">
+    <div class="card teal">
+      <h3>화면·영상 기록 목록</h3>
+      <ul class="tight">
+        <li>앱 실행·시나리오/모드 선택</li>
+        <li>보이스·텍스트 작업정보 안내</li>
+        <li>PPE 7종·불량 판정·등지게 착용·테이프 적용</li>
+        <li>1차 FAIL·환기·2차 PASS</li>
+        <li>퀴즈·결과·초기화</li>
+      </ul>
+    </div>
+    <div class="card amber">
+      <h3>시연 실패 대비</h3>
+      <ul class="tight">
+        <li>동일 APK 재설치본과 완충된 예비 컨트롤러 준비</li>
+        <li>두 시나리오 각 5분, 총 10분 대체 영상과 주요 단계 PNG를 로컬 저장</li>
+        <li>시연 전 콜드 실행·경계 재설정·오디오·화면 미러링 확인</li>
+        <li>오류 발생 시 해당 기능의 QA 기록과 대체 화면으로 설명</li>
+      </ul>
+    </div>
+  </div>
+  <h3>구현 상태 기록 규칙</h3>
+  <table class="compact">
+    <tr><th>상태</th><th>판정 기준</th><th>발표자료 반영</th></tr>
+    <tr><td class="label">검증 완료</td><td>Quest 2 실기기 2회 연속 완주·P0 0건</td><td>실제 캡처·측정 결과 사용</td></tr>
+    <tr><td class="label">구현 중</td><td>Unity 동작은 있으나 실기기 완주 또는 회귀 미통과</td><td>현재 한계와 완료 예정일 병기</td></tr>
+    <tr><td class="label">후속 범위</td><td>훈련·테스트모드, 사고 체험 등 8/13 이후 구현</td><td>완료 화면처럼 표시하지 않고 확장 계획으로 분리</td></tr>
+  </table>
+  <div class="callout"><strong>시연과 검수 분리</strong> · 시연 목표는 PPE와 밀폐공간을 각각 약 5분, 전체 약 10분으로 운영하는 것이다. 대기 게이지와 반복 설명만 단축하며, 절차 조건을 건너뛴 결과는 완주 증빙으로 사용하지 않는다.</div>
+
+    
+  <div class="footer"><span>화학물질 안전훈련 VR · 8/13 프로토타입 기획서</span><span>9 / 11</span></div>
+  </section></body></html>

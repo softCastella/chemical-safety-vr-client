@@ -1,0 +1,99 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!319 &31900000
+AvatarMask:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: PPE_D_Player_Idle_LowerBody
+  m_Mask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+  m_Elements:
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/L_Thigh
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/L_Thigh/L_Calf
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/L_Thigh/L_Calf/L_CalfTwist01
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/L_Thigh/L_Calf/L_CalfTwist01/L_CalfTwist02
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/L_Thigh/L_Calf/L_Foot
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/L_Thigh/L_Calf/L_Foot/L_ToeBase
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/L_Thigh/L_ThighTwist01
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/L_Thigh/L_ThighTwist01/L_ThighTwist02
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/R_Thigh
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/R_Thigh/R_Calf
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/R_Thigh/R_Calf/R_CalfTwist01
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/R_Thigh/R_Calf/R_CalfTwist01/R_CalfTwist02
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/R_Thigh/R_Calf/R_Foot
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/R_Thigh/R_Calf/R_Foot/R_ToeBase
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/R_Thigh/R_ThighTwist01
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Pelvis/R_Thigh/R_ThighTwist01/R_ThighTwist02
+    m_Weight: 1
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/L_Clavicle
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/L_Clavicle/L_Upperarm
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/L_Clavicle/L_Upperarm/L_Forearm
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/L_Clavicle/L_Upperarm/L_Forearm/L_ForearmTwist01
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/L_Clavicle/L_Upperarm/L_Forearm/L_ForearmTwist01/L_ForearmTwist02
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/L_Clavicle/L_Upperarm/L_Forearm/L_Hand
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/L_Clavicle/L_Upperarm/L_UpperarmTwist01
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/L_Clavicle/L_Upperarm/L_UpperarmTwist01/L_UpperarmTwist02
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/NeckTwist01
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/NeckTwist01/NeckTwist02
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/NeckTwist01/NeckTwist02/Head
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/R_Clavicle
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/R_Clavicle/R_Upperarm
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/R_Clavicle/R_Upperarm/R_Forearm
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/R_Clavicle/R_Upperarm/R_Forearm/R_ForearmTwist01
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/R_Clavicle/R_Upperarm/R_Forearm/R_ForearmTwist01/R_ForearmTwist02
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/R_Clavicle/R_Upperarm/R_Forearm/R_Hand
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/R_Clavicle/R_Upperarm/R_UpperarmTwist01
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/Armature/Root/Hip/Waist/Spine01/Spine02/R_Clavicle/R_Upperarm/R_UpperarmTwist01/R_UpperarmTwist02
+    m_Weight: 0
+  - m_Path: PPE Body Anchor/PPE_D_Player_Idle/tripo_node_14eb65d6
+    m_Weight: 0

@@ -1,0 +1,640 @@
+﻿fileFormatVersion: 2
+guid: ab5a3e26a4e72254fb7e6540fe212138
+ModelImporter:
+  serializedVersion: 24200
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_0_basecolor
+    second: {fileID: 2100000, guid: 8cb60039e278dfc44aac2ea80b6b2654, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_1_basecolor
+    second: {fileID: 2100000, guid: 9a158d98ae9dcf44cbab95dbc15de41b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_2_basecolor
+    second: {fileID: 2100000, guid: 5b3382b37516a9046843f1347f707c75, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_3_basecolor
+    second: {fileID: 2100000, guid: f7d73c4359b522844a30a4ce5fbd284c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_4_basecolor
+    second: {fileID: 2100000, guid: 9117d6344559cc34b9353d664504869a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_5_basecolor
+    second: {fileID: 2100000, guid: 66fe0d8d764d9944980ffce3f8fad5ef, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_6_basecolor
+    second: {fileID: 2100000, guid: 9b459b52b0bbece409a6ecd940b6ba67, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_7_basecolor
+    second: {fileID: 2100000, guid: b24ea46360bad2949ad1a62d8e963c31, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_8_basecolor
+    second: {fileID: 2100000, guid: 6036460f4e7053a4dabe03c06331ab3c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_9_basecolor
+    second: {fileID: 2100000, guid: 741100fc6b75e2a499a2da5e48cc96cb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_10_basecolor
+    second: {fileID: 2100000, guid: 900a24deb923a9e46b35464c4f159570, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_11_basecolor
+    second: {fileID: 2100000, guid: e565d2a558577e942bc3eab729e47b69, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_12_basecolor
+    second: {fileID: 2100000, guid: 7f2ea07a7fd0eb94caee6c2a9624faa8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_13_basecolor
+    second: {fileID: 2100000, guid: 407f0184bddb4ad47b0b4df6cb59c778, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_14_basecolor
+    second: {fileID: 2100000, guid: 20fe60d0c88b9a646812493f7085fdf5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_15_basecolor
+    second: {fileID: 2100000, guid: 376c6b7588f0bea41809e9ba98de0369, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_16_basecolor
+    second: {fileID: 2100000, guid: dd1b1178f146fd14dad6eadfa08de04e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_17_basecolor
+    second: {fileID: 2100000, guid: 19a5eaf59a0576b4c8d044dc9707af8a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_18_basecolor
+    second: {fileID: 2100000, guid: 78f70f84097eda848a9c4c145646a1ab, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_19_basecolor
+    second: {fileID: 2100000, guid: 8f3a8b5d824799247a3cf78dc57ef5b1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_20_basecolor
+    second: {fileID: 2100000, guid: dccf4c5384450f84197a7f5d7872af8a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_21_basecolor
+    second: {fileID: 2100000, guid: 31abf6eb1af660044ac81233b0ae3899, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_22_basecolor
+    second: {fileID: 2100000, guid: 1e31c09aa98c1c241a711f10aecadc83, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_23_basecolor
+    second: {fileID: 2100000, guid: 69cdc0ca79efce640a3192b65b5ab137, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_24_basecolor
+    second: {fileID: 2100000, guid: 8070f21a4ae119042abae9dce875a533, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_25_basecolor
+    second: {fileID: 2100000, guid: b30308cf3baa70049a37a61f9d4acc9d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_26_basecolor
+    second: {fileID: 2100000, guid: 619070268738139408c66557216e4d9a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_27_basecolor
+    second: {fileID: 2100000, guid: 5ab19d60bb3805f4bba2d1eaba0a4a2e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_28_basecolor
+    second: {fileID: 2100000, guid: e1ae3b1f1fea5b843a76c5de98c4260f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_29_basecolor
+    second: {fileID: 2100000, guid: 8aaea47e73876ef4399f6882f8d1c9e6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_30_basecolor
+    second: {fileID: 2100000, guid: 698a60c9b7163db4594185ace00b6cee, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_31_basecolor
+    second: {fileID: 2100000, guid: c7c1c02f1abb7c44d9e3cb22c1d35c20, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_32_basecolor
+    second: {fileID: 2100000, guid: 9be78dd841215e541a4f0c7d32214771, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_33_basecolor
+    second: {fileID: 2100000, guid: fdeaa956983f27e419081d522025b892, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_34_basecolor
+    second: {fileID: 2100000, guid: 7d2714f3e34ad0b45a639061f8cc9cc1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_35_basecolor
+    second: {fileID: 2100000, guid: 85c46a9d74b504342bd8997d8720ae60, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_36_basecolor
+    second: {fileID: 2100000, guid: 94999ddb41703364f89a995d676de636, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_37_basecolor
+    second: {fileID: 2100000, guid: 6f301424bbcbaef4c9aab27a245ec041, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_38_basecolor
+    second: {fileID: 2100000, guid: 4c9ee2eee469b6e489734cd30e4b6a1a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_39_basecolor
+    second: {fileID: 2100000, guid: 24408b81527d02e439ca3842dd8eb7e0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_40_basecolor
+    second: {fileID: 2100000, guid: 902a7e82f3eee7f44b3f55f36e73d345, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_41_basecolor
+    second: {fileID: 2100000, guid: dec99a9f6816bb849a2e6f7482e0e169, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_42_basecolor
+    second: {fileID: 2100000, guid: 8867c2940b024f247b13c26aa24e209c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_43_basecolor
+    second: {fileID: 2100000, guid: bdae979057e76e948bffa07306b9b463, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_44_basecolor
+    second: {fileID: 2100000, guid: 07d2d5b0588d5904c9d26e7ec174126a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_45_basecolor
+    second: {fileID: 2100000, guid: 0e8a63df35fae6341b2539e0562a57b7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_46_basecolor
+    second: {fileID: 2100000, guid: 27833e981c225b4409c523f4a7852ece, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_47_basecolor
+    second: {fileID: 2100000, guid: c5efb7b65db5fb74a92fa30887ead3a5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_48_basecolor
+    second: {fileID: 2100000, guid: 720db61bf4d9ba148a07179965399401, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_49_basecolor
+    second: {fileID: 2100000, guid: 5d61e889680c2f64986e3f6c930f5132, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_50_basecolor
+    second: {fileID: 2100000, guid: b9645e8f8c901874dbd2b8f93688cd3a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_51_basecolor
+    second: {fileID: 2100000, guid: 5b7f21f5ae0bb5c46965fd7fd678500c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_52_basecolor
+    second: {fileID: 2100000, guid: 35f2e818cabd2bd48bdacb4ce59c2fdd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_53_basecolor
+    second: {fileID: 2100000, guid: 12c4fc48edccf484ab0a07122dc84b5a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_54_basecolor
+    second: {fileID: 2100000, guid: 155940202ed69a447b1a0b72306441d3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_55_basecolor
+    second: {fileID: 2100000, guid: 06dcbf369acc86b4b90864bc21072097, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_56_basecolor
+    second: {fileID: 2100000, guid: 12b35b788c49a7f4f8c7e20188ecb1f8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_57_basecolor
+    second: {fileID: 2100000, guid: ba528f305948e0444bda3e4ee8889c5a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_58_basecolor
+    second: {fileID: 2100000, guid: 8ba67bbd5dd071645aeec02bd66e3485, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_59_basecolor
+    second: {fileID: 2100000, guid: b97aa857bf66f984ab5b4574663b94a4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_60_basecolor
+    second: {fileID: 2100000, guid: 0f48776523d613948a3747d143857022, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_61_basecolor
+    second: {fileID: 2100000, guid: eabdcba9b2668a548bc7ff23927912a2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_62_basecolor
+    second: {fileID: 2100000, guid: 41f9af98f494fd245a2ed03f1abc208c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_63_basecolor
+    second: {fileID: 2100000, guid: ff3ff7e3652cb37428138f5c57b7b6df, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_64_basecolor
+    second: {fileID: 2100000, guid: d16ce10f37b086f46855784c6b74ff0e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_65_basecolor
+    second: {fileID: 2100000, guid: df2cc9f2c0192d44e8bc988a084c3193, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_66_basecolor
+    second: {fileID: 2100000, guid: d5bd80af1258017478fdbd08715204ef, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_67_basecolor
+    second: {fileID: 2100000, guid: fbca83ca3e2f9fc49afac38c6f7e83c9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_68_basecolor
+    second: {fileID: 2100000, guid: 103ef75a32beab7448760cc4cbe0d7e7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_69_basecolor
+    second: {fileID: 2100000, guid: 6b7310133f11bc44bbca102ea5f6438e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_70_basecolor
+    second: {fileID: 2100000, guid: 180b3732c95f4604fbf4a818148fb976, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_71_basecolor
+    second: {fileID: 2100000, guid: b4a9a69a3049ded47bac2078f2eea3b4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_72_basecolor
+    second: {fileID: 2100000, guid: 0b5d9493a8d9f324a861398217c2bb99, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_73_basecolor
+    second: {fileID: 2100000, guid: 8d3c7a5b540a49242a7b13d334263767, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_74_basecolor
+    second: {fileID: 2100000, guid: b35d7f9896ab86441aa7d20843d3b512, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_75_basecolor
+    second: {fileID: 2100000, guid: b24839e8a0ea39c49bb1a04e2ae9c22b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_76_basecolor
+    second: {fileID: 2100000, guid: 9a2e76dc04613ca4382b696f4e9b31c3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_77_basecolor
+    second: {fileID: 2100000, guid: 8c9d493b2ea2f1743b6d540659986459, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_78_basecolor
+    second: {fileID: 2100000, guid: 6093e29111ccff44e9c09d702a1a9869, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_79_basecolor
+    second: {fileID: 2100000, guid: 39cd81ef72fcbb34f99ba2c080bd5d21, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_80_basecolor
+    second: {fileID: 2100000, guid: 16f16c51e63375245974c145a62b0108, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_81_basecolor
+    second: {fileID: 2100000, guid: 4b76719126c54f14c98930d82b10320c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_82_basecolor
+    second: {fileID: 2100000, guid: 1df502efec507004fbabfcfb2acfb596, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_83_basecolor
+    second: {fileID: 2100000, guid: 551ffe85ad72ab04387ddc26ed17cef2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_84_basecolor
+    second: {fileID: 2100000, guid: a246cdb2b10e2dc46abbd448c2d97102, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_85_basecolor
+    second: {fileID: 2100000, guid: 356a6aa43dbf0c64e92b63ed2618ba3b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_86_basecolor
+    second: {fileID: 2100000, guid: dfd4b473759edd548ac354751f8b1901, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_87_basecolor
+    second: {fileID: 2100000, guid: 6c6055b2ed0ae0d4e9e6f7efc7759bbf, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_88_basecolor
+    second: {fileID: 2100000, guid: 7b1a058191b97c14fad143f9c9d0f545, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_89_basecolor
+    second: {fileID: 2100000, guid: 80db6967c7bdd504894bed378208dc5b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_90_basecolor
+    second: {fileID: 2100000, guid: a0fdc7308232c5e4abbbebd151a07f20, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_91_basecolor
+    second: {fileID: 2100000, guid: 9227dd9cfafd96f4f94e22565700ecde, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_92_basecolor
+    second: {fileID: 2100000, guid: 0d3b39dd5cdaa104389616ca8397e968, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_93_basecolor
+    second: {fileID: 2100000, guid: c7df987a7e006724ea1cb0060e7eb194, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_94_basecolor
+    second: {fileID: 2100000, guid: 39223e9f6d2d84f4391cfc1060f2ea20, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_95_basecolor
+    second: {fileID: 2100000, guid: 3c2dcdc74b40264449ebd82420ebb641, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_96_basecolor
+    second: {fileID: 2100000, guid: a0b1ea181709ecc49bfaa3cf0f46f8dd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_97_basecolor
+    second: {fileID: 2100000, guid: 54c7bc6e48dee2b4a9d70b0b7e4c6378, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_98_basecolor
+    second: {fileID: 2100000, guid: 96159ca6ad3eb954f89de7f8294c3168, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_99_basecolor
+    second: {fileID: 2100000, guid: 7a0deae061df5804c9f8d850f38e5430, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_100_basecolor
+    second: {fileID: 2100000, guid: 49f5e48f49b8fc24aa24c8b36fe16ad6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_101_basecolor
+    second: {fileID: 2100000, guid: 05ca99d22a4238e4e8bf1642fed67454, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_102_basecolor
+    second: {fileID: 2100000, guid: 253659a81283c16428c94de705dfea4b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_103_basecolor
+    second: {fileID: 2100000, guid: e9f19d6630fb68b419b09bce6435c1f6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_104_basecolor
+    second: {fileID: 2100000, guid: 7ad13167f08fdaf479e0a6e654582367, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: storage_wall_rack_tripo_part_105_basecolor
+    second: {fileID: 2100000, guid: ccc493ae7a9f2994b929570abf6d1386, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33864ff9d40ede6478be975dd6921cd1, type: 3}
+  m_Name: GrabPose_Right
+  m_EditorClassIdentifier: Assembly-CSharp::ThreeDUI.HandPoses.HandPoseData
+  handedness: 2
+  hasAttachPose: 1
+  attachLocalPosition: {x: 0.10018153, y: -0.0007392276, z: -0.14055267}
+  attachLocalRotation: {x: -0.1966755, y: -0.173487, z: -0.3657008, w: 0.8930196}
+  joints:
+  - jointID: 1
+    localPosition: {x: 0.09218152, y: 0.9559608, z: 0.4074473}
+    localRotation: {x: -0.19667548, y: -0.17348701, z: -0.36570078, w: 0.8930196}
+  - jointID: 7
+    localPosition: {x: -0.019730793, y: -0.010947489, z: 0.038211815}
+    localRotation: {x: 0, y: 0, z: 0, w: 1}
+  - jointID: 8
+    localPosition: {x: -0.0046120863, y: 0.0033849636, z: 0.061013468}
+    localRotation: {x: 0.17568964, y: -0.030701846, z: 0.038455587, w: 0.983215}
+  - jointID: 9
+    localPosition: {x: -0.000000011175871, y: 0.00000000919681, z: 0.039203078}
+    localRotation: {x: 0.1674354, y: 0.002772242, z: -0.026338717, w: 0.9855273}
+  - jointID: 10
+    localPosition: {x: 0.0000000027939677, y: -0.000000044237822, z: 0.025121106}
+    localRotation: {x: 0.068328075, y: 0.02484644, z: -0.016748052, w: 0.9972129}
+  - jointID: 11
+    localPosition: {x: 0.00030556414, y: 0.0010595904, z: 0.023115657}
+    localRotation: {x: 0, y: 0, z: 0, w: 1}
+  - jointID: 22
+    localPosition: {x: 0.023772191, y: -0.009736707, z: 0.03521967}
+    localRotation: {x: 0.018311791, y: 0.14034286, z: -0.20703605, w: 0.96804166}
+  - jointID: 23
+    localPosition: {x: -0.0000023143366, y: -0.0000010172371, z: 0.047186118}
+    localRotation: {x: 0.26262802, y: 0.11552099, z: 0.051175285, w: 0.956589}
+  - jointID: 24
+    localPosition: {x: 0.000000015250407, y: -0.000000004656613, z: 0.031753752}
+    localRotation: {x: 0.2281159, y: 0.032415945, z: -0.05777264, w: 0.97137773}
+  - jointID: 25
+    localPosition: {x: 0.000000019441359, y: 9.313226e-10, z: 0.020994619}
+    localRotation: {x: 0.080767766, y: -0.048948042, z: 0.0010039883, w: 0.99552983}
+  - jointID: 26
+    localPosition: {x: -0.00025476434, y: 0.0012569614, z: 0.022659766}
+    localRotation: {x: 0, y: 0, z: 0, w: 1}
+  - jointID: 12
+    localPosition: {x: -0.00297614, y: -0.008466022, z: 0.03597658}
+    localRotation: {x: 0, y: 0, z: 0, w: 1}
+  - jointID: 13
+    localPosition: {x: 0.0011921916, y: 0.0058373054, z: 0.06288728}
+    localRotation: {x: 0.171793, y: 0.090263695, z: -0.019772526, w: 0.9807899}
+  - jointID: 14
+    localPosition: {x: 0.000000030733645, y: -0.000000020023435, z: 0.044370938}
+    localRotation: {x: 0.25231928, y: 0.001379146, z: -0.0125018, w: 0.9675623}
+  - jointID: 15
+    localPosition: {x: -0.00000006845221, y: 0.000000030733645, z: 0.02847624}
+    localRotation: {x: 0.12003004, y: -0.0046928898, z: -0.055068873, w: 0.99123067}
+  - jointID: 16
+    localPosition: {x: 0.00031902688, y: 0.0011755917, z: 0.025804665}
+    localRotation: {x: 0, y: 0, z: 0, w: 1}
+  - jointID: 17
+    localPosition: {x: 0.015496619, y: -0.006218115, z: 0.0359453}
+    localRotation: {x: 0, y: 0, z: 0, w: 1}
+  - jointID: 18
+    localPosition: {x: 0.0025561266, y: -0.000530852, z: 0.055731893}
+    localRotation: {x: 0.24092822, y: 0.14490062, z: -0.08087139, w: 0.95625174}
+  - jointID: 19
+    localPosition: {x: -0.00000004004687, y: 0.00000004377216, z: 0.04030781}
+    localRotation: {x: 0.25622776, y: -0.005705904, z: -0.03884473, w: 0.9658188}
+  - jointID: 20
+    localPosition: {x: 0.000000026309863, y: -0.000000037252903, z: 0.027467223}
+    localRotation: {x: 0.1707811, y: -0.029666692, z: -0.012596138, w: 0.9847818}
+  - jointID: 21
+    localPosition: {x: 0.00026659446, y: 0.0016623121, z: 0.025144437}
+    localRotation: {x: 0, y: 0, z: 0, w: 1}
+  - jointID: 3
+    localPosition: {x: -0.029724479, y: -0.01886994, z: 0.0367335}
+    localRotation: {x: 0.057967998, y: -0.47697, z: 0.61750686, w: 0.62275565}
+  - jointID: 4
+    localPosition: {x: 0.000000016763806, y: 9.313226e-10, z: 0.033606548}
+    localRotation: {x: 0.2781737, y: 0.044251245, z: -0.080521144, w: 0.95612633}
+  - jointID: 5
+    localPosition: {x: 0.000000010244548, y: 0.000000007450581, z: 0.03492979}
+    localRotation: {x: 0.17768064, y: -0.044728052, z: 0.07690267, w: 0.9800587}
+  - jointID: 6
+    localPosition: {x: 0.0006929198, y: 0.0010615201, z: 0.025417937}
+    localRotation: {x: 0, y: 0, z: 0, w: 1}
+  - jointID: 2
+    localPosition: {x: -0.0023800395, y: -0.0055473624, z: 0.06742022}
+    localRotation: {x: 0, y: 0, z: 0, w: 1}

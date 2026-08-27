@@ -1,0 +1,7 @@
+﻿No,AssetName,RealDimension,ImportedImmediately_m,CorrectionMultiplier,CorrectedSize_m,ExpectedCorrectedSize_m,Result,SourcePath
+1,"방독면","높이 0.28m",1.000,0.275,0.275,0.281,"적합","Assets/UIs/Things/PPE_room/gas_mask_3d_model_Clone1_Clone1_Clone1_Clone1_Clone1.prefab"
+2,"내화학성 장갑","길이 0.38m",0.979,0.404,0.395,0.380,"Import 치수 확인 필요","Assets/UIs/Things/PPE_room/blue_rubber_gloves_3d_model_Clone1.prefab"
+3,"차단 밸브","핸들 지름 0.30m",0.933,0.300,0.280,0.300,"Import 치수 확인 필요","Assets/FBX/valve_wheel/red+valve_wheel.fbx"
+4,"균열 배관","관경 0.25m · 길이 2.0m",2.480,0.806,1.999,1.999,"적합",""
+5,"흡착포 롤","지름 0.20m · 폭 0.45m",0.980,0.363,0.356,0.450,"Import 치수 확인 필요","Assets/UIs/Things/PPE_room/PPE_A_Tape.prefab"
+6,"경고 표지판","판면 0.45×0.60m · 설치높이 1.50m",0.980,0.346,0.339,0.602,"Import 치수 확인 필요","Assets/TripoModels/yellow_sign_board_3d_model/yellow_sign_board_3d_model.fbx"

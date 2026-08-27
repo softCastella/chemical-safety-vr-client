@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: PPE_A_Goggle_Glass_Contam
+  m_Shader: {fileID: 4800000, guid: 8f3a1c6e92b047d1a5e84c2f0b7d9e31, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 1
+  m_CustomRenderQueue: 3000
+  stringTagMap:
+    RenderType: Transparent
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _StainMask:
+        m_Texture: {fileID: 2800000, guid: 1d7c4a90e2f64b8c9a3e5f1b6d8c0472, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _FilmStrength: 0.22
+    - _StainContrast: 1.15
+    - _StainOpacity: 0.82
+    - _StainScale: 7
+    - _StainStrength: 1
+    m_Colors:
+    - _FilmColor: {r: 0.62, g: 0.46, b: 0.18, a: 1}
+    - _GlassColor: {r: 0.32, g: 0.62, b: 0.74, a: 0.28}
+    - _StainColor: {r: 0.78, g: 0.55, b: 0.18, a: 1}
+    - _StainDarkColor: {r: 0.36, g: 0.2, b: 0.06, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

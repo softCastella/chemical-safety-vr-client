@@ -1,0 +1,860 @@
+fileFormatVersion: 2
+guid: f62f096ede7f4f0438815bc7c647cf24
+ModelImporter:
+  serializedVersion: 24200
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_0
+    second: {fileID: 2100000, guid: 8411ac25ed535f9ea2872ed2a7f8f846, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_1
+    second: {fileID: 2100000, guid: 2a1211b89c885666ae3f08c35dd95c82, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_10
+    second: {fileID: 2100000, guid: 2791ea3233115bad88ada784f823d610, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_11
+    second: {fileID: 2100000, guid: 744f23f550be5b388c59ab1c407669db, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_12
+    second: {fileID: 2100000, guid: d96d96fd8b9159b1bde7aacbae32519f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_13
+    second: {fileID: 2100000, guid: 7de9eb1e6b4b5462a4de33e574ef3d8f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_14
+    second: {fileID: 2100000, guid: 2637d66e97fe5dd0ae8c0a92f2993235, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_15
+    second: {fileID: 2100000, guid: 3ce823a38b535aca8b2ea92a5860352b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_16
+    second: {fileID: 2100000, guid: 594f50fd5b945e5eb187358a9970453c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_17
+    second: {fileID: 2100000, guid: d78f92578f9f563598c96242601e47db, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_18
+    second: {fileID: 2100000, guid: b837715462c15e1c8e41059c51e613d8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_19
+    second: {fileID: 2100000, guid: 635b37ba9507531e9916303a719e14f0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_2
+    second: {fileID: 2100000, guid: 57addcaab8e85ed98da33782fec9354c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_20
+    second: {fileID: 2100000, guid: 4b8ef6d21b6657acab757c787b418357, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_21
+    second: {fileID: 2100000, guid: 8b59688668535be4a4049c03a685fdff, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_22
+    second: {fileID: 2100000, guid: 6c409f5869cf5a07be1e9371c19f1656, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_23
+    second: {fileID: 2100000, guid: 247b96dd94d75ab68c0dbda5d7c9eb88, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_24
+    second: {fileID: 2100000, guid: 050a0e976f9451ba8bec0162267eb470, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_25
+    second: {fileID: 2100000, guid: 091e86f3ffdc5defbd94ca4fbc005d92, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_26
+    second: {fileID: 2100000, guid: 5bf2f9c7490553b09239c7e7feee9334, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_27
+    second: {fileID: 2100000, guid: 76abbda79740519088da8642b459f3d9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_28
+    second: {fileID: 2100000, guid: 8f672a5ada1e587bbd557d18bba16be0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_29
+    second: {fileID: 2100000, guid: f744152c3c195580b91203bd6273f0fe, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_3
+    second: {fileID: 2100000, guid: 57ce85f690455f7380712e71b3e44b41, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_4
+    second: {fileID: 2100000, guid: 0753b9aba40a59cfae6a54b0e0cb1d88, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_5
+    second: {fileID: 2100000, guid: e7849bdde6f85070829ea8c7a5cad9bd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_6
+    second: {fileID: 2100000, guid: 838bb6c34cb75ed4aa2090ad0322c2ab, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_7
+    second: {fileID: 2100000, guid: 3b0faa0911d951e3b334554051873ca4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_8
+    second: {fileID: 2100000, guid: 44526b16603456e08c81b41cd64265ea, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_tripo_part_9
+    second: {fileID: 2100000, guid: f8b5f59a08775f17a1e0a79d87c22085, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_0_basecolor
+    second: {fileID: 2100000, guid: 8411ac25ed535f9ea2872ed2a7f8f846, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_10_basecolor
+    second: {fileID: 2100000, guid: 2791ea3233115bad88ada784f823d610, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_11_basecolor
+    second: {fileID: 2100000, guid: 744f23f550be5b388c59ab1c407669db, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_12_basecolor
+    second: {fileID: 2100000, guid: d96d96fd8b9159b1bde7aacbae32519f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_13_basecolor
+    second: {fileID: 2100000, guid: 7de9eb1e6b4b5462a4de33e574ef3d8f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_14_basecolor
+    second: {fileID: 2100000, guid: 2637d66e97fe5dd0ae8c0a92f2993235, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_15_basecolor
+    second: {fileID: 2100000, guid: 3ce823a38b535aca8b2ea92a5860352b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_16_basecolor
+    second: {fileID: 2100000, guid: 594f50fd5b945e5eb187358a9970453c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_17_basecolor
+    second: {fileID: 2100000, guid: d78f92578f9f563598c96242601e47db, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_18_basecolor
+    second: {fileID: 2100000, guid: b837715462c15e1c8e41059c51e613d8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_19_basecolor
+    second: {fileID: 2100000, guid: 635b37ba9507531e9916303a719e14f0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_1_basecolor
+    second: {fileID: 2100000, guid: 2a1211b89c885666ae3f08c35dd95c82, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_20_basecolor
+    second: {fileID: 2100000, guid: 4b8ef6d21b6657acab757c787b418357, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_21_basecolor
+    second: {fileID: 2100000, guid: 8b59688668535be4a4049c03a685fdff, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_22_basecolor
+    second: {fileID: 2100000, guid: 6c409f5869cf5a07be1e9371c19f1656, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_23_basecolor
+    second: {fileID: 2100000, guid: 247b96dd94d75ab68c0dbda5d7c9eb88, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_24_basecolor
+    second: {fileID: 2100000, guid: 050a0e976f9451ba8bec0162267eb470, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_25_basecolor
+    second: {fileID: 2100000, guid: 091e86f3ffdc5defbd94ca4fbc005d92, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_26_basecolor
+    second: {fileID: 2100000, guid: 5bf2f9c7490553b09239c7e7feee9334, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_27_basecolor
+    second: {fileID: 2100000, guid: 76abbda79740519088da8642b459f3d9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_28_basecolor
+    second: {fileID: 2100000, guid: 8f672a5ada1e587bbd557d18bba16be0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_29_basecolor
+    second: {fileID: 2100000, guid: f744152c3c195580b91203bd6273f0fe, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_2_basecolor
+    second: {fileID: 2100000, guid: 57addcaab8e85ed98da33782fec9354c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_3_basecolor
+    second: {fileID: 2100000, guid: 57ce85f690455f7380712e71b3e44b41, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_4_basecolor
+    second: {fileID: 2100000, guid: 0753b9aba40a59cfae6a54b0e0cb1d88, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_5_basecolor
+    second: {fileID: 2100000, guid: e7849bdde6f85070829ea8c7a5cad9bd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_6_basecolor
+    second: {fileID: 2100000, guid: 838bb6c34cb75ed4aa2090ad0322c2ab, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_7_basecolor
+    second: {fileID: 2100000, guid: 3b0faa0911d951e3b334554051873ca4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_8_basecolor
+    second: {fileID: 2100000, guid: 44526b16603456e08c81b41cd64265ea, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_part_9_basecolor
+    second: {fileID: 2100000, guid: f8b5f59a08775f17a1e0a79d87c22085, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_0_basecolor
+    second: {fileID: 2100000, guid: 8411ac25ed535f9ea2872ed2a7f8f846, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_10_basecolor
+    second: {fileID: 2100000, guid: 2791ea3233115bad88ada784f823d610, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_11_basecolor
+    second: {fileID: 2100000, guid: 744f23f550be5b388c59ab1c407669db, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_12_basecolor
+    second: {fileID: 2100000, guid: d96d96fd8b9159b1bde7aacbae32519f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_13_basecolor
+    second: {fileID: 2100000, guid: 7de9eb1e6b4b5462a4de33e574ef3d8f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_14_basecolor
+    second: {fileID: 2100000, guid: 2637d66e97fe5dd0ae8c0a92f2993235, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_15_basecolor
+    second: {fileID: 2100000, guid: 3ce823a38b535aca8b2ea92a5860352b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_16_basecolor
+    second: {fileID: 2100000, guid: 594f50fd5b945e5eb187358a9970453c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_17_basecolor
+    second: {fileID: 2100000, guid: d78f92578f9f563598c96242601e47db, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_18_basecolor
+    second: {fileID: 2100000, guid: b837715462c15e1c8e41059c51e613d8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_19_basecolor
+    second: {fileID: 2100000, guid: 635b37ba9507531e9916303a719e14f0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_1_basecolor
+    second: {fileID: 2100000, guid: 2a1211b89c885666ae3f08c35dd95c82, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_20_basecolor
+    second: {fileID: 2100000, guid: 4b8ef6d21b6657acab757c787b418357, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_21_basecolor
+    second: {fileID: 2100000, guid: 8b59688668535be4a4049c03a685fdff, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_22_basecolor
+    second: {fileID: 2100000, guid: 6c409f5869cf5a07be1e9371c19f1656, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_23_basecolor
+    second: {fileID: 2100000, guid: 247b96dd94d75ab68c0dbda5d7c9eb88, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_24_basecolor
+    second: {fileID: 2100000, guid: 050a0e976f9451ba8bec0162267eb470, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_25_basecolor
+    second: {fileID: 2100000, guid: 091e86f3ffdc5defbd94ca4fbc005d92, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_26_basecolor
+    second: {fileID: 2100000, guid: 5bf2f9c7490553b09239c7e7feee9334, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_27_basecolor
+    second: {fileID: 2100000, guid: 76abbda79740519088da8642b459f3d9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_28_basecolor
+    second: {fileID: 2100000, guid: 8f672a5ada1e587bbd557d18bba16be0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_29_basecolor
+    second: {fileID: 2100000, guid: f744152c3c195580b91203bd6273f0fe, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_2_basecolor
+    second: {fileID: 2100000, guid: 57addcaab8e85ed98da33782fec9354c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_3_basecolor
+    second: {fileID: 2100000, guid: 57ce85f690455f7380712e71b3e44b41, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_4_basecolor
+    second: {fileID: 2100000, guid: 0753b9aba40a59cfae6a54b0e0cb1d88, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_5_basecolor
+    second: {fileID: 2100000, guid: e7849bdde6f85070829ea8c7a5cad9bd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_6_basecolor
+    second: {fileID: 2100000, guid: 838bb6c34cb75ed4aa2090ad0322c2ab, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_7_basecolor
+    second: {fileID: 2100000, guid: 3b0faa0911d951e3b334554051873ca4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_8_basecolor
+    second: {fileID: 2100000, guid: 44526b16603456e08c81b41cd64265ea, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PPE_B_MetalShelving_tripo_part_9_basecolor
+    second: {fileID: 2100000, guid: f8b5f59a08775f17a1e0a79d87c22085, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_0
+    second: {fileID: 2100000, guid: 8411ac25ed535f9ea2872ed2a7f8f846, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_0_material
+    second: {fileID: 2100000, guid: 8411ac25ed535f9ea2872ed2a7f8f846, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_1
+    second: {fileID: 2100000, guid: 2a1211b89c885666ae3f08c35dd95c82, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_10
+    second: {fileID: 2100000, guid: 2791ea3233115bad88ada784f823d610, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_10_material
+    second: {fileID: 2100000, guid: 2791ea3233115bad88ada784f823d610, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_11
+    second: {fileID: 2100000, guid: 744f23f550be5b388c59ab1c407669db, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_11_material
+    second: {fileID: 2100000, guid: 744f23f550be5b388c59ab1c407669db, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_12
+    second: {fileID: 2100000, guid: d96d96fd8b9159b1bde7aacbae32519f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_12_material
+    second: {fileID: 2100000, guid: d96d96fd8b9159b1bde7aacbae32519f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_13
+    second: {fileID: 2100000, guid: 7de9eb1e6b4b5462a4de33e574ef3d8f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_13_material
+    second: {fileID: 2100000, guid: 7de9eb1e6b4b5462a4de33e574ef3d8f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_14
+    second: {fileID: 2100000, guid: 2637d66e97fe5dd0ae8c0a92f2993235, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_14_material
+    second: {fileID: 2100000, guid: 2637d66e97fe5dd0ae8c0a92f2993235, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_15
+    second: {fileID: 2100000, guid: 3ce823a38b535aca8b2ea92a5860352b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_15_material
+    second: {fileID: 2100000, guid: 3ce823a38b535aca8b2ea92a5860352b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_16
+    second: {fileID: 2100000, guid: 594f50fd5b945e5eb187358a9970453c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_16_material
+    second: {fileID: 2100000, guid: 594f50fd5b945e5eb187358a9970453c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_17
+    second: {fileID: 2100000, guid: d78f92578f9f563598c96242601e47db, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_17_material
+    second: {fileID: 2100000, guid: d78f92578f9f563598c96242601e47db, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_18
+    second: {fileID: 2100000, guid: b837715462c15e1c8e41059c51e613d8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_18_material
+    second: {fileID: 2100000, guid: b837715462c15e1c8e41059c51e613d8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_19
+    second: {fileID: 2100000, guid: 635b37ba9507531e9916303a719e14f0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_19_material
+    second: {fileID: 2100000, guid: 635b37ba9507531e9916303a719e14f0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_1_material
+    second: {fileID: 2100000, guid: 2a1211b89c885666ae3f08c35dd95c82, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_2
+    second: {fileID: 2100000, guid: 57addcaab8e85ed98da33782fec9354c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_20
+    second: {fileID: 2100000, guid: 4b8ef6d21b6657acab757c787b418357, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_20_material
+    second: {fileID: 2100000, guid: 4b8ef6d21b6657acab757c787b418357, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_21
+    second: {fileID: 2100000, guid: 8b59688668535be4a4049c03a685fdff, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_21_material
+    second: {fileID: 2100000, guid: 8b59688668535be4a4049c03a685fdff, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_22
+    second: {fileID: 2100000, guid: 6c409f5869cf5a07be1e9371c19f1656, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_22_material
+    second: {fileID: 2100000, guid: 6c409f5869cf5a07be1e9371c19f1656, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_23
+    second: {fileID: 2100000, guid: 247b96dd94d75ab68c0dbda5d7c9eb88, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_23_material
+    second: {fileID: 2100000, guid: 247b96dd94d75ab68c0dbda5d7c9eb88, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_24
+    second: {fileID: 2100000, guid: 050a0e976f9451ba8bec0162267eb470, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_24_material
+    second: {fileID: 2100000, guid: 050a0e976f9451ba8bec0162267eb470, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_25
+    second: {fileID: 2100000, guid: 091e86f3ffdc5defbd94ca4fbc005d92, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_25_material
+    second: {fileID: 2100000, guid: 091e86f3ffdc5defbd94ca4fbc005d92, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_26
+    second: {fileID: 2100000, guid: 5bf2f9c7490553b09239c7e7feee9334, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_26_material
+    second: {fileID: 2100000, guid: 5bf2f9c7490553b09239c7e7feee9334, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_27
+    second: {fileID: 2100000, guid: 76abbda79740519088da8642b459f3d9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_27_material
+    second: {fileID: 2100000, guid: 76abbda79740519088da8642b459f3d9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_28
+    second: {fileID: 2100000, guid: 8f672a5ada1e587bbd557d18bba16be0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_28_material
+    second: {fileID: 2100000, guid: 8f672a5ada1e587bbd557d18bba16be0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_29
+    second: {fileID: 2100000, guid: f744152c3c195580b91203bd6273f0fe, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_29_material
+    second: {fileID: 2100000, guid: f744152c3c195580b91203bd6273f0fe, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_2_material
+    second: {fileID: 2100000, guid: 57addcaab8e85ed98da33782fec9354c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_3
+    second: {fileID: 2100000, guid: 57ce85f690455f7380712e71b3e44b41, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_3_material
+    second: {fileID: 2100000, guid: 57ce85f690455f7380712e71b3e44b41, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_4
+    second: {fileID: 2100000, guid: 0753b9aba40a59cfae6a54b0e0cb1d88, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_4_material
+    second: {fileID: 2100000, guid: 0753b9aba40a59cfae6a54b0e0cb1d88, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_5
+    second: {fileID: 2100000, guid: e7849bdde6f85070829ea8c7a5cad9bd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_5_material
+    second: {fileID: 2100000, guid: e7849bdde6f85070829ea8c7a5cad9bd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_6
+    second: {fileID: 2100000, guid: 838bb6c34cb75ed4aa2090ad0322c2ab, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_6_material
+    second: {fileID: 2100000, guid: 838bb6c34cb75ed4aa2090ad0322c2ab, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_7
+    second: {fileID: 2100000, guid: 3b0faa0911d951e3b334554051873ca4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_7_material
+    second: {fileID: 2100000, guid: 3b0faa0911d951e3b334554051873ca4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_8
+    second: {fileID: 2100000, guid: 44526b16603456e08c81b41cd64265ea, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_8_material
+    second: {fileID: 2100000, guid: 44526b16603456e08c81b41cd64265ea, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_9
+    second: {fileID: 2100000, guid: f8b5f59a08775f17a1e0a79d87c22085, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_part_9_material
+    second: {fileID: 2100000, guid: f8b5f59a08775f17a1e0a79d87c22085, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

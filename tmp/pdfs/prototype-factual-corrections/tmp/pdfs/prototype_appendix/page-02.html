@@ -1,0 +1,80 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
+  @page { size: A4 landscape; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #e7ecee; color: #1e2933; }
+  body { font-family: "Malgun Gothic", "맑은 고딕", Arial, sans-serif; }
+  .page {
+    position: relative;
+    width: 297mm;
+    height: 210mm;
+    margin: 0 auto 8px;
+    padding: 10mm 10mm 11mm;
+    background: #fff;
+    overflow: hidden;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+  .kicker { color: #137a76; font-size: 8.5pt; font-weight: 800; letter-spacing: .03em; }
+  h1 { margin: 2mm 0 3.5mm; font-size: 25pt; line-height: 1.15; letter-spacing: -.025em; }
+  h2 { margin: 0 0 3mm; font-size: 17pt; line-height: 1.2; }
+  .topline { border-bottom: 1.2mm solid #147d78; margin-bottom: 3.5mm; }
+  .meta { position: absolute; right: 10mm; top: 10mm; text-align: right; color: #5e6b75; font-size: 9pt; line-height: 1.45; }
+  .milestones { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 3mm; margin-bottom: 7mm; }
+  .milestone { padding: 3mm 4mm; min-height: 17mm; background: #eef4f4; border-left: 1mm solid #16837e; }
+  .milestone:nth-child(2) { background: #faf5ee; border-left-color: #bf6f18; }
+  .milestone:nth-child(3) { background: #f1f3f8; border-left-color: #58749c; }
+  .milestone b { display: block; margin-bottom: 1.2mm; color: #56616a; font-size: 8pt; }
+  .milestone strong { font-size: 11pt; }
+  .section-head { display: flex; justify-content: space-between; align-items: end; }
+  .section-head span { color: #69757d; font-size: 8pt; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  th, td { border: 1px solid #c6d3d6; padding: 2.35mm 2.7mm; vertical-align: middle; }
+  th { background: #e7f0f0; color: #15524f; font-size: 9pt; text-align: left; }
+  td { font-size: 9pt; line-height: 1.42; }
+  tr:nth-child(even) td { background: #fbfcfc; }
+  td.date { width: 6%; color: #14736f; font-weight: 900; }
+  td.task { width: 19%; font-weight: 800; }
+  .footer {
+    position: absolute; left: 10mm; right: 10mm; bottom: 5mm;
+    display: flex; justify-content: space-between; border-top: 1px solid #d1dade;
+    padding-top: 2mm; color: #6b777e; font-size: 7pt;
+  }
+  .callout {
+    margin-top: 3mm; padding: 3mm 4mm; border: 1px solid #e2c693;
+    background: #fffaf1; color: #4c3c25; font-size: 9pt; line-height: 1.45;
+  }
+  .callout strong { color: #925114; }
+  .future { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin-top: 3mm; }
+  .future div { min-height: 27mm; padding: 3mm; border: 1px solid #cbd5dc; border-top: 1mm solid #177f7a; }
+  .future div:nth-child(2) { border-top-color: #c17120; }
+  .future div:nth-child(3) { border-top-color: #56739a; }
+  .future div:nth-child(4) { border-top-color: #795184; }
+  .future b { display: block; margin-bottom: 1.8mm; font-size: 10.5pt; }
+  .future p { margin: 0; color: #50606b; font-size: 8.3pt; line-height: 1.45; }
+ body{background:white}.page{margin:0}</style></head><body><section class="page">
+    <div class="kicker">화학물질 안전훈련 VR · 프로토타입 개발 부록</div>
+    <h1>실기기 검증과 1차 완료</h1>
+    <div class="meta">시연 · 2026.08.10<br/>1차 완료 · 2026.08.13</div>
+    <div class="section-head"><h2>2. QA·발표·피드백 반영</h2><span>시나리오별 약 5분 · 총 약 10분</span></div>
+    <table>
+      <tr><th style="width:6%">날짜</th><th style="width:19%">핵심 작업</th><th style="width:35%">구체 산출물</th><th>완료 기준</th></tr>
+      <tr><td class="date">08.08</td><td class="task">Quest 2 실기기 QA·최적화</td><td>Android APK, 실기기 입력·씬 전환·초기화 점검표, 성능 측정 기록과 수정 목록</td><td>Quest 2에서 설치·실행·대표 흐름 완주가 가능하고 시연 차단 오류가 없다.</td></tr>
+      <tr><td class="date">08.09</td><td class="task">시연 빌드 동결·리허설</td><td>발표용 빌드 후보, 시나리오별 약 5분 순서표, 장비 체크리스트, 대체 영상 2개</td><td>PPE와 밀폐공간 시나리오를 각각 약 5분 안에 앱 시작부터 결과까지 재현하고 발표용 파일을 동결한다.</td></tr>
+      <tr><td class="date">08.10</td><td class="task">프로토타입 시연 발표</td><td>Quest 2 실행 빌드, 2개 시나리오 시연 순서표, 대체 영상과 발표 피드백 기록</td><td>두 시나리오를 각각 약 5분씩 총 약 10분 동안 시연하고 수정 우선순위를 확정한다.</td></tr>
+      <tr><td class="date">08.11</td><td class="task">발표 피드백 분류·치명 오류 수정</td><td>피드백 목록, P0·P1·P2 우선순위, 진행 차단·입력·씬 전환 결함 수정본</td><td>프로토타입 완주를 막는 P0 결함이 없고 후속 작업 순서가 확정된다.</td></tr>
+      <tr><td class="date">08.12</td><td class="task">교육모드 안내·퀴즈·초기화 보강</td><td>상세 안내 UI, 대표 퀴즈, 결과 표시, 허브 복귀와 세션 초기화</td><td>대표 수행 종료 후 퀴즈·결과·복귀·재시작이 연속 동작한다.</td></tr>
+      <tr><td class="date">08.13</td><td class="task">교육모드 프로토타입 1차 완료</td><td>Quest 2 실행 빌드, 프로토타입 QA 기록, 알려진 제한사항과 다음 개발 목록</td><td>두 핵심 시나리오가 시작 → 수행 → 결과 → 초기화 한 사이클을 완주한다.</td></tr>
+    </table>
+    <div class="callout"><strong>프로토타입 범위</strong> · 8월 13일까지 교육모드의 공통 구조와 PPE·밀폐공간 두 핵심 시나리오를 구현한다. PPE는 테이프를 포함한 7종을 점검·판정·착용·적용하는 구조로 구현한다. 사고 체험은 후속 범위로서 완료 기준에서 제외하며, 핵심 범위 구현·QA가 조기 완료된 경우에만 제한형으로 추가한다. 훈련·테스트모드는 8월 14일 이후 확장한다.</div>
+    <div class="future">
+      <div><b>08.14~08.31</b><p>두 핵심 시나리오 교육모드의 상세 안내·오류 교정·성능 안정화. 일정 여유 시 후속 사고 체험 착수</p></div>
+      <div><b>09.01~09.04</b><p>교육모드 회귀 후 훈련모드·테스트모드 순차 확장</p></div>
+      <div><b>09.07~09.11</b><p>세 모드 QA, 안내 누출·초기화·성능 회귀 검증</p></div>
+      <div><b>09.14~09.18</b><p>리허설·최종 제출, 발표와 이수자평가</p></div>
+    </div>
+    
+  <div class="footer">
+    <span>화학물질 안전훈련 VR · 프로토타입 날짜별 개발일정</span>
+    <span>2 / 2</span>
+  </div>
+  </section></body></html>

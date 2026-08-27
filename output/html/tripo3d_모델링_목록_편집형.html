@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>화학물질 안전교육 VR - 모델링 제작 목록</title>
+  <style>
+    :root {
+      --bg: #f6f6f3;
+      --paper: #ffffff;
+      --text: #252525;
+      --muted: #77756f;
+      --line: #e8e7e2;
+      --line-strong: #d8d6cf;
+      --section: #f1f0ec;
+      --accent: #6c5ce7;
+      --accent-soft: #f1efff;
+      --danger: #c84343;
+      --shadow: 0 18px 50px rgba(32, 31, 28, 0.08);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--text);
+      background: var(--bg);
+      font-family: Pretendard, "Noto Sans KR", "Malgun Gothic", -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    .app {
+      width: min(1180px, calc(100% - 40px));
+      margin: 44px auto 72px;
+    }
+
+    .document-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    #documentTitle {
+      max-width: 980px;
+      margin: 0;
+      font-size: clamp(28px, 4vw, 45px);
+      font-weight: 760;
+      line-height: 1.16;
+      letter-spacing: -0.04em;
+    }
+
+    #documentSubtitle {
+      max-width: 920px;
+      margin: 13px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    [contenteditable="true"] {
+      border-radius: 5px;
+      outline: none;
+    }
+
+    [contenteditable="true"]:focus {
+      background: var(--accent-soft);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .document-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      max-width: 420px;
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      min-height: 32px;
+      align-items: center;
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.66);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 52px;
+      margin-bottom: 14px;
+      padding: 8px;
+      border: 1px solid rgba(216, 214, 207, 0.82);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 8px 28px rgba(35, 34, 31, 0.08);
+      backdrop-filter: blur(16px);
+    }
+
+    .toolbar-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .toolbar-spacer {
+      flex: 1;
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 24px;
+      margin: 0 2px;
+      background: var(--line);
+    }
+
+    .toolbar button,
+    .section-action {
+      min-height: 34px;
+      padding: 7px 11px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .toolbar button:hover,
+    .section-action:hover {
+      border-color: var(--line);
+      background: var(--section);
+    }
+
+    .toolbar button:disabled {
+      opacity: 0.36;
+      cursor: default;
+    }
+
+    .toolbar button.primary {
+      color: #ffffff;
+      background: var(--accent);
+    }
+
+    .toolbar button.primary:hover {
+      border-color: var(--accent);
+      background: #5d4fd4;
+    }
+
+    .toolbar button.danger {
+      color: var(--danger);
+    }
+
+    .tip {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 12px;
+      padding: 10px 13px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.58);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .tip-mark {
+      display: inline-grid;
+      width: 22px;
+      height: 22px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--accent);
+      background: var(--accent-soft);
+      font-weight: 800;
+    }
+
+    .table-shell {
+      overflow: visible;
+      max-width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      min-width: 1040px;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+    }
+
+    col.index { width: 5%; }
+    col.resource { width: 13%; }
+    col.scene { width: 8%; }
+    col.usage { width: 12%; }
+    col.production { width: 9%; }
+    col.poly { width: 8%; }
+    col.purpose { width: 19%; }
+    col.interaction { width: 19%; }
+    col.priority { width: 7%; }
+
+    thead th {
+      position: sticky;
+      z-index: 30;
+      top: 0;
+      padding: 16px 15px;
+      border-bottom: 1px solid var(--line-strong);
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.96);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: 0.035em;
+      text-align: center;
+      box-shadow: 0 8px 18px rgba(32, 31, 28, 0.06);
+      backdrop-filter: blur(14px);
+    }
+
+    tbody .data-row {
+      position: relative;
+    }
+
+    tbody .data-row td {
+      position: relative;
+      padding: 15px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+      background: var(--paper);
+      transition: background 120ms ease;
+    }
+
+    tbody .data-row:hover td {
+      background: #fbfbf9;
+    }
+
+    tbody .data-row.selected td {
+      background: var(--accent-soft);
+    }
+
+    tbody .data-row.selected td:first-child {
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .cell-editor {
+      min-height: 24px;
+      padding: 2px 1px;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    td[data-cell-key="resource"] .cell-editor {
+      font-weight: 720;
+    }
+
+    .index-cell {
+      position: relative;
+      cursor: grab;
+      user-select: none;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .index-cell:active {
+      cursor: grabbing;
+    }
+
+    .row-number {
+      display: inline-flex;
+      min-width: 18px;
+      justify-content: center;
+    }
+
+    .row-delete {
+      position: absolute;
+      top: 50%;
+      left: 5px;
+      display: inline-grid;
+      width: 20px;
+      height: 20px;
+      place-items: center;
+      border: 1px solid #f0c7c7;
+      border-radius: 50%;
+      color: #9c3636;
+      background: #fff0f0;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1;
+      opacity: 0;
+      transform: translateY(-50%) scale(0.88);
+      transition: opacity 120ms ease, transform 120ms ease, background 120ms ease;
+    }
+
+    .row-delete:hover {
+      background: #ffe4e4;
+    }
+
+    .data-row:hover .row-delete,
+    .data-row:focus-within .row-delete {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+    }
+
+    .data-row.dragging td {
+      opacity: 0.44;
+      background: var(--accent-soft);
+    }
+
+    .data-row.drag-over-top td:first-child {
+      box-shadow: inset 0 3px 0 var(--accent);
+    }
+
+    .data-row.drag-over-bottom td:first-child {
+      box-shadow: inset 0 -3px 0 var(--accent);
+    }
+
+    td[data-cell-key="resource"] .cell-editor {
+      min-height: 24px;
+      text-align: left;
+    }
+
+    td[data-cell-key="scene"] {
+      text-align: center;
+    }
+
+    .scene-editor {
+      display: inline-flex;
+      min-height: 24px;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .scene-editor::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: #b9b6ad;
+    }
+
+    .scene-editor[data-scene-type="ppe"] {
+      color: #9a751f;
+    }
+
+    .scene-editor[data-scene-type="ppe"]::before {
+      background: #c1972e;
+    }
+
+    .scene-editor[data-scene-type="mixer"] {
+      color: #c16022;
+    }
+
+    .scene-editor[data-scene-type="mixer"]::before {
+      background: #e47f34;
+    }
+
+    .scene-editor[data-scene-type="inner"] {
+      color: #356fbd;
+    }
+
+    .scene-editor[data-scene-type="inner"]::before {
+      background: #4b86d8;
+    }
+
+    td[data-cell-key="production"] .cell-editor,
+    td[data-cell-key="polyBudget"] .cell-editor {
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .priority-select {
+      width: 100%;
+      border: 0;
+      color: inherit;
+      background: transparent;
+      cursor: pointer;
+      font: inherit;
+      outline: none;
+    }
+
+    td[data-cell-key="priority"] {
+      text-align: center;
+    }
+
+    .priority-badge {
+      display: inline-flex;
+      width: 100%;
+      min-width: 58px;
+      min-height: 26px;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--section);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .priority-badge[data-value="필수"] {
+      color: #9c3636;
+      border-color: #f0c7c7;
+      background: #fff0f0;
+    }
+
+    .priority-badge[data-value="권장"] {
+      color: #286348;
+      border-color: #bfe3cf;
+      background: #edf9f1;
+    }
+
+    .priority-badge[data-value="옵션"] {
+      color: #725b18;
+      border-color: #e9ddaa;
+      background: #fff9df;
+    }
+
+    .section-row td {
+      padding: 0;
+      border-bottom: 1px solid var(--line-strong);
+      background: var(--section);
+    }
+
+    .section-content {
+      display: flex;
+      min-height: 48px;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+    }
+
+    .section-badge {
+      display: inline-grid;
+      width: 26px;
+      height: 26px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      background: #ffffff;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .section-name {
+      min-width: 180px;
+      padding: 2px 3px;
+      font-size: 14px;
+      font-weight: 760;
+      letter-spacing: -0.01em;
+    }
+
+    .section-count {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .section-action {
+      min-height: 30px;
+      padding: 5px 8px;
+      color: var(--danger);
+      font-size: 11px;
+    }
+
+    .insert-row td {
+      position: relative;
+      height: 10px;
+      padding: 0;
+      border: 0;
+      background: var(--paper);
+    }
+
+    .insert-button {
+      position: absolute;
+      z-index: 6;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: copy;
+    }
+
+    .insert-button::before {
+      position: absolute;
+      top: 50%;
+      right: 14px;
+      left: 14px;
+      height: 2px;
+      border-radius: 2px;
+      background: transparent;
+      content: "";
+      transform: translateY(-50%);
+      transition: background 120ms ease;
+    }
+
+    .insert-button::after {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      display: grid;
+      width: 24px;
+      height: 24px;
+      place-items: center;
+      border: 1px solid transparent;
+      border-radius: 50%;
+      color: transparent;
+      background: transparent;
+      content: "+";
+      font-size: 16px;
+      font-weight: 800;
+      transform: translate(-50%, -50%);
+      transition: 120ms ease;
+    }
+
+    .insert-button:hover::before,
+    .insert-button:focus-visible::before {
+      background: var(--accent);
+    }
+
+    .insert-button:hover::after,
+    .insert-button:focus-visible::after {
+      border-color: var(--accent);
+      color: #ffffff;
+      background: var(--accent);
+    }
+
+    .document-foot {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      margin-top: 14px;
+      padding: 0 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 100;
+      right: 24px;
+      bottom: 24px;
+      max-width: min(360px, calc(100vw - 48px));
+      padding: 12px 15px;
+      border-radius: 10px;
+      color: #ffffff;
+      background: rgba(37, 37, 37, 0.94);
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.16);
+      font-size: 12px;
+      line-height: 1.5;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: 170ms ease;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 920px) {
+      .app {
+        width: min(100% - 22px, 1180px);
+        margin-top: 24px;
+      }
+
+      .document-head {
+        grid-template-columns: 1fr;
+      }
+
+      .document-meta {
+        justify-content: flex-start;
+        max-width: none;
+      }
+
+      .toolbar {
+        position: static;
+        overflow-x: auto;
+      }
+
+      thead th {
+        top: 0;
+      }
+
+      .tip {
+        align-items: flex-start;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 10mm;
+      }
+
+      :root {
+        --text: #111111;
+        --muted: #555555;
+        --line: #dddddd;
+        --line-strong: #c8c8c8;
+        --section: #f0f0f0;
+      }
+
+      html,
+      body {
+        background: #ffffff;
+      }
+
+      .app {
+        width: 100%;
+        margin: 0;
+      }
+
+      .toolbar,
+      .tip,
+      .insert-row,
+      .section-action,
+      .toast {
+        display: none !important;
+      }
+
+      .document-head {
+        grid-template-columns: 1fr auto;
+        margin-bottom: 5mm;
+      }
+
+      #documentTitle {
+        font-size: 20pt;
+      }
+
+      #documentSubtitle {
+        margin-top: 2mm;
+        font-size: 8.5pt;
+      }
+
+      .meta-chip {
+        min-height: 0;
+        padding: 1.5mm 2.2mm;
+        font-size: 7pt;
+      }
+
+      .table-shell {
+        overflow: visible;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      table {
+        min-width: 0;
+      }
+
+      thead {
+        display: table-header-group;
+      }
+
+      thead th {
+        position: static;
+        padding: 2.4mm 2mm;
+        font-size: 7.5pt;
+      }
+
+      tbody .data-row td {
+        padding: 2.1mm 2mm;
+      }
+
+      .cell-editor {
+        min-height: 0;
+        font-size: 7.5pt;
+        line-height: 1.4;
+      }
+
+      td[data-cell-key="production"] .cell-editor,
+      td[data-cell-key="polyBudget"] .cell-editor,
+      .priority-badge {
+        font-size: 7pt;
+      }
+
+      .priority-select {
+        font-size: 7pt;
+      }
+
+      .priority-badge {
+        min-width: 0;
+        min-height: 0;
+        padding: 0.8mm 1mm;
+        border: 0;
+      }
+
+      .section-row {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+
+      .section-content {
+        min-height: 0;
+        padding: 2.2mm 2mm;
+      }
+
+      .section-badge {
+        width: 5mm;
+        height: 5mm;
+        font-size: 7pt;
+      }
+
+      .section-name {
+        font-size: 8pt;
+      }
+
+      .document-foot {
+        margin-top: 3mm;
+        font-size: 7pt;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="document-head">
+      <div>
+        <div class="eyebrow">Resource plan · Editable document</div>
+        <h1 id="documentTitle" contenteditable="true" spellcheck="false"></h1>
+        <p id="documentSubtitle" contenteditable="true" spellcheck="false"></p>
+      </div>
+      <div class="document-meta" aria-label="문서 정보">
+        <span class="meta-chip">원본 PDF 4페이지</span>
+        <span class="meta-chip" id="rowCountChip">0개 리소스</span>
+        <span class="meta-chip" id="saveStatusChip">브라우저 자동 저장</span>
+      </div>
+    </header>
+
+    <nav class="toolbar" aria-label="표 편집 도구">
+      <div class="toolbar-group">
+        <button type="button" class="primary" id="addRowButton">＋ 선택 그룹 끝에 행</button>
+        <button type="button" id="addSectionButton">＋ 그룹</button>
+      </div>
+      <div class="toolbar-divider" aria-hidden="true"></div>
+      <div class="toolbar-group">
+        <button type="button" id="duplicateRowButton" disabled>복제</button>
+        <button type="button" id="moveUpButton" disabled>위로</button>
+        <button type="button" id="moveDownButton" disabled>아래로</button>
+        <button type="button" class="danger" id="deleteRowButton" disabled>삭제</button>
+      </div>
+      <div class="toolbar-spacer"></div>
+      <div class="toolbar-group">
+        <button type="button" id="exportCsvButton">CSV</button>
+        <button type="button" id="exportJsonButton">백업</button>
+        <button type="button" id="importJsonButton">불러오기</button>
+        <button type="button" id="resetButton">초기 목록</button>
+        <button type="button" id="printButton">인쇄 / PDF</button>
+      </div>
+    </nav>
+
+    <div class="tip">
+      <span class="tip-mark">+</span>
+      <span>
+        모든 셀은 클릭해서 바로 수정할 수 있습니다. 행 사이의 빈 선에 마우스를 올린 뒤
+        나타나는 보라색 <strong>＋</strong>를 누르면 정확히 그 위치에 새 행이 추가됩니다.
+        행을 선택한 뒤 <strong>Ctrl + Enter</strong>를 눌러도 아래에 새 행이 생깁니다.
+      </span>
+    </div>
+
+    <main class="table-shell">
+      <table aria-label="Tripo3D 모델링 제작 목록">
+        <colgroup>
+          <col class="index" />
+          <col class="resource" />
+          <col class="scene" />
+          <col class="usage" />
+          <col class="production" />
+          <col class="poly" />
+          <col class="purpose" />
+          <col class="interaction" />
+          <col class="priority" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">번호</th>
+            <th scope="col">리소스명</th>
+            <th scope="col">씬</th>
+            <th scope="col">쓰이는 장면</th>
+            <th scope="col">제작</th>
+            <th scope="col">폴리 예산</th>
+            <th scope="col">용도</th>
+            <th scope="col">인터랙션 / 연출</th>
+            <th scope="col">우선순위</th>
+          </tr>
+        </thead>
+        <tbody id="resourceBody"></tbody>
+      </table>
+    </main>
+
+    <footer class="document-foot">
+      <span>출처: tripo3d_모델링_목록.pdf · 항목을 리소스 단위 행으로 분리</span>
+      <span>폴리 예산은 원본에 없어 미정으로 표기 · 우선순위는 옵션으로 시작</span>
+    </footer>
+  </div>
+
+  <input class="sr-only" id="jsonFileInput" type="file" accept=".json,application/json" />
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var STORAGE_KEY = "tripo3d-resource-plan-v1";
+      var DATA_VERSION = 2;
+      var idCounter = 0;
+      var selectedRowId = null;
+      var saveTimer = null;
+      var toastTimer = null;
+
+      var sourceSections = [
+        {
+          id: "interaction",
+          name: "A · 인터랙션에 필요한 모델",
+          groups: [
+            {
+              scene: "PPE룸",
+              usage: "PPE룸 이동",
+              resources: [{ name: "위치마커", production: "Unity 프리팹" }],
+              attachment: "Ray + Trigger로 선택하면 해당 위치로 이동한다."
+            },
+            {
+              scene: "PPE룸",
+              usage: "PPE룸 문서 확인",
+              resources: [
+                { name: "태블릿", production: "Tripo" },
+                { name: "작업확인서", production: "텍스처 + Quad" }
+              ],
+              attachment: "Grip으로 잡고 B로 페이지를 넘기며 Trigger로 체크한다."
+            },
+            {
+              scene: "PPE룸",
+              usage: "PPE룸 현장 이동",
+              resources: [{ name: "문 패널", production: "Unity UI" }],
+              attachment: "Ray + Trigger로 선택하면 혼합기동으로 이동한다."
+            },
+            {
+              scene: "PPE룸",
+              usage: "PPE 점검",
+              resources: ["방호복", "장갑", "장화", "마스크", "안전모", "하네스", "테이프"],
+              production: "Tripo",
+              attachment: "Grip으로 잡고 Trigger/B로 사용·확인한다."
+            },
+            {
+              scene: "PPE룸",
+              usage: "오염 PPE 처리",
+              resources: ["오염 PPE 모델"],
+              production: "Tripo",
+              attachment: "불량 보호구로 판정되면 A 버튼으로 폐기한다."
+            },
+            {
+              scene: "PPE룸",
+              usage: "PPE 착용 확인",
+              resources: [{ name: "거울", production: "Unity 프리팹" }],
+              attachment: "거울 앞에 이동하면 착용한 PPE 상태가 반사되어 보인다."
+            },
+            {
+              scene: "혼합기동",
+              usage: "감시인 확인",
+              resources: ["외부 감시인"],
+              production: "Tripo",
+              attachment: "Ray + Trigger로 대화하고 승인 절차를 확인한다."
+            },
+            {
+              scene: "혼합기동",
+              usage: "전원 차단",
+              resources: ["혼합기 컨트롤러", "전원 스위치"],
+              production: "Tripo",
+              attachment: "손 터치 또는 B 버튼으로 전원 OFF를 실행한다."
+            },
+            {
+              scene: "혼합기동",
+              usage: "LOTO 작업",
+              resources: ["LOTO 덮개", "자물쇠", "태그"],
+              production: "Tripo",
+              attachment: "Grip으로 잡고 제어반 위치에 가져가 Snap한다."
+            },
+            {
+              scene: "혼합기동",
+              usage: "환기 준비",
+              resources: ["이동식 환기팬", "팬 버튼"],
+              production: "Tripo",
+              attachment: "팬 쪽 덕트 연결 뒤 B 버튼으로 팬을 작동한다."
+            },
+            {
+              scene: "혼합기동",
+              usage: "덕트 연결",
+              resources: ["ㄱ자 덕트", "S자 덕트"],
+              production: "Tripo",
+              attachment: "Grip으로 잡아 팬 쪽과 맨홀 쪽 지정 위치에 Snap한다."
+            },
+            {
+              scene: "혼합기동",
+              usage: "가스 측정",
+              resources: ["가스측정기 전체", "가스측정기 본체", "프로브 + 호스"],
+              production: "Tripo",
+              attachment: "Grip으로 들고 Trigger를 누르면 1차·2차 측정이 시작된다."
+            },
+            {
+              scene: "혼합기동",
+              usage: "작업허가 승인",
+              resources: [
+                { name: "작업허가서 UI", production: "Unity UI" },
+                { name: "승인도장", production: "Tripo" }
+              ],
+              attachment: "Trigger로 체크·서명·감시인 서명·승인도장을 순서대로 선택한다."
+            },
+            {
+              scene: "혼합기동",
+              usage: "무전·감시인 승인",
+              resources: [
+                { name: "무전기", production: "Tripo" },
+                { name: "대화창", production: "Unity UI" }
+              ],
+              attachment: "Grip으로 잡고 Trigger를 눌러 외부 감시인에게 송신한다."
+            },
+            {
+              scene: "혼합기 내부",
+              usage: "사고 체험",
+              resources: ["고압 세척기 건", "세제 세척기 건", "브러시"],
+              production: "Tripo",
+              attachment: "잘못된 절차 상황에서 잡기·세척·브러싱 연출에 사용한다."
+            }
+          ]
+        },
+        {
+          id: "environment",
+          name: "B · 환경 구성에 필요한 모델 · 기능 없음",
+          groups: [
+            {
+              scene: "타이틀",
+              usage: "타이틀",
+              resources: [
+                { name: "로고", production: "Unity UI" },
+                { name: "파트너 로고", production: "Unity UI" },
+                { name: "버전 텍스트", production: "Unity UI" }
+              ],
+              attachment: "10초 미만으로 순차 자동 재생한다."
+            },
+            {
+              scene: "인트로",
+              usage: "인트로",
+              resources: [
+                { name: "주의 심볼", production: "Unity UI" },
+                { name: "기획 배경과 주의 메시지", production: "Unity UI" }
+              ],
+              attachment: "기획 배경과 VR 주의사항을 자동 등장시킨다."
+            },
+            {
+              scene: "PPE룸",
+              usage: "PPE룸 환경",
+              resources: [
+                { name: "PPE룸 인테리어", production: "Tripo + Unity" },
+                { name: "바닥", production: "Unity 프리미티브" },
+                { name: "벽", production: "Unity 프리미티브" },
+                { name: "조명", production: "Unity 설정" }
+              ],
+              attachment: "보호구 선택 전 대기 공간으로 구성한다."
+            },
+            {
+              scene: "PPE룸",
+              usage: "보호구·문서 배치",
+              resources: [
+                { name: "PPE 단스", production: "Tripo" },
+                { name: "테이블", production: "Tripo" },
+                { name: "작업확인서", production: "텍스처 + Quad" },
+                { name: "로고", production: "Unity UI" }
+              ],
+              attachment: "보호구와 작업확인서를 찾기 쉬운 위치에 배치한다."
+            },
+            {
+              scene: "로딩화면",
+              usage: "로딩화면",
+              resources: [
+                { name: "로딩텍스트", production: "Unity UI" },
+                { name: "로딩바(가로형)", production: "Unity UI" }
+              ],
+              attachment: "로딩 화면을 구성한다."
+            },
+            {
+              scene: "PPE룸",
+              usage: "착용 상태 반사",
+              resources: [
+                { name: "거울 매쉬", production: "Tripo" },
+                { name: "거울 카메라", production: "Unity 설정" },
+                { name: "렌더 텍스처", production: "Unity 설정" }
+              ],
+              attachment: "착용 상태 확인용 반사 연출을 만든다."
+            },
+            {
+              scene: "PPE룸",
+              usage: "손 안내",
+              resources: ["일반 핸드 모델", "방호복 핸드 모델", "고스트핸드"],
+              production: "Tripo",
+              attachment: "잡기·착용 안내용 손 모델로 사용한다."
+            },
+            {
+              scene: "혼합기동",
+              usage: "외부 환경",
+              resources: [
+                { name: "배경 스카이박스", production: "Unity 에셋" },
+                { name: "바닥 플레인", production: "Unity 프리미티브" },
+                { name: "포그 패널", production: "Unity VFX" }
+              ],
+              attachment: "화학공장 외부 작업 구역 분위기를 만든다."
+            },
+            {
+              scene: "혼합기동",
+              usage: "현장 안전 소품",
+              resources: ["소화기", "안전콘", "폐기물 통"],
+              production: "Tripo",
+              attachment: "현장 안전 소품으로 배치한다."
+            },
+            {
+              scene: "혼합기동",
+              usage: "안전 문서 확인 구역",
+              resources: [
+                { name: "안전 문서 삼각대", production: "Tripo" },
+                { name: "문서 4종", production: "텍스처 + Quad" }
+              ],
+              attachment: "작업계획서, MSDS, 허가서 확인 구역을 구성한다."
+            },
+            {
+              scene: "혼합기동",
+              usage: "핵심 설비",
+              resources: ["혼합기", "맨홀", "혼합기 컨트롤러"],
+              production: "Tripo",
+              attachment: "밀폐공간 진입 전 핵심 설비로 배치한다."
+            },
+            {
+              scene: "혼합기동",
+              usage: "환기 상태",
+              resources: ["이동식 환기팬", "덕트 + 환기팬 결합 모델"],
+              production: "Tripo",
+              attachment: "환기 전·후 상태가 보이도록 구성한다."
+            },
+            {
+              scene: "혼합기동",
+              usage: "가스 측정 UI",
+              resources: [
+                { name: "가스 LCD UI", production: "Unity UI" },
+                { name: "게이지바", production: "Unity UI" },
+                { name: "프로그래스바", production: "Unity UI" }
+              ],
+              attachment: "측정값과 환기 진행 상태를 표시한다."
+            },
+            {
+              scene: "혼합기 내부",
+              usage: "사고 연출 공간",
+              resources: ["혼합기 내부 공간"],
+              production: "Tripo + Unity",
+              attachment: "사고 결과를 보여주는 별도 연출 공간으로 사용한다."
+            },
+            {
+              scene: "혼합기 내부",
+              usage: "노출 피해 설명",
+              resources: [
+                { name: "눈 아이콘", production: "Unity UI" },
+                { name: "피부 아이콘", production: "Unity UI" },
+                { name: "폐 아이콘", production: "Unity UI" },
+                { name: "뇌 아이콘", production: "Unity UI" }
+              ],
+              attachment: "노출 피해를 시각적으로 설명한다."
+            },
+            {
+              scene: "혼합기 내부",
+              usage: "오염 환경",
+              resources: [
+                { name: "슬러지(벽·바닥 찌꺼기)", production: "Tripo" },
+                { name: "세정제 거품 VFX", production: "Unity VFX" }
+              ],
+              attachment: "청소 사고 상황의 오염 환경을 만든다."
+            },
+            {
+              scene: "혼합기 내부",
+              usage: "사고 강조 효과",
+              resources: [
+                { name: "화면 상해 효과", production: "Unity VFX" },
+                { name: "액체 발사 VFX", production: "Unity VFX" }
+              ],
+              attachment: "미스트 흡입과 쓰러짐을 강조하는 연출로 사용한다."
+            }
+          ]
+        }
+      ];
+
+      function makeId(prefix) {
+        idCounter += 1;
+        return prefix + "-" + Date.now().toString(36) + "-" + idCounter.toString(36);
+      }
+
+      function isTwoDimensionalOrNonModel(resource) {
+        var production = String(resource.production || "").toLowerCase();
+        var name = String(resource.name || "").toLowerCase();
+        return (
+          production.indexOf("unity ui") !== -1 ||
+          production.indexOf("\ud14d\uc2a4\ucc98") !== -1 ||
+          production.indexOf("vfx") !== -1 ||
+          production.indexOf("unity \uc124\uc815") !== -1 ||
+          name.indexOf("\uc2a4\uce74\uc774\ubc15\uc2a4") !== -1
+        );
+      }
+
+      function expandSourceSections() {
+        return sourceSections.map(function (section) {
+          var rows = [];
+          section.groups.forEach(function (group) {
+            group.resources.forEach(function (resource) {
+              var resourceData = typeof resource === "string" ? { name: resource } : resource;
+              var production = resourceData.production || group.production || "";
+              if (isTwoDimensionalOrNonModel({ name: resourceData.name, production: production })) return;
+              var note = resourceData.attachment || group.attachment || "";
+              var isInteractionSection = section.id === "interaction";
+              rows.push({
+                id: makeId("row"),
+                resource: resourceData.name,
+                scene: group.scene,
+                usage: group.usage,
+                production: production || "미정",
+                polyBudget: resourceData.polyBudget || group.polyBudget || "미정",
+                purpose: resourceData.purpose || group.purpose || (isInteractionSection ? "" : note),
+                interaction: resourceData.interaction || group.interaction || (isInteractionSection ? note : ""),
+                attachment: note,
+                priority: normalizePriority(resourceData.priority || group.priority)
+              });
+            });
+          });
+          return {
+            id: section.id,
+            name: section.name,
+            rows: rows
+          };
+        });
+      }
+
+      var initialState = {
+        version: DATA_VERSION,
+        title: "화학물질 안전교육 VR — 모델링 제작 목록",
+        subtitle: "Tripo3D 제작 대상 · 인터랙션 / 환경 구성 통합 리소스 플랜",
+        sections: expandSourceSections()
+      };
+
+      function cloneData(value) {
+        return JSON.parse(JSON.stringify(value));
+      }
+
+      function normalizePriority(value) {
+        var text = String(value || "").trim();
+        if (text === "필수" || text === "권장" || text === "옵션") return text;
+        if (text === "여유" || text === "미정" || text === "") return "옵션";
+        return "옵션";
+      }
+
+      function normalizeState(candidate) {
+        if (!candidate || !Array.isArray(candidate.sections)) return null;
+        candidate.version = DATA_VERSION;
+        candidate.title = String(candidate.title || initialState.title);
+        candidate.subtitle = String(candidate.subtitle || initialState.subtitle);
+        candidate.sections = candidate.sections.map(function (section, sectionIndex) {
+          var isInteractionSection = String(section.id || "").indexOf("interaction") >= 0 ||
+            String(section.name || "").indexOf("인터랙션") >= 0;
+          return {
+            id: String(section.id || makeId("section")),
+            name: String(section.name || "새 그룹 " + (sectionIndex + 1)),
+            rows: Array.isArray(section.rows)
+              ? section.rows
+                  .filter(function (row) {
+                    return !isTwoDimensionalOrNonModel(row || {});
+                  })
+                  .map(function (row) {
+                  var legacyNote = String(row.attachment || "");
+                  return {
+                    id: String(row.id || makeId("row")),
+                    resource: String(row.resource || ""),
+                    scene: String(row.scene || ""),
+                    usage: String(row.usage || ""),
+                    production: String(row.production || "미정"),
+                    polyBudget: String(row.polyBudget || "미정"),
+                    purpose: String(row.purpose || (isInteractionSection ? "" : legacyNote)),
+                    interaction: String(row.interaction || (isInteractionSection ? legacyNote : "")),
+                    attachment: legacyNote,
+                    priority: normalizePriority(row.priority)
+                  };
+                })
+              : []
+          };
+        });
+        return candidate;
+      }
+
+      function loadState() {
+        try {
+          var saved = window.localStorage.getItem(STORAGE_KEY);
+          if (!saved) return cloneData(initialState);
+          return normalizeState(JSON.parse(saved)) || cloneData(initialState);
+        } catch (error) {
+          return cloneData(initialState);
+        }
+      }
+
+      var state = loadState();
+      var resourceBody = document.getElementById("resourceBody");
+      var titleElement = document.getElementById("documentTitle");
+      var subtitleElement = document.getElementById("documentSubtitle");
+      var rowCountChip = document.getElementById("rowCountChip");
+      var saveStatusChip = document.getElementById("saveStatusChip");
+      var toast = document.getElementById("toast");
+
+      var addRowButton = document.getElementById("addRowButton");
+      var addSectionButton = document.getElementById("addSectionButton");
+      var duplicateRowButton = document.getElementById("duplicateRowButton");
+      var moveUpButton = document.getElementById("moveUpButton");
+      var moveDownButton = document.getElementById("moveDownButton");
+      var deleteRowButton = document.getElementById("deleteRowButton");
+      var exportCsvButton = document.getElementById("exportCsvButton");
+      var exportJsonButton = document.getElementById("exportJsonButton");
+      var importJsonButton = document.getElementById("importJsonButton");
+      var resetButton = document.getElementById("resetButton");
+      var printButton = document.getElementById("printButton");
+      var jsonFileInput = document.getElementById("jsonFileInput");
+      var draggingRowId = null;
+
+      var cellKeys = [
+        "resource",
+        "scene",
+        "usage",
+        "production",
+        "polyBudget",
+        "purpose",
+        "interaction",
+        "priority"
+      ];
+
+      function totalRows() {
+        return state.sections.reduce(function (sum, section) {
+          return sum + section.rows.length;
+        }, 0);
+      }
+
+      function findRowLocation(rowId) {
+        for (var sectionIndex = 0; sectionIndex < state.sections.length; sectionIndex += 1) {
+          var rowIndex = state.sections[sectionIndex].rows.findIndex(function (row) {
+            return row.id === rowId;
+          });
+          if (rowIndex !== -1) {
+            return {
+              sectionIndex: sectionIndex,
+              rowIndex: rowIndex,
+              section: state.sections[sectionIndex],
+              row: state.sections[sectionIndex].rows[rowIndex]
+            };
+          }
+        }
+        return null;
+      }
+
+      function createEditor(value, rowId, key) {
+        if (key === "priority") return createPriorityPicker(value, rowId);
+        var editor = document.createElement("div");
+        editor.className = "cell-editor";
+        if (key === "scene") {
+          editor.classList.add("scene-editor");
+          editor.dataset.sceneType = getSceneType(value);
+        }
+        editor.contentEditable = "true";
+        editor.spellcheck = false;
+        editor.dataset.rowId = rowId;
+        editor.dataset.key = key;
+        editor.textContent = value;
+        return editor;
+      }
+
+      function normalizeSceneName(value) {
+        var text = String(value || "").trim();
+        if (text.toLowerCase() === "ppe룸") return "PPE룸";
+        if (text === "혼합기" || text === "혼합기동") return "혼합기동";
+        if (text === "혼합기내부" || text === "혼합기 내부") return "혼합기 내부";
+        return text;
+      }
+
+      function getSceneType(value) {
+        var sceneName = normalizeSceneName(value);
+        if (sceneName === "PPE룸") return "ppe";
+        if (sceneName === "혼합기동") return "mixer";
+        if (sceneName === "혼합기 내부") return "inner";
+        return "other";
+      }
+
+      function createPriorityPicker(value, rowId) {
+        var wrapper = document.createElement("span");
+        wrapper.className = "priority-badge";
+        wrapper.dataset.value = normalizePriority(value);
+
+        var select = document.createElement("select");
+        select.className = "priority-select";
+        select.dataset.rowId = rowId;
+        select.dataset.key = "priority";
+
+        ["필수", "권장", "옵션"].forEach(function (optionValue) {
+          var option = document.createElement("option");
+          option.value = optionValue;
+          option.textContent = optionValue;
+          select.appendChild(option);
+        });
+
+        select.value = wrapper.dataset.value;
+        wrapper.appendChild(select);
+        return wrapper;
+      }
+
+      function createInsertRow(sectionIndex, position) {
+        var insertRow = document.createElement("tr");
+        insertRow.className = "insert-row";
+        var cell = document.createElement("td");
+        cell.colSpan = cellKeys.length + 1;
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "insert-button";
+        button.dataset.action = "insert";
+        button.dataset.sectionIndex = String(sectionIndex);
+        button.dataset.position = String(position);
+        button.setAttribute("aria-label", "이 위치에 새 행 추가");
+        cell.appendChild(button);
+        insertRow.appendChild(cell);
+        return insertRow;
+      }
+
+      function render() {
+        titleElement.textContent = state.title;
+        subtitleElement.textContent = state.subtitle;
+        resourceBody.replaceChildren();
+        var rowNumber = 1;
+
+        state.sections.forEach(function (section, sectionIndex) {
+          var sectionRow = document.createElement("tr");
+          sectionRow.className = "section-row";
+          var sectionCell = document.createElement("td");
+          sectionCell.colSpan = cellKeys.length + 1;
+          var sectionContent = document.createElement("div");
+          sectionContent.className = "section-content";
+
+          var badge = document.createElement("span");
+          badge.className = "section-badge";
+          badge.textContent = String.fromCharCode(65 + (sectionIndex % 26));
+
+          var sectionName = document.createElement("span");
+          sectionName.className = "section-name";
+          sectionName.contentEditable = "true";
+          sectionName.spellcheck = false;
+          sectionName.dataset.sectionId = section.id;
+          sectionName.textContent = section.name;
+
+          var count = document.createElement("span");
+          count.className = "section-count";
+          count.textContent = section.rows.length + "개 리소스";
+
+          var removeSection = document.createElement("button");
+          removeSection.type = "button";
+          removeSection.className = "section-action";
+          removeSection.dataset.action = "delete-section";
+          removeSection.dataset.sectionIndex = String(sectionIndex);
+          removeSection.textContent = "그룹 삭제";
+
+          sectionContent.append(badge, sectionName, count, removeSection);
+          sectionCell.appendChild(sectionContent);
+          sectionRow.appendChild(sectionCell);
+          resourceBody.appendChild(sectionRow);
+          resourceBody.appendChild(createInsertRow(sectionIndex, 0));
+
+          section.rows.forEach(function (row, rowIndex) {
+            var dataRow = document.createElement("tr");
+            dataRow.className = "data-row";
+            if (row.id === selectedRowId) dataRow.classList.add("selected");
+            dataRow.dataset.rowId = row.id;
+
+            var indexCell = document.createElement("td");
+            indexCell.className = "index-cell";
+            indexCell.draggable = true;
+            indexCell.dataset.rowId = row.id;
+            indexCell.setAttribute("title", "잡아서 행 이동");
+            var rowNumberElement = document.createElement("span");
+            rowNumberElement.className = "row-number";
+            rowNumberElement.textContent = String(rowNumber++);
+
+            var deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.className = "row-delete";
+            deleteButton.dataset.action = "delete-row";
+            deleteButton.dataset.rowId = row.id;
+            deleteButton.setAttribute("aria-label", "이 행 삭제");
+            deleteButton.textContent = "−";
+
+            indexCell.append(rowNumberElement, deleteButton);
+            dataRow.appendChild(indexCell);
+
+            cellKeys.forEach(function (key) {
+              var cell = document.createElement("td");
+              cell.dataset.cellKey = key;
+              cell.appendChild(createEditor(row[key], row.id, key));
+              dataRow.appendChild(cell);
+            });
+
+            resourceBody.appendChild(dataRow);
+            resourceBody.appendChild(createInsertRow(sectionIndex, rowIndex + 1));
+          });
+        });
+
+        rowCountChip.textContent = totalRows() + "개 리소스";
+        updateToolbarState();
+      }
+
+      function updateToolbarState() {
+        var location = selectedRowId ? findRowLocation(selectedRowId) : null;
+        var hasSelection = Boolean(location);
+        duplicateRowButton.disabled = !hasSelection;
+        deleteRowButton.disabled = !hasSelection;
+        moveUpButton.disabled = !hasSelection || location.rowIndex === 0;
+        moveDownButton.disabled =
+          !hasSelection || location.rowIndex === location.section.rows.length - 1;
+      }
+
+      function scheduleSave() {
+        saveStatusChip.textContent = "저장 중…";
+        window.clearTimeout(saveTimer);
+        saveTimer = window.setTimeout(function () {
+          try {
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            saveStatusChip.textContent = "자동 저장됨";
+          } catch (error) {
+            saveStatusChip.textContent = "저장 실패";
+          }
+        }, 220);
+      }
+
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("visible");
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () {
+          toast.classList.remove("visible");
+        }, 1800);
+      }
+
+      function selectRow(rowId) {
+        selectedRowId = rowId;
+        document.querySelectorAll(".data-row").forEach(function (rowElement) {
+          rowElement.classList.toggle("selected", rowElement.dataset.rowId === rowId);
+        });
+        updateToolbarState();
+      }
+
+      function buildBlankRow(sectionIndex, position) {
+        var section = state.sections[sectionIndex];
+        var nearby = section.rows[position - 1] || section.rows[position] || {};
+        return {
+          id: makeId("row"),
+          resource: "",
+          scene: nearby.scene || "",
+          usage: nearby.usage || "",
+          production: nearby.production || "미정",
+          polyBudget: nearby.polyBudget || "미정",
+          purpose: nearby.purpose || "",
+          interaction: nearby.interaction || "",
+          attachment: "",
+          priority: normalizePriority(nearby.priority)
+        };
+      }
+
+      function insertRowAt(sectionIndex, position, rowData) {
+        if (!state.sections[sectionIndex]) return;
+        var row = rowData || buildBlankRow(sectionIndex, position);
+        state.sections[sectionIndex].rows.splice(position, 0, row);
+        selectedRowId = row.id;
+        render();
+        scheduleSave();
+        window.requestAnimationFrame(function () {
+          var editor = document.querySelector(
+            '.cell-editor[data-row-id="' + row.id + '"][data-key="resource"]'
+          );
+          if (editor) editor.focus();
+        });
+        showToast("새 행을 추가했습니다.");
+      }
+
+      function deleteSelectedRow() {
+        deleteRowById(selectedRowId);
+      }
+
+      function deleteRowById(rowId) {
+        var location = rowId ? findRowLocation(rowId) : null;
+        if (!location) return;
+        if (!window.confirm('"' + (location.row.resource || "빈 행") + '" 행을 삭제할까요?')) {
+          return;
+        }
+        location.section.rows.splice(location.rowIndex, 1);
+        selectedRowId = null;
+        render();
+        scheduleSave();
+        showToast("행을 삭제했습니다.");
+      }
+
+      function duplicateSelectedRow() {
+        var location = selectedRowId ? findRowLocation(selectedRowId) : null;
+        if (!location) return;
+        var copy = cloneData(location.row);
+        copy.id = makeId("row");
+        copy.resource = copy.resource ? copy.resource + " 복사" : "";
+        insertRowAt(location.sectionIndex, location.rowIndex + 1, copy);
+      }
+
+      function moveSelectedRow(direction) {
+        var location = selectedRowId ? findRowLocation(selectedRowId) : null;
+        if (!location) return;
+        var nextIndex = location.rowIndex + direction;
+        if (nextIndex < 0 || nextIndex >= location.section.rows.length) return;
+        var movingRow = location.section.rows.splice(location.rowIndex, 1)[0];
+        location.section.rows.splice(nextIndex, 0, movingRow);
+        render();
+        scheduleSave();
+      }
+
+      function moveRowTo(rowId, targetRowId, placeAfter) {
+        if (!rowId || !targetRowId || rowId === targetRowId) return;
+        var source = findRowLocation(rowId);
+        var target = findRowLocation(targetRowId);
+        if (!source || !target) return;
+
+        var movingRow = source.section.rows.splice(source.rowIndex, 1)[0];
+        var targetIndex = target.rowIndex;
+        if (source.sectionIndex === target.sectionIndex && source.rowIndex < target.rowIndex) {
+          targetIndex -= 1;
+        }
+        if (placeAfter) targetIndex += 1;
+
+        target.section.rows.splice(targetIndex, 0, movingRow);
+        selectedRowId = movingRow.id;
+        render();
+        scheduleSave();
+      }
+
+      function clearDragMarkers() {
+        document.querySelectorAll(".dragging, .drag-over-top, .drag-over-bottom").forEach(
+          function (element) {
+            element.classList.remove("dragging", "drag-over-top", "drag-over-bottom");
+          }
+        );
+      }
+
+      function addSection() {
+        var section = {
+          id: makeId("section"),
+          name: "새 리소스 그룹",
+          rows: []
+        };
+        state.sections.push(section);
+        render();
+        scheduleSave();
+        window.requestAnimationFrame(function () {
+          var editor = document.querySelector(
+            '.section-name[data-section-id="' + section.id + '"]'
+          );
+          if (editor) editor.focus();
+        });
+        showToast("새 그룹을 추가했습니다.");
+      }
+
+      function deleteSection(sectionIndex) {
+        var section = state.sections[sectionIndex];
+        if (!section) return;
+        var message =
+          '"' + section.name + '" 그룹과 리소스 ' + section.rows.length + "개를 삭제할까요?";
+        if (!window.confirm(message)) return;
+        if (
+          selectedRowId &&
+          section.rows.some(function (row) {
+            return row.id === selectedRowId;
+          })
+        ) {
+          selectedRowId = null;
+        }
+        state.sections.splice(sectionIndex, 1);
+        render();
+        scheduleSave();
+        showToast("그룹을 삭제했습니다.");
+      }
+
+      function plainTextPaste(event) {
+        event.preventDefault();
+        var text = (event.clipboardData || window.clipboardData).getData("text/plain");
+        document.execCommand("insertText", false, text);
+      }
+
+      resourceBody.addEventListener("click", function (event) {
+        var insertButton = event.target.closest('[data-action="insert"]');
+        if (insertButton) {
+          insertRowAt(
+            Number(insertButton.dataset.sectionIndex),
+            Number(insertButton.dataset.position)
+          );
+          return;
+        }
+
+        var deleteRowButton = event.target.closest('[data-action="delete-row"]');
+        if (deleteRowButton) {
+          event.stopPropagation();
+          deleteRowById(deleteRowButton.dataset.rowId);
+          return;
+        }
+
+        var deleteSectionButton = event.target.closest('[data-action="delete-section"]');
+        if (deleteSectionButton) {
+          deleteSection(Number(deleteSectionButton.dataset.sectionIndex));
+          return;
+        }
+
+        var rowElement = event.target.closest(".data-row");
+        if (rowElement) selectRow(rowElement.dataset.rowId);
+      });
+
+      resourceBody.addEventListener("dragstart", function (event) {
+        var handle = event.target.closest(".index-cell");
+        if (!handle) return;
+        draggingRowId = handle.dataset.rowId;
+        var rowElement = handle.closest(".data-row");
+        if (rowElement) rowElement.classList.add("dragging");
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", draggingRowId);
+      });
+
+      resourceBody.addEventListener("dragover", function (event) {
+        if (!draggingRowId) return;
+        var targetRow = event.target.closest(".data-row");
+        if (!targetRow || targetRow.dataset.rowId === draggingRowId) return;
+        event.preventDefault();
+        var rect = targetRow.getBoundingClientRect();
+        var placeAfter = event.clientY > rect.top + rect.height / 2;
+        clearDragMarkers();
+        targetRow.classList.add(placeAfter ? "drag-over-bottom" : "drag-over-top");
+        event.dataTransfer.dropEffect = "move";
+      });
+
+      resourceBody.addEventListener("dragleave", function (event) {
+        var targetRow = event.target.closest(".data-row");
+        if (!targetRow || targetRow.contains(event.relatedTarget)) return;
+        targetRow.classList.remove("drag-over-top", "drag-over-bottom");
+      });
+
+      resourceBody.addEventListener("drop", function (event) {
+        if (!draggingRowId) return;
+        var targetRow = event.target.closest(".data-row");
+        if (!targetRow || targetRow.dataset.rowId === draggingRowId) return;
+        event.preventDefault();
+        var rect = targetRow.getBoundingClientRect();
+        var placeAfter = event.clientY > rect.top + rect.height / 2;
+        var rowId = draggingRowId;
+        clearDragMarkers();
+        draggingRowId = null;
+        moveRowTo(rowId, targetRow.dataset.rowId, placeAfter);
+      });
+
+      resourceBody.addEventListener("dragend", function () {
+        draggingRowId = null;
+        clearDragMarkers();
+      });
+
+      resourceBody.addEventListener("change", function (event) {
+        var prioritySelect = event.target.closest(".priority-select");
+        if (!prioritySelect) return;
+        var location = findRowLocation(prioritySelect.dataset.rowId);
+        if (!location) return;
+        var value = normalizePriority(prioritySelect.value);
+        location.row.priority = value;
+        prioritySelect.value = value;
+        var badge = prioritySelect.closest(".priority-badge");
+        if (badge) badge.dataset.value = value;
+        selectRow(prioritySelect.dataset.rowId);
+        scheduleSave();
+      });
+
+      resourceBody.addEventListener("input", function (event) {
+        var cellEditor = event.target.closest(".cell-editor");
+        if (cellEditor) {
+          var location = findRowLocation(cellEditor.dataset.rowId);
+          if (location && cellKeys.includes(cellEditor.dataset.key)) {
+            location.row[cellEditor.dataset.key] = cellEditor.textContent;
+            if (cellEditor.dataset.key === "scene") {
+              cellEditor.dataset.sceneType = getSceneType(cellEditor.textContent);
+            }
+            scheduleSave();
+          }
+          return;
+        }
+
+        var sectionEditor = event.target.closest(".section-name");
+        if (sectionEditor) {
+          var section = state.sections.find(function (item) {
+            return item.id === sectionEditor.dataset.sectionId;
+          });
+          if (section) {
+            section.name = sectionEditor.textContent;
+            scheduleSave();
+          }
+        }
+      });
+
+      resourceBody.addEventListener("paste", function (event) {
+        if (event.target.closest('[contenteditable="true"]')) plainTextPaste(event);
+      });
+
+      titleElement.addEventListener("input", function () {
+        state.title = titleElement.textContent;
+        scheduleSave();
+      });
+
+      subtitleElement.addEventListener("input", function () {
+        state.subtitle = subtitleElement.textContent;
+        scheduleSave();
+      });
+
+      titleElement.addEventListener("paste", plainTextPaste);
+      subtitleElement.addEventListener("paste", plainTextPaste);
+
+      addRowButton.addEventListener("click", function () {
+        var location = selectedRowId ? findRowLocation(selectedRowId) : null;
+        var sectionIndex = location ? location.sectionIndex : 0;
+        if (!state.sections.length) {
+          addSection();
+          sectionIndex = 0;
+        }
+        insertRowAt(sectionIndex, state.sections[sectionIndex].rows.length);
+      });
+
+      addSectionButton.addEventListener("click", addSection);
+      duplicateRowButton.addEventListener("click", duplicateSelectedRow);
+      moveUpButton.addEventListener("click", function () {
+        moveSelectedRow(-1);
+      });
+      moveDownButton.addEventListener("click", function () {
+        moveSelectedRow(1);
+      });
+      deleteRowButton.addEventListener("click", deleteSelectedRow);
+
+      document.addEventListener("keydown", function (event) {
+        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+          var location = selectedRowId ? findRowLocation(selectedRowId) : null;
+          if (location) {
+            event.preventDefault();
+            insertRowAt(location.sectionIndex, location.rowIndex + 1);
+          }
+        }
+      });
+
+      function downloadFile(filename, content, mimeType) {
+        var blob = new Blob([content], { type: mimeType });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.setTimeout(function () {
+          URL.revokeObjectURL(url);
+        }, 1000);
+      }
+
+      function csvCell(value) {
+        return '"' + String(value == null ? "" : value).replace(/"/g, '""') + '"';
+      }
+
+      exportCsvButton.addEventListener("click", function () {
+        var headers = [
+          "그룹",
+          "번호",
+          "리소스명",
+          "씬",
+          "쓰이는 장면",
+          "제작",
+          "폴리 예산",
+          "용도",
+          "인터랙션 / 연출",
+          "우선순위"
+        ];
+        var lines = [headers.map(csvCell).join(",")];
+        var rowNumber = 1;
+        state.sections.forEach(function (section) {
+          section.rows.forEach(function (row) {
+            lines.push(
+              [
+                section.name,
+                rowNumber++,
+                row.resource,
+                row.scene,
+                row.usage,
+                row.production,
+                row.polyBudget,
+                row.purpose,
+                row.interaction,
+                row.priority
+              ]
+                .map(csvCell)
+                .join(",")
+            );
+          });
+        });
+        downloadFile(
+          "tripo3d_모델링_목록.csv",
+          "\uFEFF" + lines.join("\r\n"),
+          "text/csv;charset=utf-8"
+        );
+        showToast("CSV 파일을 저장했습니다.");
+      });
+
+      exportJsonButton.addEventListener("click", function () {
+        downloadFile(
+          "tripo3d_모델링_목록_백업.json",
+          JSON.stringify(state, null, 2),
+          "application/json;charset=utf-8"
+        );
+        showToast("편집 데이터 백업을 저장했습니다.");
+      });
+
+      importJsonButton.addEventListener("click", function () {
+        jsonFileInput.value = "";
+        jsonFileInput.click();
+      });
+
+      jsonFileInput.addEventListener("change", function () {
+        var file = jsonFileInput.files && jsonFileInput.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+          try {
+            var imported = normalizeState(JSON.parse(String(reader.result)));
+            if (!imported) throw new Error("Invalid data");
+            state = imported;
+            selectedRowId = null;
+            render();
+            scheduleSave();
+            showToast("백업 데이터를 불러왔습니다.");
+          } catch (error) {
+            window.alert("이 HTML에서 내보낸 올바른 JSON 백업 파일이 아닙니다.");
+          }
+        };
+        reader.readAsText(file, "utf-8");
+      });
+
+      resetButton.addEventListener("click", function () {
+        if (!window.confirm("현재 편집 내용을 지우고 PDF에서 추출한 초기 목록으로 돌아갈까요?")) {
+          return;
+        }
+        state = cloneData(initialState);
+        selectedRowId = null;
+        render();
+        scheduleSave();
+        showToast("초기 목록으로 복원했습니다.");
+      });
+
+      printButton.addEventListener("click", function () {
+        window.print();
+      });
+
+      window.addEventListener("beforeprint", function () {
+        selectedRowId = null;
+        document.querySelectorAll(".data-row.selected").forEach(function (row) {
+          row.classList.remove("selected");
+        });
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

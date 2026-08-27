@@ -1,0 +1,383 @@
+# PPE 룸 벽·가구 보행 관통 방지
+
+## 증상
+
+`Assets/Scenes/3_PPE_Room_3mode_loco.unity`에서 연속 이동 중 플레이어가 벽, 진열장, 캐비닛, 선반과 같은 환경 메시 내부로 들어갈 수 있다.
+
+## 변경 전 기준 조사
+
+- 대상 씬: `Assets/Scenes/3_PPE_Room_3mode_loco.unity`
+- Unity에서 열린 씬과 디스크 대상 씬이 일치하며 변경 전 `Scene.isDirty=False`를 확인했다.
+- 활성 `XR Origin (VR)`에는 `CharacterController`가 없다.
+- `XR Origin (VR)/PPE Teleport-Only Locomotion`의 `XRBodyTransformer`는 `useCharacterControllerIfExists=True`이므로, 현재는 제약 조작기 없이 Origin을 직접 이동할 수 있다.
+- `PPE Room/Room`의 벽 7개와 `interiorObjects/Bg`의 주요 바닥형 가구에는 보행 차단용 Collider가 없다.
+- 기존 Floor 2개에는 solid Collider가 있으며 이번 작업에서 변경하지 않는다.
+- 양손 `SphereInteractionCaster`의 Physics Layer Mask는 Layer 0과 6이고, 텔레포트 `XRRayInteractor`는 Layer 31만 사용한다. Layer 2 `Ignore Raycast`는 두 물리 입력 경로 모두에서 제외된다.
+- 활성 `TrackedDeviceGraphicRaycaster`의 3D Occlusion은 꺼져 있어 Layer 2 환경 차단체가 UI Ray를 가로막는 경로도 현재 없다.
+
+## 변경 전 필수 질문
+
+1. 기존 Inspector/씬 작성값을 보존하는가?
+   - 벽·가구·Floor·텔레포트 Marker의 Transform, Renderer, Material, 기존 Collider와 모든 입력 마스크를 변경하지 않는다. 별도 환경 차단체와 활성 XR Origin의 `CharacterController`만 추가한다.
+2. 단일 기준 오브젝트와 상태 소유자는 무엇인가?
+   - 보행 충돌의 단일 이동 주체는 활성 `XR Origin (VR)`의 `CharacterController`다. 환경 차단체의 단일 작성 루트는 최상위 `PPE Environment Collision`이다.
+3. 입력 이벤트, Interactor/Caster, Raycaster, Layer, Collider의 전체 경로는 무엇인가?
+   - 연속 이동은 `컨트롤러 Move 입력 → PPEConfigurableDynamicMoveProvider → XRBodyTransformer → CharacterControllerBodyManipulator → CharacterController.Move → Layer 2 solid BoxCollider`다.
+   - PPE 근거리 입력은 `NearFarInteractor → SphereInteractionCaster(Layer 0·6)`이고, 텔레포트는 `Teleport Interactor → XRRayInteractor(Layer 31)`이므로 Layer 2 차단체를 입력 대상으로 삼지 않는다.
+   - UI는 `NearFarInteractor UI Model → TrackedDeviceGraphicRaycaster`이며 활성 Canvas의 3D Occlusion이 꺼져 있어 이번 차단체로 UI 상태를 바꾸지 않는다.
+4. 실패 시 런타임 자동 수리 대신 명확한 오류로 멈춰야 하는가?
+   - 그렇다. 런타임 생성·자동 수리는 추가하지 않는다. 명시적 Editor 메뉴가 대상 씬·오브젝트 누락 시 예외로 멈추고, 별도 검증 메뉴가 배선을 검사한다.
+5. 함께 영향을 받는 소비자는 무엇인가?
+   - 활성 XR Origin의 연속 이동과 중력 이동이 영향을 받는다. UI, 텔레포트 대상 선택, PPE Grab/착용, 오디오, 거울, 비활성 Hand Tracking Origin은 변경하지 않는다.
+6. 변경 전 기준 실행과 변경 후 비교 실행은 무엇인가?
+   - 변경 전에는 활성 Origin의 `CharacterController=없음`, 대상 벽·가구 Collider 0개다. 변경 후에는 작성 차단체 수, Layer, Bounds, solid 상태, Rigidbody 부재와 XRI CharacterController 사용 상태를 하네스로 비교한다.
+7. 어디까지 실제로 검증하는가?
+   - 정적 씬·코드 확인, Unity Editor 하네스, Play Mode에서 CharacterController가 차단체를 통과하지 않는 이동 시험까지 수행한다. 실제 신체 이동과 Quest/OpenXR 양안·성능은 헤드셋 수동 검증으로 남긴다.
+
+## 이번 변경이 대응하는 사용자 요청과 보존 동작
+
+- 대응 요청: 벽과 진열장·가구 내부로 플레이어가 들어가지 않도록 한다.
+- 보존 동작: 텔레포트와 PPE Grab Ray의 Layer/Collider 경로, 카드·모달 UI, PPE 상태 전이, 오디오 재생 규칙, 기존 환경 시각과 Transform을 유지한다.
+
+## 적용 계획
+
+- 활성 `XR Origin (VR)`에 씬 작성 `CharacterController`를 추가한다.
+- 벽은 각 Renderer의 월드 Bounds를 기준으로 최소 0.12m 두께의 BoxCollider를 만든다.
+- 주요 바닥형 가구는 복잡한 자식 메시마다 MeshCollider를 붙이지 않고 결합 Renderer Bounds 기반의 단순 BoxCollider 한 개로 차단한다.
+- 차단체는 Renderer와 Rigidbody 없이 Layer 2 `Ignore Raycast`, `isTrigger=False`로 작성한다.
+- 설정과 검증은 `Tools > PPE > Configure Room Environment Collision` 및 `Tools > PPE > Validate Room Environment Collision`로 분리한다.
+
+## 적용한 변경
+
+- 활성 `XR Origin (VR)`에 작성형 `CharacterController`를 추가했다.
+  - Radius `0.25m`, Height `1.7m`, Skin Width `0.03m`, Step Offset `0.2m`, Slope Limit `45°`
+  - `XRBodyTransformer.useCharacterControllerIfExists=True`인 기존 배선을 그대로 사용한다.
+- 최상위 `PPE Environment Collision` 아래에 solid `BoxCollider` 차단체 21개를 작성했다.
+  - 벽 7개: Front, Left, Right, Rear 및 Rear 연장 3개
+  - 주요 가구 14개: 금속 선반, 휴지통 2개, 청소 카트, 마스크 락커, 방호복 행거, 안전 캐비닛, 금속 락커 2개, 벤치, 수납 랙, 벽 행거, 소화기 2개
+- 모든 차단체는 Layer 2 `Ignore Raycast`, `isTrigger=False`, Renderer·Rigidbody 없음으로 설정했다.
+- 원본 벽·가구에는 Collider를 직접 추가하지 않았고, 복잡한 수납 랙의 107개 Renderer에도 MeshCollider를 붙이지 않았다.
+- `PPERoomEnvironmentCollisionSetup`에 명시적 Configure 메뉴와 결정적 Validation/Play Mode Probe를 추가했다.
+
+## 근본 원인과 영향 범위
+
+- 원인은 환경 메시의 시각 Renderer만 존재하고 보행 이동을 제한할 Collider가 없었던 점과, 활성 XR Origin에 `CharacterController`가 없어 XRI 이동 변환이 충돌 제약 없이 Origin을 이동시킬 수 있었던 점이다.
+- 이번 변경은 스틱 기반 연속 이동과 XRI가 `CharacterController.Move`로 적용하는 중력 이동을 제한한다.
+- 사용자가 실제 플레이 공간에서 머리만 벽 너머로 기울이는 room-scale 이동은 Origin 이동이 아니므로 Capsule만으로 완전히 막을 수 없다. 필요하면 별도의 HMD 침범 감지·페이드 기능으로 분리해야 한다.
+
+## 완료한 검증
+
+### 정적 확인
+
+- 씬 변경은 Unity Editor가 생성한 FileID만 사용했고, 기존 씬 YAML 재배열 없이 새 오브젝트·컴포넌트 추가만 발생했다.
+- `CharacterController` 1개, 차단체 21개, 각 차단체 BoxCollider 1개, solid 상태, Layer 2, Rigidbody·Renderer 부재를 확인했다.
+- 각 BoxCollider의 월드 Center/Size가 기준 Renderer Bounds와 0.02m 허용오차 안에서 일치함을 확인했다.
+- 양손 `SphereInteractionCaster`와 좌우 `XRRayInteractor`가 Layer 2를 포함하지 않음을 확인했다.
+- 활성 XR UI Raycaster의 3D Occlusion이 꺼져 있음을 확인했다.
+- 텔레포트 목적지 4곳을 플레이어 반경 0.25m만큼 확장해 검사했고 차단체와 겹치는 목적지가 없음을 확인했다.
+
+### Unity Editor 확인
+
+- `Tools > PPE > Validate Room Environment Collision`과 동일한 하네스 PASS:
+  - blockers `21`
+  - CharacterController radius `0.25`, height `1.7`
+  - collision layer `2`
+  - 검증 후 `Scene.isDirty=False`
+- Play Mode를 일시정지한 상태에서 활성 XR Origin을 원래 값으로 복원하는 스냅샷 시험을 수행했다. 전면 벽 방향으로 `CharacterController.Move(Vector3.forward * 2)`를 호출했을 때 `CollisionFlags.Sides`가 발생하고 벽 앞에서 정지해 PASS했다.
+- Play Mode 종료 후 Origin 위치·회전을 복원했고 씬은 저장된 비오염 상태다.
+- Console Error 0건을 확인했다.
+- 2026-08-25 사용자 Play Mode 수동 시험에서 환경 Collider가 플레이어 이동을 차단해
+  벽·가구 내부로 이동할 수 없음을 확인했다.
+
+## 아직 필요한 수동 검증
+
+- Quest에서 각 텔레포트 지점에 도착한 뒤 스틱 이동으로 벽, 캐비닛, 락커, 벤치, 카트,
+  진열 랙의 동일한 차단 결과를 확인한다.
+- 가구 앞에서 PPE Grab, 카드·모달 UI Ray와 텔레포트 Ray가 기존처럼 동작하는지 확인한다.
+- 앉기·서기와 서로 다른 사용자 키에서 XRI가 Capsule 높이·중심을 HMD에 맞춘 뒤에도 바닥·벽 충돌이 자연스러운지 확인한다.
+- 실제 몸을 기울여 HMD가 벽을 넘는 room-scale 침범은 이번 범위 밖이다.
+- Play Mode에서 OpenXR가 XR 오디오 출력 드라이버를 설정하지 못해 기본 출력으로 대체한다는 경고가 2건 발생했다. Collider 오류는 아니지만 Quest Link 연결 상태에서 SFX·Voice 출력 장치를 별도로 확인해야 한다.
+
+## 2026-08-26 후속: 상호작용 진열장 중복 차단 제거
+
+- 대상: 씬 루트 이름은 `PPE_B_MetalShelving`이며 내부에 진열된 `PPE_A_*` 장비와 마커가 있는 상호작용 진열장이다.
+- 1차로 전체 Bounds 차단체를 후면 0.12m 면으로 줄였고 Editor 하네스는 PASS했지만, Quest 수동 확인에서 전진할수록 플레이어가 뒤로 밀려 장비 마커와 멀어지는 현상이 남았다.
+- 진열장 전체 높이를 덮는 solid 차단체는 상호작용 접근을 방해하므로 제거 대상이다. 다만 사용자가 가구 내부로 걸어 들어가지 못하게 하는 바닥 베이스 차단은 유지해야 한다.
+- `Furniture - Metal Shelving` BoxCollider를 전체 높이 `2.184587m`에서 바닥 기준 높이 `0.3m`의 낮은 베이스 차단체로 변경했다. 이는 CharacterController의 `stepOffset=0.2m`보다 높아 보행 진입을 막지만 위쪽 PPE와 marker 앞 공간은 막지 않는다.
+- PPE 모델, `XR Item Marker_small`, 장비 Collider, Interaction Layer, 진열장 Renderer/Transform은 변경하지 않았다.
+- 정적 확인: 기존 Unity 생성 FileID를 보존한 진열장 베이스 차단체 1개와 `Assembly-CSharp-Editor` 빌드 오류 0개를 확인했다. 기존 패키지/API 경고만 남아 있다.
+- Unity Editor 확인: 2차 수정 임포트 후 `Tools > PPE > Validate Room Environment Collision` 재실행이 필요하다.
+- Quest/OpenXR 확인: 진열장으로 전진할 때 뒤로 밀리지 않고 헬멧을 포함한 마커를 손으로 잡을 수 있는지 다시 확인해야 한다.
+- 추가 원인 확인: 진열장 차단체 제거 후에도 `XR Item Marker_small` 25개의 `SphereCollider.isTrigger=false`와 전체 허용 Layer Collision Matrix 때문에 플레이어 CharacterController가 마커와 solid 충돌했다. 마커 반경·Transform·Grab 등록은 유지하고 25개를 Trigger로 전환했다.
+
+## 2026-08-26 후속: Marker Trigger 전환 후 Grab 회귀
+
+### 근본 원인
+
+- Marker를 Trigger로 전환했지만 활성 양손 `NearFarInteractor`의 근거리 `SphereInteractionCaster`가 `QueryTriggerInteraction.Ignore`로 작성되어 있었다.
+- 따라서 Marker는 더 이상 플레이어를 밀지 않았지만 손 근접 Grab query에서도 제외되어 모든 PPE를 잡을 수 없었다.
+- `PPE_B_MetalShelving` 모델 계층 34개 Transform을 정적으로 조사한 결과 모델 자체에는 Collider가 없다. 별도 환경 차단체는 PPE 높이를 가리지 않는 바닥 베이스 전용 BoxCollider 한 개만 사용한다.
+
+### 적용한 변경
+
+- Marker 25개의 Trigger 상태는 유지해 CharacterController와의 밀림을 차단했다.
+- 활성 좌우 `SphereInteractionCaster.m_PhysicsTriggerInteraction`만 `Collide`로 변경해 Trigger Marker를 손 근접 범위에서 다시 선택할 수 있게 했다.
+- Marker는 전용 Layer 6을 유지하고 원거리 `CurveInteractionCaster` mask에서는 Layer 6을 계속 제외해, PPE가 원거리 카드 레이에 잡히지 않는 기존 입력 범위를 보존했다.
+- 진열장 차단체는 전체 Bounds가 아니라 바닥 기준 높이 `0.3m`만 차단하도록 제한해 보행 진입 방지와 PPE 접근을 함께 만족시켰다.
+- 1차 베이스 차단체도 전체 깊이 `0.42775726m`를 사용해 CharacterController 반경만큼 앞에서 멈추는 거리가 남았다. 최종적으로 깊이를 `0.12m`로 줄이고 진열장 앞면에서 안쪽으로 `0.25m` 후퇴시켰다. 따라서 플레이어 몸 중심은 시각적 앞면 부근에서 멈추며 손은 marker까지 접근할 수 있다.
+- `PPERoomEnvironmentCollisionSetup`과 검증 하네스가 Marker Trigger와 좌우 Near/Far caster의 Trigger query 설정을 함께 적용·검증하도록 보강했다.
+
+### 검증 범위
+
+- 정적 확인: 양손 Near caster 두 설정이 `Collide`, Far caster 두 mask가 Marker Layer 6 제외, Marker Collider 25개가 Trigger, 진열장 베이스 차단체가 높이 `0.3m`·깊이 `0.12m`이며 앞면에서 `0.25m` 후퇴한 것을 확인했다.
+- 컴파일 확인: `Assembly-CSharp-Editor.csproj` 오류 0개(기존 obsolete 경고만 존재).
+- Unity Editor 및 Quest/OpenXR에서 실제 Hover/Select와 진열장 접근 재검증은 아직 필요하다.
+
+## 2026-08-26 검토안(대체됨): 진열장 전용 베이스 차단체 제거
+
+### 재현 결과와 근본 원인
+
+- Marker Trigger 전환 뒤 PPE Grab은 가능해졌지만, 사용자가 진열장 바로 앞까지 전진하지 못하는
+  거리가 계속 남았다.
+- 낮은 `Furniture - Metal Shelving` 베이스도 solid Collider이므로, 앞면에서 0.25m 후퇴시켜도
+  반경 0.25m인 플레이어 CharacterController가 시각적 진열장 앞면에서 정지한다.
+- `PPE_B_MetalShelving` 모델 자체에는 Collider가 없고, 진열장 바로 뒤에는 방 전체를 막는 solid
+  `Wall - Front`가 있다. 따라서 전용 베이스는 통과 방지에 중복이며 접근만 제한한다.
+
+### 적용한 변경
+
+- 씬의 `PPE Environment Collision/Furniture - Metal Shelving` GameObject와 BoxCollider를 제거했다.
+- `PPERoomEnvironmentCollisionSetup.Targets`에서도 해당 대상을 제거해 설정 도구를 다시 실행해도
+  진열장 앞 차단체가 재생성되지 않게 했다.
+- 검증 하네스는 전용 진열장 차단체가 없어야 하며, 진열장 뒤의 `Wall - Front`가 solid 상태로
+  직접 배치되어 통과를 막는지 검사한다.
+- Marker 25개의 Trigger, 양손 Near caster의 `Collide`, Far caster의 Layer 6 제외, 플레이어
+  CharacterController와 다른 가구 차단체는 변경하지 않았다.
+
+### 검증 상태
+
+- 정적 확인: 진열장 전용 GameObject·BoxCollider·부모 자식 참조가 씬에서 제거됐고 설정기에서도
+  재생성 경로가 제거됐다.
+- Unity Editor 확인: 스크립트 임포트 완료 후 `Tools > PPE > Validate Room Environment Collision`
+  실행이 필요하다.
+- Quest/OpenXR 확인: 진열장 앞까지 전진 가능, 뒤로 밀림 없음, PPE 직접 Grab 가능, 뒤쪽 벽 통과
+  불가를 다시 확인해야 한다.
+
+위 제거안은 사용자의 “하단 단스가 있으므로 선반 앞에서 보행이 막혀야 한다”는 최종 요구와 맞지
+않아 최종 상태로 사용하지 않는다. 아래의 앞면 정렬 베이스 차단체로 대체했다.
+
+## 2026-08-26 최종 수정: 단스 앞면 정렬 차단과 PPE Grab 분리
+
+- `Furniture - Metal Shelving` BoxCollider를 복원하되, 진열장 전체가 아니라 바닥 기준 높이 0.3m,
+  깊이 0.12m의 하단 단스 차단체만 사용한다.
+- 차단체 앞면은 `PPE_B_MetalShelving` Renderer Bounds의 시각적 앞면과 일치한다. 앞쪽으로 확장하거나
+  CharacterController 반경만큼 임의 후퇴시키지 않는다.
+- 차단체는 Layer 2 `Ignore Raycast`이므로 양손 PPE Grab caster가 입력 대상으로 사용하지 않는다.
+- PPE는 기존 Layer 6의 Trigger `XR Item Marker_small`과 Near caster `Collide` 경로로 선택한다.
+  따라서 플레이어 몸은 단스 앞에서 멈추지만 손의 Grab 판정은 안쪽 PPE marker까지 도달한다.
+- 검증 하네스는 차단체의 높이·깊이·바닥 접지·시각적 앞면 정렬과 입력 Layer 격리를 함께 확인한다.
+- 정적 확인과 C# 컴파일 뒤 Unity Editor 및 Quest/OpenXR에서 실제 접근·Grab을 재확인해야 한다.
+
+## 2026-08-26 후속: 플레이어 캡슐 접근 반경 축소
+
+- 단스 BoxCollider를 시각적 선반 앞면에 맞춰도 기존 플레이어 CharacterController 반경 0.25m만큼
+  HMD/몸 중심이 앞에서 정지해 접근 거리가 크게 느껴졌다.
+- 가구 BoxCollider를 뒤로 숨기지 않고 시각적 앞면 정렬을 유지한다.
+- 플레이어 CharacterController 반경을 0.1m, skin width를 0.01m로 줄여 캡슐 표면 충돌은 유지하면서
+  몸 중심이 선반 앞 약 0.1m까지 접근할 수 있게 했다.
+- 높이 1.7m, step offset 0.2m, slope limit 45도, 다른 벽·가구 차단체와 XRI
+  `useCharacterControllerIfExists` 경로는 유지한다.
+- PPE Grab은 계속 Layer 2 단스 차단체를 무시하고 Layer 6 Trigger Marker를 사용한다.
+- Unity Editor 및 Quest/OpenXR에서 선반 진입 불가, 앞면 접근, 다른 벽·가구 통과 불가를 다시 확인해야 한다.
+
+## 2026-08-26 후속: 메탈 셸브 직접 소유 Collider로 전환
+
+### 근본 원인
+
+- 베이스 `BoxCollider`가 `PPE Environment Collision/Furniture - Metal Shelving`이라는 별도
+  GameObject에 있어, 사용자가 실제 `PPE_B_MetalShelving`을 선택해도 Inspector에서 충돌 범위를
+  확인하거나 조정할 수 없었다.
+- 셸브 루트에는 X축 -90도 회전과 비균일 스케일 `(2, 2, 4.5)`이 적용되어 있어 기존 월드 좌표의
+  `Center/Size`를 그대로 복사하면 콜라이더 방향과 크기가 달라진다.
+
+### 적용한 변경
+
+- 기존 Unity 생성 `BoxCollider` FileID는 유지하면서 소유 GameObject를 `PPE_B_MetalShelving`으로
+  옮겼고, 별도 `Furniture - Metal Shelving` GameObject와 Transform은 제거했다.
+- 기존 월드 Bounds를 셸브 로컬 좌표로 환산해 동일한 시각적 앞면·높이 `0.3m`·깊이 `0.12m`를
+  유지했다.
+- 셸브 루트만 Layer 2 `Ignore Raycast`로 설정했다. 자식 PPE Marker는 Layer 6 Trigger를 유지하므로
+  손 Near Grab 경로는 바꾸지 않았다.
+- `PPERoomEnvironmentCollisionSetup`은 직접 Collider가 없을 때만 기본 Bounds로 생성한다. 이미
+  존재하는 Collider의 Inspector 작성 `Center/Size`는 설정 도구를 다시 실행해도 덮어쓰지 않는다.
+- 검증 하네스는 셸브 루트가 직접 `BoxCollider` 하나를 소유하는지와 높이·깊이·바닥·앞면 안전 범위를
+  확인하도록 변경했다.
+
+### 검증 상태
+
+- 정적 확인: 별도 GameObject/Transform 참조 제거, 기존 Collider의 셸브 루트 연결, Layer 2와 로컬
+  `Center/Size` 직렬화를 확인했다.
+- C# 컴파일: `dotnet build Assembly-CSharp-Editor.csproj --no-restore` 오류 0개. 기존 deprecated API
+  경고 29개만 남아 있다.
+- Unity Editor 하네스는 외부 씬 변경을 Editor가 다시 읽고 컴파일을 끝낸 뒤 실행해야 한다.
+- Quest/OpenXR에서는 Inspector 조정 후 선반 앞 정지 거리, 뒤로 밀림 여부, PPE Grab을 다시 확인해야 한다.
+
+## 2026-08-26 후속: 메탈 셸브 베이스 Collider 가로 배치
+
+### 근본 원인
+
+- 직접 소유 `BoxCollider`는 월드 높이 `0.3m`, 깊이 `0.12m`인 낮은 세로 스토퍼 형상이었다.
+- 전면 캡처에서 얇은 면이 바닥에서 위로 서 있는 것이 확인됐으며, 선반 판처럼 가로로 놓으라는
+  요구와 일치하지 않았다.
+- 셸브 루트의 X축 -90도 회전과 비균일 스케일 `(2, 2, 4.5)` 때문에 로컬 `Size` 축만 단순히
+  맞바꾸면 월드 높이와 깊이가 의도한 값이 되지 않는다.
+
+### 적용한 변경
+
+- 동일한 Collider와 FileID를 유지하면서 로컬 `Center/Size`를 다시 환산했다.
+- 월드 형상은 높이 `0.12m`, 깊이 `0.3m`로 가로 배치했다. 기존 바닥 최저점과 시각적 앞면은
+  그대로 유지하므로 플레이어의 전면 정지 기준은 바뀌지 않는다.
+- `Ignore Raycast`, PPE Marker, Near/Far caster, 장비 Collider와 선반 모델 Transform은 변경하지 않았다.
+- 검증 하네스의 높이·깊이 한계를 새 형상에 맞추고, 월드 높이가 깊이보다 작아야 한다는 가로 배치
+  조건을 추가했다.
+
+### 검증 상태
+
+- 정적 확인: 씬 로컬값을 셸브 Transform에 적용하면 월드 크기는 약
+  `1.961797m × 0.12m × 0.3m`이며, 기존 월드 바닥·앞면 기준점을 유지한다.
+- Unity Editor 확인: 외부 씬 변경 임포트 후 `Tools > PPE > Validate Room Environment Collision`을
+  실행하고 Scene View에서 Collider가 선반 판처럼 가로인지 확인해야 한다.
+- Quest/OpenXR 확인: 선반 앞 접근, 가구 진입 차단, PPE 근접 Grab을 다시 확인해야 한다.
+
+## 2026-08-27 수정: Wall Hanger 중복 차단 제거와 셸브 가로 Collider 유지
+
+### 근본 원인
+
+- 저장된 씬에서 `PPE_B_MetalShelving` 자체 Collider 외에
+  `PPE Environment Collision/Furniture - Wall Hanger` BoxCollider가 선반 접근 영역을 함께 덮고 있었다.
+- 해당 차단체의 앞면은 선반 Renderer 앞면보다 0.329m 돌출되어 있었다. 플레이어 CharacterController 반경
+  0.1m를 합치면 카메라와 Origin이 정렬된 경우 약 0.429m 간격에서 이동이 정지할 수 있었다.
+- 따라서 메탈 셸브 Collider를 조정해도 체감 정지 위치가 바뀌지 않았다. 카메라의 room-scale 오프셋은 보이는
+  간격에 영향을 줄 수 있지만 이번 고정된 30cm 이상 차단 거리의 근본 원인은 아니었다.
+- 메탈 셸브 베이스 Collider의 월드 기준 높이 0.12m, 깊이 0.30m 가로 배치는 PPE Grab 접근 공간을
+  보존하기 위해 사용자가 확정한 상태다. 이 값은 중복 차단 원인이 아니므로 유지한다.
+
+### 적용한 변경
+
+- 원본 `PPE_B_WallHanger` 모델은 유지하고, 중복된 `Furniture - Wall Hanger` 환경 차단체만 제거했다.
+- `PPERoomEnvironmentCollisionSetup.Targets`에서도 Wall Hanger 대상을 제거해 설정 도구 재실행 시 재생성되지 않게 했다.
+- 메탈 셸브가 직접 소유한 기존 BoxCollider FileID와 월드 기준 높이 0.12m, 깊이 0.30m 가로 배치를 유지했다.
+- 셸브 뒤의 `Wall - Front` solid Collider는 유지해 방 밖 통과를 계속 차단한다.
+- `Tools > PPE > Validate Interactive Shelf Access Collision`을 추가해 중복 차단체 부재, 셸브 Collider의 가로 배치,
+  바닥·앞면 정렬과 뒤쪽 벽 차단을 독립적으로 검사한다.
+
+### 검증
+
+- 정적 확인: Wall Hanger 환경 차단체가 없고 셸브 Collider 월드 크기가 `(1.962, 0.120, 0.300)`임을 확인했다.
+- Unity Editor 확인: `ValidateInteractiveShelfAccess()` PASS.
+- 전체 `Validate Room Environment Collision`은 이번 변경과 무관한 기존
+  `PPE/PPE_A_SuitHang_Ripped` XRGrabInteractable Collider 바인딩 오류에서 중단됐다. 이 작업에서는 해당 입력 소비자를
+  변경하지 않았다.
+- Quest/OpenXR 확인: 셸브 앞 체감 정지 거리, 단스 진입 차단, PPE 근접 Grab을 실제 HMD에서 확인해야 한다.
+
+### 2026-08-27 추가: 선반 판별 Collider와 Wooden Crate 02 독립 차단
+
+- 높이 0.12m인 셸브 바닥 Collider만으로는 `CharacterController.stepOffset=0.2m`에 의해 단차를 올라가듯
+  셸브 내부로 진입할 수 있었다.
+- 전역 stepOffset을 낮추거나 셸브 앞에 보이지 않는 세로 벽을 두지 않고, 실제 수평 선반 Renderer
+  `tripo_part_15`, `tripo_part_4`, `tripo_part_5`에 각각 Bounds와 일치하는 BoxCollider를 추가했다.
+- 기존 바닥 Collider와 세 선반 판 Collider는 모두 Layer 2를 사용한다. 양손 Near/Far 입력은 Layer 2를
+  제외하고 Layer 6 Trigger Marker를 사용하므로 Grab 입력 경로를 변경하지 않는다.
+- 하네스에서 각 선반 Collider와 모든 `XR Item Marker_small` Bounds가 겹치지 않는 것을 검사한다.
+- `PPE_B_WoodenCrate_02`에는 자체 Collider가 없었고, 제거된 Wall Hanger 대형 차단체가 과거에 우연히
+  해당 영역을 덮고 있었다. 크레이트 02 Renderer Bounds와 일치하는 전용 Layer 2 차단체를 추가하고
+  `PPERoomEnvironmentCollisionSetup.Targets`에 등록했다.
+- Unity Editor 확인: 선반 판 3개, Marker 비중첩, 입력 Layer 격리, Wooden Crate 02 Bounds 및 셸브 전용
+  접근 검증이 PASS했다. 실제 HMD 이동과 PPE Grab은 Quest/OpenXR에서 수동 확인해야 한다.
+
+## 2026-08-27 추가: PPE 선택 마커 판정 반경 축소
+
+### 근본 원인
+
+- `XR Item Marker_small`의 발광 Mesh 크기와 선택용 `SphereCollider`가 같은 오브젝트에 있었고, 주요 PPE의 로컬 반경이 `0.25`로 설정되어 있었다.
+- 오른쪽 장갑 기준 콜라이더 월드 지름은 약 `0.0793m`였으며, Near caster의 반경 `0.1m`와 합쳐져 가까운 다른 PPE가 선택될 가능성이 있었다.
+
+### 적용한 변경
+
+- `PPE` 루트 바로 아래의 실제 선택 대상 23개에 한해 `SphereCollider.radius`를 `0.125`로 줄였다.
+- 발광 마커의 Transform, Renderer Bounds, Mesh, Material은 변경하지 않았다.
+- 헬멧 결함 표시용으로 중첩된 마커 2개는 선택 대상 반경 변경에서 제외했다.
+- `Tools > PPE > Apply Primary PPE Marker Selection Radius`는 명시적인 Editor 작업으로만 반경을 적용하며, 기존 미저장 씬 변경을 함께 저장하지 않도록 dirty 씬에서는 중단한다.
+- `Tools > PPE > Validate Primary PPE Marker Selection Radius` 검증 메뉴를 추가했다.
+
+### 검증
+
+- 정적 확인: 주요 PPE 마커 23개의 로컬 반경 `0.125`, Trigger 유지, Renderer 존재를 확인했다.
+- Unity Editor 확인: 오른쪽 장갑의 콜라이더 월드 지름이 약 `0.0396m`로 감소했다. 적용 전후 23개 발광 마커의 Transform, Renderer Bounds, Mesh, Material이 동일함을 비교했다.
+- 저장 상태: 작업 시점에 장갑·마스크·SCBA 등의 기존 미저장 Transform 변경이 있어 씬을 자동 저장하지 않았다. 사용자가 해당 변경을 검토한 후 씬을 저장해야 한다.
+- Quest/OpenXR 확인: 실제 손 접근 시 인접 PPE 오선택 감소와 잡기 편의성은 HMD에서 수동 확인이 필요하다.
+
+## 2026-08-27 추가: 헬멧 쪽 바깥 기둥 단일 Collider
+
+- 헬멧이 배치된 셸브 오른쪽 바깥 기둥은 `tripo_part_6`, `tripo_part_17`,
+  `tripo_part_17 (1)` 세 Renderer 조각으로 이어진 구조다.
+- 세 조각의 합산 Bounds와 일치하는 BoxCollider 하나를 대표 조각 `tripo_part_6`에 추가했다.
+  월드 크기는 약 `(0.042, 2.071, 0.092)m`로 얇은 세로 기둥 범위만 막는다.
+- 다른 세로 부재에는 BoxCollider를 추가하지 않았으며, 기존 상판 3개와 바닥 Collider는 유지했다.
+- 셸브 계층에 Rigidbody가 없으므로 상판과 기둥의 정적 Collider가 서로 밀어내지 않는다.
+- Unity Editor 검증에서 합산 Bounds 일치, Layer 2, PPE Marker 비중첩, 다른 기둥 무변경,
+  Rigidbody 부재가 PASS했다. 실제 HMD에서 기둥 통과 차단과 가장자리 걸림 여부를 수동 확인해야 한다.
+
+## 2026-08-27 추가 진단: 가구 이동 후 차단체 정렬 차이
+
+### 진단 방법
+
+- `Tools > PPE > Validate Furniture Collider Alignment` 읽기 전용 검증을 추가했다.
+- 환경 차단 루트 아래 각 Furniture BoxCollider의 월드 중심·크기를 현재 대응 Renderer Bounds와
+  비교했다. 허용 오차는 `0.02m`다.
+- 메탈 셸브는 별도 작성 정책에 따라 베이스, 상판 3개, 헬멧 쪽 기둥을 각각 검증했다.
+
+### 결과
+
+가구 차단체 13개 중 다음 9개가 현재 형상과 어긋났다.
+
+| 차단체 | 중심 차이 | 크기 차이 | 실제 중심 / 기대 중심 |
+|---|---:|---:|---|
+| `Furniture - Yellow Trash Bin 01` | `0.126m` | `0.000m` | `(7.56,-0.25,-0.31)` / `(7.45,-0.21,-0.32)` |
+| `Furniture - Yellow Trash Bin 02` | `0.126m` | `0.000m` | `(7.58,-0.26,-0.94)` / `(7.46,-0.21,-0.94)` |
+| `Furniture - Cleaning Cart` | `0.111m` | `0.000m` | `(7.40,0.03,1.34)` / `(7.30,-0.02,1.34)` |
+| `Furniture - Suit Hanger` | `0.057m` | `0.000m` | `(7.37,0.17,3.38)` / `(7.37,0.11,3.38)` |
+| `Furniture - Safety Cabinet` | `0.032m` | `0.000m` | `(-3.50,0.10,9.70)` / `(-3.47,0.10,9.70)` |
+| `Furniture - Bench` | `0.141m` | `0.000m` | `(-3.44,-0.66,3.79)` / `(-3.58,-0.66,3.79)` |
+| `Furniture - Storage Wall Rack` | `0.174m` | `0.000m` | `(7.28,-0.01,5.76)` / `(7.45,-0.01,5.76)` |
+| `Furniture - Wooden Crate 02` | `0.059m` | `0.117m` | `(-0.51,0.13,10.17)` / `(-0.51,0.13,10.23)` |
+| `Furniture - Fire Extinguisher 01` | `0.076m` | `0.000m` | `(7.43,-0.57,10.34)` / `(7.45,-0.57,10.41)` |
+
+- Mask Locker, Metal Locker, Metal Locker 1, Fire Extinguisher 02는 현재 Renderer Bounds와 정렬됐다.
+- 메탈 셸브 베이스, 상판 3개, 헬멧 쪽 오른쪽 기둥도 현재 형상과 정렬됐다.
+- 크기가 같은 8개는 가구 Transform 변경 뒤 독립 차단체가 따라오지 않은 것으로 추정된다.
+- Wooden Crate 02는 현재 Renderer 깊이가 기존 차단체보다 약 `0.11m` 커 중심과 크기를 모두
+  다시 맞춰야 한다.
+
+### 현재 조치 상태
+
+- 이 단계에서는 진단만 요청받았으므로 Collider를 이동·재생성하거나 씬을 저장하지 않았다.
+- 후속 승인 시 어긋난 9개만 현재 Renderer Bounds에 맞추고, 정상 4개와 메탈 셸브 전용
+  Collider는 보존한다.
+
+### PPE 위치 변경 후 Marker 겹침
+
+- 주요 PPE Marker 23개는 반경 `0.125`와 발광 Renderer를 정상 유지하고, Marker 상호 간에는
+  겹침이 없다. 최소 표면 간격은 오른쪽 장갑과 Tape 사이 약 `0.111m`다.
+- `PPE_A_FaceShield_Clean/XR Item Marker_small`은 셸브 `tripo_part_4` 상판과 Y축
+  `0.0007m`만 겹친다. Marker 중심은 상판 밖이다.
+- `PPE_C_Tablet/XR Item Marker_small`은 `Furniture - Wooden Crate 02` 차단체 안에 중심까지
+  포함된다. 월드 Marker 크기 약 `0.0375m` 중 Z축 겹침은 `0.0349m`다.
+- 사용자가 Tablet Marker를 뒤로 이동한 것은 의도한 작성값이라고 확인했다. Crate solid는
+  Layer 2, Marker는 Layer 6이며 손 Near/Far 입력은 Layer 2를 선택 대상으로 소비하지 않는다.
+  따라서 해당 Bounds 겹침은 정보로 기록하되 자동 실패나 Marker 이동 근거로 사용하지 않는다.
+- `Validate Furniture Collider Alignment`는 PPE Marker와 solid Furniture Collider의 겹침을
+  정보 로그로 함께 보고한다. 셸브 상판은 `0.02m`를 넘는 깊은 침투만 실패 처리한다.
+- 진단만 수행했으며 PPE, Marker, 상판, 크레이트 차단체의 Transform과 Bounds는 변경하지 않았다.
+- 후속 수정 대상은 의도한 Tablet Marker가 아니라, 현재 Renderer와 중심·크기가 달라진
+  Wooden Crate 02 차단체다.

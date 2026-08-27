@@ -1,0 +1,35 @@
+{
+    "materials": [
+        {
+            "materialPath": "Assets/FBX/mask/tripo_convert_94986bd0-5f35-41bb-89a9-79ae9b5d8ab2.fbx",
+            "bumpMapGuid": "a3ae9fe063d7e954185b793283f40166",
+            "normalMapGuid": "",
+            "occlusionMapGuid": "",
+            "hasOcclusionStrength": true,
+            "occlusionStrength": 1.0,
+            "normalKeyword": true,
+            "occlusionKeyword": false
+        },
+        {
+            "materialPath": "Assets/FBX/pink chemical pad/tripo_convert_af8ff8de-ea80-4e7e-917f-c90cac6ca5d3.fbx",
+            "bumpMapGuid": "b0bddeb14b0ef104cb857fead77d7f41",
+            "normalMapGuid": "",
+            "occlusionMapGuid": "",
+            "hasOcclusionStrength": true,
+            "occlusionStrength": 1.0,
+            "normalKeyword": true,
+            "occlusionKeyword": false
+        },
+        {
+            "materialPath": "Assets/FBX/slat_wall_panel/tripo_convert_0aa7ef29-bd71-4485-a43d-36efff145ba6.fbx",
+            "bumpMapGuid": "e73e5f70821647b4099f09d199eb198d",
+            "normalMapGuid": "",
+            "occlusionMapGuid": "",
+            "hasOcclusionStrength": true,
+            "occlusionStrength": 1.0,
+            "normalKeyword": true,
+            "occlusionKeyword": false
+        }
+    ],
+    "createdUtc": "2026-07-31T06:33:27.9145538Z"
+}

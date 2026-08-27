@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)..\client\Assets\Editor\PPERoomMaterialRecoveryHarness.cs" />
+  </ItemGroup>
+</Project>

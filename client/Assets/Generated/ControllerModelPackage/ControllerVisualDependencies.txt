@@ -1,0 +1,21 @@
+Asset dependencies included by the controller visual prefabs:
+
+Assets/FBX/hand/BareHand/LeftHand_BareHand_ExactOriginalMesh_Rig_LightSkin.fbx
+Assets/FBX/hand/BareHand/RightHand_BareHand_ExactOriginalMesh_Rig_LightSkin.fbx
+Assets/FBX/hand/BareHand_Suit/LeftHand_BareHand_Suit.fbx
+Assets/FBX/hand/BareHand_Suit/RightHand_BareHand_Suit.fbx
+Assets/FBX/hand/Glove_Suit/LeftHand_Glove_Suit.fbx
+Assets/FBX/hand/Glove_Suit/RightHand_Glove_Suit.fbx
+Assets/FBX/hand/Glove_Suit_Tape/LeftHand_Glove_Suit_Tape.fbx
+Assets/FBX/hand/Glove_Suit_Tape/RightHand_Glove_Suit_Tape.fbx
+Assets/Generated/ControllerModelPackage/Prefabs/LeftControllerVisual.prefab
+Assets/Generated/ControllerModelPackage/Prefabs/RightControllerVisual.prefab
+Assets/Materials/XR Hands/PPE_LeftBareHand_LightSkin_Unlit.mat
+Assets/Materials/XR Hands/PPE_RightBareHand_LightSkin_Unlit.mat
+Assets/Samples/XR Interaction Toolkit/3.4.1/Starter Assets/Materials/Controller_Grey.mat
+Assets/Samples/XR Interaction Toolkit/3.4.1/Starter Assets/Materials/Controller_White.mat
+Assets/Samples/XR Interaction Toolkit/3.4.1/Starter Assets/Models/UniversalController.fbx
+Assets/Samples/XR Interaction Toolkit/3.4.1/Starter Assets/Scripts/ControllerAnimator.cs
+Assets/Samples/XR Interaction Toolkit/3.4.1/Starter Assets/Textures/DefaultMaterial_AO.png
+Assets/Samples/XR Interaction Toolkit/3.4.1/Starter Assets/XRI Default Input Actions.inputactions
+Assets/Shaders/XRHandFormUnlit.shader

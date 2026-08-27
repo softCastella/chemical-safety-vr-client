@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 0533d320150cba1498247a35053208ed
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 325773
+  packageName: Visual Keyboard
+  packageVersion: 1.0.0
+  assetPath: Assets/Visual Keyboard/Scripts/Light Animation (fun)/Demo_VisualKeyboardAnimation_02.cs
+  uploadId: 774418

@@ -1,0 +1,26 @@
+SnipAutoSaver 휴대용 버전
+
+이 실행 파일들은 .NET을 별도로 설치하지 않아도 됩니다.
+
+- SnipAutoSaver_Windows_x64.exe
+  일반적인 Intel/AMD 64비트 Windows 10/11 PC용입니다.
+
+- SnipAutoSaver_Windows_ARM64.exe
+  Snapdragon, Surface Pro X 등 ARM64 Windows PC용입니다.
+
+- SnipAutoSaver_Windows_x86.exe
+  구형 32비트 Windows PC용입니다.
+
+사용 방법
+
+1. PC에 맞는 EXE 하나를 원하는 폴더로 복사합니다.
+2. EXE를 실행합니다.
+3. Win + Shift + S로 캡처합니다.
+4. PNG는 실행 파일 위치와 무관하게 현재 사용자의 바탕 화면\ScreenShot 폴더에 저장됩니다.
+5. 관리 창의 프로그램 종료 버튼이나 창 우측 상단 X를 누르면 완전히 종료됩니다.
+
+지원 범위
+
+- Windows 전용입니다. Win + Shift + S와 Windows 캡처 도구를 사용합니다.
+- Windows 10/11을 대상으로 합니다.
+- macOS, Linux 및 Windows 7/8에서는 지원하지 않습니다.

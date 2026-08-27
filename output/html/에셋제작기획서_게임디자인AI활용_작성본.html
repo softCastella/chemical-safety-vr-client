@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>화학물질 누출 초동대응 VR · 에셋 제작 기획서 · 작성본</title>
+  <style>
+    :root {
+      --bg: #08090a;
+      --panel: #0f1011;
+      --panel-soft: #16171a;
+      --line: rgba(255, 255, 255, 0.08);
+      --line-strong: rgba(255, 255, 255, 0.12);
+      --text: #f7f8f8;
+      --sub: #8a8f98;
+      --accent: #7c89f8;
+      --accent-strong: #5e6ad2;
+      --accent-soft: rgba(94, 106, 210, 0.16);
+      --success: #4cb782;
+      --warning: #f2c94c;
+      --danger: #eb5757;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter var", Inter, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background:
+        radial-gradient(900px circle at 50% -10%, rgba(94, 106, 210, 0.12), transparent 60%),
+        var(--bg);
+      background-attachment: fixed;
+      color: var(--text);
+      padding: 48px 20px;
+    }
+
+    .wrap { max-width: 1160px; margin: 0 auto; }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      color: var(--sub);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-left: 10px;
+      padding: 4px 11px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid var(--line);
+      color: var(--accent);
+      font-size: 12px;
+      vertical-align: middle;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 38px);
+      letter-spacing: -0.035em;
+      line-height: 1.16;
+      font-weight: 600;
+    }
+
+    .desc {
+      margin: 12px 0 0;
+      color: var(--sub);
+      font-size: 15px;
+      line-height: 1.65;
+      max-width: 780px;
+    }
+
+    .desc strong { color: var(--text); font-weight: 600; }
+
+    .stamp {
+      min-width: 200px;
+      padding: 16px 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      font-size: 13px;
+      line-height: 1.9;
+      color: var(--sub);
+    }
+
+    .stamp b { color: var(--text); font-weight: 500; }
+
+    .guide {
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--warning);
+      border-radius: 10px;
+      background: rgba(242, 201, 76, 0.06);
+      color: var(--sub);
+      font-size: 13px;
+      line-height: 1.75;
+      margin-bottom: 20px;
+    }
+
+    .guide strong { color: var(--text); font-weight: 600; }
+
+    .meta-box {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .meta-item {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+    }
+
+    .meta-label { color: var(--sub); font-size: 12px; margin-bottom: 6px; }
+    .meta-value { font-size: 14px; line-height: 1.45; }
+
+    .card {
+      padding: 22px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .no {
+      padding: 6px 11px;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--line);
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 19px;
+      letter-spacing: -0.02em;
+      font-weight: 600;
+    }
+
+    .card-sub {
+      color: var(--sub);
+      font-size: 13px;
+      margin: 0 0 16px;
+      line-height: 1.6;
+    }
+
+    h3 {
+      margin: 20px 0 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sub);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    h3:first-of-type { margin-top: 0; }
+
+    p, li { font-size: 14px; line-height: 1.75; }
+    p { margin: 0 0 10px; }
+    ul { margin: 0 0 10px; padding-left: 20px; }
+    li { margin-bottom: 4px; }
+
+    .table-scroll { overflow-x: auto; margin-bottom: 6px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 640px;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 11px;
+      text-align: left;
+      vertical-align: top;
+      line-height: 1.6;
+    }
+
+    th {
+      background: var(--panel-soft);
+      color: var(--sub);
+      font-weight: 500;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    td.num { white-space: nowrap; color: var(--sub); }
+
+    .chip {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .chip-a { background: rgba(94, 106, 210, 0.18); color: #a6afff; }
+    .chip-b { background: rgba(255, 255, 255, 0.07); color: var(--sub); }
+    .chip-ok { background: rgba(76, 183, 130, 0.16); color: #6dd99e; }
+    .chip-warn { background: rgba(242, 201, 76, 0.16); color: #f2c94c; }
+    .chip-bad { background: rgba(235, 87, 87, 0.16); color: #ff8a8a; }
+
+    .shot-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .shot {
+      min-height: 118px;
+      display: grid;
+      place-items: center;
+      padding: 14px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 10px;
+      background: var(--panel-soft);
+      color: var(--sub);
+      font-size: 12px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .shot b { display: block; color: var(--text); font-weight: 500; margin-bottom: 4px; font-size: 13px; }
+
+    .flow {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel-soft);
+      font-family: "Cascadia Mono", Consolas, "D2Coding", monospace;
+      font-size: 12.5px;
+      line-height: 1.9;
+      white-space: pre;
+      overflow-x: auto;
+      color: var(--text);
+    }
+
+    .note {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent-strong);
+      border-radius: 10px;
+      background: var(--panel-soft);
+      color: var(--sub);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .note strong { color: var(--text); font-weight: 600; }
+
+    .footer {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      color: var(--sub);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    @media print {
+      body { background: #fff; color: #111; padding: 16px; }
+      .card, .meta-item, .stamp, .footer, .flow, .shot, .note, .guide { background: #fff; border-color: #ccc; }
+      th { background: #f2f2f2; color: #111; }
+      .desc, .card-sub, .meta-label, td.num, .note, .footer, .guide { color: #333; }
+      h3 { color: #111; }
+      .card { break-inside: avoid; page-break-inside: avoid; }
+    }
+
+    @media (max-width: 900px) {
+      .meta-box { grid-template-columns: repeat(2, 1fr); }
+      .shot-grid { grid-template-columns: 1fr; }
+      .header { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="header">
+      <div>
+        <div class="eyebrow">비NCS 실기 · 게임디자인(AI활용) 능력단위 · 제출 산출물</div>
+        <h1>에셋 제작 기획서<span class="badge">작성본</span></h1>
+        <p class="desc">화학물질 누출 초동대응 VR 시뮬레이션 · <strong>Tripo3D 기반 FBX 에셋 40종 제작</strong><br />
+          기존 프로젝트 기획과 HMI 시나리오의 안전관리요원 체험 흐름을 현재 PPE룸, 혼합기동, 혼합기 내부 씬 구성에 맞춰 정리했다.</p>
+      </div>
+      <div class="stamp">
+        프로젝트 · <b>화학물질 누출 초동대응 VR 시뮬레이션</b><br />
+        사고 설정 · <b>Line A-03 · 25% NaOH 누출</b><br />
+        대상 씬 · <b>PPE룸 · 혼합기동 · 혼합기 내부</b><br />
+        작성자 · <b>작성자 입력</b><br />
+        작성일 · <b>2026.07.30</b><br />
+        버전 · <b>v1.0</b>
+      </div>
+    </section>
+
+    <div class="guide">
+      <strong>작성 기준</strong> — <code>누출사고_프로젝트_제안기획서.html</code>과 <code>누출사고_HMI_시나리오_MVP.html</code>의 교육 목적·상황·체험 흐름을 사용하고, 샘플 문서는 CSS와 문1~문5 양식만 참고했다.<br />
+      Unity 기본 도형, Quad, Camera, UI, 기존 프로젝트 FBX는 제외하고 <strong>Tripo3D에서 제작한 FBX 40종</strong>만 정리했다.
+      생성 화면, 실제 시도 횟수, Import 직후 크기처럼 작업 증빙이 필요한 값은 임의로 만들지 않고 <strong>실제 기록 입력</strong>으로 표시했다.
+    </div>
+
+    <section class="meta-box">
+      <div class="meta-item"><div class="meta-label">제작 도구</div><div class="meta-value">Tripo3D (Text-to-3D / Image-to-3D)</div></div>
+      <div class="meta-item"><div class="meta-label">제작 에셋</div><div class="meta-value">40종 (A 10 · B 13 · C 15 · D 2)</div></div>
+      <div class="meta-item"><div class="meta-label">타깃 플랫폼</div><div class="meta-value">Meta Quest / Android · Unity 6 · OpenXR</div></div>
+      <div class="meta-item"><div class="meta-label">시나리오 · 폴리 예산</div><div class="meta-value">25% NaOH 누출 · 총 77,700 tri</div></div>
+    </section>
+
+    <article class="card">
+      <div class="card-top"><span class="no">문1</span><h2>에셋 도출 및 제작 목록 확정</h2></div>
+      <p class="card-sub">교육 흐름에 필요한 오브젝트를 씬별로 도출하고 Tripo3D FBX 제작 범위를 확정한다.</p>
+
+      <h3>1-1. 시나리오 단계별 필요 오브젝트</h3>
+      <div class="table-scroll"><table>
+        <thead><tr><th>단계</th><th>사용자 행동</th><th>필요 오브젝트</th><th>없으면?</th></tr></thead>
+        <tbody>
+          <tr><td class="num">S1<br />PPE룸 준비</td><td>현장 안전관리요원으로서 보호구와 준비 공간을 확인한다</td><td>PPE용품 10종, 캐비닛, 로커, 벤치, 위생·안전 소품</td><td><span class="chip chip-bad">성립 불가</span> 작업 전 안전 준비 단계</td></tr>
+          <tr><td class="num">S2<br />경보·상황 확인</td><td>태블릿에서 Line A-03 누출 경보, CCTV와 사고 원인을 확인한다</td><td>PPE룸 배경 소품과 태블릿 주변 환경</td><td><span class="chip chip-bad">성립 불가</span> 상황 인지 단계</td></tr>
+          <tr><td class="num">S3<br />혼합기동 진입</td><td>현장 이동 후 작업 구역, 환기 장비, 접근 구조물을 확인한다</td><td>덕트, 계단, 안전 콘, 제어반</td><td><span class="chip chip-warn">축소 가능</span> 현장 맥락이 약해짐</td></tr>
+          <tr><td class="num">S4<br />작업 전 안전 확인</td><td>LOTO 장치, 외부 감시인, 가스측정기와 무전 상태를 확인한다</td><td>자물쇠, 작업자, 산소·가스측정기, 무전기</td><td><span class="chip chip-bad">성립 불가</span> 안전 확인 흐름</td></tr>
+          <tr><td class="num">S5<br />혼합기 내부 작업</td><td>손전등과 청소 도구를 확인하고 내부 점검·작업을 진행한다</td><td>브러시, 전술 손전등</td><td><span class="chip chip-warn">대체 가능</span> 기본 도구로 대체 가능</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>1-2. 제작 확정 목록 (40종)</h3>
+      <div class="table-scroll"><table>
+        <thead><tr><th>No</th><th>에셋명</th><th>분류</th><th>사용 단계</th><th>우선순위</th></tr></thead>
+        <tbody>
+  <tr>
+    <td class="num">01</td>
+    <td>metal_locker</td>
+    <td><span class="chip chip-a">B PPE룸 배경</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">02</td>
+    <td>metal_locker (1)</td>
+    <td><span class="chip chip-a">B PPE룸 배경</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">03</td>
+    <td>mask_locker</td>
+    <td><span class="chip chip-a">B PPE룸 배경</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">04</td>
+    <td>safety_cabinet</td>
+    <td><span class="chip chip-a">B PPE룸 배경</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">05</td>
+    <td>ppe_room_bench_0</td>
+    <td><span class="chip chip-a">B PPE룸 배경</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">06</td>
+    <td>ppe_room_bench_1</td>
+    <td><span class="chip chip-a">B PPE룸 배경</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">07</td>
+    <td>ppe_room_bench_2</td>
+    <td><span class="chip chip-a">B PPE룸 배경</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">08</td>
+    <td>hazmat_suit</td>
+    <td><span class="chip chip-a">A PPE용품</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">09</td>
+    <td>hazmat_suit_3d_model</td>
+    <td><span class="chip chip-a">A PPE용품</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">10</td>
+    <td>hazmat_suit_hanger</td>
+    <td><span class="chip chip-a">A PPE용품</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">11</td>
+    <td>blue_rubber_gloves_3d_model_Clone1</td>
+    <td><span class="chip chip-a">A PPE용품</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">12</td>
+    <td>construction_helmet_3d_model_Clone1</td>
+    <td><span class="chip chip-a">A PPE용품</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">13</td>
+    <td>gas_mask_3d_model_Clone1</td>
+    <td><span class="chip chip-a">A PPE용품</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">14</td>
+    <td>rubber_boots_3d_model</td>
+    <td><span class="chip chip-a">A PPE용품</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">15</td>
+    <td>rubber_boots_3d_model_Clone1</td>
+    <td><span class="chip chip-a">A PPE용품</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">16</td>
+    <td>tactical_harness_3d_model<br /><small>등지게형 송기마스크용 전동 송풍기 착용 하네스</small></td>
+    <td><span class="chip chip-a">A PPE용품</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">17</td>
+    <td>orange_tape_roll_3d_model</td>
+    <td><span class="chip chip-a">A PPE용품</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">18</td>
+    <td>yellow_trash_bin_3d_model_Clone1</td>
+    <td><span class="chip chip-a">B PPE룸 배경</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">19</td>
+    <td>yellow_waste_bin_3d_model</td>
+    <td><span class="chip chip-a">B PPE룸 배경</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">20</td>
+    <td>fire_extinguisher_3d_model</td>
+    <td><span class="chip chip-a">B PPE룸 배경</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">21</td>
+    <td>fire_extinguisher_3d_model_1</td>
+    <td><span class="chip chip-a">B PPE룸 배경</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">22</td>
+    <td>hand+sanitizer+dispenser</td>
+    <td><span class="chip chip-a">B PPE룸 배경</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">23</td>
+    <td>cleaning_cart</td>
+    <td><span class="chip chip-a">B PPE룸 배경</span></td>
+    <td>PPE룸</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">24</td>
+    <td>flexible_duct_3d_model</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">25</td>
+    <td>flexible_duct_3d_model_1</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">26</td>
+    <td>industrial_stair_3d_model</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">27</td>
+    <td>traffic_cone_3d_model</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">28</td>
+    <td>traffic_cone_3d_model (1)</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">29</td>
+    <td>safety_lock_3d_model</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">30</td>
+    <td>lockout_padlock_3d_model</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">31</td>
+    <td>red_lockout_padlock_3d_model</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">32</td>
+    <td>padlock_3d_model</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">33</td>
+    <td>red_padlock_3d_model</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">34</td>
+    <td>industrial_control_panel_3d_model</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">35</td>
+    <td>construction_worker_3d_model</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">36</td>
+    <td>multi_gas_detector_3d_model</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">37</td>
+    <td>multi_gas_detector_3d_model_Clone1</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">38</td>
+    <td>rugged_two-way_radio_3d_model</td>
+    <td><span class="chip chip-a">C 혼합기동 배경</span></td>
+    <td>혼합기동</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">39</td>
+    <td>mixer+clean+brush</td>
+    <td><span class="chip chip-a">D 혼합기 내부 배경</span></td>
+    <td>혼합기 내부</td>
+    <td>필수</td>
+  </tr>
+  <tr>
+    <td class="num">40</td>
+    <td>tactical_flashlight_3d_model</td>
+    <td><span class="chip chip-a">D 혼합기 내부 배경</span></td>
+    <td>혼합기 내부</td>
+    <td>필수</td>
+  </tr></tbody>
+      </table></div>
+      <div class="note"><strong>하네스 에셋 정의</strong> — <code>tactical_harness_3d_model</code>은 추락방지용 안전대가 아니다. 송기마스크와 송기마스크용 전동 송풍기를 공기 호스로 연결하고, 전동 송풍기와 호스를 작업자의 몸에 지지·고정하는 등지게형 착용 하네스다.</div>
+
+      <h3>1-3. 제작 범위 · 제외 범위</h3>
+      <div class="table-scroll"><table>
+        <thead><tr><th>제외 항목</th><th>제외 사유</th><th>대체 방안</th></tr></thead>
+        <tbody>
+          <tr><td>바닥·벽·천장·문</td><td>Tripo3D 제작 FBX가 아닌 씬 구조물</td><td>Unity Quad 또는 기존 씬 지오메트리 사용</td></tr>
+          <tr><td>손 모델·스킨드 메시</td><td>XR Hands와 연결되는 프로젝트 전용 FBX</td><td>기존 손 추적 모델과 머티리얼 전환 사용</td></tr>
+          <tr><td>문서·표지·거울 화면</td><td>3D 모델보다 Quad·Texture·Camera 방식이 적합</td><td>Unity 월드 스페이스 UI와 텍스처 사용</td></tr>
+          <tr><td>혼합기 셸·밸브 기본 구조</td><td>프로젝트에 이미 존재하는 FBX 및 Primitive 조합</td><td>기존 프로젝트 모델 재사용</td></tr>
+        </tbody>
+      </table></div>
+      <div class="note"><strong>판단 기준</strong> — 이 목록은 <strong>Tripo3D에서 새로 제작한 FBX</strong>만 포함한다. PPE용품은 교육 행동에 직접 사용하고, 나머지는 씬의 산업 현장 맥락을 형성하는 배경용 소품으로 사용한다.</div>
+    </article>
+
+    <article class="card">
+      <div class="card-top"><span class="no">문2</span><h2>Tripo3D 프롬프트 설계 및 생성 과정</h2></div>
+      <p class="card-sub">규격이 중요한 PPE는 참고 이미지 기반, 배경 소품은 텍스트 또는 이미지 기반 생성을 우선한다.</p>
+
+      <h3>2-1. 프롬프트 기록표 (대표 에셋 · 방독면)</h3>
+      <div class="table-scroll"><table>
+        <thead><tr><th>차수</th><th>방식</th><th>프롬프트 전문</th><th>결과</th><th>채택</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1차</td><td>Text-to-3D</td><td>industrial full-face gas mask, two filter cartridges, transparent visor, black rubber, low poly, game ready, single object</td><td>실제 생성 결과 입력</td><td><span class="chip chip-warn">확인 필요</span></td></tr>
+          <tr><td class="num">2차</td><td>Image-to-3D</td><td>산업용 전면형 방독면 참고 이미지 + keep two cartridges, clean visor and straps, isolated object</td><td>실제 생성 결과 입력</td><td><span class="chip chip-warn">확인 필요</span></td></tr>
+          <tr><td class="num">최종</td><td>Refine</td><td>keep silhouette, simplify hidden geometry, clean topology, preserve PBR materials</td><td>채택 모델 스크린샷과 판단 근거 입력</td><td><span class="chip chip-warn">기록 입력</span></td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>2-2. 전체 에셋 생성 요약</h3>
+      <div class="table-scroll"><table>
+        <thead><tr><th>No</th><th>에셋명</th><th>방식</th><th>시도 횟수</th><th>프롬프트 계획 키워드</th></tr></thead>
+        <tbody>
+  <tr>
+    <td class="num">01</td>
+    <td>metal_locker</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>metal locker / 대기 공간 가구 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">02</td>
+    <td>metal_locker (1)</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>metal locker (1) / 대기 공간 가구 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">03</td>
+    <td>mask_locker</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>mask locker / 대기 공간 가구 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">04</td>
+    <td>safety_cabinet</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>safety cabinet / 대기 공간 가구 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">05</td>
+    <td>ppe_room_bench_0</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>ppe room bench 0 / 대기 공간 가구 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">06</td>
+    <td>ppe_room_bench_1</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>ppe room bench 1 / 대기 공간 가구 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">07</td>
+    <td>ppe_room_bench_2</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>ppe room bench 2 / 대기 공간 가구 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">08</td>
+    <td>hazmat_suit</td>
+    <td>Image-to-3D 권장</td>
+    <td>실제 기록 입력</td>
+    <td>hazmat suit / 보호복 구성 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">09</td>
+    <td>hazmat_suit_3d_model</td>
+    <td>Image-to-3D 권장</td>
+    <td>실제 기록 입력</td>
+    <td>hazmat suit / 보호복 구성 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">10</td>
+    <td>hazmat_suit_hanger</td>
+    <td>Image-to-3D 권장</td>
+    <td>실제 기록 입력</td>
+    <td>hazmat suit hanger / 보호복 구성 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">11</td>
+    <td>blue_rubber_gloves_3d_model_Clone1</td>
+    <td>Image-to-3D 권장</td>
+    <td>실제 기록 입력</td>
+    <td>blue rubber gloves / 보호구 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">12</td>
+    <td>construction_helmet_3d_model_Clone1</td>
+    <td>Image-to-3D 권장</td>
+    <td>실제 기록 입력</td>
+    <td>construction helmet / 보호구 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">13</td>
+    <td>gas_mask_3d_model_Clone1</td>
+    <td>Image-to-3D 권장</td>
+    <td>실제 기록 입력</td>
+    <td>gas mask / 보호구 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">14</td>
+    <td>rubber_boots_3d_model</td>
+    <td>Image-to-3D 권장</td>
+    <td>실제 기록 입력</td>
+    <td>rubber boots / 보호구 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">15</td>
+    <td>rubber_boots_3d_model_Clone1</td>
+    <td>Image-to-3D 권장</td>
+    <td>실제 기록 입력</td>
+    <td>rubber boots / 보호구 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">16</td>
+    <td>tactical_harness_3d_model</td>
+    <td>Image-to-3D 권장</td>
+    <td>실제 기록 입력</td>
+    <td>backpack-style supplied-air respirator blower harness / 공기 호스·전동 송풍기 착용 보호구 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">17</td>
+    <td>orange_tape_roll_3d_model</td>
+    <td>Image-to-3D 권장</td>
+    <td>실제 기록 입력</td>
+    <td>orange tape roll / 보호구 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">18</td>
+    <td>yellow_trash_bin_3d_model_Clone1</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>yellow trash bin / 오염/폐기 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">19</td>
+    <td>yellow_waste_bin_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>yellow waste bin / 오염/폐기 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">20</td>
+    <td>fire_extinguisher_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>fire extinguisher / 현장 안전 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">21</td>
+    <td>fire_extinguisher_3d_model_1</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>fire extinguisher 1 / 현장 안전 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">22</td>
+    <td>hand+sanitizer+dispenser</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>hand sanitizer dispenser / 현장 안전 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">23</td>
+    <td>cleaning_cart</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>cleaning cart / 현장 안전 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">24</td>
+    <td>flexible_duct_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>flexible duct / 환기 장비 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">25</td>
+    <td>flexible_duct_3d_model_1</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>flexible duct 1 / 환기 장비 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">26</td>
+    <td>industrial_stair_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>industrial stair / 작업 접근 구조물 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">27</td>
+    <td>traffic_cone_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>traffic cone / 안전 구획 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">28</td>
+    <td>traffic_cone_3d_model (1)</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>traffic cone (1) / 안전 구획 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">29</td>
+    <td>safety_lock_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>safety lock / LOTO/잠금 장치 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">30</td>
+    <td>lockout_padlock_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>lockout padlock / LOTO/잠금 장치 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">31</td>
+    <td>red_lockout_padlock_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>red lockout padlock / LOTO/잠금 장치 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">32</td>
+    <td>padlock_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>padlock / LOTO/잠금 장치 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">33</td>
+    <td>red_padlock_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>red padlock / LOTO/잠금 장치 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">34</td>
+    <td>industrial_control_panel_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>industrial control panel / 제어반/전원 차단 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">35</td>
+    <td>construction_worker_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>construction worker / 외부 작업자/감시인 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">36</td>
+    <td>multi_gas_detector_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>multi-gas detector / 측정 장비 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">37</td>
+    <td>multi_gas_detector_3d_model_Clone1</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>multi-gas detector / 측정 장비 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">38</td>
+    <td>rugged_two-way_radio_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>rugged two-way radio / 무전 소품 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">39</td>
+    <td>mixer+clean+brush</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>mixer clean brush / 내부 작업 도구 / low poly / game ready / single object</td>
+  </tr>
+  <tr>
+    <td class="num">40</td>
+    <td>tactical_flashlight_3d_model</td>
+    <td>Text/Image-to-3D</td>
+    <td>실제 기록 입력</td>
+    <td>tactical flashlight / 내부 작업 도구 / low poly / game ready / single object</td>
+  </tr></tbody>
+      </table></div>
+
+      <h3>2-3. 생성 화면 스크린샷</h3>
+      <div class="shot-grid">
+        <div class="shot"><span><b>[스크린샷 ①]</b>Tripo3D 입력 프롬프트와 생성 결과<br />(실제 작업 화면으로 교체)</span></div>
+        <div class="shot"><span><b>[스크린샷 ②]</b>재시도 전·후 비교<br />(형태가 개선된 부분 표시)</span></div>
+        <div class="shot"><span><b>[스크린샷 ③]</b>채택 모델 정면·측면<br />(뷰어 회전 화면)</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-top"><span class="no">문3</span><h2>생성 결과 검수 · 목적 적합성 판정</h2></div>
+      <p class="card-sub">실물 형태, 스케일, 실루엣, 폴리 예산을 확인한 뒤 채택 여부를 기록한다.</p>
+
+      <h3>3-1. 분류별 형태 검수 기준</h3>
+      <div class="table-scroll"><table>
+        <thead><tr><th>분류</th><th>대상</th><th>핵심 검수 항목</th><th>교육 영향</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>A PPE용품</td><td>10종</td><td>착용 방향, 주요 부품, 좌우·앞뒤 구분, 손에 잡히는 실루엣</td><td>높음 — 잘못된 형태는 착용 절차 오인 가능</td><td><span class="chip chip-warn">실물 대조 필요</span></td></tr>
+          <tr><td>B PPE룸 배경</td><td>13종</td><td>크기 비례, 바닥 접촉, 실루엣, 재질 인지성</td><td>낮음 — 배경 맥락 중심</td><td><span class="chip chip-warn">씬 검수 필요</span></td></tr>
+          <tr><td>C 혼합기동 배경</td><td>15종</td><td>산업 설비 형태, 배치 안정성, 원거리 가독성</td><td>중간 — 안전 절차 맥락 제공</td><td><span class="chip chip-warn">씬 검수 필요</span></td></tr>
+          <tr><td>D 혼합기 내부 배경</td><td>2종</td><td>손전등·브러시 크기와 혼합기 내부 대비</td><td>중간 — 내부 작업 도구 인지</td><td><span class="chip chip-warn">씬 검수 필요</span></td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>3-2. 스케일 검증 계획 <span style="text-transform:none;color:var(--sub);font-weight:400;">— 기준: 플레이어 시점 높이 1.65m</span></h3>
+      <div class="table-scroll"><table>
+        <thead><tr><th>분류</th><th>비교 기준</th><th>검증 방법</th><th>기록할 값</th><th>완료 조건</th></tr></thead>
+        <tbody>
+          <tr><td>PPE용품</td><td>성인 머리·손·발·몸 치수</td><td>XR Origin 및 손 모델 옆에 배치</td><td>Import 크기 · 보정 배율</td><td>착용 위치와 실루엣이 자연스러움</td></tr>
+          <tr><td>가구·캐비닛</td><td>성인 키 1.65m 캡슐</td><td>바닥 정렬 후 높이 비교</td><td>폭·높이·깊이</td><td>통행 및 시야를 방해하지 않음</td></tr>
+          <tr><td>설비·계단·덕트</td><td>혼합기동 기존 구조물</td><td>씬 기준 모델과 나란히 배치</td><td>월드 스케일 · 간격</td><td>산업 설비 비례와 동선이 자연스러움</td></tr>
+          <tr><td>소형 도구</td><td>XR 손 모델</td><td>손바닥 및 Grab 포즈와 비교</td><td>길이 · 그립 두께</td><td>한 손 조작 크기에 적합</td></tr>
+        </tbody>
+      </table></div>
+      <div class="note"><strong>확인 방법</strong> — Unity 씬에 1.65m 기준 캡슐과 XR 손 모델을 배치해 육안 및 Inspector 수치로 대조한다. 실제 Import 크기와 보정 배율은 작업 후 이 문서에 입력한다.</div>
+
+      <h3>3-3. 검수 스크린샷</h3>
+      <div class="shot-grid">
+        <div class="shot"><span><b>[스크린샷 ④]</b>PPE 실물 참고 ↔ 생성 결과 비교</span></div>
+        <div class="shot"><span><b>[스크린샷 ⑤]</b>1.65m 기준 캡슐 옆 40종 스케일 대조</span></div>
+        <div class="shot"><span><b>[스크린샷 ⑥]</b>Unity Inspector 스케일 및 Mesh 정보</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-top"><span class="no">문4</span><h2>VR 인터랙션 활용 설계</h2></div>
+      <p class="card-sub">PPE용품은 착용 행동에 연결하고, 그 외 에셋은 배경용 소품으로 씬의 산업 현장 맥락을 보강한다.</p>
+
+      <h3>4-1. 에셋별 활용 설계표</h3>
+      <div class="table-scroll"><table>
+        <thead><tr><th>No</th><th>배치 단계 · 위치</th><th>상호작용</th><th>성공 시 반응</th><th>실패 시 피드백</th></tr></thead>
+        <tbody>
+  <tr>
+    <td class="num">01<br />metal_locker</td>
+    <td>PPE룸 · 대기 공간 가구</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">02<br />metal_locker (1)</td>
+    <td>PPE룸 · 대기 공간 가구</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">03<br />mask_locker</td>
+    <td>PPE룸 · 대기 공간 가구</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">04<br />safety_cabinet</td>
+    <td>PPE룸 · 대기 공간 가구</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">05<br />ppe_room_bench_0</td>
+    <td>PPE룸 · 대기 공간 가구</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">06<br />ppe_room_bench_1</td>
+    <td>PPE룸 · 대기 공간 가구</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">07<br />ppe_room_bench_2</td>
+    <td>PPE룸 · 대기 공간 가구</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">08<br />hazmat_suit</td>
+    <td>PPE룸 · 보호복 구성</td>
+    <td>Grab / 착용 확인</td>
+    <td>착용 상태 반영 및 다음 단계 진행</td>
+    <td>미착용 시 착용 순서 안내</td>
+  </tr>
+  <tr>
+    <td class="num">09<br />hazmat_suit_3d_model</td>
+    <td>PPE룸 · 보호복 구성</td>
+    <td>Grab / 착용 확인</td>
+    <td>착용 상태 반영 및 다음 단계 진행</td>
+    <td>미착용 시 착용 순서 안내</td>
+  </tr>
+  <tr>
+    <td class="num">10<br />hazmat_suit_hanger</td>
+    <td>PPE룸 · 보호복 구성</td>
+    <td>Grab / 착용 확인</td>
+    <td>착용 상태 반영 및 다음 단계 진행</td>
+    <td>미착용 시 착용 순서 안내</td>
+  </tr>
+  <tr>
+    <td class="num">11<br />blue_rubber_gloves_3d_model_Clone1</td>
+    <td>PPE룸 · 등지게형 송기마스크용 전동 송풍기 착용 하네스</td>
+    <td>Grab / 외관·호스 연결부 점검 / 등지게 착용 확인</td>
+    <td>송기마스크-공기 호스-전동 송풍기 연결 확인 후 착용 상태 반영</td>
+    <td>연결 또는 착용 누락 시 점검 순서 안내</td>
+  </tr>
+  <tr>
+    <td class="num">12<br />construction_helmet_3d_model_Clone1</td>
+    <td>PPE룸 · 보호구 소품</td>
+    <td>Grab / 착용 확인</td>
+    <td>착용 상태 반영 및 다음 단계 진행</td>
+    <td>미착용 시 착용 순서 안내</td>
+  </tr>
+  <tr>
+    <td class="num">13<br />gas_mask_3d_model_Clone1</td>
+    <td>PPE룸 · 보호구 소품</td>
+    <td>Grab / 착용 확인</td>
+    <td>착용 상태 반영 및 다음 단계 진행</td>
+    <td>미착용 시 착용 순서 안내</td>
+  </tr>
+  <tr>
+    <td class="num">14<br />rubber_boots_3d_model</td>
+    <td>PPE룸 · 보호구 소품</td>
+    <td>Grab / 착용 확인</td>
+    <td>착용 상태 반영 및 다음 단계 진행</td>
+    <td>미착용 시 착용 순서 안내</td>
+  </tr>
+  <tr>
+    <td class="num">15<br />rubber_boots_3d_model_Clone1</td>
+    <td>PPE룸 · 보호구 소품</td>
+    <td>Grab / 착용 확인</td>
+    <td>착용 상태 반영 및 다음 단계 진행</td>
+    <td>미착용 시 착용 순서 안내</td>
+  </tr>
+  <tr>
+    <td class="num">16<br />tactical_harness_3d_model</td>
+    <td>PPE룸 · 보호구 소품</td>
+    <td>Grab / 착용 확인</td>
+    <td>착용 상태 반영 및 다음 단계 진행</td>
+    <td>미착용 시 착용 순서 안내</td>
+  </tr>
+  <tr>
+    <td class="num">17<br />orange_tape_roll_3d_model</td>
+    <td>PPE룸 · 보호구 소품</td>
+    <td>Grab / 착용 확인</td>
+    <td>착용 상태 반영 및 다음 단계 진행</td>
+    <td>미착용 시 착용 순서 안내</td>
+  </tr>
+  <tr>
+    <td class="num">18<br />yellow_trash_bin_3d_model_Clone1</td>
+    <td>PPE룸 · 오염/폐기 소품</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">19<br />yellow_waste_bin_3d_model</td>
+    <td>PPE룸 · 오염/폐기 소품</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">20<br />fire_extinguisher_3d_model</td>
+    <td>PPE룸 · 현장 안전 소품</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">21<br />fire_extinguisher_3d_model_1</td>
+    <td>PPE룸 · 현장 안전 소품</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">22<br />hand+sanitizer+dispenser</td>
+    <td>PPE룸 · 현장 안전 소품</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">23<br />cleaning_cart</td>
+    <td>PPE룸 · 현장 안전 소품</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">24<br />flexible_duct_3d_model</td>
+    <td>혼합기동 · 환기 장비</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">25<br />flexible_duct_3d_model_1</td>
+    <td>혼합기동 · 환기 장비</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">26<br />industrial_stair_3d_model</td>
+    <td>혼합기동 · 작업 접근 구조물</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">27<br />traffic_cone_3d_model</td>
+    <td>혼합기동 · 안전 구획 소품</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">28<br />traffic_cone_3d_model (1)</td>
+    <td>혼합기동 · 안전 구획 소품</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">29<br />safety_lock_3d_model</td>
+    <td>혼합기동 · LOTO/잠금 장치</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">30<br />lockout_padlock_3d_model</td>
+    <td>혼합기동 · LOTO/잠금 장치</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">31<br />red_lockout_padlock_3d_model</td>
+    <td>혼합기동 · LOTO/잠금 장치</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">32<br />padlock_3d_model</td>
+    <td>혼합기동 · LOTO/잠금 장치</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">33<br />red_padlock_3d_model</td>
+    <td>혼합기동 · LOTO/잠금 장치</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">34<br />industrial_control_panel_3d_model</td>
+    <td>혼합기동 · 제어반/전원 차단</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">35<br />construction_worker_3d_model</td>
+    <td>혼합기동 · 외부 작업자/감시인</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">36<br />multi_gas_detector_3d_model</td>
+    <td>혼합기동 · 측정 장비</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">37<br />multi_gas_detector_3d_model_Clone1</td>
+    <td>혼합기동 · 측정 장비</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">38<br />rugged_two-way_radio_3d_model</td>
+    <td>혼합기동 · 무전 소품</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">39<br />mixer+clean+brush</td>
+    <td>혼합기 내부 · 내부 작업 도구</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="num">40<br />tactical_flashlight_3d_model</td>
+    <td>혼합기 내부 · 내부 작업 도구</td>
+    <td>고정 배치</td>
+    <td>산업 현장 맥락과 공간 인지 보강</td>
+    <td>—</td>
+  </tr></tbody>
+      </table></div>
+
+      <h3>4-2. 상호작용 흐름</h3>
+      <div class="flow">[PPE룸]                         [혼합기동]                       [혼합기 내부]
+PPE용품 확인·Grab ─→ 착용 상태 확인 ─→ 작업 구역·LOTO 맥락 확인 ─→ 가스 측정·감시 확인 ─→ 내부 작업 도구 확인
+        │                    │
+        └─ 미착용 ───────────┴─ 다음 단계 진행 제한 + 착용 순서 안내</div>
+
+      <h3>4-3. 기획 의도 연결</h3>
+      <div class="table-scroll"><table>
+        <thead><tr><th>학습 목표</th><th>담당 에셋</th><th>연결 방식</th></tr></thead>
+        <tbody>
+          <tr><td>작업 전 PPE 착용 순서 이해</td><td>A PPE용품 10종</td><td>Grab과 착용 확인을 통해 보호구 준비 절차를 행동으로 학습</td></tr>
+          <tr><td>작업 전 준비 공간 인지</td><td>B PPE룸 배경 13종</td><td>캐비닛·벤치·안전 소품으로 준비 구역의 기능을 시각화</td></tr>
+          <tr><td>혼합기 작업 구역의 안전 맥락 이해</td><td>C 혼합기동 배경 15종</td><td>환기, 접근, 구획, LOTO, 가스 측정 관련 소품을 현장에 배치</td></tr>
+          <tr><td>밀폐공간 내부 작업 상황 인지</td><td>D 혼합기 내부 배경 2종</td><td>브러시와 손전등으로 청소·점검 작업 맥락을 보강</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="shot-grid">
+        <div class="shot"><span><b>[스크린샷 ⑦]</b>PPE Grab 및 착용 위치</span></div>
+        <div class="shot"><span><b>[스크린샷 ⑧]</b>Collider·Socket 설정 Inspector</span></div>
+        <div class="shot"><span><b>[스크린샷 ⑨]</b>PPE룸 → 혼합기동 → 내부 동선 전경</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-top"><span class="no">문5</span><h2>리소스 목록 및 산출물 패키지</h2></div>
+      <p class="card-sub">Tripo3D에서 제작한 FBX 40종을 개발자가 바로 확인할 수 있도록 정리한다.</p>
+
+      <h3>5-1. 리소스 목록표</h3>
+      <div class="table-scroll"><table>
+        <thead><tr><th>No</th><th>파일명</th><th>분류</th><th>포맷</th><th>Tri 예산</th><th>텍스처 예산</th><th>사용 위치</th><th>상호작용</th><th>용도</th></tr></thead>
+        <tbody>
+  <tr>
+    <td class="num">01</td>
+    <td>metal_locker.fbx</td>
+    <td>B</td>
+    <td>FBX</td>
+    <td class="num">4k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 대기 공간 가구</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">02</td>
+    <td>metal_locker (1).fbx</td>
+    <td>B</td>
+    <td>FBX</td>
+    <td class="num">4k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 대기 공간 가구</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">03</td>
+    <td>mask_locker.fbx</td>
+    <td>B</td>
+    <td>FBX</td>
+    <td class="num">4k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 대기 공간 가구</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">04</td>
+    <td>safety_cabinet.fbx</td>
+    <td>B</td>
+    <td>FBX</td>
+    <td class="num">4k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 대기 공간 가구</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">05</td>
+    <td>ppe_room_bench_0.fbx</td>
+    <td>B</td>
+    <td>FBX</td>
+    <td class="num">1.5k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 대기 공간 가구</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">06</td>
+    <td>ppe_room_bench_1.fbx</td>
+    <td>B</td>
+    <td>FBX</td>
+    <td class="num">1.5k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 대기 공간 가구</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">07</td>
+    <td>ppe_room_bench_2.fbx</td>
+    <td>B</td>
+    <td>FBX</td>
+    <td class="num">1.5k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 대기 공간 가구</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">08</td>
+    <td>hazmat_suit.fbx</td>
+    <td>A</td>
+    <td>FBX</td>
+    <td class="num">4k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 보호복 구성</td>
+    <td>Grab / 착용 확인</td>
+    <td>방호복 착용 및 거치 상태</td>
+  </tr>
+  <tr>
+    <td class="num">09</td>
+    <td>hazmat_suit_3d_model.fbx</td>
+    <td>A</td>
+    <td>FBX</td>
+    <td class="num">4k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 보호복 구성</td>
+    <td>Grab / 착용 확인</td>
+    <td>방호복 착용 및 거치 상태</td>
+  </tr>
+  <tr>
+    <td class="num">10</td>
+    <td>hazmat_suit_hanger.fbx</td>
+    <td>A</td>
+    <td>FBX</td>
+    <td class="num">500 tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 보호복 구성</td>
+    <td>Grab / 착용 확인</td>
+    <td>방호복 착용 및 거치 상태</td>
+  </tr>
+  <tr>
+    <td class="num">11</td>
+    <td>blue_rubber_gloves_3d_model_Clone1.fbx</td>
+    <td>A</td>
+    <td>FBX</td>
+    <td class="num">1.5k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 등지게형 송기마스크용 전동 송풍기 착용 하네스</td>
+    <td>Grab / 외관·호스 연결부 점검 / 등지게 착용 확인</td>
+    <td>송기마스크와 전동 송풍기를 공기 호스로 연결하고 송풍기와 호스를 몸에 지지·고정</td>
+  </tr>
+  <tr>
+    <td class="num">12</td>
+    <td>construction_helmet_3d_model_Clone1.fbx</td>
+    <td>A</td>
+    <td>FBX</td>
+    <td class="num">1.5k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 보호구 소품</td>
+    <td>Grab / 착용 확인</td>
+    <td>PPE 착용 절차에서 잡거나 확인하는 보호구</td>
+  </tr>
+  <tr>
+    <td class="num">13</td>
+    <td>gas_mask_3d_model_Clone1.fbx</td>
+    <td>A</td>
+    <td>FBX</td>
+    <td class="num">2k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 보호구 소품</td>
+    <td>Grab / 착용 확인</td>
+    <td>PPE 착용 절차에서 잡거나 확인하는 보호구</td>
+  </tr>
+  <tr>
+    <td class="num">14</td>
+    <td>rubber_boots_3d_model.fbx</td>
+    <td>A</td>
+    <td>FBX</td>
+    <td class="num">1.5k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 보호구 소품</td>
+    <td>Grab / 착용 확인</td>
+    <td>PPE 착용 절차에서 잡거나 확인하는 보호구</td>
+  </tr>
+  <tr>
+    <td class="num">15</td>
+    <td>rubber_boots_3d_model_Clone1.fbx</td>
+    <td>A</td>
+    <td>FBX</td>
+    <td class="num">1.5k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 보호구 소품</td>
+    <td>Grab / 착용 확인</td>
+    <td>PPE 착용 절차에서 잡거나 확인하는 보호구</td>
+  </tr>
+  <tr>
+    <td class="num">16</td>
+    <td>tactical_harness_3d_model.fbx</td>
+    <td>A</td>
+    <td>FBX</td>
+    <td class="num">2k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 보호구 소품</td>
+    <td>Grab / 착용 확인</td>
+    <td>PPE 착용 절차에서 잡거나 확인하는 보호구</td>
+  </tr>
+  <tr>
+    <td class="num">17</td>
+    <td>orange_tape_roll_3d_model.fbx</td>
+    <td>A</td>
+    <td>FBX</td>
+    <td class="num">500 tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 보호구 소품</td>
+    <td>Grab / 착용 확인</td>
+    <td>PPE 착용 절차에서 잡거나 확인하는 보호구</td>
+  </tr>
+  <tr>
+    <td class="num">18</td>
+    <td>yellow_trash_bin_3d_model_Clone1.fbx</td>
+    <td>B</td>
+    <td>FBX</td>
+    <td class="num">1.5k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 오염/폐기 소품</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">19</td>
+    <td>yellow_waste_bin_3d_model.fbx</td>
+    <td>B</td>
+    <td>FBX</td>
+    <td class="num">1.5k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 오염/폐기 소품</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">20</td>
+    <td>fire_extinguisher_3d_model.fbx</td>
+    <td>B</td>
+    <td>FBX</td>
+    <td class="num">1.5k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 현장 안전 소품</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">21</td>
+    <td>fire_extinguisher_3d_model_1.fbx</td>
+    <td>B</td>
+    <td>FBX</td>
+    <td class="num">1.5k tri</td>
+    <td>2K PBR 권장</td>
+    <td>PPE룸 · 현장 안전 소품</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">22</td>
+    <td>hand+sanitizer+dispenser.fbx</td>
+    <td>B</td>
+    <td>FBX</td>
+    <td class="num">800 tri</td>
+    <td>1K PBR 권장</td>
+    <td>PPE룸 · 현장 안전 소품</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">23</td>
+    <td>cleaning_cart.fbx</td>
+    <td>B</td>
+    <td>FBX</td>
+    <td class="num">3k tri</td>
+    <td>1K PBR 권장</td>
+    <td>PPE룸 · 현장 안전 소품</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">24</td>
+    <td>flexible_duct_3d_model.fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">3k tri</td>
+    <td>1K PBR 권장</td>
+    <td>혼합기동 · 환기 장비</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">25</td>
+    <td>flexible_duct_3d_model_1.fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">3k tri</td>
+    <td>1K PBR 권장</td>
+    <td>혼합기동 · 환기 장비</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">26</td>
+    <td>industrial_stair_3d_model.fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">4k tri</td>
+    <td>2K PBR 권장</td>
+    <td>혼합기동 · 작업 접근 구조물</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">27</td>
+    <td>traffic_cone_3d_model.fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">800 tri</td>
+    <td>1K PBR 권장</td>
+    <td>혼합기동 · 안전 구획 소품</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">28</td>
+    <td>traffic_cone_3d_model (1).fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">800 tri</td>
+    <td>1K PBR 권장</td>
+    <td>혼합기동 · 안전 구획 소품</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">29</td>
+    <td>safety_lock_3d_model.fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">800 tri</td>
+    <td>1K PBR 권장</td>
+    <td>혼합기동 · LOTO/잠금 장치</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">30</td>
+    <td>lockout_padlock_3d_model.fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">500 tri</td>
+    <td>1K PBR 권장</td>
+    <td>혼합기동 · LOTO/잠금 장치</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">31</td>
+    <td>red_lockout_padlock_3d_model.fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">500 tri</td>
+    <td>1K PBR 권장</td>
+    <td>혼합기동 · LOTO/잠금 장치</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">32</td>
+    <td>padlock_3d_model.fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">500 tri</td>
+    <td>1K PBR 권장</td>
+    <td>혼합기동 · LOTO/잠금 장치</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">33</td>
+    <td>red_padlock_3d_model.fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">500 tri</td>
+    <td>1K PBR 권장</td>
+    <td>혼합기동 · LOTO/잠금 장치</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">34</td>
+    <td>industrial_control_panel_3d_model.fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">4k tri</td>
+    <td>2K PBR 권장</td>
+    <td>혼합기동 · 제어반/전원 차단</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">35</td>
+    <td>construction_worker_3d_model.fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">5k tri</td>
+    <td>2K PBR 권장</td>
+    <td>혼합기동 · 외부 작업자/감시인</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">36</td>
+    <td>multi_gas_detector_3d_model.fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">1k tri</td>
+    <td>1K PBR 권장</td>
+    <td>혼합기동 · 측정 장비</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">37</td>
+    <td>multi_gas_detector_3d_model_Clone1.fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">1k tri</td>
+    <td>1K PBR 권장</td>
+    <td>혼합기동 · 측정 장비</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">38</td>
+    <td>rugged_two-way_radio_3d_model.fbx</td>
+    <td>C</td>
+    <td>FBX</td>
+    <td class="num">1k tri</td>
+    <td>1K PBR 권장</td>
+    <td>혼합기동 · 무전 소품</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">39</td>
+    <td>mixer+clean+brush.fbx</td>
+    <td>D</td>
+    <td>FBX</td>
+    <td class="num">1k tri</td>
+    <td>1K PBR 권장</td>
+    <td>혼합기 내부 · 내부 작업 도구</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr>
+  <tr>
+    <td class="num">40</td>
+    <td>tactical_flashlight_3d_model.fbx</td>
+    <td>D</td>
+    <td>FBX</td>
+    <td class="num">1k tri</td>
+    <td>1K PBR 권장</td>
+    <td>혼합기 내부 · 내부 작업 도구</td>
+    <td>고정 배치</td>
+    <td>배경용 소품</td>
+  </tr></tbody>
+      </table></div>
+
+      <h3>5-2. 네이밍 규칙 및 폴더 구조</h3>
+      <div class="flow">규칙: [분류접두사]_[오브젝트명]_[번호].fbx
+A→PPE_ | B→PPEBG_ | C→MIXER_ | D→INNER_
+
+/제출_게임디자인AI활용
+   ├ 00_에셋제작기획서.pdf
+   ├ 10_Models/        Tripo3D FBX 40종
+   ├ 20_Textures/      1K·2K PBR 텍스처
+   ├ 30_Screenshots/   생성과정 / 검수 / 인터랙션
+   ├ 40_Prompts/       에셋별 실제 프롬프트 기록
+   └ 50_ResourceList/  3D_모델링_목록.html · CSV</div>
+
+      <h3>5-3. 최적화 검토 의견</h3>
+      <ul>
+        <li>40종의 목표 예산 합계는 <strong>77,700 tri</strong>이며, 개별 모델은 <strong>500~5,000 tri</strong> 범위로 계획했다.</li>
+        <li>가장 큰 예산은 작업자 모델 <strong>5,000 tri</strong>, 대형 캐비닛·계단·제어반·방호복은 <strong>4,000 tri</strong>로 설정했다.</li>
+        <li>자물쇠·테이프·행거처럼 작은 소품은 <strong>500~800 tri</strong>, 손전등·측정기·무전기는 <strong>1,000 tri</strong>를 기준으로 한다.</li>
+        <li>PPE와 대형 모델은 2K, 작은 배경 소품은 1K 텍스처를 권장한다. 실제 Import 후 품질 차이를 확인해 낮출 수 있다.</li>
+        <li>목표 예산을 초과한 Tripo3D 결과물은 Blender Decimate 또는 Unity Mesh 최적화를 적용하고 실루엣 손상 여부를 재검수한다.</li>
+      </ul>
+
+      <h3>5-4. AI 활용 기록</h3>
+      <div class="table-scroll"><table>
+        <thead><tr><th>문항</th><th>사용 도구</th><th>AI에게 맡긴 것</th><th>본인이 검증·수정할 것</th></tr></thead>
+        <tbody>
+          <tr><td>문1</td><td>대화형 AI</td><td>Unity 씬 요소에서 Tripo3D 제작 후보 분류</td><td>실제 씬 존재 여부, PPE용품과 배경 소품 구분, 제외 범위 확인</td></tr>
+          <tr><td>문2</td><td>Tripo3D</td><td>Text/Image-to-3D 기반 형상 생성</td><td>실제 프롬프트, 시도 횟수, 채택 이유와 생성 화면 기록</td></tr>
+          <tr><td>문3</td><td>—</td><td>—</td><td>실물 대조, Unity 스케일 측정, 폴리 수 확인과 최종 판정</td></tr>
+          <tr><td>문4</td><td>대화형 AI</td><td>씬별 활용 정보와 상호작용 표 초안 정리</td><td>PPE 착용 흐름과 실제 XR 동작을 프로젝트에서 검증</td></tr>
+          <tr><td>문5</td><td>대화형 AI</td><td>40종 리소스 목록과 폴리 예산 초안 정리</td><td>실제 FBX 파일명·텍스처 크기·최종 Tri 수를 Import 후 확정</td></tr>
+        </tbody>
+      </table></div>
+      <div class="note"><strong>AI 활용 원칙</strong> — AI는 목록 정리와 초안 작성에 사용하고, 실제 모델 품질·스케일·폴리 수·교육 적합성 판정은 Unity 프로젝트와 실물 자료를 기준으로 직접 검증한다.</div>
+    </article>
+
+    <section class="footer">
+      <strong style="color:var(--text)">평가표 대응 확인</strong><br />
+      문1 → 에셋 도출 · 제작 목록 · 제외 사유 &nbsp;·&nbsp;
+      문2 → 프롬프트 계획 · 생성 기록 자리 &nbsp;·&nbsp;
+      문3 → 형태·스케일 검수 기준 &nbsp;·&nbsp;
+      문4 → 배치·상호작용 · 기획 의도 &nbsp;·&nbsp;
+      문5 → 40종 리소스 목록 · 최적화 · AI 기록<br /><br />
+      에셋 제작 기획서 · 게임디자인(AI활용) 능력단위 · 2026.07.30 · v1.0
+    </section>
+  </main>
+</body>
+</html>

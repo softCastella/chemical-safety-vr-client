@@ -1,0 +1,1370 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using TMPro;
+
+public static class PPELocomotionPpeRegressionValidationHarness
+{
+    const string ScenePath =
+        "Assets/Scenes/3_PPE_Room_3mode_loco.unity";
+
+    const BindingFlags InstancePrivate = BindingFlags.Instance | BindingFlags.NonPublic;
+
+    [MenuItem("Tools/PPE/Validate Locomotion PPE Regressions")]
+    public static void ValidateFromMenu()
+    {
+        try
+        {
+            Validate();
+            EditorUtility.DisplayDialog(
+                "PPE 회귀 검증 PASS",
+                "테이프 조건·음성 1회, 방호복 중복 음성, 누출 안전대 차단, 체크리스트 초기화 검증을 통과했습니다.",
+                "확인");
+        }
+        catch (Exception exception)
+        {
+            EditorUtility.DisplayDialog(
+                "PPE 회귀 검증 FAIL",
+                exception.Message,
+                "확인");
+            throw;
+        }
+    }
+
+    public static void Validate()
+    {
+        Scene previewScene = default;
+        List<string> failures = new();
+
+        try
+        {
+            previewScene = EditorSceneManager.OpenPreviewScene(ScenePath);
+            PPEVoiceFlowDirector director = FindSingle<PPEVoiceFlowDirector>(previewScene, failures);
+            PPEEquipmentVisualController equipment =
+                FindSingle<PPEEquipmentVisualController>(previewScene, failures);
+            PPEEducationWearChecklist checklist =
+                FindSingle<PPEEducationWearChecklist>(previewScene, failures);
+
+            if (director != null && equipment != null)
+            {
+                ValidateTapePrerequisites(director, equipment, failures);
+                ValidateTapeGrabNarration(director, failures);
+                ValidateLeakHarnessRouting(previewScene, director, failures);
+            }
+
+            if (director != null)
+            {
+                ValidateHazmatGrabNarration(director, failures);
+                ValidateWelcomeNarration(director, failures);
+                ValidateEducationStartVoices(director, failures);
+                ValidateFinaleAndExitWiring(previewScene, director, failures);
+                ValidateControllerGuideVisuals(previewScene, director, failures);
+                ValidateTemporaryKeyboardBypass(previewScene, director, failures);
+            }
+
+            if (director != null && checklist != null)
+                ValidateChecklistWorkPlanReset(director, checklist, failures);
+
+            ValidateFootstepInputOwnership(previewScene, failures);
+            ValidateHeadRelativeLocomotion(previewScene, failures);
+            ValidateHazmatAlreadyEquippedPriority(failures);
+            ValidateBodyColliderProximity(failures);
+        }
+        finally
+        {
+            if (previewScene.IsValid())
+                EditorSceneManager.ClosePreviewScene(previewScene);
+        }
+
+        if (failures.Count > 0)
+        {
+            string message = "PPE locomotion regression validation failed:\n- " +
+                string.Join("\n- ", failures);
+            Debug.LogError(message);
+            throw new InvalidOperationException(message);
+        }
+
+        Debug.Log(
+            $"[PPE Locomotion Regression Validation] PASS '{ScenePath}': " +
+            "tape prerequisites and one-shot narration, already-equipped hazmat priority, " +
+            "one-shot hazmat narration, persistent PPE-area session, mirror/exit wiring, " +
+            "active-camera head-relative locomotion, " +
+            "leak harness rejection routing, Meta-account Welcome voices, PPE-area voices, authored controller-guide mapping " +
+            "and detailed input feedback, " +
+            "body-collider proximity, " +
+            "checklist work-plan reset, and input-owned footsteps are valid.");
+    }
+
+    public static void ValidateBatch()
+    {
+        try
+        {
+            Validate();
+            EditorApplication.Exit(0);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogException(exception);
+            EditorApplication.Exit(1);
+        }
+    }
+
+    [MenuItem("Tools/PPE/Validate Footstep Input Loop")]
+    public static void ValidateFootstepPlaybackThrottling()
+    {
+        Scene scene = SceneManager.GetActiveScene();
+        if (!scene.IsValid() || scene.path != ScenePath)
+            throw new InvalidOperationException($"Open '{ScenePath}' before validating footsteps.");
+
+        List<string> failures = new();
+        ValidateFootstepInputOwnership(scene, failures);
+
+        if (failures.Count > 0)
+        {
+            string message = "Footstep playback throttling validation failed:\n- " +
+                string.Join("\n- ", failures);
+            Debug.LogError(message);
+            throw new InvalidOperationException(message);
+        }
+
+        Debug.Log(
+            "[PPE Footstep Validation] PASS: locomotion input owns one constant-speed Footstep loop " +
+            "and releasing input stops its dedicated AudioSource.");
+    }
+
+    [MenuItem("Tools/PPE/Configure Dedicated Footstep Audio Source")]
+    public static void ConfigureDedicatedFootstepAudioSource()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Exit Play Mode before configuring the Footstep AudioSource.");
+
+        Scene scene = SceneManager.GetActiveScene();
+        if (!scene.IsValid() || scene.path != ScenePath)
+            throw new InvalidOperationException($"Open '{ScenePath}' before configuring footsteps.");
+
+        PPEConfigurableDynamicMoveProvider moveProvider = scene.GetRootGameObjects()
+            .SelectMany(root => root.GetComponentsInChildren<PPEConfigurableDynamicMoveProvider>(true))
+            .Single();
+        AudioManager audioManager = scene.GetRootGameObjects()
+            .SelectMany(root => root.GetComponentsInChildren<AudioManager>(true))
+            .Single();
+        AudioSource sharedSfxSource = new SerializedObject(audioManager)
+            .FindProperty("m_SfxSource")?.objectReferenceValue as AudioSource;
+        if (sharedSfxSource == null)
+            throw new InvalidOperationException("AudioManager is missing its authored shared SFX source.");
+
+        Transform sourceTransform = audioManager.transform.Find("Footsteps");
+        AudioSource footstepSource;
+        if (sourceTransform == null)
+        {
+            GameObject sourceObject = new("Footsteps");
+            Undo.RegisterCreatedObjectUndo(sourceObject, "Create dedicated Footstep AudioSource");
+            sourceObject.transform.SetParent(audioManager.transform, false);
+            footstepSource = Undo.AddComponent<AudioSource>(sourceObject);
+            EditorUtility.CopySerialized(sharedSfxSource, footstepSource);
+        }
+        else
+        {
+            footstepSource = sourceTransform.GetComponent<AudioSource>();
+            if (footstepSource == null)
+                footstepSource = Undo.AddComponent<AudioSource>(sourceTransform.gameObject);
+            Undo.RecordObject(footstepSource, "Configure dedicated Footstep AudioSource");
+        }
+
+        footstepSource.playOnAwake = false;
+        footstepSource.loop = false;
+        footstepSource.clip = null;
+        footstepSource.pitch = 1f;
+        EditorUtility.SetDirty(footstepSource);
+
+        SerializedObject moveSerialized = new(moveProvider);
+        moveSerialized.FindProperty("m_FootstepSource").objectReferenceValue = footstepSource;
+        moveSerialized.ApplyModifiedProperties();
+        EditorUtility.SetDirty(moveProvider);
+        EditorSceneManager.MarkSceneDirty(scene);
+
+        Debug.Log(
+            "[PPE Footstep] Dedicated Footsteps AudioSource configured. " +
+            "Save the scene after reviewing the existing unsaved changes.",
+            footstepSource);
+    }
+
+    [MenuItem("Tools/PPE/Validate Continuous Mirror Observation")]
+    public static void ValidateContinuousMirrorObservation()
+    {
+        Scene scene = SceneManager.GetActiveScene();
+        if (!scene.IsValid() || scene.path != ScenePath)
+            throw new InvalidOperationException($"Open '{ScenePath}' before validating the mirror observation.");
+
+        PPEFinaleController finale = scene.GetRootGameObjects()
+            .SelectMany(root => root.GetComponentsInChildren<PPEFinaleController>(true))
+            .Single();
+        SerializedObject serialized = new(finale);
+        string[] requiredReferences =
+        {
+            "m_XrOrigin",
+            "m_MirrorObservationPoint",
+            "m_ObservationGaugeRoot",
+            "m_ObservationGaugeFill",
+        };
+        foreach (string propertyName in requiredReferences)
+        {
+            if (serialized.FindProperty(propertyName)?.objectReferenceValue == null)
+                throw new InvalidOperationException($"Mirror observation is missing '{propertyName}'.");
+        }
+
+        string source = File.ReadAllText("Assets/Scripts/PPEFinaleController.cs");
+        if (source.Contains("IsLookingAtMirror()", StringComparison.Ordinal) ||
+            !source.Contains("m_ObservationElapsed += Time.unscaledDeltaTime;", StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(
+                "Mirror observation must advance continuously while the player remains in the authored radius.");
+        }
+
+        Debug.Log(
+            "[PPE Mirror Observation] PASS: looking away does not pause the gauge; " +
+            "leaving the authored mirror radius still aborts the check.",
+            finale);
+    }
+
+    static void ValidateTapePrerequisites(
+        PPEVoiceFlowDirector director,
+        PPEEquipmentVisualController equipment,
+        List<string> failures)
+    {
+        MethodInfo hasAny = typeof(PPEVoiceFlowDirector).GetMethod(
+            "HasAnyTappableEquipment",
+            InstancePrivate);
+        FieldInfo slotsField = typeof(PPEEquipmentVisualController).GetField(
+            "slots",
+            InstancePrivate);
+        FieldInfo usedSlotsField = typeof(PPEEquipmentVisualController).GetField(
+            "usedSlots",
+            InstancePrivate);
+        FieldInfo tapedTypesField = typeof(PPEEquipmentVisualController).GetField(
+            "tapedItemTypes",
+            InstancePrivate);
+        MethodInfo markAllTaped = typeof(PPEEquipmentVisualController).GetMethod(
+            "MarkAllTappableEquipmentAsTaped",
+            InstancePrivate);
+        FieldInfo tapeVisualsField = typeof(PPEEquipmentVisualController).GetField(
+            "tapeVisuals",
+            InstancePrivate);
+        MethodInfo setTapeVisuals = typeof(PPEEquipmentVisualController).GetMethod(
+            "SetTapeVisuals",
+            InstancePrivate);
+        FieldInfo equipmentField = typeof(PPEVoiceFlowDirector).GetField(
+            "m_EquipmentVisualController",
+            InstancePrivate);
+
+        if (hasAny == null || slotsField == null || usedSlotsField == null ||
+            tapedTypesField == null || markAllTaped == null || tapeVisualsField == null ||
+            setTapeVisuals == null || equipmentField == null)
+        {
+            failures.Add("Tape prerequisite members could not be inspected.");
+            return;
+        }
+
+        equipmentField.SetValue(director, equipment);
+        PPEEquipmentVisualSlot[] slots =
+            (PPEEquipmentVisualSlot[])slotsField.GetValue(equipment);
+        HashSet<PPEEquipmentVisualSlot> used =
+            (HashSet<PPEEquipmentVisualSlot>)usedSlotsField.GetValue(equipment);
+        used.Clear();
+
+        AddUsedSlot(slots, used, PPEItemType.NitrileInnerGloveLeft, failures);
+        AddUsedSlot(slots, used, PPEItemType.NitrileInnerGloveRight, failures);
+        if ((bool)hasAny.Invoke(director, null))
+            failures.Add("Nitrile inner gloves alone must not satisfy the tape prerequisites.");
+
+        AddUsedSlot(slots, used, PPEItemType.RubberGloveLeft, failures);
+        if (!(bool)hasAny.Invoke(director, null))
+            failures.Add("One outer glove must satisfy the tape prerequisites.");
+
+        used.Clear();
+        AddUsedSlot(slots, used, PPEItemType.NitrileInnerGloveLeft, failures);
+        AddUsedSlot(slots, used, PPEItemType.NitrileInnerGloveRight, failures);
+        AddUsedSlot(slots, used, PPEItemType.RubberBootRight, failures);
+        if (!(bool)hasAny.Invoke(director, null))
+            failures.Add("One rubber boot must satisfy the tape prerequisites.");
+
+        HashSet<PPEItemType> taped =
+            (HashSet<PPEItemType>)tapedTypesField.GetValue(equipment);
+        taped.Clear();
+        markAllTaped.Invoke(equipment, null);
+        PPEItemType[] expectedTapedTypes =
+        {
+            PPEItemType.RubberGloveLeft,
+            PPEItemType.RubberGloveRight,
+            PPEItemType.RubberBootLeft,
+            PPEItemType.RubberBootRight,
+        };
+        if (expectedTapedTypes.Any(itemType => !taped.Contains(itemType)))
+            failures.Add("One approved tape use must mark all outer gloves and boots as taped.");
+
+        setTapeVisuals.Invoke(equipment, new object[] { true });
+        PPEEquipmentTapeVisual[] tapeVisuals =
+            (PPEEquipmentTapeVisual[])tapeVisualsField.GetValue(equipment);
+        foreach (PPEEquipmentTapeVisual tapeVisual in tapeVisuals ?? Array.Empty<PPEEquipmentTapeVisual>())
+        {
+            if (tapeVisual?.Visual == null)
+                continue;
+
+            bool expectedVisible = equipment.IsItemUsed(tapeVisual.RequiredItemType);
+            if (tapeVisual.Visual.activeSelf != expectedVisible)
+            {
+                failures.Add(
+                    $"Tape visual for {tapeVisual.RequiredItemType} must be active only when that side is worn.");
+            }
+        }
+
+        setTapeVisuals.Invoke(equipment, new object[] { false });
+        used.Clear();
+        taped.Clear();
+    }
+
+    static void AddUsedSlot(
+        PPEEquipmentVisualSlot[] slots,
+        HashSet<PPEEquipmentVisualSlot> used,
+        PPEItemType itemType,
+        List<string> failures)
+    {
+        PPEEquipmentVisualSlot slot = slots?.FirstOrDefault(candidate =>
+            candidate?.ItemBinding?.ItemIdentity != null &&
+            candidate.ItemBinding.ItemIdentity.ItemType == itemType);
+        if (slot == null)
+        {
+            failures.Add($"Equipment slot is missing for {itemType}.");
+            return;
+        }
+
+        used.Add(slot);
+    }
+
+    static void ValidateTapeGrabNarration(
+        PPEVoiceFlowDirector director,
+        List<string> failures)
+    {
+        Type type = typeof(PPEVoiceFlowDirector);
+        MethodInfo consume = type.GetMethod("TryConsumeTapeGrabVoice", InstancePrivate);
+        MethodInfo reset = type.GetMethod("ResetModeSessionTracking", InstancePrivate);
+        FieldInfo played = type.GetField("m_TapeGrabVoicePlayed", InstancePrivate);
+        PropertyInfo mode = type.GetProperty(nameof(PPEVoiceFlowDirector.ActiveLearningMode));
+
+        if (consume == null || reset == null || played == null || mode == null)
+        {
+            failures.Add("Tape narration one-shot members could not be inspected.");
+            return;
+        }
+
+        mode.SetValue(director, ScenarioDetailModal.PpeLearningMode.Education);
+        played.SetValue(director, false);
+        bool first = (bool)consume.Invoke(director, new object[] { true });
+        bool second = (bool)consume.Invoke(director, new object[] { true });
+        reset.Invoke(director, null);
+        bool nextSession = (bool)consume.Invoke(director, new object[] { true });
+        if (!first || second || !nextSession)
+            failures.Add("Tape grab narration must play once per education mode session.");
+    }
+
+    static void ValidateLeakHarnessRouting(
+        Scene scene,
+        PPEVoiceFlowDirector director,
+        List<string> failures)
+    {
+        PPEActionPanelController[] panels = FindAll<PPEActionPanelController>(scene);
+        PPEActionPanelController harness = panels.SingleOrDefault(panel =>
+            panel.name == "PPE_A_Backplate");
+        if (harness == null)
+        {
+            failures.Add("PPE_A_Backplate action panel is missing.");
+            return;
+        }
+
+        SerializedObject panelSerialized = new(harness);
+        if (panelSerialized.FindProperty("voiceFlowDirector")?.objectReferenceValue != director)
+            failures.Add("PPE_A_Backplate must reference the scene PPEVoiceFlowDirector.");
+
+        SerializedObject directorSerialized = new(director);
+        PPEActionPanelController tape = directorSerialized.FindProperty("m_TapeActionPanel")
+            ?.objectReferenceValue as PPEActionPanelController;
+        if (tape == null)
+        {
+            failures.Add("PPEVoiceFlowDirector tape action panel reference is missing.");
+        }
+        else
+        {
+            SerializedObject tapeSerialized = new(tape);
+            if (tapeSerialized.FindProperty("voiceFlowDirector")?.objectReferenceValue != director)
+                failures.Add("The tape action panel must reference the scene PPEVoiceFlowDirector.");
+        }
+
+        if (directorSerialized.FindProperty("m_TapeUseBeforeGlovesAndBootsVoice")
+                ?.objectReferenceValue == null)
+        {
+            failures.Add("The nitrile-only tape rejection voice reference is missing.");
+        }
+
+        SerializedProperty required = directorSerialized.FindProperty(
+            "m_LeakResponseRequiredItemTypes");
+        bool containsHarness = false;
+        for (int index = 0; required != null && index < required.arraySize; index++)
+        {
+            containsHarness |= required.GetArrayElementAtIndex(index).enumValueIndex ==
+                (int)PPEItemType.TacticalHarness;
+        }
+
+        if (containsHarness)
+            failures.Add("Leak-response required PPE must not include TacticalHarness.");
+
+        if (directorSerialized.FindProperty("m_WorkPlanMismatchVoice")
+                ?.objectReferenceValue == null)
+        {
+            failures.Add("The work-plan mismatch education voice reference is missing.");
+        }
+
+        string wrongSfxId = panelSerialized.FindProperty("wrongFeedbackSfxId")?.stringValue;
+        if (string.IsNullOrWhiteSpace(wrongSfxId))
+            failures.Add("PPE_A_Backplate is missing its wrong-feedback SFX id.");
+
+        ValidateScenarioMismatchPanelSfx(
+            scene,
+            director,
+            directorSerialized,
+            panels,
+            failures);
+
+        MethodInfo isAllowed = typeof(PPEVoiceFlowDirector).GetMethod(
+            "IsPpeTypeAllowedForActiveWorkPlan",
+            InstancePrivate);
+        PropertyInfo activeWorkPlan = typeof(PPEVoiceFlowDirector).GetProperty(
+            nameof(PPEVoiceFlowDirector.ActiveWorkPlan));
+        if (isAllowed == null || activeWorkPlan == null)
+        {
+            failures.Add("Leak-response PPE allowance members could not be inspected.");
+        }
+        else
+        {
+            object previous = activeWorkPlan.GetValue(director);
+            activeWorkPlan.SetValue(director, ScenarioDetailModal.PpeWorkPlan.LeakResponse);
+            bool harnessAllowed = (bool)isAllowed.Invoke(
+                director,
+                new object[] { PPEItemType.TacticalHarness });
+            activeWorkPlan.SetValue(director, previous);
+            if (harnessAllowed)
+                failures.Add("Leak-response work plan must reject TacticalHarness use.");
+        }
+    }
+
+    static void ValidateHazmatGrabNarration(
+        PPEVoiceFlowDirector director,
+        List<string> failures)
+    {
+        Type type = typeof(PPEVoiceFlowDirector);
+        MethodInfo consume = type.GetMethod("TryConsumeHazmatGrabVoice", InstancePrivate);
+        MethodInfo reset = type.GetMethod("ResetModeSessionTracking", InstancePrivate);
+        PropertyInfo mode = type.GetProperty(nameof(PPEVoiceFlowDirector.ActiveLearningMode));
+        if (consume == null || reset == null || mode == null)
+        {
+            failures.Add("Hazmat grab narration one-shot members could not be inspected.");
+            return;
+        }
+
+        object previousMode = mode.GetValue(director);
+        mode.SetValue(director, ScenarioDetailModal.PpeLearningMode.Education);
+        reset.Invoke(director, null);
+        bool first = (bool)consume.Invoke(director, null);
+        bool second = (bool)consume.Invoke(director, null);
+        reset.Invoke(director, null);
+        bool nextSession = (bool)consume.Invoke(director, null);
+        mode.SetValue(director, previousMode);
+
+        if (!first || second || !nextSession)
+            failures.Add("Hazmat grab narration must play once per education mode session.");
+    }
+
+    static void ValidateScenarioMismatchPanelSfx(
+        Scene scene,
+        PPEVoiceFlowDirector director,
+        SerializedObject directorSerialized,
+        PPEActionPanelController[] panels,
+        List<string> failures)
+    {
+        AudioManager audioManager = FindAll<AudioManager>(scene).SingleOrDefault();
+        if (audioManager == null)
+        {
+            failures.Add("A single scene AudioManager is required to validate mismatch SFX.");
+            return;
+        }
+
+        SerializedProperty confined = directorSerialized.FindProperty(
+            "m_ConfinedSpaceRequiredItemTypes");
+        SerializedProperty leak = directorSerialized.FindProperty(
+            "m_LeakResponseRequiredItemTypes");
+
+        foreach (PPEActionPanelController panel in panels)
+        {
+            PPEItemIdentity identity = panel?.InspectionState?.PresentationBinding?.ItemIdentity;
+            if (identity == null || identity.ItemType == PPEItemType.PackingTape)
+                continue;
+
+            bool allowedInConfined = ContainsItemType(confined, identity.ItemType);
+            bool allowedInLeak = ContainsItemType(leak, identity.ItemType);
+            if (allowedInConfined && allowedInLeak)
+                continue;
+
+            SerializedObject panelSerialized = new(panel);
+            if (panelSerialized.FindProperty("voiceFlowDirector")?.objectReferenceValue != director)
+            {
+                failures.Add(
+                    $"Scenario-mismatch PPE '{panel.name}' must reference the scene director.");
+            }
+
+            string mismatchSfxId = panelSerialized.FindProperty("wrongFeedbackSfxId")?.stringValue;
+            if (string.IsNullOrWhiteSpace(mismatchSfxId) ||
+                !HasEnabledSfx(audioManager, mismatchSfxId))
+            {
+                failures.Add(
+                    $"Scenario-mismatch PPE '{panel.name}' needs an enabled wrong-feedback SFX.");
+            }
+        }
+    }
+
+    static bool ContainsItemType(SerializedProperty array, PPEItemType itemType)
+    {
+        for (int index = 0; array != null && index < array.arraySize; index++)
+        {
+            if (array.GetArrayElementAtIndex(index).enumValueIndex == (int)itemType)
+                return true;
+        }
+
+        return false;
+    }
+
+    static bool HasEnabledSfx(AudioManager audioManager, string sfxId)
+    {
+        SerializedProperty sfx = new SerializedObject(audioManager).FindProperty("m_Sfx");
+        for (int index = 0; sfx != null && index < sfx.arraySize; index++)
+        {
+            SerializedProperty sound = sfx.GetArrayElementAtIndex(index);
+            if (sound.FindPropertyRelative("id")?.stringValue != sfxId)
+                continue;
+
+            return sound.FindPropertyRelative("clip")?.objectReferenceValue != null &&
+                sound.FindPropertyRelative("enabled")?.boolValue == true &&
+                sound.FindPropertyRelative("volume")?.floatValue > 0f;
+        }
+
+        return false;
+    }
+
+    static void ValidateWelcomeNarration(
+        PPEVoiceFlowDirector director,
+        List<string> failures)
+    {
+        const string firstPath =
+            "Assets/Audio/Voice/0_Intro/VO_PPE_INTRO_001_Welcome_New.mp3";
+        const string returningPath =
+            "Assets/Audio/Voice/0_Intro/VO_PPE_INTRO_002_Welcome_Old.mp3";
+        SerializedObject serialized = new(director);
+
+        ValidateAudioReference(
+            serialized.FindProperty("m_FirstMetaUserWelcomeClip"),
+            firstPath,
+            "m_FirstMetaUserWelcomeClip",
+            failures);
+        ValidateAudioReference(
+            serialized.FindProperty("m_ReturningMetaUserWelcomeClip"),
+            returningPath,
+            "m_ReturningMetaUserWelcomeClip",
+            failures);
+
+        SerializedProperty wait = serialized.FindProperty("m_MetaWelcomeIdentityWaitSeconds");
+        if (wait == null || wait.floatValue <= 0f)
+            failures.Add("Meta Welcome identity wait must be authored above zero seconds.");
+
+        SerializedProperty steps = serialized.FindProperty("m_VoiceSteps");
+        SerializedProperty welcome = FindControllerStep(steps, "welcome");
+        SerializedProperty clips = welcome?.FindPropertyRelative("clips");
+        if (clips == null || clips.arraySize != 1)
+        {
+            failures.Add("The Welcome step must retain one first-user fallback clip.");
+        }
+        else
+        {
+            ValidateAudioReference(clips.GetArrayElementAtIndex(0), firstPath, "welcome.clips[0]", failures);
+        }
+    }
+
+    static void ValidateEducationStartVoices(
+        PPEVoiceFlowDirector director,
+        List<string> failures)
+    {
+        const string movePath =
+            "Assets/Audio/Voice/4_PPE/4_VO_PPE_EDU_001_PPE_MoveToPPE.mp3";
+        const string startPath =
+            "Assets/Audio/Voice/4_PPE/4_VO_PPE_EDU_002_PPE_Start.mp3";
+        const string tablePath =
+            "Assets/Audio/Voice/4_PPE/4_VO_PPE_EDU_003_Table.mp3";
+        AudioClip expectedMove = AssetDatabase.LoadAssetAtPath<AudioClip>(movePath);
+        AudioClip expectedStart = AssetDatabase.LoadAssetAtPath<AudioClip>(startPath);
+        AudioClip expectedTable = AssetDatabase.LoadAssetAtPath<AudioClip>(tablePath);
+        if (expectedMove == null || expectedStart == null || expectedTable == null)
+        {
+            failures.Add("The authored replacement EDU 001/002/003 voice assets could not be loaded.");
+            return;
+        }
+
+        SerializedProperty steps = new SerializedObject(director).FindProperty("m_VoiceSteps");
+        SerializedProperty educationSelected = null;
+        SerializedProperty ppeArea = null;
+        for (int index = 0; steps != null && index < steps.arraySize; index++)
+        {
+            SerializedProperty candidate = steps.GetArrayElementAtIndex(index);
+            string stepId = candidate.FindPropertyRelative("stepId")?.stringValue;
+            if (stepId == "education_selected")
+                educationSelected = candidate;
+            else if (stepId == "ppe_area")
+                ppeArea = candidate;
+        }
+
+        SerializedProperty educationClips = educationSelected?.FindPropertyRelative("clips");
+        if (educationClips == null || educationClips.arraySize != 1 ||
+            educationClips.GetArrayElementAtIndex(0).objectReferenceValue != expectedMove)
+        {
+            failures.Add("The education_selected step must play replacement EDU 001 MoveToPPE.");
+        }
+
+        SerializedProperty ppeAreaClips = ppeArea?.FindPropertyRelative("clips");
+        if (ppeAreaClips == null || ppeAreaClips.arraySize != 2 ||
+            ppeAreaClips.GetArrayElementAtIndex(0).objectReferenceValue != expectedStart ||
+            ppeAreaClips.GetArrayElementAtIndex(1).objectReferenceValue != expectedTable)
+        {
+            failures.Add("The ppe_area step must play replacement EDU 002 PPE Start followed by EDU 003 Table.");
+        }
+
+        if (ppeArea?.FindPropertyRelative("waitForSignal")?.boolValue != true)
+            failures.Add("The ppe_area step must remain active after its narration instead of advancing to Completed.");
+    }
+
+    static void ValidateFinaleAndExitWiring(
+        Scene scene,
+        PPEVoiceFlowDirector director,
+        List<string> failures)
+    {
+        PPEFinaleController finale = FindSingle<PPEFinaleController>(scene, failures);
+        PPEExitTeleportMarkerRelay relay = FindAll<PPEExitTeleportMarkerRelay>(scene).SingleOrDefault();
+        if (finale == null || relay == null)
+        {
+            if (relay == null)
+                failures.Add("A single authored PPEExitTeleportMarkerRelay is required.");
+            return;
+        }
+
+        SerializedObject finaleSerialized = new(finale);
+        string[] mirrorReferences =
+        {
+            "m_XrOrigin",
+            "m_MirrorObservationPoint",
+            "m_ObservationGaugeRoot",
+            "m_ObservationGaugeFill",
+        };
+        foreach (string propertyName in mirrorReferences)
+        {
+            if (finaleSerialized.FindProperty(propertyName)?.objectReferenceValue == null)
+                failures.Add($"PPEFinaleController is missing authored mirror reference '{propertyName}'.");
+        }
+
+        string finaleSource = File.ReadAllText("Assets/Scripts/PPEFinaleController.cs");
+        if (finaleSource.Contains("IsLookingAtMirror()", StringComparison.Ordinal))
+        {
+            failures.Add(
+                "Mirror observation progress must continue after looking away while the player remains in range.");
+        }
+
+        SerializedObject relaySerialized = new(relay);
+        if (relaySerialized.FindProperty("m_ReturnOnWalkEnter")?.boolValue != true)
+            failures.Add("Locomotion exit relay must use authored walk-entry return.");
+        if (relaySerialized.FindProperty("m_FinaleController")?.objectReferenceValue != finale)
+            failures.Add("Exit relay must reference the scene PPEFinaleController.");
+        if (relaySerialized.FindProperty("m_Player")?.objectReferenceValue == null ||
+            relaySerialized.FindProperty("m_EnterVolume")?.objectReferenceValue == null)
+        {
+            failures.Add("Exit relay requires authored player and enter-volume references.");
+        }
+
+        SerializedObject directorSerialized = new(director);
+        if (directorSerialized.FindProperty("m_ExitTeleportMarker")?.objectReferenceValue != relay.gameObject)
+            failures.Add("PPEVoiceFlowDirector exit marker must reference the walk-entry relay GameObject.");
+    }
+
+    static void ValidateControllerGuideVisuals(
+        Scene scene,
+        PPEVoiceFlowDirector director,
+        List<string> failures)
+    {
+        Transform[] guides = FindAll<Transform>(scene)
+            .Where(transform => transform.name == "ControllerGuide")
+            .ToArray();
+        if (guides.Length != 1)
+        {
+            failures.Add($"Expected one ControllerGuide, found {guides.Length}.");
+            return;
+        }
+
+        Transform guide = guides[0];
+        Transform context = guide.Find("Context");
+        Transform triggerController = context?.Find("1_Ctrl_Trigger");
+        Transform gripController = context?.Find("2_Ctrl_Grip");
+        Transform joystickController = context?.Find("3_Ctrl_Joystick");
+        Transform ray = context?.Find("1_Ray");
+        Transform marker = context?.Find("2_Marker");
+        Transform exitMarker = context?.Find("3_Exit_Marker");
+        if (context == null || triggerController == null || gripController == null ||
+            joystickController == null || ray == null || marker == null || exitMarker == null)
+        {
+            failures.Add(
+                "ControllerGuide/Context must contain the authored controller images and " +
+                "1_Ray, 2_Marker, and 3_Exit_Marker guide groups.");
+            return;
+        }
+
+        if (context.Find("3_Ray_T") != null)
+            failures.Add("ControllerGuide must not restore the removed 3_Ray_T group.");
+        if (FindAll<Transform>(scene).Any(transform =>
+                transform.name == "Ray_T_B" || transform.name == "Ray_T_R"))
+        {
+            failures.Add("ControllerGuide must not restore the removed Ray_T_B/R images.");
+        }
+
+        ValidateAuthoredActive(guide, false, failures);
+        ValidateAuthoredActive(context, true, failures);
+        ValidateAuthoredActive(triggerController, true, failures);
+        ValidateAuthoredActive(gripController, false, failures);
+        ValidateAuthoredActive(joystickController, false, failures);
+        ValidateAuthoredActive(ray, false, failures);
+        ValidateAuthoredActive(marker, false, failures);
+        ValidateAuthoredActive(exitMarker, true, failures);
+
+        ValidateGuideImage(triggerController, "Assets/UIs/Guide/Controller_tri.png", failures);
+        ValidateGuideImage(gripController, "Assets/UIs/Guide/Controller_gri.png", failures);
+        ValidateGuideImage(joystickController, "Assets/UIs/Guide/Controller_joy.png", failures);
+        ValidateGuideChild(ray, "Card", true, "Assets/UIs/Guide/Ray.png", failures);
+        ValidateGuideChild(ray, "Panel", false, null, failures);
+        ValidateGuideChild(marker, "Item", true, "Assets/UIs/Guide/Marker_Item.png", failures);
+        ValidateGuideChild(marker, "Place", false, null, failures);
+        ValidateGuideChild(exitMarker, "Item", true, "Assets/UIs/Guide/ExitMarker.png", failures);
+        ValidateGuideChild(exitMarker, "Place", false, null, failures);
+
+        SerializedObject serialized = new(director);
+        ValidateReference(serialized, "m_ControllerGuideRoot", guide.gameObject, failures);
+        ValidateReference(serialized, "m_ControllerRayStep", ray.gameObject, failures);
+        ValidateReference(serialized, "m_ControllerMarkerStep", marker.gameObject, failures);
+        ValidateReference(serialized, "m_ControllerRayTStep", exitMarker.gameObject, failures);
+        ValidateReference(serialized, "m_ControllerPanelStep", null, failures);
+
+        SerializedProperty educationSteps = serialized.FindProperty("m_ControllerEduVoiceSteps");
+        SerializedProperty simpleSteps = serialized.FindProperty("m_ControllerSimpVoiceSteps");
+        ValidateControllerStep(
+            educationSteps, "controller_edu_trigger", ray.gameObject, 2,
+            triggerController.gameObject, failures);
+        ValidateControllerStep(
+            educationSteps, "controller_edu_grip", marker.gameObject, 1,
+            gripController.gameObject, failures);
+        ValidateControllerStep(
+            educationSteps, "controller_edu_joystick", exitMarker.gameObject, 1,
+            joystickController.gameObject, failures);
+        ValidateControllerStep(
+            simpleSteps, "controller_simp_trigger", ray.gameObject, 2,
+            triggerController.gameObject, failures);
+        ValidateControllerStep(
+            simpleSteps, "controller_simp_grip", marker.gameObject, 1,
+            gripController.gameObject, failures);
+        ValidateControllerStep(
+            simpleSteps, "controller_simp_joystick", exitMarker.gameObject, 2,
+            joystickController.gameObject, failures);
+
+        ValidateDetailedControllerInputStep(
+            educationSteps,
+            "controller_edu_trigger",
+            PPEVoiceFlowDirector.ControllerGuideInput.Trigger,
+            new[]
+            {
+                "Assets/Audio/Voice/1_2_ContDetail/VO_PPE_CTRL_DETAIL_001_Start.mp3",
+                "Assets/Audio/Voice/1_2_ContDetail/VO_PPE_CTRL_DETAIL_002_RayTrigger.mp3",
+            },
+            "Assets/Audio/Voice/1_2_ContDetail/VO_PPE_CTRL_DETAIL_003_RayTrigger_Wrong.mp3",
+            "Assets/Audio/Voice/1_2_ContDetail/VO_PPE_CTRL_DETAIL_008_Correct_Input.mp3",
+            null,
+            failures);
+        ValidateDetailedControllerInputStep(
+            educationSteps,
+            "controller_edu_grip",
+            PPEVoiceFlowDirector.ControllerGuideInput.Grip,
+            new[]
+            {
+                "Assets/Audio/Voice/1_2_ContDetail/VO_PPE_CTRL_DETAIL_004_GripGrab_Release.mp3",
+            },
+            "Assets/Audio/Voice/1_2_ContDetail/VO_PPE_CTRL_DETAIL_005_GripGrab_Releaser_Wrong.mp3",
+            "Assets/Audio/Voice/1_2_ContDetail/VO_PPE_CTRL_DETAIL_008_Correct_Input.mp3",
+            null,
+            failures);
+        ValidateDetailedControllerInputStep(
+            educationSteps,
+            "controller_edu_joystick",
+            PPEVoiceFlowDirector.ControllerGuideInput.Joystick,
+            new[]
+            {
+                "Assets/Audio/Voice/1_2_ContDetail/VO_PPE_CTRL_DETAIL_006_Joystick.mp3",
+            },
+            "Assets/Audio/Voice/1_2_ContDetail/VO_PPE_CTRL_DETAIL_007_Joystickr_Wrong.mp3",
+            "Assets/Audio/Voice/1_2_ContDetail/VO_PPE_CTRL_DETAIL_008_Correct_Input.mp3",
+            "Assets/Audio/Voice/1_2_ContDetail/VO_PPE_CTRL_DETAIL_009_GuideFollow.mp3",
+            failures);
+        ValidateSimpleControllerStepHasNoInputGate(
+            simpleSteps, "controller_simp_trigger", failures);
+        ValidateSimpleControllerStepHasNoInputGate(
+            simpleSteps, "controller_simp_grip", failures);
+        ValidateSimpleControllerStepHasNoInputGate(
+            simpleSteps, "controller_simp_joystick", failures);
+        ValidateControllerStepAudioClips(
+            simpleSteps,
+            "controller_simp_trigger",
+            new[]
+            {
+                "Assets/Audio/Voice/1_1_ContSimp/VO_PPE_CTRL_SIMP_001_Start.mp3",
+                "Assets/Audio/Voice/1_1_ContSimp/VO_PPE_CTRL_SIMP_002_RayTrigger.mp3",
+            },
+            failures);
+        ValidateControllerStepAudioClips(
+            simpleSteps,
+            "controller_simp_grip",
+            new[]
+            {
+                "Assets/Audio/Voice/1_1_ContSimp/VO_PPE_CTRL_SIMP_003_GripGrab_Release.mp3",
+            },
+            failures);
+        ValidateControllerStepAudioClips(
+            simpleSteps,
+            "controller_simp_joystick",
+            new[]
+            {
+                "Assets/Audio/Voice/1_1_ContSimp/VO_PPE_CTRL_SIMP_004_Joystick.mp3",
+                "Assets/Audio/Voice/1_1_ContSimp/VO_PPE_CTRL_SIMP_005_GuideFollow.mp3",
+            },
+            failures);
+    }
+
+    static void ValidateTemporaryKeyboardBypass(
+        Scene scene,
+        PPEVoiceFlowDirector director,
+        List<string> failures)
+    {
+        SerializedObject serialized = new(director);
+        SerializedProperty skipKeyboard = serialized.FindProperty("m_SkipKeyboardNameInput");
+        if (skipKeyboard == null || !skipKeyboard.boolValue)
+            failures.Add("The temporary keyboard-name-input bypass must remain enabled in the authored scene.");
+
+        GameObject keyboard = serialized.FindProperty("m_KeyboardPresentationRoot")?.objectReferenceValue
+            as GameObject;
+        if (keyboard == null)
+        {
+            failures.Add("The bypassed keyboard must retain its authored presentation-root reference.");
+        }
+        else if (keyboard.activeSelf)
+        {
+            failures.Add("The bypassed keyboard presentation root must remain authored inactive.");
+        }
+
+        Transform mini = FindAll<Transform>(scene)
+            .FirstOrDefault(transform => transform.name == "ControllerGuide_mini");
+        Transform hint = mini?.Find("Context/Controller Education Hint");
+        if (hint == null)
+        {
+            failures.Add(
+                "ControllerGuide_mini/Context requires the authored Controller Education Hint.");
+            return;
+        }
+
+        ValidateAuthoredActive(hint, true, failures);
+        TMP_Text[] texts = hint.GetComponentsInChildren<TMP_Text>(true);
+        if (!texts.Any(text => text.text.Trim() == "A"))
+            failures.Add("The mini controller-education hint requires a visible authored A label.");
+        if (!texts.Any(text => text.text.Contains("컨트롤러 교육")))
+            failures.Add("The mini controller-education hint requires the authored controller-education label.");
+
+        if (hint.GetComponentsInChildren<Selectable>(true).Length > 0 ||
+            hint.GetComponentsInChildren<PPEControllerEducationEntry>(true).Length > 0)
+        {
+            failures.Add("The mini A hint must remain display-only and must not add another input consumer.");
+        }
+
+        Graphic raycastGraphic = hint.GetComponentsInChildren<Graphic>(true)
+            .FirstOrDefault(graphic => graphic.raycastTarget);
+        if (raycastGraphic != null)
+        {
+            failures.Add(
+                $"The mini A hint Graphic '{raycastGraphic.name}' must not receive UI raycasts.");
+        }
+    }
+
+    static void ValidateControllerStepAudioClips(
+        SerializedProperty steps,
+        string stepId,
+        string[] expectedClipPaths,
+        List<string> failures)
+    {
+        SerializedProperty step = FindControllerStep(steps, stepId);
+        SerializedProperty clips = step?.FindPropertyRelative("clips");
+        if (clips == null || clips.arraySize != expectedClipPaths.Length)
+        {
+            failures.Add(
+                $"Simple controller step '{stepId}' must have {expectedClipPaths.Length} authored clip(s).");
+            return;
+        }
+
+        for (int index = 0; index < expectedClipPaths.Length; index++)
+        {
+            ValidateAudioReference(
+                clips.GetArrayElementAtIndex(index),
+                expectedClipPaths[index],
+                $"{stepId}.clips[{index}]",
+                failures);
+        }
+    }
+
+    static void ValidateDetailedControllerInputStep(
+        SerializedProperty steps,
+        string stepId,
+        PPEVoiceFlowDirector.ControllerGuideInput expectedInput,
+        string[] expectedClipPaths,
+        string wrongClipPath,
+        string correctClipPath,
+        string completionClipPath,
+        List<string> failures)
+    {
+        SerializedProperty step = FindControllerStep(steps, stepId);
+        if (step == null)
+        {
+            failures.Add($"Missing detailed controller step '{stepId}'.");
+            return;
+        }
+
+        SerializedProperty clips = step.FindPropertyRelative("clips");
+        if (clips == null || clips.arraySize != expectedClipPaths.Length)
+        {
+            failures.Add(
+                $"Detailed controller step '{stepId}' must have {expectedClipPaths.Length} explanation clip(s).");
+        }
+        else
+        {
+            for (int index = 0; index < expectedClipPaths.Length; index++)
+            {
+                ValidateAudioReference(
+                    clips.GetArrayElementAtIndex(index),
+                    expectedClipPaths[index],
+                    $"{stepId}.clips[{index}]",
+                    failures);
+            }
+        }
+
+        SerializedProperty input = step.FindPropertyRelative("controllerExpectedInput");
+        if (input == null || input.enumValueIndex != (int)expectedInput)
+        {
+            failures.Add(
+                $"Detailed controller step '{stepId}' must wait for {expectedInput} input.");
+        }
+
+        ValidateAudioReference(
+            step.FindPropertyRelative("controllerWrongInputClip"),
+            wrongClipPath,
+            $"{stepId}.controllerWrongInputClip",
+            failures);
+        ValidateAudioReference(
+            step.FindPropertyRelative("controllerCorrectInputClip"),
+            correctClipPath,
+            $"{stepId}.controllerCorrectInputClip",
+            failures);
+        ValidateAudioReference(
+            step.FindPropertyRelative("controllerCompletionClip"),
+            completionClipPath,
+            $"{stepId}.controllerCompletionClip",
+            failures);
+    }
+
+    static void ValidateSimpleControllerStepHasNoInputGate(
+        SerializedProperty steps,
+        string stepId,
+        List<string> failures)
+    {
+        SerializedProperty step = FindControllerStep(steps, stepId);
+        if (step == null)
+            return;
+
+        SerializedProperty input = step.FindPropertyRelative("controllerExpectedInput");
+        bool hasInput = input != null &&
+            input.enumValueIndex != (int)PPEVoiceFlowDirector.ControllerGuideInput.None;
+        bool hasFeedback = step.FindPropertyRelative("controllerWrongInputClip")?.objectReferenceValue != null ||
+            step.FindPropertyRelative("controllerCorrectInputClip")?.objectReferenceValue != null ||
+            step.FindPropertyRelative("controllerCompletionClip")?.objectReferenceValue != null;
+        if (hasInput || hasFeedback)
+            failures.Add($"Simple controller step '{stepId}' must retain its ungated narration flow.");
+    }
+
+    static void ValidateAudioReference(
+        SerializedProperty property,
+        string expectedPath,
+        string label,
+        List<string> failures)
+    {
+        AudioClip expected = string.IsNullOrEmpty(expectedPath)
+            ? null
+            : AssetDatabase.LoadAssetAtPath<AudioClip>(expectedPath);
+        if (!string.IsNullOrEmpty(expectedPath) && expected == null)
+        {
+            failures.Add($"Required controller voice asset is missing: '{expectedPath}'.");
+            return;
+        }
+
+        if (property == null || property.objectReferenceValue != expected)
+            failures.Add($"Controller voice reference '{label}' must be '{expectedPath ?? "null"}'.");
+    }
+
+    static SerializedProperty FindControllerStep(SerializedProperty steps, string stepId)
+    {
+        for (int index = 0; steps != null && index < steps.arraySize; index++)
+        {
+            SerializedProperty candidate = steps.GetArrayElementAtIndex(index);
+            if (candidate.FindPropertyRelative("stepId")?.stringValue == stepId)
+                return candidate;
+        }
+
+        return null;
+    }
+
+    static void ValidateControllerStep(
+        SerializedProperty steps,
+        string stepId,
+        GameObject expectedVisual,
+        int expectedCount,
+        GameObject expectedCompanion,
+        List<string> failures)
+    {
+        SerializedProperty step = FindControllerStep(steps, stepId);
+
+        SerializedProperty visuals = step?.FindPropertyRelative("controllerGuideVisuals");
+        if (visuals == null || visuals.arraySize != expectedCount)
+        {
+            failures.Add($"Controller guide step '{stepId}' must have {expectedCount} visual reference(s).");
+            return;
+        }
+
+        for (int index = 0; index < visuals.arraySize; index++)
+        {
+            if (visuals.GetArrayElementAtIndex(index).objectReferenceValue != expectedVisual)
+            {
+                failures.Add(
+                    $"Controller guide step '{stepId}' visual {index} must reference '{expectedVisual.name}'.");
+            }
+        }
+
+        UnityEngine.Object companion = step.FindPropertyRelative("controllerGuideCompanionVisual")
+            ?.objectReferenceValue;
+        if (companion != expectedCompanion)
+        {
+            failures.Add(
+                $"Controller guide step '{stepId}' companion must reference '{expectedCompanion.name}'.");
+        }
+    }
+
+    static void ValidateReference(
+        SerializedObject serialized,
+        string propertyName,
+        UnityEngine.Object expected,
+        List<string> failures)
+    {
+        UnityEngine.Object actual = serialized.FindProperty(propertyName)?.objectReferenceValue;
+        if (actual != expected)
+        {
+            failures.Add(
+                $"PPEVoiceFlowDirector.{propertyName} must reference " +
+                $"'{(expected != null ? expected.name : "null")}'.");
+        }
+    }
+
+    static void ValidateGuideChild(
+        Transform parent,
+        string childName,
+        bool expectedActive,
+        string expectedSpritePath,
+        List<string> failures)
+    {
+        Transform child = parent.Find(childName);
+        if (child == null)
+        {
+            failures.Add($"Controller guide group '{parent.name}' is missing child '{childName}'.");
+            return;
+        }
+
+        ValidateAuthoredActive(child, expectedActive, failures);
+        ValidateGuideImage(child, expectedSpritePath, failures);
+    }
+
+    static void ValidateGuideImage(
+        Transform transform,
+        string expectedSpritePath,
+        List<string> failures)
+    {
+        UnityEngine.UI.Image image = transform.GetComponent<UnityEngine.UI.Image>();
+        string actualPath = image != null && image.sprite != null
+            ? AssetDatabase.GetAssetPath(image.sprite)
+            : null;
+        if (actualPath != expectedSpritePath)
+        {
+            failures.Add(
+                $"Controller guide '{transform.name}' sprite is '{actualPath ?? "null"}', " +
+                $"expected '{expectedSpritePath ?? "null"}'.");
+        }
+    }
+
+    static void ValidateAuthoredActive(
+        Transform transform,
+        bool expected,
+        List<string> failures)
+    {
+        if (transform.gameObject.activeSelf != expected)
+        {
+            failures.Add(
+                $"Controller guide '{transform.name}' authored activeSelf must be {expected}.");
+        }
+    }
+
+    static void ValidateBodyColliderProximity(List<string> failures)
+    {
+        MethodInfo pointCheck = typeof(PPEActionPanelController).GetMethod(
+            "IsPointWithinColliderRange",
+            BindingFlags.Static | BindingFlags.NonPublic);
+        MethodInfo segmentCheck = typeof(PPEActionPanelController).GetMethod(
+            "IsSegmentWithinColliderRange",
+            BindingFlags.Static | BindingFlags.NonPublic);
+        if (pointCheck == null || segmentCheck == null)
+        {
+            failures.Add("Body-collider proximity helpers could not be inspected.");
+            return;
+        }
+
+        GameObject probe = new("PPE Body Proximity Validation Probe");
+        try
+        {
+            BoxCollider collider = probe.AddComponent<BoxCollider>();
+            collider.size = Vector3.one;
+            Physics.SyncTransforms();
+
+            bool pointInside = (bool)pointCheck.Invoke(
+                null,
+                new object[] { collider, Vector3.zero, 0.01f });
+            bool segmentInside = (bool)segmentCheck.Invoke(
+                null,
+                new object[]
+                {
+                    collider,
+                    new Vector3(0f, -1f, 0f),
+                    new Vector3(0f, 1f, 0f),
+                    0.01f,
+                });
+            bool pointOutside = (bool)pointCheck.Invoke(
+                null,
+                new object[] { collider, new Vector3(1f, 0f, 0f), 0.1f });
+            if (!pointInside || !segmentInside || pointOutside)
+            {
+                failures.Add(
+                    "A grabbed PPE collider touching or containing the body target must count as in range.");
+            }
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(probe);
+        }
+    }
+
+    static void ValidateChecklistWorkPlanReset(
+        PPEVoiceFlowDirector director,
+        PPEEducationWearChecklist checklist,
+        List<string> failures)
+    {
+        Type checklistType = typeof(PPEEducationWearChecklist);
+        FieldInfo approvedField = checklistType.GetField("approvedItemTypes", InstancePrivate);
+        FieldInfo observedField = checklistType.GetField("observedWorkPlan", InstancePrivate);
+        MethodInfo reset = checklistType.GetMethod(
+            "ResetChecksWhenWorkPlanChanges",
+            InstancePrivate);
+        PropertyInfo activeWorkPlan = typeof(PPEVoiceFlowDirector).GetProperty(
+            nameof(PPEVoiceFlowDirector.ActiveWorkPlan));
+
+        if (approvedField == null || observedField == null || reset == null ||
+            activeWorkPlan == null)
+        {
+            failures.Add("Checklist work-plan reset members could not be inspected.");
+            return;
+        }
+
+        HashSet<PPEItemType> approved =
+            (HashSet<PPEItemType>)approvedField.GetValue(checklist);
+        approved.Add(PPEItemType.HazmatSuit);
+        approved.Add(PPEItemType.RubberBootLeft);
+        observedField.SetValue(checklist, ScenarioDetailModal.PpeWorkPlan.ConfinedSpace);
+        activeWorkPlan.SetValue(director, ScenarioDetailModal.PpeWorkPlan.LeakResponse);
+        reset.Invoke(checklist, null);
+        if (approved.Count != 0)
+            failures.Add("Changing work plan must clear prior checklist approvals.");
+    }
+
+    static void ValidateHazmatAlreadyEquippedPriority(List<string> failures)
+    {
+        string source = File.ReadAllText("Assets/Scripts/PPEActionPanelController.cs");
+        int method = source.IndexOf("void ResolveUseChoice()", StringComparison.Ordinal);
+        int alreadyEquipped = source.IndexOf(
+            "voiceFlowDirector.RejectUseBeforeConditionCheck(this)",
+            method,
+            StringComparison.Ordinal);
+        int condition = source.IndexOf(
+            "inspectionState.CurrentCondition != PPEItemCondition.Clean",
+            method,
+            StringComparison.Ordinal);
+        if (method < 0 || alreadyEquipped < method || condition < alreadyEquipped)
+        {
+            failures.Add(
+                "Already-equipped hazmat rejection must run before the candidate suit condition check.");
+        }
+    }
+
+    static void ValidateFootstepInputOwnership(Scene scene, List<string> failures)
+    {
+        PPEConfigurableDynamicMoveProvider moveProvider =
+            FindSingle<PPEConfigurableDynamicMoveProvider>(scene, failures);
+        AudioManager audioManager = FindSingle<AudioManager>(scene, failures);
+        if (moveProvider == null || audioManager == null)
+            return;
+
+        SerializedObject moveSerialized = new(moveProvider);
+        string sfxId = moveSerialized.FindProperty("m_FootstepSfxId")?.stringValue;
+        AudioSource footstepSource =
+            moveSerialized.FindProperty("m_FootstepSource")?.objectReferenceValue as AudioSource;
+        if (string.IsNullOrWhiteSpace(sfxId))
+            failures.Add("The locomotion input owner is missing its footstep SFX id.");
+
+        SerializedObject audioSerialized = new(audioManager);
+        AudioSource sharedSfxSource =
+            audioSerialized.FindProperty("m_SfxSource")?.objectReferenceValue as AudioSource;
+        if (footstepSource == null)
+            failures.Add("The move provider requires a dedicated Footstep AudioSource.");
+        else
+        {
+            if (footstepSource == sharedSfxSource)
+                failures.Add("Footsteps must not use the shared SFX AudioSource.");
+            if (footstepSource.playOnAwake || !Mathf.Approximately(footstepSource.pitch, 1f))
+                failures.Add("The dedicated Footstep source must not play on awake and must keep pitch 1.");
+        }
+
+        SerializedProperty sfx = audioSerialized.FindProperty("m_Sfx");
+        bool hasEnabledFootstep = false;
+        for (int index = 0; sfx != null && index < sfx.arraySize; index++)
+        {
+            SerializedProperty sound = sfx.GetArrayElementAtIndex(index);
+            if (sound.FindPropertyRelative("id")?.stringValue != sfxId)
+                continue;
+
+            hasEnabledFootstep = sound.FindPropertyRelative("clip")?.objectReferenceValue != null
+                && sound.FindPropertyRelative("enabled")?.boolValue == true
+                && sound.FindPropertyRelative("volume")?.floatValue > 0f;
+            break;
+        }
+
+        if (!hasEnabledFootstep)
+            failures.Add($"AudioManager SFX '{sfxId}' must have an enabled clip and positive volume.");
+
+        string moveSource = File.ReadAllText(
+            "Assets/Scripts/PPEConfigurableDynamicMoveProvider.cs");
+        string idleSource = File.ReadAllText("Assets/Scripts/PPEIdleLocomotionAnimator.cs");
+        if (!moveSource.Contains("UpdateFootsteps(hasLocomotionInput)", StringComparison.Ordinal))
+            failures.Add("The move provider must drive footsteps from locomotion input.");
+        if (!moveSource.Contains(
+                "leftInput != Vector2.zero || rightInput != Vector2.zero",
+                StringComparison.Ordinal))
+        {
+            failures.Add("Any non-zero left or right locomotion input must drive footsteps.");
+        }
+        if (!moveSource.Contains(
+                "PlayLoopingSfx(m_FootstepSfxId, m_FootstepSource)",
+                StringComparison.Ordinal))
+            failures.Add("Footsteps must use one dedicated constant-speed loop while input is held.");
+        if (!moveSource.Contains("StopFootsteps();", StringComparison.Ordinal))
+            failures.Add("Releasing locomotion input must stop the Footstep loop immediately.");
+
+        string audioManagerSource = File.ReadAllText("Assets/Scripts/AudioManager.cs");
+        if (!audioManagerSource.Contains(
+                "public bool PlayLoopingSfx(string id, AudioSource targetSource)",
+                StringComparison.Ordinal)
+            || !audioManagerSource.Contains(
+                "public void StopLoopingSfx(AudioSource targetSource)",
+                StringComparison.Ordinal))
+        {
+            failures.Add("AudioManager must own start/stop of the dedicated looping SFX source.");
+        }
+        if (idleSource.Contains("PlaySfx(", StringComparison.Ordinal))
+            failures.Add("The optional player model animator must not own footstep playback.");
+    }
+
+    static void ValidateHeadRelativeLocomotion(Scene scene, List<string> failures)
+    {
+        PPEConfigurableDynamicMoveProvider moveProvider =
+            FindSingle<PPEConfigurableDynamicMoveProvider>(scene, failures);
+        GameObject activeOrigin = scene.GetRootGameObjects()
+            .SingleOrDefault(root => root.name == "XR Origin (VR)");
+        Camera activeCamera = activeOrigin != null
+            ? activeOrigin.GetComponentsInChildren<Camera>(true)
+                .SingleOrDefault(camera => camera.gameObject.name == "Main Camera")
+            : null;
+        if (moveProvider == null || activeCamera == null)
+        {
+            if (activeCamera == null)
+                failures.Add("XR Origin (VR) requires one authored Main Camera for head-relative movement.");
+            return;
+        }
+
+        SerializedObject move = new(moveProvider);
+        if (move.FindProperty("m_HeadTransform")?.objectReferenceValue != activeCamera.transform)
+            failures.Add("Move Provider head transform must reference XR Origin (VR)/Camera Offset/Main Camera.");
+        if (move.FindProperty("m_ForwardSource")?.objectReferenceValue != activeCamera.transform)
+            failures.Add("Move Provider authored forward source must reference the active XR camera.");
+        if (move.FindProperty("m_LeftHandMovementDirection")?.enumValueIndex != 0 ||
+            move.FindProperty("m_RightHandMovementDirection")?.enumValueIndex != 0)
+        {
+            failures.Add("Both joystick movement directions must be head-relative.");
+        }
+    }
+
+    static T FindSingle<T>(Scene scene, List<string> failures) where T : Component
+    {
+        T[] matches = FindAll<T>(scene);
+        if (matches.Length == 1)
+            return matches[0];
+
+        failures.Add($"Expected one {typeof(T).Name}, found {matches.Length}.");
+        return null;
+    }
+
+    static T[] FindAll<T>(Scene scene) where T : Component
+    {
+        return scene.GetRootGameObjects()
+            .SelectMany(root => root.GetComponentsInChildren<T>(true))
+            .ToArray();
+    }
+}

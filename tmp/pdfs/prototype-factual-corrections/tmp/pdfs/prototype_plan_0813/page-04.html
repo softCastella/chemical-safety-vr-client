@@ -1,0 +1,169 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  :root {
+    --navy: #123844;
+    --teal: #177b76;
+    --teal2: #2b9790;
+    --ink: #24363b;
+    --muted: #63757b;
+    --line: #cbd8da;
+    --paper: #ffffff;
+    --soft: #eff6f5;
+    --soft2: #f6f8f8;
+    --amber: #d99522;
+    --amber-soft: #fff5df;
+    --red: #a8493d;
+    --red-soft: #fff0ed;
+    --green: #2b7757;
+    --green-soft: #edf7f1;
+  }
+  html, body { margin: 0; padding: 0; background: #e8edef; color: var(--ink); }
+  body { font-family: "Malgun Gothic", "맑은 고딕", Arial, sans-serif; }
+  .page {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto 8px;
+    padding: 14mm 16mm 15mm;
+    background: var(--paper);
+    overflow: hidden;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+  .topline {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 3mm; margin-bottom: 5mm; border-bottom: 1px solid var(--line);
+    color: var(--muted); font-size: 8pt; letter-spacing: .04em;
+  }
+  .topline strong { color: var(--teal); }
+  .section-no { color: var(--teal); font-size: 8.5pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  h1, h2, h3, h4, p { margin-top: 0; }
+  h1 { margin-bottom: 4mm; color: var(--navy); font-size: 29pt; line-height: 1.25; letter-spacing: -.035em; }
+  h2 { margin: 0 0 4mm; color: var(--navy); font-size: 20pt; line-height: 1.28; letter-spacing: -.025em; }
+  h3 { margin: 4.2mm 0 2.3mm; color: var(--navy); font-size: 12.5pt; line-height: 1.32; }
+  h4 { margin: 2.8mm 0 1.6mm; color: var(--teal); font-size: 10.2pt; }
+  p { margin-bottom: 2.6mm; font-size: 9.3pt; line-height: 1.58; }
+  .lead { color: #3f555b; font-size: 12pt; line-height: 1.55; }
+  .small { color: var(--muted); font-size: 8pt; line-height: 1.5; }
+  .micro { color: var(--muted); font-size: 7.2pt; line-height: 1.45; }
+  .strong { font-weight: 800; color: var(--navy); }
+  .accent { color: var(--teal); font-weight: 800; }
+  .tag {
+    display: inline-block; margin: 0 1.5mm 1.5mm 0; padding: 1.2mm 2.4mm;
+    border-radius: 9px; background: var(--soft); color: var(--teal); font-size: 7.5pt; font-weight: 800;
+  }
+  .tag.amber { background: var(--amber-soft); color: #8b5a0b; }
+  .tag.red { background: var(--red-soft); color: var(--red); }
+  .tag.dark { background: var(--navy); color: white; }
+  .rule { width: 24mm; height: 1.4mm; margin: 4mm 0 7mm; background: var(--teal); }
+  .footer {
+    position: absolute; left: 16mm; right: 16mm; bottom: 7.5mm;
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 2.7mm; border-top: 1px solid var(--line); color: var(--muted); font-size: 7.2pt;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
+  .card { padding: 3.4mm; border: 1px solid var(--line); border-radius: 2.5mm; background: var(--soft2); }
+  .card h3, .card h4 { margin-top: 0; }
+  .card.teal { border-color: #9dc9c5; background: var(--soft); }
+  .card.amber { border-color: #ead19b; background: var(--amber-soft); }
+  .card.red { border-color: #e0b6af; background: var(--red-soft); }
+  .callout {
+    padding: 3mm 3.5mm; border-left: 1.4mm solid var(--teal); border-radius: 1.5mm;
+    background: var(--soft); color: #274b4e; font-size: 9pt; line-height: 1.55;
+  }
+  .callout.amber { border-left-color: var(--amber); background: var(--amber-soft); color: #694b17; }
+  .callout.red { border-left-color: var(--red); background: var(--red-soft); color: #693631; }
+  .callout strong { color: inherit; }
+  ul, ol { margin: 1.5mm 0 0; padding-left: 5mm; font-size: 8.8pt; line-height: 1.48; }
+  li { margin: 0 0 1.5mm; }
+  .tight li { margin-bottom: .9mm; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 2.4mm 0 4mm; }
+  th, td { border: 1px solid var(--line); padding: 2mm 2.2mm; vertical-align: middle; word-break: keep-all; overflow-wrap: anywhere; }
+  th { background: var(--navy); color: white; font-size: 7.8pt; line-height: 1.35; text-align: center; }
+  td { color: #32474c; font-size: 7.7pt; line-height: 1.43; }
+  tr:nth-child(even) td { background: #fbfcfc; }
+  td.center { text-align: center; }
+  td.label { background: var(--soft) !important; color: var(--navy); font-weight: 800; }
+  .compact th, .compact td { padding: 1.55mm 1.8mm; font-size: 7.35pt; line-height: 1.38; }
+  .steps td:first-child { width: 8%; text-align: center; color: var(--teal); font-size: 10pt; font-weight: 900; }
+  .steps td:nth-child(2) { width: 18%; font-weight: 800; color: var(--navy); }
+  .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4mm 4mm; margin-top: 2mm; }
+  .check { position: relative; padding-left: 5mm; font-size: 8.2pt; line-height: 1.45; }
+  .check::before { content: "✓"; position: absolute; left: 0; top: 0; color: var(--teal); font-weight: 900; }
+  .flow { display: flex; align-items: stretch; gap: 1.2mm; margin: 3mm 0 4mm; }
+  .flow .node { flex: 1; min-height: 15mm; padding: 2mm 1mm; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid #a9c8c6; border-radius: 2mm; background: var(--soft); color: var(--navy); font-size: 7.2pt; line-height: 1.35; font-weight: 800; }
+  .flow .arrow { display: flex; align-items: center; color: var(--teal); font-size: 11pt; font-weight: 800; }
+  .metric-strip { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 2.5mm; overflow: hidden; margin: 4mm 0 5mm; }
+  .metric { padding: 3mm; background: var(--soft2); border-right: 1px solid var(--line); }
+  .metric:last-child { border-right: 0; }
+  .metric b { display: block; margin-bottom: 1mm; color: var(--teal); font-size: 12pt; }
+  .metric span { color: var(--muted); font-size: 7.4pt; line-height: 1.35; }
+  .asset-row { display: grid; grid-template-columns: 34mm 34mm 1fr; gap: 3mm; align-items: stretch; margin: 3mm 0 4mm; }
+  .asset-card { height: 31mm; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--line); border-radius: 2.2mm; background: #3a3e40; }
+  .asset-card img { width: 100%; height: 100%; object-fit: contain; }
+  .asset-copy { padding: 3mm; border-radius: 2.2mm; background: var(--soft); border: 1px solid #b8d3d1; }
+  .asset-copy strong { display: block; margin-bottom: 1mm; color: var(--navy); font-size: 10pt; }
+  .timeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2mm; margin: 3mm 0 4mm; }
+  .milestone { min-height: 24mm; padding: 2.6mm; border-top: 1.4mm solid var(--teal); background: var(--soft2); }
+  .milestone b { color: var(--teal); font-size: 8.4pt; }
+  .milestone span { display: block; margin-top: 1.5mm; color: var(--ink); font-size: 7.2pt; line-height: 1.4; }
+  .cover-page { padding-top: 15mm; background: linear-gradient(135deg, #ffffff 0%, #ffffff 68%, #edf6f5 100%); }
+  .cover-kicker { display: inline-block; margin-bottom: 13mm; padding: 1.8mm 3mm; color: white; background: var(--teal); font-size: 8pt; font-weight: 800; letter-spacing: .08em; }
+  .cover-hero { margin-top: 9mm; padding: 7mm; color: white; background: var(--navy); border-radius: 3.5mm; }
+  .cover-hero h3 { margin: 0 0 3mm; color: white; font-size: 13pt; }
+  .cover-scenarios { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .cover-scenario { padding: 4mm; border-radius: 2.5mm; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.22); }
+  .cover-scenario b { display: block; margin-bottom: 1.5mm; color: #8fe0d8; font-size: 11pt; }
+  .cover-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; margin-top: 6mm; }
+  .cover-meta div { padding: 3mm; border: 1px solid var(--line); border-radius: 2mm; background: rgba(255,255,255,.88); }
+  .cover-meta b { display: block; margin-bottom: 1mm; color: var(--teal); font-size: 7.2pt; }
+  .cover-meta span { color: var(--navy); font-size: 8.5pt; font-weight: 800; line-height: 1.35; }
+  .decision { margin-top: 6mm; padding: 4.5mm; background: var(--amber-soft); border: 1px solid #e6c986; border-radius: 2.5mm; }
+  .decision b { color: #7a5110; font-size: 10.5pt; }
+  .decision p { margin: 1.5mm 0 0; color: #684d1e; font-size: 9pt; }
+  .signature { position: absolute; left: 16mm; bottom: 22mm; color: var(--muted); font-size: 8pt; }
+  .status-p0 { color: white !important; background: var(--red) !important; font-weight: 800; }
+  .status-p1 { color: white !important; background: var(--amber) !important; font-weight: 800; }
+  .status-p2 { color: white !important; background: var(--teal) !important; font-weight: 800; }
+  a { color: var(--teal); text-decoration: none; }
+  @media print { body { background: white; } .page { margin: 0; } }
+ body{background:white}.page{margin:0}</style></head><body>
+  <section class="page">
+    <div class="topline"><span><strong>PROTOTYPE PLAN</strong> · 2026.07.30</span><span>03 · 공통 경험</span></div>
+    <div class="section-no">03 · 공통 경험</div>
+    <h2>공통 사용자 흐름·조작 설계</h2>
+    
+  <p>두 시나리오는 같은 혼합기 청소 작업 준비 상황을 공유하되 독립적으로 시작한다. 사용자는 <span class="strong">시나리오를 먼저 선택한 뒤 해당 시나리오의 플레이 모드</span>를 선택한다. 1차 빌드에서는 교육모드가 기본값이며, 훈련·테스트모드는 후속 빌드에서 순차 활성화한다.</p>
+  <h3>공통 경험 흐름</h3>
+  <div class="flow">
+    <div class="node">앱 실행</div><div class="arrow">›</div>
+    <div class="node">시나리오 선택</div><div class="arrow">›</div>
+    <div class="node">모드 선택<br/>교육 기본</div><div class="arrow">›</div>
+    <div class="node">모드별 안내</div><div class="arrow">›</div>
+    <div class="node">절차 수행</div><div class="arrow">›</div>
+    <div class="node">완료 판정</div><div class="arrow">›</div>
+    <div class="node">퀴즈·결과</div>
+  </div>
+  <h3>모드별 지원 정책</h3>
+  <table class="compact">
+    <tr><th style="width:16%">모드</th><th style="width:27%">시작·단계 안내</th><th style="width:28%">수행 중 지원</th><th>오류·결과 처리</th></tr>
+    <tr><td class="label">교육모드</td><td>목표·안전 의미·입력법을 단계별 VOICE와 자막으로 설명</td><td>대상 하이라이트, 위치 마커, 입력 힌트, 진행 잠금 제공</td><td>오류 이유와 올바른 행동을 알려 재시도. 퀴즈 즉시 해설</td></tr>
+    <tr><td class="label">훈련모드</td><td>현재 작업 목표와 필요한 기본 행동만 짧게 표시</td><td>상세 순서·정답 유도·대상 강조 없음. 필수 시스템 상태만 표시</td><td>잘못된 수행은 짧게 재시도만 알림. 종료 후 점수 제공</td></tr>
+    <tr><td class="label">테스트모드</td><td>시작 전 과제·종료 조건만 고지</td><td>수행 중 지시·힌트·하이라이트·정오답 피드백 없음</td><td>오류·순서·소요시간을 내부 기록하고 종료 후 결과만 제공</td></tr>
+  </table>
+  <h3>공통 시스템 완료 기준</h3>
+  <div class="checklist">
+    <div class="check">절차 상태·선행조건·완료 판정은 세 모드가 공유한다.</div>
+    <div class="check">모드별 안내 수준은 데이터 설정으로 전환된다.</div>
+    <div class="check">훈련·테스트에서 교육용 힌트가 노출되지 않는다.</div>
+    <div class="check">시나리오 종료 후 모든 오브젝트·점수 상태가 초기화된다.</div>
+    <div class="check">선택 모드와 시도·오류·소요시간이 결과에 전달된다.</div>
+    <div class="check">시스템 오류·안전 고지는 모든 모드에서 예외적으로 표시한다.</div>
+    <div class="check">Grip·Trigger·A·B 등 버튼 표기는 현재 입력안이며 개발·기기 테스트 과정에서 변경될 수 있다.</div>
+  </div>
+
+    
+  <div class="footer"><span>화학물질 안전훈련 VR · 8/13 프로토타입 기획서</span><span>4 / 11</span></div>
+  </section></body></html>

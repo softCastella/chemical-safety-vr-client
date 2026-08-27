@@ -1,0 +1,187 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  :root {
+    --navy: #123844;
+    --teal: #177b76;
+    --teal2: #2b9790;
+    --ink: #24363b;
+    --muted: #63757b;
+    --line: #cbd8da;
+    --paper: #ffffff;
+    --soft: #eff6f5;
+    --soft2: #f6f8f8;
+    --amber: #d99522;
+    --amber-soft: #fff5df;
+    --red: #a8493d;
+    --red-soft: #fff0ed;
+    --green: #2b7757;
+    --green-soft: #edf7f1;
+  }
+  html, body { margin: 0; padding: 0; background: #e8edef; color: var(--ink); }
+  body { font-family: "Malgun Gothic", "맑은 고딕", Arial, sans-serif; }
+  .page {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto 8px;
+    padding: 14mm 16mm 15mm;
+    background: var(--paper);
+    overflow: hidden;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+  .topline {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 3mm; margin-bottom: 5mm; border-bottom: 1px solid var(--line);
+    color: var(--muted); font-size: 8pt; letter-spacing: .04em;
+  }
+  .topline strong { color: var(--teal); }
+  .section-no { color: var(--teal); font-size: 8.5pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  h1, h2, h3, h4, p { margin-top: 0; }
+  h1 { margin-bottom: 4mm; color: var(--navy); font-size: 29pt; line-height: 1.25; letter-spacing: -.035em; }
+  h2 { margin: 0 0 4mm; color: var(--navy); font-size: 20pt; line-height: 1.28; letter-spacing: -.025em; }
+  h3 { margin: 4.2mm 0 2.3mm; color: var(--navy); font-size: 12.5pt; line-height: 1.32; }
+  h4 { margin: 2.8mm 0 1.6mm; color: var(--teal); font-size: 10.2pt; }
+  p { margin-bottom: 2.6mm; font-size: 9.3pt; line-height: 1.58; }
+  .lead { color: #3f555b; font-size: 12pt; line-height: 1.55; }
+  .small { color: var(--muted); font-size: 8pt; line-height: 1.5; }
+  .micro { color: var(--muted); font-size: 7.2pt; line-height: 1.45; }
+  .strong { font-weight: 800; color: var(--navy); }
+  .accent { color: var(--teal); font-weight: 800; }
+  .tag {
+    display: inline-block; margin: 0 1.5mm 1.5mm 0; padding: 1.2mm 2.4mm;
+    border-radius: 9px; background: var(--soft); color: var(--teal); font-size: 7.5pt; font-weight: 800;
+  }
+  .tag.amber { background: var(--amber-soft); color: #8b5a0b; }
+  .tag.red { background: var(--red-soft); color: var(--red); }
+  .tag.dark { background: var(--navy); color: white; }
+  .rule { width: 24mm; height: 1.4mm; margin: 4mm 0 7mm; background: var(--teal); }
+  .footer {
+    position: absolute; left: 16mm; right: 16mm; bottom: 7.5mm;
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 2.7mm; border-top: 1px solid var(--line); color: var(--muted); font-size: 7.2pt;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
+  .card { padding: 3.4mm; border: 1px solid var(--line); border-radius: 2.5mm; background: var(--soft2); }
+  .card h3, .card h4 { margin-top: 0; }
+  .card.teal { border-color: #9dc9c5; background: var(--soft); }
+  .card.amber { border-color: #ead19b; background: var(--amber-soft); }
+  .card.red { border-color: #e0b6af; background: var(--red-soft); }
+  .callout {
+    padding: 3mm 3.5mm; border-left: 1.4mm solid var(--teal); border-radius: 1.5mm;
+    background: var(--soft); color: #274b4e; font-size: 9pt; line-height: 1.55;
+  }
+  .callout.amber { border-left-color: var(--amber); background: var(--amber-soft); color: #694b17; }
+  .callout.red { border-left-color: var(--red); background: var(--red-soft); color: #693631; }
+  .callout strong { color: inherit; }
+  ul, ol { margin: 1.5mm 0 0; padding-left: 5mm; font-size: 8.8pt; line-height: 1.48; }
+  li { margin: 0 0 1.5mm; }
+  .tight li { margin-bottom: .9mm; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 2.4mm 0 4mm; }
+  th, td { border: 1px solid var(--line); padding: 2mm 2.2mm; vertical-align: middle; word-break: keep-all; overflow-wrap: anywhere; }
+  th { background: var(--navy); color: white; font-size: 7.8pt; line-height: 1.35; text-align: center; }
+  td { color: #32474c; font-size: 7.7pt; line-height: 1.43; }
+  tr:nth-child(even) td { background: #fbfcfc; }
+  td.center { text-align: center; }
+  td.label { background: var(--soft) !important; color: var(--navy); font-weight: 800; }
+  .compact th, .compact td { padding: 1.55mm 1.8mm; font-size: 7.35pt; line-height: 1.38; }
+  .steps td:first-child { width: 8%; text-align: center; color: var(--teal); font-size: 10pt; font-weight: 900; }
+  .steps td:nth-child(2) { width: 18%; font-weight: 800; color: var(--navy); }
+  .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4mm 4mm; margin-top: 2mm; }
+  .check { position: relative; padding-left: 5mm; font-size: 8.2pt; line-height: 1.45; }
+  .check::before { content: "✓"; position: absolute; left: 0; top: 0; color: var(--teal); font-weight: 900; }
+  .flow { display: flex; align-items: stretch; gap: 1.2mm; margin: 3mm 0 4mm; }
+  .flow .node { flex: 1; min-height: 15mm; padding: 2mm 1mm; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid #a9c8c6; border-radius: 2mm; background: var(--soft); color: var(--navy); font-size: 7.2pt; line-height: 1.35; font-weight: 800; }
+  .flow .arrow { display: flex; align-items: center; color: var(--teal); font-size: 11pt; font-weight: 800; }
+  .metric-strip { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 2.5mm; overflow: hidden; margin: 4mm 0 5mm; }
+  .metric { padding: 3mm; background: var(--soft2); border-right: 1px solid var(--line); }
+  .metric:last-child { border-right: 0; }
+  .metric b { display: block; margin-bottom: 1mm; color: var(--teal); font-size: 12pt; }
+  .metric span { color: var(--muted); font-size: 7.4pt; line-height: 1.35; }
+  .asset-row { display: grid; grid-template-columns: 34mm 34mm 1fr; gap: 3mm; align-items: stretch; margin: 3mm 0 4mm; }
+  .asset-card { height: 31mm; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--line); border-radius: 2.2mm; background: #3a3e40; }
+  .asset-card img { width: 100%; height: 100%; object-fit: contain; }
+  .asset-copy { padding: 3mm; border-radius: 2.2mm; background: var(--soft); border: 1px solid #b8d3d1; }
+  .asset-copy strong { display: block; margin-bottom: 1mm; color: var(--navy); font-size: 10pt; }
+  .timeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2mm; margin: 3mm 0 4mm; }
+  .milestone { min-height: 24mm; padding: 2.6mm; border-top: 1.4mm solid var(--teal); background: var(--soft2); }
+  .milestone b { color: var(--teal); font-size: 8.4pt; }
+  .milestone span { display: block; margin-top: 1.5mm; color: var(--ink); font-size: 7.2pt; line-height: 1.4; }
+  .cover-page { padding-top: 15mm; background: linear-gradient(135deg, #ffffff 0%, #ffffff 68%, #edf6f5 100%); }
+  .cover-kicker { display: inline-block; margin-bottom: 13mm; padding: 1.8mm 3mm; color: white; background: var(--teal); font-size: 8pt; font-weight: 800; letter-spacing: .08em; }
+  .cover-hero { margin-top: 9mm; padding: 7mm; color: white; background: var(--navy); border-radius: 3.5mm; }
+  .cover-hero h3 { margin: 0 0 3mm; color: white; font-size: 13pt; }
+  .cover-scenarios { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .cover-scenario { padding: 4mm; border-radius: 2.5mm; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.22); }
+  .cover-scenario b { display: block; margin-bottom: 1.5mm; color: #8fe0d8; font-size: 11pt; }
+  .cover-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; margin-top: 6mm; }
+  .cover-meta div { padding: 3mm; border: 1px solid var(--line); border-radius: 2mm; background: rgba(255,255,255,.88); }
+  .cover-meta b { display: block; margin-bottom: 1mm; color: var(--teal); font-size: 7.2pt; }
+  .cover-meta span { color: var(--navy); font-size: 8.5pt; font-weight: 800; line-height: 1.35; }
+  .decision { margin-top: 6mm; padding: 4.5mm; background: var(--amber-soft); border: 1px solid #e6c986; border-radius: 2.5mm; }
+  .decision b { color: #7a5110; font-size: 10.5pt; }
+  .decision p { margin: 1.5mm 0 0; color: #684d1e; font-size: 9pt; }
+  .signature { position: absolute; left: 16mm; bottom: 22mm; color: var(--muted); font-size: 8pt; }
+  .status-p0 { color: white !important; background: var(--red) !important; font-weight: 800; }
+  .status-p1 { color: white !important; background: var(--amber) !important; font-weight: 800; }
+  .status-p2 { color: white !important; background: var(--teal) !important; font-weight: 800; }
+  a { color: var(--teal); text-decoration: none; }
+  @media print { body { background: white; } .page { margin: 0; } }
+ body{background:white}.page{margin:0}</style></head><body>
+  <section class="page">
+    <div class="topline"><span><strong>PROTOTYPE PLAN</strong> · 2026.07.30</span><span>05 · 시나리오 2</span></div>
+    <div class="section-no">05 · 시나리오 2</div>
+    <h2>밀폐공간 상세 동작·완료 기준</h2>
+    
+  <h3>상호작용·선행조건 정의</h3>
+  <table class="compact">
+    <tr><th style="width:21%">기능</th><th style="width:26%">입력·처리</th><th style="width:28%">선행조건</th><th>완료 판정</th></tr>
+    <tr><td class="label">문서</td><td>태블릿 1대에서 문서 3종 순차 전환, 확인·서명</td><td>시나리오 시작</td><td>태블릿 문서 확인·서명 완료</td></tr>
+    <tr><td class="label">전원·LOTO</td><td>VR 컨트롤러 입력으로 제어반 전원 OFF, LOTO 적용</td><td>문서 확인·서명 완료</td><td>전원 차단·LOTO 적용 완료</td></tr>
+    <tr><td class="label">1·2차 측정</td><td>측정기를 지정 위치에서 1회 측정</td><td>1차: LOTO / 2차: 환기 완료</td><td>상·중·하부 전체 측정 완료 처리 + 결과 확인</td></tr>
+    <tr><td class="label">환기</td><td>고정형 덕트 양 끝 연결, 팬 작동</td><td>1차 FAIL 안내 확인</td><td>양쪽 연결 + 게이지 완료</td></tr>
+    <tr><td class="label">무전·승인</td><td>무전기 송신</td><td>2차 PASS + 앞 단계 전체 완료</td><td>감시인 응답·승인 표시</td></tr>
+  </table>
+  <div class="grid-2">
+    <div class="card teal">
+      <h3>교육모드 · 상세 지원</h3>
+      <ul class="tight">
+        <li>태블릿 문서 → 전원 → LOTO 순서와 안전 의미 설명</li>
+        <li>한 번의 측정으로 상·중·하부 전체 측정이 처리됨을 안내</li>
+        <li>1차 FAIL 원인, 환기 필요성, 재측정을 안내</li>
+        <li>오류 이유와 다음 올바른 행동을 즉시 제시</li>
+      </ul>
+    </div>
+    <div class="card amber">
+      <h3>훈련·테스트모드 · 후속</h3>
+      <ul class="tight">
+        <li><strong>훈련:</strong> “진입 전 절차 완료” 기본 목표만 표시</li>
+        <li><strong>훈련:</strong> 상세 순서·PASS 조건 해설 없음</li>
+        <li><strong>테스트:</strong> 수행 중 지시·강조·정오답 없음</li>
+        <li><strong>테스트:</strong> 순서 오류·누락·재시도·시간 기록</li>
+      </ul>
+    </div>
+  </div>
+  <h3>교육모드 1차 완료 판정(Definition of Done)</h3>
+  <div class="checklist">
+    <div class="check">태블릿 문서 확인·서명 완료 전에는 전원·LOTO 단계로 진행하지 않는다.</div>
+    <div class="check">전원 OFF와 LOTO 적용 완료 전에는 1차 가스측정 단계로 진행하지 않는다.</div>
+    <div class="check">1차와 2차는 각각 한 번 측정으로 상·중·하부 전체 측정 완료 처리되며 결과는 분리 저장된다.</div>
+    <div class="check">1차 FAIL 후 환기 없이 2차 측정으로 넘어갈 수 없다.</div>
+    <div class="check">2차 PASS와 전체 선행조건 전에는 승인 음성이 나오지 않는다.</div>
+    <div class="check">승인 후에도 혼합기 내부는 비활성 상태로 유지된다.</div>
+  </div>
+  <h3>모드별 주요 오류 처리</h3>
+  <table class="compact">
+    <tr><th style="width:25%">오류</th><th style="width:45%">교육모드</th><th>훈련 / 테스트모드</th></tr>
+    <tr><td>전원·LOTO 미완료</td><td>현재 완료해야 할 행동을 안내하고 다음 단계 진행 차단</td><td>훈련: “순서 확인” / 테스트: 무안내·기록</td></tr>
+    <tr><td>가스측정 미완료</td><td>한 번의 측정이 완료될 때까지 다음 단계 진행 차단</td><td>훈련: 기본 재시도 / 테스트: 무안내·기록</td></tr>
+    <tr><td>덕트 한쪽 미연결</td><td>미설치 Snap 지점과 연결 방향 강조</td><td>훈련: 연결 미완료만 표시 / 테스트: 무안내·기록</td></tr>
+    <tr><td>PASS 전 승인</td><td>환기 후 재측정을 지시하고 측정기 강조</td><td>훈련: 승인 불가만 표시 / 테스트: 무안내·기록</td></tr>
+  </table>
+
+    
+  <div class="footer"><span>화학물질 안전훈련 VR · 8/13 프로토타입 기획서</span><span>8 / 11</span></div>
+  </section></body></html>

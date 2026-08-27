@@ -1,0 +1,189 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  :root {
+    --navy: #123844;
+    --teal: #177b76;
+    --teal2: #2b9790;
+    --ink: #24363b;
+    --muted: #63757b;
+    --line: #cbd8da;
+    --paper: #ffffff;
+    --soft: #eff6f5;
+    --soft2: #f6f8f8;
+    --amber: #d99522;
+    --amber-soft: #fff5df;
+    --red: #a8493d;
+    --red-soft: #fff0ed;
+    --green: #2b7757;
+    --green-soft: #edf7f1;
+  }
+  html, body { margin: 0; padding: 0; background: #e8edef; color: var(--ink); }
+  body { font-family: "Malgun Gothic", "맑은 고딕", Arial, sans-serif; }
+  .page {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto 8px;
+    padding: 14mm 16mm 15mm;
+    background: var(--paper);
+    overflow: hidden;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+  .topline {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 3mm; margin-bottom: 5mm; border-bottom: 1px solid var(--line);
+    color: var(--muted); font-size: 8pt; letter-spacing: .04em;
+  }
+  .topline strong { color: var(--teal); }
+  .section-no { color: var(--teal); font-size: 8.5pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  h1, h2, h3, h4, p { margin-top: 0; }
+  h1 { margin-bottom: 4mm; color: var(--navy); font-size: 29pt; line-height: 1.25; letter-spacing: -.035em; }
+  h2 { margin: 0 0 4mm; color: var(--navy); font-size: 20pt; line-height: 1.28; letter-spacing: -.025em; }
+  h3 { margin: 4.2mm 0 2.3mm; color: var(--navy); font-size: 12.5pt; line-height: 1.32; }
+  h4 { margin: 2.8mm 0 1.6mm; color: var(--teal); font-size: 10.2pt; }
+  p { margin-bottom: 2.6mm; font-size: 9.3pt; line-height: 1.58; }
+  .lead { color: #3f555b; font-size: 12pt; line-height: 1.55; }
+  .small { color: var(--muted); font-size: 8pt; line-height: 1.5; }
+  .micro { color: var(--muted); font-size: 7.2pt; line-height: 1.45; }
+  .strong { font-weight: 800; color: var(--navy); }
+  .accent { color: var(--teal); font-weight: 800; }
+  .tag {
+    display: inline-block; margin: 0 1.5mm 1.5mm 0; padding: 1.2mm 2.4mm;
+    border-radius: 9px; background: var(--soft); color: var(--teal); font-size: 7.5pt; font-weight: 800;
+  }
+  .tag.amber { background: var(--amber-soft); color: #8b5a0b; }
+  .tag.red { background: var(--red-soft); color: var(--red); }
+  .tag.dark { background: var(--navy); color: white; }
+  .rule { width: 24mm; height: 1.4mm; margin: 4mm 0 7mm; background: var(--teal); }
+  .footer {
+    position: absolute; left: 16mm; right: 16mm; bottom: 7.5mm;
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 2.7mm; border-top: 1px solid var(--line); color: var(--muted); font-size: 7.2pt;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
+  .card { padding: 3.4mm; border: 1px solid var(--line); border-radius: 2.5mm; background: var(--soft2); }
+  .card h3, .card h4 { margin-top: 0; }
+  .card.teal { border-color: #9dc9c5; background: var(--soft); }
+  .card.amber { border-color: #ead19b; background: var(--amber-soft); }
+  .card.red { border-color: #e0b6af; background: var(--red-soft); }
+  .callout {
+    padding: 3mm 3.5mm; border-left: 1.4mm solid var(--teal); border-radius: 1.5mm;
+    background: var(--soft); color: #274b4e; font-size: 9pt; line-height: 1.55;
+  }
+  .callout.amber { border-left-color: var(--amber); background: var(--amber-soft); color: #694b17; }
+  .callout.red { border-left-color: var(--red); background: var(--red-soft); color: #693631; }
+  .callout strong { color: inherit; }
+  ul, ol { margin: 1.5mm 0 0; padding-left: 5mm; font-size: 8.8pt; line-height: 1.48; }
+  li { margin: 0 0 1.5mm; }
+  .tight li { margin-bottom: .9mm; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 2.4mm 0 4mm; }
+  th, td { border: 1px solid var(--line); padding: 2mm 2.2mm; vertical-align: middle; word-break: keep-all; overflow-wrap: anywhere; }
+  th { background: var(--navy); color: white; font-size: 7.8pt; line-height: 1.35; text-align: center; }
+  td { color: #32474c; font-size: 7.7pt; line-height: 1.43; }
+  tr:nth-child(even) td { background: #fbfcfc; }
+  td.center { text-align: center; }
+  td.label { background: var(--soft) !important; color: var(--navy); font-weight: 800; }
+  .compact th, .compact td { padding: 1.55mm 1.8mm; font-size: 7.35pt; line-height: 1.38; }
+  .steps td:first-child { width: 8%; text-align: center; color: var(--teal); font-size: 10pt; font-weight: 900; }
+  .steps td:nth-child(2) { width: 18%; font-weight: 800; color: var(--navy); }
+  .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4mm 4mm; margin-top: 2mm; }
+  .check { position: relative; padding-left: 5mm; font-size: 8.2pt; line-height: 1.45; }
+  .check::before { content: "✓"; position: absolute; left: 0; top: 0; color: var(--teal); font-weight: 900; }
+  .flow { display: flex; align-items: stretch; gap: 1.2mm; margin: 3mm 0 4mm; }
+  .flow .node { flex: 1; min-height: 15mm; padding: 2mm 1mm; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid #a9c8c6; border-radius: 2mm; background: var(--soft); color: var(--navy); font-size: 7.2pt; line-height: 1.35; font-weight: 800; }
+  .flow .arrow { display: flex; align-items: center; color: var(--teal); font-size: 11pt; font-weight: 800; }
+  .metric-strip { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 2.5mm; overflow: hidden; margin: 4mm 0 5mm; }
+  .metric { padding: 3mm; background: var(--soft2); border-right: 1px solid var(--line); }
+  .metric:last-child { border-right: 0; }
+  .metric b { display: block; margin-bottom: 1mm; color: var(--teal); font-size: 12pt; }
+  .metric span { color: var(--muted); font-size: 7.4pt; line-height: 1.35; }
+  .asset-row { display: grid; grid-template-columns: 34mm 34mm 1fr; gap: 3mm; align-items: stretch; margin: 3mm 0 4mm; }
+  .asset-card { height: 31mm; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--line); border-radius: 2.2mm; background: #3a3e40; }
+  .asset-card img { width: 100%; height: 100%; object-fit: contain; }
+  .asset-copy { padding: 3mm; border-radius: 2.2mm; background: var(--soft); border: 1px solid #b8d3d1; }
+  .asset-copy strong { display: block; margin-bottom: 1mm; color: var(--navy); font-size: 10pt; }
+  .timeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2mm; margin: 3mm 0 4mm; }
+  .milestone { min-height: 24mm; padding: 2.6mm; border-top: 1.4mm solid var(--teal); background: var(--soft2); }
+  .milestone b { color: var(--teal); font-size: 8.4pt; }
+  .milestone span { display: block; margin-top: 1.5mm; color: var(--ink); font-size: 7.2pt; line-height: 1.4; }
+  .cover-page { padding-top: 15mm; background: linear-gradient(135deg, #ffffff 0%, #ffffff 68%, #edf6f5 100%); }
+  .cover-kicker { display: inline-block; margin-bottom: 13mm; padding: 1.8mm 3mm; color: white; background: var(--teal); font-size: 8pt; font-weight: 800; letter-spacing: .08em; }
+  .cover-hero { margin-top: 9mm; padding: 7mm; color: white; background: var(--navy); border-radius: 3.5mm; }
+  .cover-hero h3 { margin: 0 0 3mm; color: white; font-size: 13pt; }
+  .cover-scenarios { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .cover-scenario { padding: 4mm; border-radius: 2.5mm; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.22); }
+  .cover-scenario b { display: block; margin-bottom: 1.5mm; color: #8fe0d8; font-size: 11pt; }
+  .cover-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; margin-top: 6mm; }
+  .cover-meta div { padding: 3mm; border: 1px solid var(--line); border-radius: 2mm; background: rgba(255,255,255,.88); }
+  .cover-meta b { display: block; margin-bottom: 1mm; color: var(--teal); font-size: 7.2pt; }
+  .cover-meta span { color: var(--navy); font-size: 8.5pt; font-weight: 800; line-height: 1.35; }
+  .decision { margin-top: 6mm; padding: 4.5mm; background: var(--amber-soft); border: 1px solid #e6c986; border-radius: 2.5mm; }
+  .decision b { color: #7a5110; font-size: 10.5pt; }
+  .decision p { margin: 1.5mm 0 0; color: #684d1e; font-size: 9pt; }
+  .signature { position: absolute; left: 16mm; bottom: 22mm; color: var(--muted); font-size: 8pt; }
+  .status-p0 { color: white !important; background: var(--red) !important; font-weight: 800; }
+  .status-p1 { color: white !important; background: var(--amber) !important; font-weight: 800; }
+  .status-p2 { color: white !important; background: var(--teal) !important; font-weight: 800; }
+  a { color: var(--teal); text-decoration: none; }
+  @media print { body { background: white; } .page { margin: 0; } }
+ body{background:white}.page{margin:0}</style></head><body>
+  <section class="page">
+    <div class="topline"><span><strong>PROTOTYPE PLAN</strong> · 2026.07.30</span><span>04 · 시나리오 1</span></div>
+    <div class="section-no">04 · 시나리오 1</div>
+    <h2>PPE 상세 동작·완료 기준</h2>
+    
+  <h3>상호작용·상태 정의</h3>
+  <table class="compact">
+    <tr><th style="width:20%">대상</th><th style="width:27%">입력</th><th style="width:28%">저장 상태</th><th>오류 처리</th></tr>
+    <tr><td class="label">작업정보 안내</td><td>VOICE·텍스트 자동 안내</td><td>workBriefingComplete</td><td>안내 완료 전 PPE 진열장 위치 마커 비활성</td></tr>
+    <tr><td class="label">PPE 오브젝트</td><td>Grip(잡기)·재Grip(취소/놓기), Trigger(사용), A(폐기)</td><td>held, inspected, decision, accepted</td><td>오판정 사유를 보여주고 같은 장비에서 재선택</td></tr>
+    <tr><td class="label">자동 착용</td><td>Trigger(사용) 선택</td><td>wearing → equipped, suit, respirator, helmet, backCarrier, gloveL/R, bootL/R</td><td>앞/위→착용 위치 이동, 착용 주의점 VOICE 종료 후 착용 모델만 활성화</td></tr>
+    <tr><td class="label">착용 결과</td><td>몸쪽 시선 또는 거울 확인</td><td>scenarioComplete</td><td>미착용 장비는 숨기고 착용 완료된 PPE만 몸과 거울에 표시</td></tr>
+  </table>
+  <div class="grid-2">
+    <div class="card teal">
+      <h3>교육모드 · 상세 지원</h3>
+      <ul class="tight">
+        <li>작업정보와 필요한 PPE를 보이스·텍스트로 설명</li>
+        <li>현재 점검 대상·결함 위치·입력 버튼을 강조</li>
+        <li>오판정 시 “손상된 장갑은 폐기” 이유 안내</li>
+        <li>올바른 정상품을 다시 제공하고 착용까지 유도</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>훈련·테스트모드 · 후속</h3>
+      <ul class="tight">
+        <li><strong>훈련:</strong> “PPE 7종 점검·착용” 기본 목표만 표시</li>
+        <li><strong>훈련:</strong> 결함 위치·판정 정답·다음 대상 강조 없음</li>
+        <li><strong>테스트:</strong> 목표 외 수행 지시와 즉시 정오답 없음</li>
+        <li><strong>테스트:</strong> 첫 선택·오판정·누락·완료시간 결과화</li>
+      </ul>
+    </div>
+  </div>
+  <h3>교육모드 1차 완료 판정(Definition of Done)</h3>
+  <div class="checklist">
+    <div class="check">작업정보 보이스·텍스트 안내 완료 전 PPE 단계로 건너뛸 수 없다.</div>
+    <div class="check">장갑·장화 정상/불량 판정이 결과와 일치한다.</div>
+    <div class="check">오판정 후 실패 종료 없이 같은 항목을 재시도한다.</div>
+    <div class="check">gloveL/R, bootL/R가 각각 독립적으로 저장된다.</div>
+    <div class="check">자동 착용 중 해당 PPE 착용 시 주의점 VOICE가 한 번 재생된다.</div>
+    <div class="check">몸을 내려다보거나 거울을 확인할 때 착용 완료된 PPE만 보인다. PPE룸 조명과 전신 거울은 필수로 유지한다.</div>
+    <div class="check">테이프를 포함한 PPE 7종 완료 후 5문항 퀴즈·해설이 열린다.</div>
+    <div class="check">완료 후 허브 복귀 시 PPE와 점수가 초기화된다.</div>
+  </div>
+  <h3>구현 단순화</h3>
+  <table class="compact">
+    <tr><th style="width:24%">완성형 아이디어</th><th>8/13 프로토타입 방식</th></tr>
+    <tr><td>천 물리·세밀한 착의</td><td>Trigger로 사용을 선택하면 PPE가 앞/위에서 몸의 착용 위치로 이동하고 착용 모델로 전환</td></tr>
+    <tr><td>전신 거울(필수)</td><td>거울 오브젝트를 유지하고, 몸을 내려다보거나 거울을 확인할 때 착용된 PPE 모델만 보이도록 표시</td></tr>
+    <tr><td>모든 PPE의 결함 분기</td><td>장갑·장화에서만 대표 결함을 검증하고 구조 재사용 가능하게 제작</td></tr>
+    <tr><td>현장별 PPE 자동 추천</td><td>한 개 작업계획서와 고정된 교육용 샘플 목록 사용</td></tr>
+  </table>
+  <div class="callout"><strong>시연 핵심 장면</strong> · 교육모드에서 손상 장갑을 Trigger(사용)로 오판정 → 이유 안내 → A(폐기)·정상품 재등장 → Trigger(사용) → 자동 착용 → 착용 시 주의점 VOICE까지 연결한다. 판정 전 재Grip은 취소(놓기)로 처리한다. 훈련·테스트모드 추가 시 같은 상태 전이를 유지하고 안내만 단계적으로 제거한다.</div>
+
+    
+  <div class="footer"><span>화학물질 안전훈련 VR · 8/13 프로토타입 기획서</span><span>6 / 11</span></div>
+  </section></body></html>

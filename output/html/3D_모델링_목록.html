@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>화학물질 안전교육 VR - 3D 모델링 목록</title>
+  <style>
+    :root {
+      --bg: #f6f6f3;
+      --paper: #ffffff;
+      --text: #292824;
+      --muted: #77746d;
+      --line: #e8e7e2;
+      --line-strong: #d8d6cf;
+      --header: #f7f4ec;
+      --section: #fff5c8;
+      --accent: #6c5ce7;
+      --accent-soft: #efedff;
+      --danger: #df535a;
+      --green: #4f9f68;
+      --yellow: #e9b949;
+      --shadow: 0 18px 50px rgba(32, 31, 28, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--bg); }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--text);
+      background: var(--bg);
+      font-family: Pretendard, "Noto Sans KR", "Malgun Gothic", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, select { font: inherit; }
+    button { color: inherit; }
+
+    .app {
+      width: min(1180px, calc(100% - 40px));
+      margin: 44px auto 72px;
+    }
+
+    .document-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(29px, 4vw, 44px);
+      line-height: 1.16;
+      letter-spacing: -0.045em;
+    }
+
+    .subtitle {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .status {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-bottom: 2px;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.84);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--paper);
+      box-shadow: 0 12px 34px rgba(32, 31, 28, 0.07);
+    }
+
+    .toolbar-group { display: flex; align-items: center; gap: 4px; }
+    .toolbar button {
+      min-height: 38px;
+      padding: 0 13px;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 760;
+      cursor: pointer;
+    }
+    .toolbar button:hover { background: #f3f2ee; }
+    .toolbar .primary {
+      color: #fff;
+      background: var(--accent);
+    }
+    .toolbar .primary:hover { background: #5f50d8; }
+
+    .hint {
+      margin: 0 0 13px;
+      padding: 11px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.82);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .table-shell {
+      position: relative;
+      overflow: visible;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+      font-size: 12.5px;
+    }
+
+    col.number { width: 58px; }
+    col.resource { width: 138px; }
+    col.scene { width: 92px; }
+    col.usage { width: 132px; }
+    col.production { width: 112px; }
+    col.poly { width: 88px; }
+    col.purpose { width: 176px; }
+    col.interaction { width: 198px; }
+    col.priority { width: 90px; }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      height: 52px;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line-strong);
+      background: #fffefa;
+      color: #5c5951;
+      text-align: center;
+      font-weight: 800;
+      box-shadow: 0 2px 0 rgba(255,255,255,.9), 0 5px 14px rgba(52,49,42,.05);
+    }
+    thead th:first-child { border-radius: 14px 0 0 0; }
+    thead th:last-child { border-radius: 0 14px 0 0; }
+
+    tbody td {
+      height: 56px;
+      padding: 14px 10px;
+      border-right: 1px solid #eeece6;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      vertical-align: middle;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+    tbody td:last-child { border-right: 0; }
+    tbody tr:last-child td { border-bottom: 0; }
+
+    .section-row td {
+      position: sticky;
+      top: 52px;
+      z-index: 15;
+      height: 48px;
+      padding: 13px 12px;
+      background: linear-gradient(90deg, #fff3bc 0%, var(--section) 72%, #fff8db 100%);
+      color: #3d3a32;
+      font-size: 14px;
+      font-weight: 850;
+      letter-spacing: -0.015em;
+      box-shadow: 0 4px 10px rgba(52, 49, 42, 0.06);
+    }
+
+    .data-row { position: relative; }
+    .data-row:hover td { background: #fffdf7; }
+    .data-row.selected td { background: var(--accent-soft); }
+    .data-row.dragging { opacity: .48; }
+    .data-row.drop-before td { box-shadow: inset 0 3px 0 var(--accent); }
+
+    .editable { outline: none; transition: background .14s, box-shadow .14s; }
+    .editable:focus {
+      position: relative;
+      z-index: 2;
+      background: #fffdf4 !important;
+      box-shadow: inset 0 0 0 2px rgba(108,92,231,.32);
+    }
+
+    .number-cell {
+      position: relative;
+      padding: 0 6px;
+      color: #67645d;
+      text-align: center;
+      font-weight: 800;
+      cursor: grab;
+      user-select: none;
+    }
+    .number-cell:active { cursor: grabbing; }
+    .delete-row, .insert-before {
+      position: absolute;
+      left: 50%;
+      border: 0;
+      border-radius: 999px;
+      opacity: 0;
+      cursor: pointer;
+      transform: translateX(-50%);
+      transition: opacity .14s, transform .14s;
+    }
+    .delete-row {
+      top: 50%;
+      width: 27px;
+      height: 27px;
+      color: #fff;
+      background: var(--danger);
+      font-size: 18px;
+      line-height: 26px;
+      transform: translate(-50%, -50%);
+    }
+    .insert-before {
+      top: -10px;
+      z-index: 5;
+      width: 22px;
+      height: 22px;
+      color: #fff;
+      background: var(--accent);
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 20px;
+    }
+    .data-row:hover .delete-row,
+    .data-row:hover .insert-before { opacity: 1; }
+    .data-row:hover .row-number { opacity: 0; }
+    .data-row:hover td { border-top-color: var(--accent); }
+
+    .resource-cell { text-align: left; font-weight: 760; }
+    .center-cell, .scene-cell { text-align: center; }
+    .production-cell { color: #4f4b44; font-weight: 700; }
+    .scene-cell { font-weight: 850; }
+    .scene-ppe { color: #9a7618; }
+    .scene-mixer { color: #d96f24; }
+    .scene-inside { color: #347ab8; }
+    .scene-other { color: #88847c; }
+
+    .priority-cell { padding: 11px 8px; text-align: center; }
+    .priority-select {
+      width: 76px;
+      min-height: 32px;
+      padding: 0 24px 0 12px;
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 850;
+      cursor: pointer;
+      appearance: auto;
+      box-shadow: 0 3px 8px rgba(48, 45, 38, 0.1);
+    }
+    .priority-select option { color: #292824; background: #fff; }
+    .priority-required { background: var(--danger); }
+    .priority-recommended { background: var(--green); }
+    .priority-optional { color: #56420a; background: var(--yellow); }
+
+    .empty-note {
+      display: none;
+      padding: 34px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .app { width: min(1180px, calc(100% - 20px)); margin-top: 22px; }
+      .document-head { grid-template-columns: 1fr; }
+      .status { justify-content: flex-start; }
+      .toolbar { align-items: stretch; flex-direction: column; }
+      .toolbar-group { flex-wrap: wrap; }
+      .table-shell { overflow-x: auto; }
+      table { min-width: 1080px; }
+      thead th { position: sticky; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .app { width: 100%; margin: 0; }
+      .toolbar, .hint, .status { display: none !important; }
+      .document-head { margin-bottom: 14px; }
+      h1 { font-size: 24px; }
+      .table-shell { border-radius: 0; box-shadow: none; }
+      thead th { position: static; }
+      .delete-row, .insert-before { display: none !important; }
+      tbody td { padding: 8px 6px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="document-head">
+      <div>
+        <div class="eyebrow">RESOURCE PLAN · EDITABLE DOCUMENT</div>
+        <h1>화학물질 안전교육 VR — 3D 모델링 목록</h1>
+        <p class="subtitle">PPE룸 · 혼합기동 · 혼합기 내부에서 사용하는 Tripo3D 제작 FBX 모델 목록</p>
+      </div>
+      <div class="status" aria-label="문서 상태">
+        <span class="chip">원본 PDF 4페이지</span>
+        <span class="chip" id="resourceCount">40개 리소스</span>
+        <span class="chip" id="saveStatus">브라우저 자동 저장</span>
+      </div>
+    </header>
+
+    <nav class="toolbar" aria-label="목록 도구">
+      <div class="toolbar-group">
+        <button type="button" class="primary" id="addBottom">+ 맨 아래 행 추가</button>
+        <button type="button" id="duplicateRow">복제</button>
+        <button type="button" id="moveUp">위로</button>
+        <button type="button" id="moveDown">아래로</button>
+      </div>
+      <div class="toolbar-group">
+        <button type="button" id="downloadCsv">CSV</button>
+        <button type="button" id="backupList">백업</button>
+        <button type="button" id="loadList">불러오기</button>
+        <button type="button" id="resetListTop">초기 목록</button>
+        <button type="button" id="printDocument">인쇄 / PDF</button>
+        <input type="file" id="backupFile" accept="application/json,.json" hidden />
+      </div>
+    </nav>
+
+    <p class="hint">셀을 클릭하면 바로 수정할 수 있습니다. 번호 칸을 잡아 행을 이동하고, 행 왼쪽의 +와 −로 추가하거나 삭제할 수 있습니다. 우선순위는 뱃지를 눌러 선택합니다.</p>
+
+    <section class="table-shell" aria-label="3D 모델링 목록 표">
+      <table>
+        <colgroup>
+          <col class="number" /><col class="resource" /><col class="scene" />
+          <col class="usage" /><col class="production" /><col class="poly" />
+          <col class="purpose" /><col class="interaction" /><col class="priority" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">번호</th>
+            <th scope="col">리소스명</th>
+            <th scope="col">씬</th>
+            <th scope="col">쓰이는 장면</th>
+            <th scope="col">제작</th>
+            <th scope="col">폴리 예산</th>
+            <th scope="col">용도</th>
+            <th scope="col">인터랙션 / 연출</th>
+            <th scope="col">우선순위</th>
+          </tr>
+        </thead>
+        <tbody id="resourceBody">
+<tr class="section-row" data-section-name="A · PPE룸 3D 요소"><td colspan="9">A · PPE룸 3D 요소</td></tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="1번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">1</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="1번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">metal_locker</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">대기 공간 가구</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">4k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">보호구 선택 전 배경 오브젝트</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="2번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">2</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="2번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">metal_locker (1)</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">대기 공간 가구</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">4k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">보호구 선택 전 배경 오브젝트</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="3번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">3</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="3번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">mask_locker</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">대기 공간 가구</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">4k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">보호구 선택 전 배경 오브젝트</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="4번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">4</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="4번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">safety_cabinet</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">대기 공간 가구</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">4k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">보호구 선택 전 배경 오브젝트</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="5번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">5</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="5번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">ppe_room_bench_0</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">대기 공간 가구</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1.5k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">보호구 선택 전 배경 오브젝트</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="6번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">6</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="6번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">ppe_room_bench_1</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">대기 공간 가구</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1.5k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">보호구 선택 전 배경 오브젝트</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="7번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">7</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="7번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">ppe_room_bench_2</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">대기 공간 가구</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1.5k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">보호구 선택 전 배경 오브젝트</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="8번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">8</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="8번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">hazmat_suit</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">보호복 구성</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">4k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">방호복 착용 및 거치 상태</td>
+            <td class="editable" contenteditable="true" data-field="interaction">착용 절차 안내</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="9번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">9</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="9번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">hazmat_suit_3d_model</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">보호복 구성</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">4k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">방호복 착용 및 거치 상태</td>
+            <td class="editable" contenteditable="true" data-field="interaction">착용 절차 안내</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="10번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">10</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="10번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">hazmat_suit_hanger</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">보호복 구성</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">500 tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">방호복 착용 및 거치 상태</td>
+            <td class="editable" contenteditable="true" data-field="interaction">착용 절차 안내</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="11번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">11</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="11번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">blue_rubber_gloves_3d_model_Clone1</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">보호구 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1.5k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">PPE 착용 절차에서 잡거나 확인하는 보호구</td>
+            <td class="editable" contenteditable="true" data-field="interaction">Grab/착용 확인 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="12번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">12</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="12번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">construction_helmet_3d_model_Clone1</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">보호구 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1.5k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">PPE 착용 절차에서 잡거나 확인하는 보호구</td>
+            <td class="editable" contenteditable="true" data-field="interaction">Grab/착용 확인 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="13번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">13</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="13번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">gas_mask_3d_model_Clone1</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">보호구 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">2k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">PPE 착용 절차에서 잡거나 확인하는 보호구</td>
+            <td class="editable" contenteditable="true" data-field="interaction">Grab/착용 확인 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="14번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">14</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="14번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">rubber_boots_3d_model</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">보호구 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1.5k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">PPE 착용 절차에서 잡거나 확인하는 보호구</td>
+            <td class="editable" contenteditable="true" data-field="interaction">Grab/착용 확인 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="15번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">15</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="15번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">rubber_boots_3d_model_Clone1</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">보호구 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1.5k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">PPE 착용 절차에서 잡거나 확인하는 보호구</td>
+            <td class="editable" contenteditable="true" data-field="interaction">Grab/착용 확인 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="16번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">16</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="16번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">tactical_harness_3d_model</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">등지게형 송기마스크 하네스</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">2k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">송기마스크와 전동 송풍기를 공기 호스로 연결하고 송풍기와 호스를 몸에 지지·고정</td>
+            <td class="editable" contenteditable="true" data-field="interaction">Grab/호스 연결부 점검/등지게 착용 확인</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="17번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">17</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="17번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">orange_tape_roll_3d_model</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">보호구 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">500 tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">PPE 착용 절차에서 잡거나 확인하는 보호구</td>
+            <td class="editable" contenteditable="true" data-field="interaction">Grab/착용 확인 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="18번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">18</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="18번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">yellow_trash_bin_3d_model_Clone1</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">오염/폐기 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1.5k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">폐기함 안내/정리 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="19번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">19</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="19번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">yellow_waste_bin_3d_model</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">오염/폐기 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1.5k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">폐기함 안내/정리 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="20번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">20</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="20번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">fire_extinguisher_3d_model</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">현장 안전 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1.5k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">현장 구성 보강</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="21번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">21</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="21번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">fire_extinguisher_3d_model_1</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">현장 안전 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1.5k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">현장 구성 보강</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="22번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">22</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="22번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">hand+sanitizer+dispenser</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">현장 안전 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">800 tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">현장 구성 보강</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="23번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">23</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="23번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">cleaning_cart</td>
+            <td class="scene-cell editable scene-ppe" contenteditable="true" data-field="scene">PPE룸</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">현장 안전 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">3k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">현장 구성 보강</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="section-row" data-section-name="B · 혼합기동 3D 요소"><td colspan="9">B · 혼합기동 3D 요소</td></tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="24번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">24</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="24번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">flexible_duct_3d_model</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">환기 장비</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">3k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">설치/확인 대상</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="25번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">25</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="25번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">flexible_duct_3d_model_1</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">환기 장비</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">3k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">설치/확인 대상</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="26번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">26</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="26번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">industrial_stair_3d_model</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">작업 접근 구조물</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">4k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">작업 위치 안내</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="27번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">27</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="27번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">traffic_cone_3d_model</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">안전 구획 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">800 tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">위험구역 표시</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="28번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">28</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="28번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">traffic_cone_3d_model (1)</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">안전 구획 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">800 tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">위험구역 표시</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="29번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">29</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="29번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">safety_lock_3d_model</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">LOTO/잠금 장치</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">800 tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">잠금 확인/선택 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="30번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">30</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="30번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">lockout_padlock_3d_model</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">LOTO/잠금 장치</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">500 tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">잠금 확인/선택 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="31번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">31</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="31번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">red_lockout_padlock_3d_model</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">LOTO/잠금 장치</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">500 tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">잠금 확인/선택 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="32번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">32</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="32번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">padlock_3d_model</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">LOTO/잠금 장치</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">500 tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">잠금 확인/선택 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="33번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">33</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="33번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">red_padlock_3d_model</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">LOTO/잠금 장치</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">500 tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">잠금 확인/선택 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="34번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">34</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="34번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">industrial_control_panel_3d_model</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">제어반/전원 차단</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">4k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">차단 절차 확인</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="35번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">35</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="35번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">construction_worker_3d_model</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">외부 작업자/감시인</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">5k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">안내/감시 역할 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="36번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">36</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="36번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">multi_gas_detector_3d_model</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">측정 장비</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">측정기 확인/사용</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="37번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">37</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="37번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">multi_gas_detector_3d_model_Clone1</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">측정 장비</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">측정기 확인/사용</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="38번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">38</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="38번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">rugged_two-way_radio_3d_model</td>
+            <td class="scene-cell editable scene-mixer" contenteditable="true" data-field="scene">혼합기동</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">무전 소품</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">무전 보고 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="section-row" data-section-name="C · 혼합기 내부 3D 요소"><td colspan="9">C · 혼합기 내부 3D 요소</td></tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="39번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">39</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="39번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">mixer+clean+brush</td>
+            <td class="scene-cell editable scene-inside" contenteditable="true" data-field="scene">혼합기 내부</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">내부 작업 도구</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">Grab/비추기/점검 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+
+<tr class="data-row" draggable="true">
+            <td class="number-cell" aria-label="40번 행">
+              <button class="insert-before" type="button" title="이 위에 행 추가" aria-label="이 위에 행 추가">+</button>
+              <span class="row-number">40</span>
+              <button class="delete-row" type="button" title="행 삭제" aria-label="40번 행 삭제">−</button>
+            </td>
+            <td class="resource-cell editable" contenteditable="true" data-field="resource">tactical_flashlight_3d_model</td>
+            <td class="scene-cell editable scene-inside" contenteditable="true" data-field="scene">혼합기 내부</td>
+            <td class="editable center-cell" contenteditable="true" data-field="usage">내부 작업 도구</td>
+            <td class="editable center-cell production-cell" contenteditable="true" data-field="production">Tripo3D FBX</td>
+            <td class="editable center-cell" contenteditable="true" data-field="poly">1k tri</td>
+            <td class="editable" contenteditable="true" data-field="purpose">배경용 소품</td>
+            <td class="editable" contenteditable="true" data-field="interaction">Grab/비추기/점검 연출</td>
+            <td class="priority-cell">
+              <select class="priority-select priority-required" aria-label="우선순위">
+                <option value="필수" selected>필수</option>
+                <option value="권장">권장</option>
+                <option value="옵션">옵션</option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="empty-note" id="emptyNote">목록이 비어 있습니다. 위의 행 추가 버튼을 눌러 시작하세요.</div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const body = document.getElementById("resourceBody");
+      const initialMarkup = body.innerHTML;
+      const countLabel = document.getElementById("resourceCount");
+      const emptyNote = document.getElementById("emptyNote");
+      const saveStatus = document.getElementById("saveStatus");
+      const backupFile = document.getElementById("backupFile");
+      const storageKey = "tripo3d-fbx-modeling-list-v3";
+      let selectedRow = null;
+      let draggedRow = null;
+      let dragAllowed = false;
+      let saveTimer = null;
+
+      function dataRows() {
+        return Array.from(body.querySelectorAll("tr.data-row"));
+      }
+
+      function updateNumbers() {
+        const rows = dataRows();
+        rows.forEach((row, index) => {
+          const number = index + 1;
+          row.querySelector(".row-number").textContent = number;
+          row.querySelector(".number-cell").setAttribute("aria-label", number + "번 행");
+          row.querySelector(".delete-row").setAttribute("aria-label", number + "번 행 삭제");
+        });
+        countLabel.textContent = rows.length + "개 리소스";
+        emptyNote.style.display = rows.length ? "none" : "block";
+      }
+
+      function snapshotMarkup() {
+        const clone = body.cloneNode(true);
+        clone.querySelectorAll(".selected, .dragging, .drop-before").forEach((row) => {
+          row.classList.remove("selected", "dragging", "drop-before");
+        });
+        const sourceSelects = body.querySelectorAll(".priority-select");
+        const cloneSelects = clone.querySelectorAll(".priority-select");
+        sourceSelects.forEach((select, index) => {
+          cloneSelects[index].querySelectorAll("option").forEach((option) => {
+            option.toggleAttribute("selected", option.value === select.value);
+          });
+        });
+        return clone.innerHTML;
+      }
+
+      function validMarkup(markup) {
+        if (typeof markup !== "string" || !markup.trim()) return false;
+        const template = document.createElement("template");
+        template.innerHTML = markup;
+        return template.content.querySelectorAll("tr.data-row").length > 0 &&
+          template.content.querySelectorAll("tr.section-row").length > 0;
+      }
+
+      function saveNow() {
+        try {
+          const payload = {
+            type: "tripo3d-fbx-modeling-list",
+            version: 1,
+            savedAt: new Date().toISOString(),
+            bodyHtml: snapshotMarkup(),
+          };
+          window.localStorage.setItem(storageKey, JSON.stringify(payload));
+          saveStatus.textContent = "브라우저 자동 저장";
+          saveStatus.title = "마지막 저장: " + new Date().toLocaleTimeString("ko-KR");
+        } catch (error) {
+          saveStatus.textContent = "저장 불가";
+        }
+      }
+
+      function scheduleSave() {
+        window.clearTimeout(saveTimer);
+        saveStatus.textContent = "저장 중…";
+        saveTimer = window.setTimeout(saveNow, 250);
+      }
+
+      function restoreMarkup(markup) {
+        if (!validMarkup(markup)) return false;
+        body.innerHTML = markup;
+        body.querySelectorAll(".scene-cell").forEach(applySceneColor);
+        body.querySelectorAll(".priority-select").forEach(applyPriority);
+        selectedRow = null;
+        updateNumbers();
+        return true;
+      }
+
+      function restoreSavedList() {
+        try {
+          const saved = JSON.parse(window.localStorage.getItem(storageKey) || "null");
+          if (saved && saved.type === "tripo3d-fbx-modeling-list") {
+            restoreMarkup(saved.bodyHtml);
+          }
+        } catch (error) {
+          window.localStorage.removeItem(storageKey);
+        }
+      }
+
+      function applySceneColor(cell) {
+        if (!cell) return;
+        cell.classList.remove("scene-ppe", "scene-mixer", "scene-inside", "scene-other");
+        const value = cell.textContent.trim();
+        if (value === "PPE룸") cell.classList.add("scene-ppe");
+        else if (value === "혼합기동") cell.classList.add("scene-mixer");
+        else if (value === "혼합기 내부") cell.classList.add("scene-inside");
+        else cell.classList.add("scene-other");
+      }
+
+      function applyPriority(select) {
+        select.classList.remove("priority-required", "priority-recommended", "priority-optional");
+        if (select.value === "권장") select.classList.add("priority-recommended");
+        else if (select.value === "옵션") select.classList.add("priority-optional");
+        else select.classList.add("priority-required");
+      }
+
+      function selectRow(row) {
+        if (selectedRow) selectedRow.classList.remove("selected");
+        selectedRow = row || null;
+        if (selectedRow) selectedRow.classList.add("selected");
+      }
+
+      function makeRow(sourceRow) {
+        const row = sourceRow ? sourceRow.cloneNode(true) : document.querySelector("tr.data-row").cloneNode(true);
+        row.classList.remove("selected", "dragging", "drop-before");
+        if (!sourceRow) {
+          row.querySelector('[data-field="resource"]').textContent = "새 리소스";
+          row.querySelector('[data-field="scene"]').textContent = "기타";
+          row.querySelector('[data-field="usage"]').textContent = "";
+          row.querySelector('[data-field="production"]').textContent = "Tripo3D FBX";
+          row.querySelector('[data-field="poly"]').textContent = "1k tri";
+          row.querySelector('[data-field="purpose"]').textContent = "";
+          row.querySelector('[data-field="interaction"]').textContent = "";
+          row.querySelector(".priority-select").value = "옵션";
+        }
+        applySceneColor(row.querySelector(".scene-cell"));
+        applyPriority(row.querySelector(".priority-select"));
+        return row;
+      }
+
+      function nearestSectionEnd() {
+        const sections = Array.from(body.querySelectorAll(".section-row"));
+        return sections.length ? sections[sections.length - 1] : null;
+      }
+
+      body.addEventListener("click", (event) => {
+        const row = event.target.closest("tr.data-row");
+        if (!row) return;
+
+        if (event.target.closest(".delete-row")) {
+          row.remove();
+          if (selectedRow === row) selectedRow = null;
+          updateNumbers();
+          scheduleSave();
+          return;
+        }
+
+        if (event.target.closest(".insert-before")) {
+          const newRow = makeRow();
+          row.before(newRow);
+          selectRow(newRow);
+          updateNumbers();
+          scheduleSave();
+          newRow.querySelector('[data-field="resource"]').focus();
+          return;
+        }
+
+        selectRow(row);
+      });
+
+      body.addEventListener("input", (event) => {
+        if (event.target.matches(".scene-cell")) applySceneColor(event.target);
+        scheduleSave();
+      });
+
+      body.addEventListener("change", (event) => {
+        if (event.target.matches(".priority-select")) applyPriority(event.target);
+        scheduleSave();
+      });
+
+      body.addEventListener("pointerdown", (event) => {
+        dragAllowed = Boolean(event.target.closest(".number-cell")) && !event.target.closest("button");
+      });
+
+      body.addEventListener("dragstart", (event) => {
+        const row = event.target.closest("tr.data-row");
+        if (!row || !dragAllowed) {
+          event.preventDefault();
+          return;
+        }
+        draggedRow = row;
+        row.classList.add("dragging");
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", "row");
+      });
+
+      body.addEventListener("dragover", (event) => {
+        const row = event.target.closest("tr.data-row");
+        if (!draggedRow || !row || row === draggedRow) return;
+        event.preventDefault();
+        dataRows().forEach((item) => item.classList.remove("drop-before"));
+        row.classList.add("drop-before");
+      });
+
+      body.addEventListener("drop", (event) => {
+        const row = event.target.closest("tr.data-row");
+        if (!draggedRow || !row || row === draggedRow) return;
+        event.preventDefault();
+        const rect = row.getBoundingClientRect();
+        if (event.clientY > rect.top + rect.height / 2) row.after(draggedRow);
+        else row.before(draggedRow);
+        updateNumbers();
+        scheduleSave();
+      });
+
+      body.addEventListener("dragend", () => {
+        dataRows().forEach((row) => row.classList.remove("dragging", "drop-before"));
+        draggedRow = null;
+        dragAllowed = false;
+      });
+
+      document.getElementById("addBottom").addEventListener("click", () => {
+        const row = makeRow();
+        body.append(row);
+        selectRow(row);
+        updateNumbers();
+        scheduleSave();
+        row.querySelector('[data-field="resource"]').focus();
+        row.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+
+      document.getElementById("duplicateRow").addEventListener("click", () => {
+        if (!selectedRow) return;
+        const copy = makeRow(selectedRow);
+        selectedRow.after(copy);
+        selectRow(copy);
+        updateNumbers();
+        scheduleSave();
+      });
+
+      document.getElementById("moveUp").addEventListener("click", () => {
+        if (!selectedRow) return;
+        let previous = selectedRow.previousElementSibling;
+        while (previous && !previous.classList.contains("data-row")) previous = previous.previousElementSibling;
+        if (previous) previous.before(selectedRow);
+        updateNumbers();
+        scheduleSave();
+      });
+
+      document.getElementById("moveDown").addEventListener("click", () => {
+        if (!selectedRow) return;
+        let next = selectedRow.nextElementSibling;
+        while (next && !next.classList.contains("data-row")) next = next.nextElementSibling;
+        if (next) next.after(selectedRow);
+        updateNumbers();
+        scheduleSave();
+      });
+
+      document.getElementById("resetListTop").addEventListener("click", () => {
+        if (!window.confirm("편집한 내용을 지우고 처음 목록으로 되돌릴까요?")) return;
+        body.innerHTML = initialMarkup;
+        selectedRow = null;
+        updateNumbers();
+        saveNow();
+      });
+
+      document.getElementById("downloadCsv").addEventListener("click", () => {
+        const headers = ["번호", "리소스명", "씬", "쓰이는 장면", "제작", "폴리 예산", "용도", "인터랙션 / 연출", "우선순위"];
+        const lines = [headers];
+        dataRows().forEach((row, index) => {
+          lines.push([
+            index + 1,
+            row.querySelector('[data-field="resource"]').textContent.trim(),
+            row.querySelector('[data-field="scene"]').textContent.trim(),
+            row.querySelector('[data-field="usage"]').textContent.trim(),
+            row.querySelector('[data-field="production"]').textContent.trim(),
+            row.querySelector('[data-field="poly"]').textContent.trim(),
+            row.querySelector('[data-field="purpose"]').textContent.trim(),
+            row.querySelector('[data-field="interaction"]').textContent.trim(),
+            row.querySelector(".priority-select").value,
+          ]);
+        });
+        const csv = lines.map((line) => line.map((value) => '"' + String(value).replaceAll('"', '""') + '"').join(",")).join("\r\n");
+        const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "3D_모델링_목록.csv";
+        link.click();
+        URL.revokeObjectURL(link.href);
+      });
+
+      document.getElementById("backupList").addEventListener("click", () => {
+        const payload = {
+          type: "tripo3d-fbx-modeling-list",
+          version: 1,
+          savedAt: new Date().toISOString(),
+          bodyHtml: snapshotMarkup(),
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "Tripo3D_FBX_목록_백업.json";
+        link.click();
+        URL.revokeObjectURL(link.href);
+      });
+
+      document.getElementById("loadList").addEventListener("click", () => backupFile.click());
+
+      backupFile.addEventListener("change", async () => {
+        const file = backupFile.files && backupFile.files[0];
+        if (!file) return;
+        try {
+          const payload = JSON.parse(await file.text());
+          if (!payload || payload.type !== "tripo3d-fbx-modeling-list" || !restoreMarkup(payload.bodyHtml)) {
+            throw new Error("지원하지 않는 백업 파일입니다.");
+          }
+          saveNow();
+        } catch (error) {
+          window.alert("올바른 Tripo3D FBX 목록 백업 파일이 아닙니다.");
+        } finally {
+          backupFile.value = "";
+        }
+      });
+
+      document.getElementById("printDocument").addEventListener("click", () => window.print());
+      restoreSavedList();
+      updateNumbers();
+    })();
+  </script>
+</body>
+</html>

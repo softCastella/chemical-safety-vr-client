@@ -1,0 +1,187 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  :root {
+    --navy: #123844;
+    --teal: #177b76;
+    --teal2: #2b9790;
+    --ink: #24363b;
+    --muted: #63757b;
+    --line: #cbd8da;
+    --paper: #ffffff;
+    --soft: #eff6f5;
+    --soft2: #f6f8f8;
+    --amber: #d99522;
+    --amber-soft: #fff5df;
+    --red: #a8493d;
+    --red-soft: #fff0ed;
+    --green: #2b7757;
+    --green-soft: #edf7f1;
+  }
+  html, body { margin: 0; padding: 0; background: #e8edef; color: var(--ink); }
+  body { font-family: "Malgun Gothic", "맑은 고딕", Arial, sans-serif; }
+  .page {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    margin: 0 auto 8px;
+    padding: 14mm 16mm 15mm;
+    background: var(--paper);
+    overflow: hidden;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+  .topline {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 3mm; margin-bottom: 5mm; border-bottom: 1px solid var(--line);
+    color: var(--muted); font-size: 8pt; letter-spacing: .04em;
+  }
+  .topline strong { color: var(--teal); }
+  .section-no { color: var(--teal); font-size: 8.5pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  h1, h2, h3, h4, p { margin-top: 0; }
+  h1 { margin-bottom: 4mm; color: var(--navy); font-size: 29pt; line-height: 1.25; letter-spacing: -.035em; }
+  h2 { margin: 0 0 4mm; color: var(--navy); font-size: 20pt; line-height: 1.28; letter-spacing: -.025em; }
+  h3 { margin: 4.2mm 0 2.3mm; color: var(--navy); font-size: 12.5pt; line-height: 1.32; }
+  h4 { margin: 2.8mm 0 1.6mm; color: var(--teal); font-size: 10.2pt; }
+  p { margin-bottom: 2.6mm; font-size: 9.3pt; line-height: 1.58; }
+  .lead { color: #3f555b; font-size: 12pt; line-height: 1.55; }
+  .small { color: var(--muted); font-size: 8pt; line-height: 1.5; }
+  .micro { color: var(--muted); font-size: 7.2pt; line-height: 1.45; }
+  .strong { font-weight: 800; color: var(--navy); }
+  .accent { color: var(--teal); font-weight: 800; }
+  .tag {
+    display: inline-block; margin: 0 1.5mm 1.5mm 0; padding: 1.2mm 2.4mm;
+    border-radius: 9px; background: var(--soft); color: var(--teal); font-size: 7.5pt; font-weight: 800;
+  }
+  .tag.amber { background: var(--amber-soft); color: #8b5a0b; }
+  .tag.red { background: var(--red-soft); color: var(--red); }
+  .tag.dark { background: var(--navy); color: white; }
+  .rule { width: 24mm; height: 1.4mm; margin: 4mm 0 7mm; background: var(--teal); }
+  .footer {
+    position: absolute; left: 16mm; right: 16mm; bottom: 7.5mm;
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 2.7mm; border-top: 1px solid var(--line); color: var(--muted); font-size: 7.2pt;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
+  .card { padding: 3.4mm; border: 1px solid var(--line); border-radius: 2.5mm; background: var(--soft2); }
+  .card h3, .card h4 { margin-top: 0; }
+  .card.teal { border-color: #9dc9c5; background: var(--soft); }
+  .card.amber { border-color: #ead19b; background: var(--amber-soft); }
+  .card.red { border-color: #e0b6af; background: var(--red-soft); }
+  .callout {
+    padding: 3mm 3.5mm; border-left: 1.4mm solid var(--teal); border-radius: 1.5mm;
+    background: var(--soft); color: #274b4e; font-size: 9pt; line-height: 1.55;
+  }
+  .callout.amber { border-left-color: var(--amber); background: var(--amber-soft); color: #694b17; }
+  .callout.red { border-left-color: var(--red); background: var(--red-soft); color: #693631; }
+  .callout strong { color: inherit; }
+  ul, ol { margin: 1.5mm 0 0; padding-left: 5mm; font-size: 8.8pt; line-height: 1.48; }
+  li { margin: 0 0 1.5mm; }
+  .tight li { margin-bottom: .9mm; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 2.4mm 0 4mm; }
+  th, td { border: 1px solid var(--line); padding: 2mm 2.2mm; vertical-align: middle; word-break: keep-all; overflow-wrap: anywhere; }
+  th { background: var(--navy); color: white; font-size: 7.8pt; line-height: 1.35; text-align: center; }
+  td { color: #32474c; font-size: 7.7pt; line-height: 1.43; }
+  tr:nth-child(even) td { background: #fbfcfc; }
+  td.center { text-align: center; }
+  td.label { background: var(--soft) !important; color: var(--navy); font-weight: 800; }
+  .compact th, .compact td { padding: 1.55mm 1.8mm; font-size: 7.35pt; line-height: 1.38; }
+  .steps td:first-child { width: 8%; text-align: center; color: var(--teal); font-size: 10pt; font-weight: 900; }
+  .steps td:nth-child(2) { width: 18%; font-weight: 800; color: var(--navy); }
+  .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4mm 4mm; margin-top: 2mm; }
+  .check { position: relative; padding-left: 5mm; font-size: 8.2pt; line-height: 1.45; }
+  .check::before { content: "✓"; position: absolute; left: 0; top: 0; color: var(--teal); font-weight: 900; }
+  .flow { display: flex; align-items: stretch; gap: 1.2mm; margin: 3mm 0 4mm; }
+  .flow .node { flex: 1; min-height: 15mm; padding: 2mm 1mm; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid #a9c8c6; border-radius: 2mm; background: var(--soft); color: var(--navy); font-size: 7.2pt; line-height: 1.35; font-weight: 800; }
+  .flow .arrow { display: flex; align-items: center; color: var(--teal); font-size: 11pt; font-weight: 800; }
+  .metric-strip { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 2.5mm; overflow: hidden; margin: 4mm 0 5mm; }
+  .metric { padding: 3mm; background: var(--soft2); border-right: 1px solid var(--line); }
+  .metric:last-child { border-right: 0; }
+  .metric b { display: block; margin-bottom: 1mm; color: var(--teal); font-size: 12pt; }
+  .metric span { color: var(--muted); font-size: 7.4pt; line-height: 1.35; }
+  .asset-row { display: grid; grid-template-columns: 34mm 34mm 1fr; gap: 3mm; align-items: stretch; margin: 3mm 0 4mm; }
+  .asset-card { height: 31mm; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--line); border-radius: 2.2mm; background: #3a3e40; }
+  .asset-card img { width: 100%; height: 100%; object-fit: contain; }
+  .asset-copy { padding: 3mm; border-radius: 2.2mm; background: var(--soft); border: 1px solid #b8d3d1; }
+  .asset-copy strong { display: block; margin-bottom: 1mm; color: var(--navy); font-size: 10pt; }
+  .timeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2mm; margin: 3mm 0 4mm; }
+  .milestone { min-height: 24mm; padding: 2.6mm; border-top: 1.4mm solid var(--teal); background: var(--soft2); }
+  .milestone b { color: var(--teal); font-size: 8.4pt; }
+  .milestone span { display: block; margin-top: 1.5mm; color: var(--ink); font-size: 7.2pt; line-height: 1.4; }
+  .cover-page { padding-top: 15mm; background: linear-gradient(135deg, #ffffff 0%, #ffffff 68%, #edf6f5 100%); }
+  .cover-kicker { display: inline-block; margin-bottom: 13mm; padding: 1.8mm 3mm; color: white; background: var(--teal); font-size: 8pt; font-weight: 800; letter-spacing: .08em; }
+  .cover-hero { margin-top: 9mm; padding: 7mm; color: white; background: var(--navy); border-radius: 3.5mm; }
+  .cover-hero h3 { margin: 0 0 3mm; color: white; font-size: 13pt; }
+  .cover-scenarios { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .cover-scenario { padding: 4mm; border-radius: 2.5mm; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.22); }
+  .cover-scenario b { display: block; margin-bottom: 1.5mm; color: #8fe0d8; font-size: 11pt; }
+  .cover-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; margin-top: 6mm; }
+  .cover-meta div { padding: 3mm; border: 1px solid var(--line); border-radius: 2mm; background: rgba(255,255,255,.88); }
+  .cover-meta b { display: block; margin-bottom: 1mm; color: var(--teal); font-size: 7.2pt; }
+  .cover-meta span { color: var(--navy); font-size: 8.5pt; font-weight: 800; line-height: 1.35; }
+  .decision { margin-top: 6mm; padding: 4.5mm; background: var(--amber-soft); border: 1px solid #e6c986; border-radius: 2.5mm; }
+  .decision b { color: #7a5110; font-size: 10.5pt; }
+  .decision p { margin: 1.5mm 0 0; color: #684d1e; font-size: 9pt; }
+  .signature { position: absolute; left: 16mm; bottom: 22mm; color: var(--muted); font-size: 8pt; }
+  .status-p0 { color: white !important; background: var(--red) !important; font-weight: 800; }
+  .status-p1 { color: white !important; background: var(--amber) !important; font-weight: 800; }
+  .status-p2 { color: white !important; background: var(--teal) !important; font-weight: 800; }
+  a { color: var(--teal); text-decoration: none; }
+  @media print { body { background: white; } .page { margin: 0; } }
+ body{background:white}.page{margin:0}</style></head><body>
+  <section class="page">
+    <div class="topline"><span><strong>PROTOTYPE PLAN</strong> · 2026.07.30</span><span>07 · 구현과 일정</span></div>
+    <div class="section-no">07 · 구현과 일정</div>
+    <h2>교육모드 우선 개발 구조·8/13 일정</h2>
+    
+  <div class="grid-2">
+    <div>
+      <h3>구현 구조</h3>
+      <div class="flow" style="gap:1mm">
+        <div class="node">Boot<br/>Hub</div><div class="arrow">›</div>
+        <div class="node">Scenario<br/>Select</div><div class="arrow">›</div>
+        <div class="node">Mode<br/>Profile</div><div class="arrow">›</div>
+        <div class="node">Scenario<br/>Core</div><div class="arrow">›</div>
+        <div class="node">Result</div>
+      </div>
+      <table class="compact">
+        <tr><th style="width:32%">모듈</th><th>역할</th></tr>
+        <tr><td class="label">ScenarioController</td><td>모드와 무관한 단계·선행조건·완료 상태 관리</td></tr>
+        <tr><td class="label">ModeProfile</td><td>교육·훈련·테스트의 지시·힌트·오류 피드백 수준 정의</td></tr>
+        <tr><td class="label">InteractionGate</td><td>핵심 상태 전이를 보호하고 모드별 재시도 정책 적용</td></tr>
+        <tr><td class="label">GuidancePresenter</td><td>HUD·VOICE·하이라이트를 ModeProfile에 따라 표시·차단</td></tr>
+        <tr><td class="label">ResultRecorder</td><td>선택 모드, 시도·오류·순서·시간·퀴즈 결과 기록</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>에셋 전략</h3>
+      <table class="compact">
+        <tr><th style="width:30%">분류</th><th>프로토타입 처리</th></tr>
+        <tr><td class="label">기존 재사용</td><td>PPE 3D, PPE룸 조명·전신 거울, 혼합기, 제어반, 가스측정기, 팬·덕트, LOTO, 무전기, 안전문서 이미지</td></tr>
+        <tr><td class="label">신규 최소 제작</td><td>모드 데이터 구조, 위치·아이템 마커, 자동 착용, 측정 처리, 단계 HUD, 결과 화면</td></tr>
+        <tr><td class="label">1차 활성화</td><td>교육모드만 선택 가능. 훈련·테스트 리소스는 코어 안정화 후 연결</td></tr>
+        <tr><td class="label">대체 가능</td><td>VOICE는 TTS, 감시인은 2D 패널, 고급 애니메이션은 페이드·Snap</td></tr>
+        <tr><td class="label">성능 원칙</td><td>조명·전신 거울은 필수 유지. 정적 베이크 조명과 경량 거울 표현, 단순 셰이더로 Quest 2 안정성 우선</td></tr>
+      </table>
+    </div>
+  </div>
+  <h3>1차 교육모드 개발 일정 · 2026.07.29~08.13</h3>
+  <table class="compact">
+    <tr><th style="width:15%">기간</th><th style="width:23%">핵심 작업</th><th style="width:37%">구체 산출물</th><th>종료 조건</th></tr>
+    <tr><td class="center">07.29~07.30</td><td>범위·모드 구조 동결</td><td>3모드 정책, 교육모드 P0/P1, ModeProfile, 에셋 점검</td><td>M0 범위 승인</td></tr>
+    <tr><td class="center">07.30~07.31</td><td>공통 XR 기반</td><td>Quest 2 빌드, 허브, 교육모드 기본값, 이동·Ray·Grab, 초기화</td><td>M1 공통 루프</td></tr>
+    <tr><td class="center">08.01~08.02</td><td>에셋 배치·상호작용 준비</td><td>PPE룸 조명·전신 거울과 혼합기동의 제어반·태블릿·측정기 등 주요 오브젝트 배치</td><td>두 시나리오의 필수 오브젝트 배치와 참조 점검 완료</td></tr>
+    <tr><td class="center">08.03~08.05</td><td>PPE 교육모드</td><td>작업정보 보이스·텍스트 안내, 점검·판정, 좌우 착용, 상세 안내·오류 교정</td><td>M2 PPE 교육 완주</td></tr>
+    <tr><td class="center">08.06</td><td>PPE 평가·기기 점검</td><td>5문항 퀴즈·해설, 결과·초기화, Quest 2 테스트</td><td>PPE P0 결함 제거</td></tr>
+    <tr><td class="center">08.07~08.09</td><td>밀폐공간 교육모드</td><td>문서, OFF·LOTO, 측정·환기·승인, 상세 안내·교정</td><td>M3 밀폐 교육 완주</td></tr>
+    <tr><td class="center"><strong>08.10</strong></td><td><strong>프로토타입 시연 발표</strong></td><td>Quest 2 실행 빌드, 시연 순서표, 피드백 수집</td><td>수정 우선순위 확정</td></tr>
+    <tr><td class="center">08.11</td><td>교육모드 통합</td><td>두 루트 연결, HUD·VOICE·SFX, 퀴즈·해설·결과 통합</td><td>통합 빌드 RC0</td></tr>
+    <tr><td class="center">08.12</td><td>QA·리허설</td><td>회귀 테스트, 성능·가독성 수정, APK·백업 영상</td><td>M4 RC1, P0 0건</td></tr>
+    <tr><td class="center"><strong>08.13(목)</strong></td><td><strong>교육모드 패키징·시연</strong></td><td>교육모드 APK, 기획서, QA 체크, 두 시나리오 총 10분 대체 영상</td><td><strong>M5 1차 완료</strong></td></tr>
+  </table>
+  <div class="callout"><strong>후속 확장 게이트</strong> · 8/13 교육모드가 P0 0건으로 안정화된 뒤 2차 훈련모드, 3차 테스트모드를 순차 구현한다. 각 단계는 이전 모드 회귀 테스트를 통과해야 다음 단계로 넘어가며, 세 모드를 동시에 병행 개발하지 않는다.</div>
+
+    
+  <div class="footer"><span>화학물질 안전훈련 VR · 8/13 프로토타입 기획서</span><span>10 / 11</span></div>
+  </section></body></html>

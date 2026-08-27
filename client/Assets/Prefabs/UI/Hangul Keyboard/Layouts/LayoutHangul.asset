@@ -1,0 +1,436 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 944d8cf1c59c0e8468bcd7e2fd86fe4d, type: 3}
+  m_Name: LayoutHangul
+  m_EditorClassIdentifier: 
+  m_DefaultKeyFunction: {fileID: 11400000, guid: db6fb941029f9304eb3b9bac7bdb32d7, type: 2}
+  m_KeyMappings:
+  - m_Character: 1
+    m_DisplayCharacter: 1
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: 1
+    m_ShiftDisplayCharacter: 
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: 2
+    m_DisplayCharacter: 2
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: 2
+    m_ShiftDisplayCharacter: 
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: 3
+    m_DisplayCharacter: 3
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: 3
+    m_ShiftDisplayCharacter: 
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: 4
+    m_DisplayCharacter: 4
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: 4
+    m_ShiftDisplayCharacter: 
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: 5
+    m_DisplayCharacter: 5
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: 5
+    m_ShiftDisplayCharacter: 
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: 6
+    m_DisplayCharacter: 6
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: 6
+    m_ShiftDisplayCharacter: 
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: 7
+    m_DisplayCharacter: 7
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: 7
+    m_ShiftDisplayCharacter: 
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: 8
+    m_DisplayCharacter: 8
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: 8
+    m_ShiftDisplayCharacter: 
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: 9
+    m_DisplayCharacter: 9
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: 9
+    m_ShiftDisplayCharacter: 
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: 0
+    m_DisplayCharacter: 0
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: 0
+    m_ShiftDisplayCharacter: 
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: q
+    m_DisplayCharacter: "\u3142"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: Q
+    m_ShiftDisplayCharacter: "\u3143"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: w
+    m_DisplayCharacter: "\u3148"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: W
+    m_ShiftDisplayCharacter: "\u3149"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: e
+    m_DisplayCharacter: "\u3137"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: E
+    m_ShiftDisplayCharacter: "\u3138"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: r
+    m_DisplayCharacter: "\u3131"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: R
+    m_ShiftDisplayCharacter: "\u3132"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: t
+    m_DisplayCharacter: "\u3145"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: T
+    m_ShiftDisplayCharacter: "\u3146"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: y
+    m_DisplayCharacter: "\u315B"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: Y
+    m_ShiftDisplayCharacter: "\u315B"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: u
+    m_DisplayCharacter: "\u3155"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: U
+    m_ShiftDisplayCharacter: "\u3155"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: i
+    m_DisplayCharacter: "\u3151"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: I
+    m_ShiftDisplayCharacter: "\u3151"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: o
+    m_DisplayCharacter: "\u3150"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: O
+    m_ShiftDisplayCharacter: "\u3152"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: p
+    m_DisplayCharacter: "\u3154"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: P
+    m_ShiftDisplayCharacter: "\u3156"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: a
+    m_DisplayCharacter: "\u3141"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: A
+    m_ShiftDisplayCharacter: "\u3141"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: s
+    m_DisplayCharacter: "\u3134"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: S
+    m_ShiftDisplayCharacter: "\u3134"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: d
+    m_DisplayCharacter: "\u3147"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: D
+    m_ShiftDisplayCharacter: "\u3147"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: f
+    m_DisplayCharacter: "\u3139"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: F
+    m_ShiftDisplayCharacter: "\u3139"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: g
+    m_DisplayCharacter: "\u314E"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: G
+    m_ShiftDisplayCharacter: "\u314E"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: h
+    m_DisplayCharacter: "\u3157"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: H
+    m_ShiftDisplayCharacter: "\u3157"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: j
+    m_DisplayCharacter: "\u3153"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: J
+    m_ShiftDisplayCharacter: "\u3153"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: k
+    m_DisplayCharacter: "\u314F"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: K
+    m_ShiftDisplayCharacter: "\u314F"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: l
+    m_DisplayCharacter: "\u3163"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: L
+    m_ShiftDisplayCharacter: "\u3163"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: \s
+    m_DisplayCharacter: shift
+    m_DisplayIcon: {fileID: 373736265, guid: e6a95303640ef3c4188ac4583185f5ba, type: 3}
+    m_ShiftCharacter: \s
+    m_ShiftDisplayCharacter: shift
+    m_ShiftDisplayIcon: {fileID: 373736265, guid: e6a95303640ef3c4188ac4583185f5ba, type: 3}
+    m_OverrideDefaultKeyFunction: 1
+    m_KeyFunction: {fileID: 11400000, guid: fd75c3033834cc447bf5886f0424c0b9, type: 2}
+    m_KeyCode: 304
+    m_Disabled: 0
+  - m_Character: z
+    m_DisplayCharacter: "\u314B"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: Z
+    m_ShiftDisplayCharacter: "\u314B"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: x
+    m_DisplayCharacter: "\u314C"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: X
+    m_ShiftDisplayCharacter: "\u314C"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: c
+    m_DisplayCharacter: "\u314A"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: C
+    m_ShiftDisplayCharacter: "\u314A"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: v
+    m_DisplayCharacter: "\u314D"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: V
+    m_ShiftDisplayCharacter: "\u314D"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: b
+    m_DisplayCharacter: "\u3160"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: B
+    m_ShiftDisplayCharacter: "\u3160"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: n
+    m_DisplayCharacter: "\u315C"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: N
+    m_ShiftDisplayCharacter: "\u315C"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: m
+    m_DisplayCharacter: "\u3161"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: M
+    m_ShiftDisplayCharacter: "\u3161"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 0}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: \h
+    m_DisplayCharacter: Hide
+    m_DisplayIcon: {fileID: 1163011659, guid: e6a95303640ef3c4188ac4583185f5ba, type: 3}
+    m_ShiftCharacter: \h
+    m_ShiftDisplayCharacter: Hide
+    m_ShiftDisplayIcon: {fileID: 1163011659, guid: e6a95303640ef3c4188ac4583185f5ba, type: 3}
+    m_OverrideDefaultKeyFunction: 1
+    m_KeyFunction: {fileID: 11400000, guid: fafb46c355cbf0c4ab314558d216a90f, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: \lang
+    m_DisplayCharacter: "\uD55C/\uC601"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: \lang
+    m_ShiftDisplayCharacter: "\uD55C/\uC601"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 1
+    m_KeyFunction: {fileID: 11400000, guid: 8c556225eec27bd409b42e9afe6b39d8, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: \sym
+    m_DisplayCharacter: "\uAE30\uD638"
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: \sym
+    m_ShiftDisplayCharacter: "\uAE30\uD638"
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 1
+    m_KeyFunction: {fileID: 11400000, guid: ea0c1b4aa0b6c2044901e7bc70dc867c, type: 2}
+    m_KeyCode: 0
+    m_Disabled: 0
+  - m_Character: ' '
+    m_DisplayCharacter: Space
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: ' '
+    m_ShiftDisplayCharacter: Space
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 0
+    m_KeyFunction: {fileID: 11400000, guid: 5e3d82ae0a9ac0d43ada00a218daeefd, type: 2}
+    m_KeyCode: 32
+    m_Disabled: 0
+  - m_Character: \r
+    m_DisplayCharacter: Enter
+    m_DisplayIcon: {fileID: 0}
+    m_ShiftCharacter: \r
+    m_ShiftDisplayCharacter: Enter
+    m_ShiftDisplayIcon: {fileID: 0}
+    m_OverrideDefaultKeyFunction: 1
+    m_KeyFunction: {fileID: 11400000, guid: 2ff02eb02547eaf41855aabb5c603f8b, type: 2}
+    m_KeyCode: 13
+    m_Disabled: 0

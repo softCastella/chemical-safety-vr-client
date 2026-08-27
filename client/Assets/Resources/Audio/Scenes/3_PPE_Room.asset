@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0b780a82fa741cfb9e8956ef1b318ef, type: 3}
+  m_Name: 3_PPE_Room
+  m_EditorClassIdentifier: 
+  startDelay: 0.5
+  bgm: {fileID: 8300000, guid: 1bd5a90fde4bacf46b315b1c6fc7856e, type: 3}
+  bgmVolume: 1
+  bgmFadeInDuration: 0.5
+  stopPreviousBgmWhenEmpty: 1
+  ambience: {fileID: 0}
+  ambienceVolume: 1
+  stopPreviousAmbienceWhenEmpty: 1

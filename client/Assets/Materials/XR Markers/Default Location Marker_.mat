@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Default Location Marker_
+  m_Shader: {fileID: 4800000, guid: 6129755c63ac43c3b9522fbdd95c8b3c, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _SHIMMERAFFECTSALPHA_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _EdgeSoftness: 0.025
+    - _ForwardIndicator: 0
+    - _ForwardIndicatorLength: 0.48
+    - _ForwardIndicatorLineWidth: 0.028
+    - _ForwardIndicatorStrength: 2
+    - _ForwardIndicatorWidth: 0.26
+    - _GlowStrength: 5
+    - _GlowWidth: 0.22
+    - _Opacity: 1
+    - _OpacityPulseStrength: 1
+    - _OrbCoreStrength: 5
+    - _PulseOpacity: 1
+    - _PulseScale: 1
+    - _RingRadius: 0.198
+    - _RingWidth: 0.005
+    - _ScalePulseStrength: 1
+    - _ShapeMode: 1
+    - _ShimmerAffectsAlpha: 1
+    - _ShimmerSpeed: 2
+    - _ShimmerStrength: 0
+    - _UniformRingAlpha: 0
+    m_Colors:
+    - _Color: {r: 0.07475026, g: 0.9257383, b: 0.06550034, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

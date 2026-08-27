@@ -1,8 +1,10 @@
-# Final_VR_Tyche_Pivot Monorepo Context
+# Chemical Safety VR Client Repository Context
 
 ## Project purpose
 
-This monorepo contains a Unity XR chemical safety training client and an Express server. The Unity application targets Meta Quest/OpenXR and includes controller education, PPE education/training/testing flows, spatial UI, voice guidance, hand/controller interaction, and later training-record integration with the server.
+This repository contains the Unity XR chemical safety training client together with project documentation, editor tools, and validation harnesses. The Unity application targets Meta Quest/OpenXR and includes controller education, PPE education/training/testing flows, spatial UI, voice guidance, hand/controller interaction, and training-record integration with the separately managed server.
+
+The Express server is maintained in the private repository `softCastella/chemical-safety-vr-server`. This repository must not acquire a duplicate `server/` source tree.
 
 ## Environment
 
@@ -76,6 +78,14 @@ Prefer adding project-specific code under `client/Assets/Scripts` and editor-onl
 - Prefer Unity-compatible C# APIs supported by the configured Unity version.
 - For XR changes, account for both Android/Quest and Standalone OpenXR unless the requested target is explicit.
 - Do not modify imported packages or samples when a project-owned wrapper or component is sufficient.
+
+## 교차 저장소 인수인계 규칙
+
+- 클라이언트와 서버의 Codex 대화는 자동으로 공유된다고 가정하지 않는다. 코드, 문서, 테스트 결과와 Git 커밋을 작업 사실의 기준으로 사용한다.
+- 서버 연동 사실을 작성하거나 수정할 때는 `softCastella/chemical-safety-vr-server`의 대상 브랜치와 커밋 SHA를 확인한다. 대화 내용만으로 API, DB, 텔레메트리 또는 배포 상태를 확정하지 않는다.
+- 클라이언트 변경이 API, 데이터 계약, 인증, 텔레메트리 또는 대시보드에 영향을 주면 관련 기존 문서에 영향과 필요한 서버 후속 작업을 기록한다. 관련 문서가 없을 때만 문서 작성 원칙에 따라 새 문서를 만든다.
+- 최종 보고자료를 작성하기 전에 클라이언트와 서버 저장소의 최신 기준 커밋을 각각 기록하고, 양쪽 코드·씬·로그·테스트 근거를 필요한 범위에서 대조한다.
+- 서버 저장소의 변경이 아직 클라이언트 저장소에 반영되지 않았으면 완료로 합쳐 쓰지 않고 `서버 반영`, `클라이언트 반영`, `통합 검증` 상태를 구분한다.
 
 ## UI authoring rules
 

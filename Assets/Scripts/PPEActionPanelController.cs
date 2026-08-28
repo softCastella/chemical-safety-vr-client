@@ -298,32 +298,11 @@ public sealed class PPEActionPanelController : MonoBehaviour
         PPEActionResult result,
         string trainingWrongMessage)
     {
-        if (mode == ScenarioDetailModal.PpeLearningMode.Education || feedbackLabel == null)
+        if (mode == ScenarioDetailModal.PpeLearningMode.Education)
             return;
 
         CancelPendingWrongChoiceVoice();
-
-        bool approvedUseOrDiscard =
-            (choice == PPEActionChoice.Use && result == PPEActionResult.UseApproved) ||
-            (choice == PPEActionChoice.Discard && result == PPEActionResult.DiscardApprovedContaminated);
-        bool wrong = result == PPEActionResult.UseRejectedContaminated ||
-            result == PPEActionResult.DiscardCleanPolicyPending;
-
-        if (approvedUseOrDiscard)
-        {
-            feedbackLabel.gameObject.SetActive(true);
-            return;
-        }
-
-        if (mode == ScenarioDetailModal.PpeLearningMode.Training && wrong)
-        {
-            feedbackLabel.gameObject.SetActive(true);
-            feedbackLabel.text = trainingWrongMessage;
-            feedbackLabel.color = rejectedFeedbackColor;
-            return;
-        }
-
-        feedbackLabel.gameObject.SetActive(false);
+        ResetFeedback();
     }
 
     public void ShowModeRejectedUseFeedback(
@@ -334,17 +313,14 @@ public sealed class PPEActionPanelController : MonoBehaviour
             return;
 
         CancelPendingWrongChoiceVoice();
-        ApplyFeedback(
-            mode == ScenarioDetailModal.PpeLearningMode.Training ? trainingWrongMessage : string.Empty,
-            rejectedFeedbackColor,
-            useErrorIconRoot);
-        feedbackLabel.gameObject.SetActive(mode == ScenarioDetailModal.PpeLearningMode.Training);
+        ResetFeedback();
         PlayFeedbackSfx(PPEActionResult.UseRejectedContaminated);
     }
 
     public void PlayWrongChoiceFeedbackSfx()
     {
-        if (AudioManager.Instance == null || string.IsNullOrWhiteSpace(wrongFeedbackSfxId))
+        if (!AllowsPpeActionSfx() || AudioManager.Instance == null ||
+            string.IsNullOrWhiteSpace(wrongFeedbackSfxId))
             return;
 
         AudioManager.Instance.PlaySfx(wrongFeedbackSfxId);
@@ -648,15 +624,13 @@ public sealed class PPEActionPanelController : MonoBehaviour
         string message = string.IsNullOrWhiteSpace(inspectRequiredMessage)
             ? "호흡 상태 확인 필요"
             : inspectRequiredMessage;
-        ApplyFeedback(message, rejectedFeedbackColor, icon);
+        if (AllowsPpeFeedbackPresentation())
+            ApplyFeedback(message, rejectedFeedbackColor, icon);
+        else
+            ResetFeedback();
 
-        if (voiceFlowDirector != null &&
-            voiceFlowDirector.ActiveLearningMode == ScenarioDetailModal.PpeLearningMode.Test)
-        {
-            feedbackLabel.gameObject.SetActive(false);
-        }
-
-        AudioManager.Instance?.PlaySfx(wrongFeedbackSfxId);
+        if (AllowsPpeActionSfx())
+            AudioManager.Instance?.PlaySfx(wrongFeedbackSfxId);
         return true;
     }
 
@@ -666,7 +640,7 @@ public sealed class PPEActionPanelController : MonoBehaviour
         LastResult = result;
         CancelPendingWrongChoiceVoice();
 
-        if (!approveUseByBodyProximity)
+        if (!approveUseByBodyProximity && AllowsPpeFeedbackPresentation())
             ApplyChoicePresentation(result);
 
         PlayActionSfx(choice, result);
@@ -693,7 +667,7 @@ public sealed class PPEActionPanelController : MonoBehaviour
 
     void PlayActionSfx(PPEActionChoice choice, PPEActionResult result)
     {
-        if (AudioManager.Instance == null)
+        if (!AllowsPpeActionSfx() || AudioManager.Instance == null)
             return;
 
         if (choice == PPEActionChoice.Use && result == PPEActionResult.UseApproved)
@@ -714,7 +688,7 @@ public sealed class PPEActionPanelController : MonoBehaviour
 
     void PlayFeedbackSfx(PPEActionResult result)
     {
-        if (AudioManager.Instance == null)
+        if (!AllowsPpeActionSfx() || AudioManager.Instance == null)
             return;
 
         bool isCorrect = result == PPEActionResult.UseApproved ||
@@ -738,7 +712,7 @@ public sealed class PPEActionPanelController : MonoBehaviour
             _ => null,
         };
 
-        if (clip == null || AudioManager.Instance == null)
+        if (clip == null || AudioManager.Instance == null || !AllowsPpeChoiceVoice())
             return;
 
         AudioManager.Instance.StopVoice();
@@ -763,6 +737,22 @@ public sealed class PPEActionPanelController : MonoBehaviour
 
         StopCoroutine(pendingWrongChoiceVoice);
         pendingWrongChoiceVoice = null;
+    }
+
+    bool AllowsPpeFeedbackPresentation()
+    {
+        return voiceFlowDirector == null ||
+            voiceFlowDirector.ActiveLearningMode == ScenarioDetailModal.PpeLearningMode.Education;
+    }
+
+    bool AllowsPpeActionSfx()
+    {
+        return voiceFlowDirector == null || voiceFlowDirector.AllowsPpeActionSfx;
+    }
+
+    bool AllowsPpeChoiceVoice()
+    {
+        return voiceFlowDirector == null || voiceFlowDirector.AllowsPpeChoiceVoice;
     }
 
     public bool IsBodyProximityActivateAttempt()
@@ -793,11 +783,15 @@ public sealed class PPEActionPanelController : MonoBehaviour
         if (!approveUseByBodyProximity ||
             !IsSelectedByInteractor(interactor) ||
             !CanResolveChoice() ||
-            !IsBodyProximityActivateAttempt())
+            !IsWithinBodyAttachRange())
         {
             return false;
         }
 
+        // Game View intentionally drives both glove sides through the authored
+        // right-hand NearFarInteractor. Do not reuse the physical-XR handedness
+        // suppression in IsBodyProximityActivateAttempt(): it would block only
+        // the right glove while letting the left glove pass by mismatch.
         ResolveUseChoice();
         return true;
     }

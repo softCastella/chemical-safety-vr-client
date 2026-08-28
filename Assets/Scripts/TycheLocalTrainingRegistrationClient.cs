@@ -61,7 +61,8 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
         MetaPlatformIdentityProbe identityProbe =
             UnityEngine.Object.FindFirstObjectByType<MetaPlatformIdentityProbe>(
                 FindObjectsInactive.Include);
-        if (identityProbe == null || !identityProbe.isActiveAndEnabled)
+        if (identityProbe == null || !identityProbe.isActiveAndEnabled ||
+            !identityProbe.UsesPlatformSdkForCurrentRun)
             return;
 
         GameObject root = new("Tyche Local Training Registration Client");
@@ -86,9 +87,22 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
         float deadline = Time.realtimeSinceStartup + IdentityAndSessionTimeoutSeconds;
         while (!CanSendRegistration())
         {
+            MetaPlatformIdentityProbe identityProbe =
+                FindFirstObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include);
+            if (identityProbe == null || !identityProbe.UsesPlatformSdkForCurrentRun ||
+                identityProbe.State == MetaPlatformIdentityProbe.ProbeState.Failed ||
+                identityProbe.State == MetaPlatformIdentityProbe.ProbeState.SkippedForEditorTesting)
+            {
+                Debug.LogWarning(
+                    "[Tyche Local Registration] 유효한 Meta 계정 식별 경로가 없어 개발용 서버 등록을 건너뜁니다. " +
+                    "PPE 로컬 텔레메트리는 계속 기록됩니다.",
+                    this);
+                yield break;
+            }
+
             if (Time.realtimeSinceStartup >= deadline)
             {
-                Debug.LogError(
+                Debug.LogWarning(
                     "[Tyche Local Registration] Meta ID 또는 활성 PPE 세션을 제한 시간 안에 확인하지 못했습니다.",
                     this);
                 yield break;

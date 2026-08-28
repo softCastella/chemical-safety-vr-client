@@ -330,3 +330,45 @@
 - 최종 작성값은 높이 `0.3m`, 깊이 `0.12m`, 진열장 앞면에서 안쪽 `0.25m` 후퇴다.
 - Marker Trigger, Near caster `Collide`, Far caster Layer 6 제외와 함께 적용한다. 상세 수치와
   검증 조건은 `2026-08-24_PPE_Room_Environment_Collision.md`를 기준 문서로 삼는다.
+
+## 2026-08-28 Game View 오른쪽 니트릴 내부장갑 승인 불가
+
+### 변경 전 필수 질문
+
+1. Inspector/씬 작성값은 보존한다. 좌·우 내부장갑의 Transform, Collider, ItemType, 패널 참조와
+   착용 손 모델은 변경하지 않는다.
+2. 착용 판정 소유자는 `PPEActionPanelController`, Game View 마우스 선택 소유자는
+   `PhysicalHmdSimulatorGate`이다.
+3. 입력 경로는 `Game View 왼쪽 클릭 → 작성된 오른손 NearFarInteractor → XRGrabInteractable Select
+   → 마우스 Grab Anchor → 두 번째 클릭 → TryActivateBodyProximityFromGameView()`이다.
+4. 누락 참조를 런타임 자동 생성하지 않고 기존 명시적 Editor 구성·검증 경로를 유지한다.
+5. Game View 좌·우 장갑과 물리 XR 손별 승인 경로가 영향 소비자다. Quest 손 구분 규칙은 보존한다.
+6. 변경 전에는 오른쪽 내부장갑만 두 번째 클릭 승인이 실패하고 왼쪽은 통과하는 비대칭을 기준으로
+   삼는다. 변경 후에는 같은 Game View 조작으로 좌·우를 각각 비교한다.
+7. 정적 코드·씬과 C# 컴파일까지 확인했으며, 변경 후 Unity Play Mode 및 Quest 확인은 남아 있다.
+
+### 근본 원인
+
+- 현재 씬의 좌·우 내부장갑 ItemType, Action Panel, Collider, 장착 Slot과 손 모델 참조는 모두
+  대칭으로 연결되어 있었다.
+- Game View는 PPE 양쪽을 하나의 작성된 오른손 `NearFarInteractor`로 조작한다.
+- Game View 승인 메서드가 물리 XR용 `IsBodyProximityActivateAttempt()`를 재사용했다. 이 메서드는
+  깨끗한 장갑을 실제 착용할 손으로 잡았을 때 근접 자동승인을 억제한다. 따라서 오른쪽 장갑은
+  `오른쪽 장갑 + 오른손 Interactor`라 차단되고, 왼쪽은 손 불일치 때문에 우연히 통과했다.
+
+### 적용한 변경과 영향 범위
+
+- Game View 전용 두 번째 클릭 승인은 작성된 Body Attach 거리, 선택 상태와 기존
+  `CanResolveChoice()`만 확인하고 물리 손별 자동승인 억제를 재사용하지 않도록 분리했다.
+- 일반 XR의 `IsBodyProximityActivateAttempt()`와 좌·우 실제 손 판정은 변경하지 않았다.
+- `PPENitrileInnerGloveWearSetup`의 대상 씬을 현재 로코모션 씬으로 갱신했다.
+- 같은 하네스에 Game View 전용 메서드가 Body Attach 거리를 유지하고 물리 손 억제를 다시 호출하지
+  않는지 검사하는 회귀 조건을 추가했다.
+
+### 검증
+
+- 새 파일을 포함한 Runtime/Editor C# 빌드 오류 0개를 확인했다.
+- Unity Play Mode에서 오른쪽 내부장갑을 첫 클릭으로 잡고 착용 손 위치로 이동한 뒤 두 번째 클릭했을
+  때 `UseApproved`와 오른손 착용 시각이 나타나는지 확인해야 한다. 같은 순서로 왼쪽도 비교한다.
+- Quest/OpenXR에서는 기존대로 오른쪽 장갑은 오른손, 왼쪽 장갑은 왼손으로 잡는 손별 규칙이 유지되는지
+  별도 확인해야 한다.

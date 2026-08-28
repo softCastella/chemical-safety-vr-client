@@ -56,11 +56,13 @@ public static class PPELocomotionPpeRegressionValidationHarness
             {
                 ValidateTapePrerequisites(director, equipment, failures);
                 ValidateTapeGrabNarration(director, failures);
+                ValidateRequiredPpeHowToNarration(director, failures);
                 ValidateLeakHarnessRouting(previewScene, director, failures);
             }
 
             if (director != null)
             {
+                ValidateModeFeedbackPolicy(director, failures);
                 ValidateHazmatGrabNarration(director, failures);
                 ValidateWelcomeNarration(director, failures);
                 ValidateEducationStartVoices(director, failures);
@@ -76,6 +78,7 @@ public static class PPELocomotionPpeRegressionValidationHarness
             ValidateHeadRelativeLocomotion(previewScene, failures);
             ValidateHazmatAlreadyEquippedPriority(failures);
             ValidateBodyColliderProximity(failures);
+            ValidateTabletSurfaceSampling(failures);
         }
         finally
         {
@@ -94,12 +97,269 @@ public static class PPELocomotionPpeRegressionValidationHarness
         Debug.Log(
             $"[PPE Locomotion Regression Validation] PASS '{ScenePath}': " +
             "tape prerequisites and one-shot narration, already-equipped hazmat priority, " +
+            "scenario-required Education How-To narration, " +
+            "mode-owned PPE feedback audio and presentation, exclusive mid-exit Voice, " +
             "one-shot hazmat narration, persistent PPE-area session, mirror/exit wiring, " +
             "active-camera head-relative locomotion, " +
             "leak harness rejection routing, Meta-account Welcome voices, PPE-area voices, authored controller-guide mapping " +
             "and detailed input feedback, " +
             "body-collider proximity, " +
+            "tablet/signature anti-shimmer sampling, " +
             "checklist work-plan reset, and input-owned footsteps are valid.");
+    }
+
+    static void ValidateModeFeedbackPolicy(
+        PPEVoiceFlowDirector director,
+        List<string> failures)
+    {
+        foreach (PPEActionPanelController panel in FindAll<PPEActionPanelController>(director.gameObject.scene))
+        {
+            if (!panel.enabled || !panel.gameObject.activeInHierarchy)
+                continue;
+
+            SerializedObject panelSerialized = new(panel);
+            if (panelSerialized.FindProperty("voiceFlowDirector")?.objectReferenceValue != director)
+            {
+                failures.Add(
+                    $"Active PPE panel '{panel.name}' must reference the scene PPEVoiceFlowDirector " +
+                    "before applying mode feedback.");
+            }
+        }
+
+        Type type = typeof(PPEVoiceFlowDirector);
+        PropertyInfo mode = type.GetProperty(nameof(PPEVoiceFlowDirector.ActiveLearningMode));
+        PropertyInfo actionSfx = type.GetProperty(nameof(PPEVoiceFlowDirector.AllowsPpeActionSfx));
+        PropertyInfo choiceVoice = type.GetProperty(nameof(PPEVoiceFlowDirector.AllowsPpeChoiceVoice));
+        FieldInfo midExitExclusive = type.GetField("m_MidExitVoiceExclusive", InstancePrivate);
+        if (mode == null || actionSfx == null || choiceVoice == null || midExitExclusive == null)
+        {
+            failures.Add("PPE mode feedback policy members could not be inspected.");
+            return;
+        }
+
+        object previousMode = mode.GetValue(director);
+        object previousExclusive = midExitExclusive.GetValue(director);
+        try
+        {
+            midExitExclusive.SetValue(director, false);
+            AssertFeedbackPolicy(
+                director,
+                mode,
+                actionSfx,
+                choiceVoice,
+                ScenarioDetailModal.PpeLearningMode.Education,
+                expectedActionSfx: true,
+                expectedChoiceVoice: true,
+                failures: failures);
+            AssertFeedbackPolicy(
+                director,
+                mode,
+                actionSfx,
+                choiceVoice,
+                ScenarioDetailModal.PpeLearningMode.Training,
+                expectedActionSfx: true,
+                expectedChoiceVoice: false,
+                failures: failures);
+            AssertFeedbackPolicy(
+                director,
+                mode,
+                actionSfx,
+                choiceVoice,
+                ScenarioDetailModal.PpeLearningMode.Test,
+                expectedActionSfx: false,
+                expectedChoiceVoice: false,
+                failures: failures);
+
+            mode.SetValue(director, ScenarioDetailModal.PpeLearningMode.Education);
+            midExitExclusive.SetValue(director, true);
+            if ((bool)actionSfx.GetValue(director) || (bool)choiceVoice.GetValue(director))
+                failures.Add("Mid-exit must block new PPE feedback while its Voice owns the channel.");
+        }
+        finally
+        {
+            mode.SetValue(director, previousMode);
+            midExitExclusive.SetValue(director, previousExclusive);
+        }
+
+        string panelSource = File.ReadAllText("Assets/Scripts/PPEActionPanelController.cs");
+        if (!panelSource.Contains(
+                "!approveUseByBodyProximity && AllowsPpeFeedbackPresentation()",
+                StringComparison.Ordinal))
+        {
+            failures.Add("Training/Test PPE choices must not show legacy feedback text or icons.");
+        }
+        if (!panelSource.Contains(
+                "clip == null || AudioManager.Instance == null || !AllowsPpeChoiceVoice()",
+                StringComparison.Ordinal))
+        {
+            failures.Add("Wrong-PPE Voice must be gated by the Education-only feedback policy.");
+        }
+
+        string directorSource = File.ReadAllText("Assets/Scripts/PPEVoiceFlowDirector.cs");
+        if (!directorSource.Contains("StopFlowPlayback(stopSfx: false);", StringComparison.Ordinal) ||
+            !directorSource.Contains("m_MidExitVoiceExclusive = true;", StringComparison.Ordinal))
+        {
+            failures.Add("Mid-exit must cancel competing Voice producers without stopping SFX.");
+        }
+        if (directorSource.Contains(
+                "PlayPpeConditionalVoice(m_TrainingWrongButtonVoice)",
+                StringComparison.Ordinal))
+        {
+            failures.Add("Training mode must not play the legacy wrong-PPE Voice.");
+        }
+        if (!directorSource.Contains(
+                ": m_TestMoveToPpeVoice;",
+                StringComparison.Ordinal) ||
+            !directorSource.Contains(
+                ": new[] { m_TestModeSelectedVoice, m_TestMoveToPpeVoice, m_TestEndVoice };",
+                StringComparison.Ordinal) ||
+            !directorSource.Contains(
+                "PlayPpeConditionalVoice(m_TestEndVoice);",
+                StringComparison.Ordinal))
+        {
+            failures.Add(
+                "Test mode must retain its authored selection, move-to-PPE, and completion Voice flow.");
+        }
+    }
+
+    static void AssertFeedbackPolicy(
+        PPEVoiceFlowDirector director,
+        PropertyInfo modeProperty,
+        PropertyInfo actionSfxProperty,
+        PropertyInfo choiceVoiceProperty,
+        ScenarioDetailModal.PpeLearningMode mode,
+        bool expectedActionSfx,
+        bool expectedChoiceVoice,
+        List<string> failures)
+    {
+        modeProperty.SetValue(director, mode);
+        bool actualActionSfx = (bool)actionSfxProperty.GetValue(director);
+        bool actualChoiceVoice = (bool)choiceVoiceProperty.GetValue(director);
+        if (actualActionSfx != expectedActionSfx || actualChoiceVoice != expectedChoiceVoice)
+        {
+            failures.Add(
+                $"{mode} PPE feedback policy mismatch: " +
+                $"SFX={actualActionSfx}, wrong/How-To Voice={actualChoiceVoice}.");
+        }
+    }
+
+    static void ValidateTabletSurfaceSampling(List<string> failures)
+    {
+        string[] mipmappedTextures =
+        {
+            "Assets/Materials/PPE/Tablet/work_confirm_tablet_readable.png.meta",
+            "Assets/UIs/Things/Docs/WorkPlan.png.meta",
+            "Assets/UIs/Things/Docs/WorkPlan_Leak.png.meta",
+        };
+        foreach (string path in mipmappedTextures)
+        {
+            string importer = File.ReadAllText(path);
+            if (!importer.Contains("enableMipMap: 1", StringComparison.Ordinal))
+                failures.Add($"Thin-text tablet texture must enable mipmaps: {path}");
+        }
+
+        string[] antiShimmerTextures =
+        {
+            "Assets/UIs/Logo/VrLogo_2d.png",
+            "Assets/UIs/Guide/Controller_tri.png",
+            "Assets/UIs/Guide/Controller_gri.png",
+            "Assets/UIs/Guide/Controller_joy.png",
+            "Assets/Materials/PPE/Tablet/work_confirm_tablet_readable.png",
+            "Assets/UIs/sign_stamp/sign_player_rm.png",
+        };
+        foreach (string path in antiShimmerTextures)
+        {
+            if (AssetImporter.GetAtPath(path) is not TextureImporter importer)
+            {
+                failures.Add($"Anti-shimmer texture importer is missing: {path}");
+                continue;
+            }
+
+            if (!importer.mipmapEnabled || importer.filterMode != FilterMode.Trilinear ||
+                importer.anisoLevel < 8)
+            {
+                failures.Add(
+                    $"Anti-shimmer texture requires mipmaps, Trilinear filtering, and aniso >= 8: {path}");
+            }
+        }
+
+        string[] androidHighQualityTextures =
+        {
+            "Assets/UIs/Logo/VrLogo_2d.png",
+            "Assets/UIs/Guide/Controller_tri.png",
+            "Assets/UIs/Guide/Controller_gri.png",
+            "Assets/UIs/Guide/Controller_joy.png",
+            "Assets/UIs/sign_stamp/sign_player_rm.png",
+        };
+        foreach (string path in androidHighQualityTextures)
+        {
+            TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            TextureImporterPlatformSettings android =
+                importer?.GetPlatformTextureSettings("Android");
+            if (android == null || !android.overridden ||
+                android.textureCompression != TextureImporterCompression.CompressedHQ ||
+                android.compressionQuality < 100)
+            {
+                failures.Add($"Quest texture requires an Android high-quality override: {path}");
+            }
+        }
+
+        if (AssetImporter.GetAtPath(
+                "Assets/UIs/sign_stamp/sign_player_rm.png") is TextureImporter playerSignature &&
+            (playerSignature.npotScale != TextureImporterNPOTScale.None ||
+             playerSignature.wrapModeU != TextureWrapMode.Clamp ||
+             playerSignature.wrapModeV != TextureWrapMode.Clamp ||
+             !playerSignature.alphaIsTransparency))
+        {
+            failures.Add(
+                "Player signature must preserve the one-piece NPOT source and use Clamp/transparent-edge sampling.");
+        }
+
+        ValidateYamlSpritePreserveAspect(
+            "Assets/Scenes/6_LoadingScene_0.unity",
+            "cbf5db553974ec84fb37aea653f5f1bf",
+            failures);
+        ValidateYamlSpritePreserveAspect(
+            "Assets/Prefabs/Title_Logo_Canvas.prefab",
+            "cbf5db553974ec84fb37aea653f5f1bf",
+            failures);
+
+        string[] signatureTextures =
+        {
+            "Assets/UIs/sign_stamp/sign_check.png.meta",
+            "Assets/UIs/sign_stamp/sign_player_rm.png.meta",
+            "Assets/UIs/sign_stamp/sign_conductor_ppe.png.meta",
+            "Assets/UIs/sign_stamp/sign_conductor_mixer.png.meta",
+        };
+        foreach (string path in signatureTextures)
+        {
+            string importer = File.ReadAllText(path);
+            if (!importer.Contains("enableMipMap: 1", StringComparison.Ordinal) ||
+                !importer.Contains("aniso: 8", StringComparison.Ordinal))
+            {
+                failures.Add($"Signature texture requires mipmaps and anisotropic level 8: {path}");
+            }
+        }
+
+        string shader = File.ReadAllText("Assets/Shaders/HandwrittenSignatureReveal.shader");
+        if (!shader.Contains("Offset -1, -1", StringComparison.Ordinal))
+            failures.Add("Signature reveal shader requires a small depth offset from the document surface.");
+    }
+
+    static void ValidateYamlSpritePreserveAspect(
+        string assetPath,
+        string spriteGuid,
+        List<string> failures)
+    {
+        string yaml = File.ReadAllText(assetPath);
+        int spriteIndex = yaml.IndexOf($"guid: {spriteGuid}", StringComparison.Ordinal);
+        int preserveIndex = spriteIndex >= 0
+            ? yaml.IndexOf("m_PreserveAspect: 1", spriteIndex, StringComparison.Ordinal)
+            : -1;
+        if (spriteIndex < 0 || preserveIndex < 0 || preserveIndex - spriteIndex > 320)
+        {
+            failures.Add($"Sprite must preserve its source aspect ratio in '{assetPath}'.");
+        }
     }
 
     public static void ValidateBatch()
@@ -374,6 +634,108 @@ public static class PPELocomotionPpeRegressionValidationHarness
             failures.Add("Tape grab narration must play once per education mode session.");
     }
 
+    static void ValidateRequiredPpeHowToNarration(
+        PPEVoiceFlowDirector director,
+        List<string> failures)
+    {
+        SerializedObject serialized = new(director);
+        PPEActionPanelController goggle = serialized.FindProperty("m_GoggleActionPanel")
+            ?.objectReferenceValue as PPEActionPanelController;
+        PPEActionPanelController faceShield = serialized.FindProperty("m_FaceShieldActionPanel")
+            ?.objectReferenceValue as PPEActionPanelController;
+        SerializedProperty nitrilePanels = serialized.FindProperty("m_NitrileInnerGloveActionPanels");
+
+        if (goggle == null || goggle.name != "PPE_A_Goggle_Clean")
+            failures.Add("How-To 107 must reference PPE_A_Goggle_Clean.");
+        if (faceShield == null || faceShield.name != "PPE_A_FaceShield_Clean")
+            failures.Add("How-To 108 must reference PPE_A_FaceShield_Clean.");
+        if (nitrilePanels == null || nitrilePanels.arraySize != 2)
+        {
+            failures.Add("How-To 109 must reference both nitrile inner-glove panels.");
+        }
+        else
+        {
+            HashSet<string> names = new();
+            for (int index = 0; index < nitrilePanels.arraySize; index++)
+            {
+                if (nitrilePanels.GetArrayElementAtIndex(index).objectReferenceValue is
+                    PPEActionPanelController panel)
+                {
+                    names.Add(panel.name);
+                }
+            }
+
+            if (!names.SetEquals(new[] { "PPE_A_InnerGlove_L", "PPE_A_InnerGlove_R" }))
+                failures.Add("How-To 109 nitrile references must be the authored left and right inner gloves.");
+        }
+
+        ValidateHowToClip(serialized, "m_GoggleGrabVoice", "4_VO_PPE_EDU_107_HowToGoggle", failures);
+        ValidateHowToClip(serialized, "m_FaceShieldGrabVoice", "4_VO_PPE_EDU_108_HowToFaceShield", failures);
+        ValidateHowToClip(serialized, "m_NitrileInnerGloveGrabVoice", "4_VO_PPE_EDU_109_HowToInneerGlove", failures);
+
+        Type type = typeof(PPEVoiceFlowDirector);
+        MethodInfo canPlay = type.GetMethod("CanPlayRequiredPpeHowTo", InstancePrivate);
+        MethodInfo reset = type.GetMethod("ResetModeSessionTracking", InstancePrivate);
+        FieldInfo nitrilePlayed = type.GetField("m_NitrileInnerGloveGrabVoicePlayed", InstancePrivate);
+        PropertyInfo mode = type.GetProperty(nameof(PPEVoiceFlowDirector.ActiveLearningMode));
+        PropertyInfo workPlan = type.GetProperty(nameof(PPEVoiceFlowDirector.ActiveWorkPlan));
+        if (canPlay == null || reset == null || nitrilePlayed == null || mode == null || workPlan == null ||
+            goggle == null || faceShield == null || nitrilePanels == null || nitrilePanels.arraySize == 0)
+        {
+            failures.Add("Scenario-required How-To policy members could not be inspected.");
+            return;
+        }
+
+        PPEActionPanelController nitrile =
+            nitrilePanels.GetArrayElementAtIndex(0).objectReferenceValue as PPEActionPanelController;
+        if (nitrile == null)
+        {
+            failures.Add("The first nitrile How-To panel reference is missing.");
+            return;
+        }
+
+        mode.SetValue(director, ScenarioDetailModal.PpeLearningMode.Education);
+        workPlan.SetValue(director, ScenarioDetailModal.PpeWorkPlan.ConfinedSpace);
+        bool confinedGoggle = (bool)canPlay.Invoke(director, new object[] { goggle });
+        bool confinedFaceShield = (bool)canPlay.Invoke(director, new object[] { faceShield });
+        bool confinedNitrile = (bool)canPlay.Invoke(director, new object[] { nitrile });
+
+        workPlan.SetValue(director, ScenarioDetailModal.PpeWorkPlan.LeakResponse);
+        bool leakGoggle = (bool)canPlay.Invoke(director, new object[] { goggle });
+        bool leakFaceShield = (bool)canPlay.Invoke(director, new object[] { faceShield });
+        bool leakNitrile = (bool)canPlay.Invoke(director, new object[] { nitrile });
+
+        mode.SetValue(director, ScenarioDetailModal.PpeLearningMode.Training);
+        bool trainingGoggle = (bool)canPlay.Invoke(director, new object[] { goggle });
+        mode.SetValue(director, ScenarioDetailModal.PpeLearningMode.Education);
+        workPlan.SetValue(director, ScenarioDetailModal.PpeWorkPlan.None);
+        bool noPlanGoggle = (bool)canPlay.Invoke(director, new object[] { goggle });
+
+        if (confinedGoggle || confinedFaceShield || !confinedNitrile ||
+            !leakGoggle || !leakFaceShield || !leakNitrile ||
+            trainingGoggle || noPlanGoggle)
+        {
+            failures.Add(
+                "How-To narration must play only for clean, scenario-required PPE in Education mode.");
+        }
+
+        nitrilePlayed.SetValue(director, true);
+        reset.Invoke(director, null);
+        if ((bool)nitrilePlayed.GetValue(director))
+            failures.Add("The shared nitrile inner-glove How-To state must reset for each mode session.");
+    }
+
+    static void ValidateHowToClip(
+        SerializedObject serialized,
+        string propertyName,
+        string expectedName,
+        List<string> failures)
+    {
+        AudioClip clip = serialized.FindProperty(propertyName)?.objectReferenceValue as AudioClip;
+        if (clip == null || clip.name != expectedName)
+            failures.Add($"{propertyName} must reference '{expectedName}'.");
+    }
+
     static void ValidateLeakHarnessRouting(
         Scene scene,
         PPEVoiceFlowDirector director,
@@ -424,10 +786,13 @@ public static class PPELocomotionPpeRegressionValidationHarness
         if (containsHarness)
             failures.Add("Leak-response required PPE must not include TacticalHarness.");
 
-        if (directorSerialized.FindProperty("m_WorkPlanMismatchVoice")
-                ?.objectReferenceValue == null)
+        AudioClip workPlanMismatchVoice = directorSerialized.FindProperty("m_WorkPlanMismatchVoice")
+            ?.objectReferenceValue as AudioClip;
+        if (workPlanMismatchVoice == null ||
+            workPlanMismatchVoice.name != "4_VO_PPE_EDU_205_PPE_forScenario")
         {
-            failures.Add("The work-plan mismatch education voice reference is missing.");
+            failures.Add(
+                "The work-plan mismatch education voice must reference EDU 205 PPE_forScenario.");
         }
 
         string wrongSfxId = panelSerialized.FindProperty("wrongFeedbackSfxId")?.stringValue;
@@ -1132,6 +1497,9 @@ public static class PPELocomotionPpeRegressionValidationHarness
                 $"Controller guide '{transform.name}' sprite is '{actualPath ?? "null"}', " +
                 $"expected '{expectedSpritePath ?? "null"}'.");
         }
+
+        if (image != null && !image.preserveAspect)
+            failures.Add($"Controller guide '{transform.name}' must preserve the baked PNG aspect ratio.");
     }
 
     static void ValidateAuthoredActive(
@@ -1228,20 +1596,44 @@ public static class PPELocomotionPpeRegressionValidationHarness
 
     static void ValidateHazmatAlreadyEquippedPriority(List<string> failures)
     {
-        string source = File.ReadAllText("Assets/Scripts/PPEActionPanelController.cs");
-        int method = source.IndexOf("void ResolveUseChoice()", StringComparison.Ordinal);
-        int alreadyEquipped = source.IndexOf(
+        string panelSource = File.ReadAllText("Assets/Scripts/PPEActionPanelController.cs");
+        int method = panelSource.IndexOf("void ResolveUseChoice()", StringComparison.Ordinal);
+        int preConditionRejection = panelSource.IndexOf(
             "voiceFlowDirector.RejectUseBeforeConditionCheck(this)",
             method,
             StringComparison.Ordinal);
-        int condition = source.IndexOf(
+        int condition = panelSource.IndexOf(
             "inspectionState.CurrentCondition != PPEItemCondition.Clean",
             method,
             StringComparison.Ordinal);
-        if (method < 0 || alreadyEquipped < method || condition < alreadyEquipped)
+        if (method < 0 || preConditionRejection < method || condition < preConditionRejection)
         {
             failures.Add(
-                "Already-equipped hazmat rejection must run before the candidate suit condition check.");
+                "Already-equipped and scenario-mismatch rejection must run before the candidate condition check.");
+        }
+
+        string directorSource = File.ReadAllText("Assets/Scripts/PPEVoiceFlowDirector.cs");
+        int rejectionMethod = directorSource.IndexOf(
+            "public bool RejectUseBeforeConditionCheck",
+            StringComparison.Ordinal);
+        int approvalMethod = directorSource.IndexOf(
+            "public bool CanApprovePpeUse",
+            rejectionMethod,
+            StringComparison.Ordinal);
+        int workPlanCheck = directorSource.IndexOf(
+            "!IsPpeTypeAllowedForActiveWorkPlan(itemType.Value)",
+            rejectionMethod,
+            StringComparison.Ordinal);
+        int workPlanVoice = directorSource.IndexOf(
+            "RejectUseWithWrongSfx(panel, m_WorkPlanMismatchVoice)",
+            workPlanCheck,
+            StringComparison.Ordinal);
+        if (rejectionMethod < 0 || approvalMethod < 0 ||
+            workPlanCheck < rejectionMethod || workPlanCheck >= approvalMethod ||
+            workPlanVoice < workPlanCheck || workPlanVoice >= approvalMethod)
+        {
+            failures.Add(
+                "Scenario mismatch must select EDU 205 in the pre-condition rejection path.");
         }
     }
 

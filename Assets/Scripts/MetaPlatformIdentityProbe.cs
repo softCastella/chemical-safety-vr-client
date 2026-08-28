@@ -25,11 +25,16 @@ public sealed class MetaPlatformIdentityProbe : MonoBehaviour
         LoadingAgeCategory,
         Completed,
         CompletedWithoutAgeCategory,
+        SkippedForEditorTesting,
         Failed
     }
 
     [Header("Execution")]
     [SerializeField] private bool runOnStart = true;
+
+    [Header("Editor Testing")]
+    [Tooltip("Editor에서 Meta Platform SDK와 실제 테스트 계정을 검증할 때만 켭니다. 끄면 Game View는 Meta ID 없이 진행합니다.")]
+    [SerializeField] private bool useMetaPlatformSdkInEditor;
 
     [Header("Diagnostics")]
     [Tooltip("개발 진단에서만 사용합니다. 운영 빌드 전에는 끄거나 이 컴포넌트를 제거하세요.")]
@@ -38,6 +43,7 @@ public sealed class MetaPlatformIdentityProbe : MonoBehaviour
     public ProbeState State { get; private set; } = ProbeState.Idle;
     public ulong AppScopedUserId { get; private set; }
     public AccountAgeCategory AgeCategory { get; private set; } = AccountAgeCategory.Unknown;
+    public bool UsesPlatformSdkForCurrentRun => !UnityEngine.Application.isEditor || useMetaPlatformSdkInEditor;
 
     public static ulong CurrentAppScopedUserId { get; private set; }
     public static AccountAgeCategory CurrentAgeCategory { get; private set; } = AccountAgeCategory.Unknown;
@@ -107,6 +113,19 @@ public sealed class MetaPlatformIdentityProbe : MonoBehaviour
         AgeCategory = AccountAgeCategory.Unknown;
         CurrentAppScopedUserId = 0;
         CurrentWelcomeState = AccountWelcomeState.Unknown;
+
+        if (!UsesPlatformSdkForCurrentRun)
+        {
+            State = ProbeState.SkippedForEditorTesting;
+            _requestInFlight = false;
+            _acceptCallbacks = false;
+            Debug.Log(
+                "[Meta Identity Probe] Editor SDKless 테스트 모드입니다. " +
+                "Meta ID 없이 Game View 흐름과 로컬 익명 텔레메트리를 계속합니다.",
+                this);
+            return;
+        }
+
         _requestInFlight = true;
         _acceptCallbacks = true;
 

@@ -117,3 +117,24 @@ Emission Map: assigned
 - `Assets/Audio/SFX/sign.ogg`
 - `Assets/Resources/Audio/Scenes/3_PPE_Room.asset`
 - `Assets/Scenes/3_PPE_Room.unity`
+
+## 2026-08-28 서명·얇은 텍스트 이미지 번쩍임 완화
+
+### 근본 원인 후보와 적용한 변경
+
+- 현재 로코모션 씬의 작업계획 문서 텍스처 세 장은 mipmap이 꺼져 있어, 태블릿을 비스듬히 보거나
+  Quest 렌더 해상도가 낮아질 때 얇은 글자·선이 픽셀 단위로 교대하며 번쩍일 수 있었다.
+- 해당 텍스처의 mipmap을 활성화하고 작업계획 이미지의 anisotropic level을 8로 설정했다.
+- 서명 텍스처는 mipmap이 이미 켜져 있어 anisotropic level만 8로 높였다.
+- 서명 투명 쿼드와 문서 표면의 깊이 경쟁을 줄이기 위해 XR Single Pass Instanced 매크로가 이미
+  적용된 `HandwrittenSignatureReveal.shader`에 작은 polygon depth offset을 추가했다.
+- 문서·서명의 씬 Transform, Canvas, 머티리얼 참조와 Inspector 작성값은 변경하지 않았다.
+
+### 검증
+
+- `PPELocomotionPpeRegressionValidationHarness`에 문서 texture importer의 mipmap, 서명 texture
+  importer의 mipmap/aniso, 서명 셰이더 depth offset 정적 검사를 추가했다.
+- Runtime과 Editor C# 빌드는 오류 0개로 통과했다. 셰이더·텍스처 import 완료와 Unity Console 오류는
+  Unity Editor에서 추가 확인해야 한다.
+- Game View에서 정면·사선·이동 중 비교하고, Quest/OpenXR 양안에서 서명·작업계획 텍스트·얇은 선의
+  번쩍임이 줄었는지 확인하기 전에는 시각적 해결 완료로 판정하지 않는다.

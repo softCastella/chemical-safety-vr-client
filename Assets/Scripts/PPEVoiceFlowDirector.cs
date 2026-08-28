@@ -179,7 +179,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     [SerializeField] private PPEActionPanelController m_TapeActionPanel;
     [Tooltip("켜면 장갑과 장화를 사용 처리하기 전에 방호복 착용을 필수로 검사합니다.")]
     [SerializeField] private bool m_EnforceHazmatBeforeGlovesAndBoots;
-    [Tooltip("마스크를 잡았을 때 재생할 음성입니다.")]
+    [Tooltip("송기마스크를 잡았을 때 재생할 음성입니다.")]
     [SerializeField] private AudioClip m_MaskGrabVoice;
     [SerializeField] private AudioClip m_HelmetGrabVoice;
     [Tooltip("방호복 미착용 상태에서 부츠를 사용 처리했을 때 재생할 음성입니다.")]
@@ -195,6 +195,9 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     [SerializeField] private PPEActionPanelController m_HarnessActionPanel;
     [SerializeField] private PPEActionPanelController m_SuppliedAirMaskActionPanel;
     [SerializeField] private PPEActionPanelController[] m_GloveActionPanels;
+    [SerializeField] private PPEActionPanelController m_GoggleActionPanel;
+    [SerializeField] private PPEActionPanelController m_FaceShieldActionPanel;
+    [SerializeField] private PPEActionPanelController[] m_NitrileInnerGloveActionPanels;
     [Tooltip("켜면 좌·우 장갑이 공유하는 잡기 안내를 교육 모드 세션에서 최초 한 번만 재생합니다.")]
     [SerializeField] private bool m_PlayGloveGrabVoiceOncePerSession;
     [Tooltip("PPE 조건부 음성이 시작될 때 지연된 오답 음성을 취소할 모든 PPE 패널입니다.")]
@@ -205,6 +208,9 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     [SerializeField] private AudioClip m_SuppliedAirMaskGrabVoice;
     [SerializeField] private AudioClip m_GloveGrabVoice;
     [SerializeField] private AudioClip m_TapeGrabVoice;
+    [SerializeField] private AudioClip m_GoggleGrabVoice;
+    [SerializeField] private AudioClip m_FaceShieldGrabVoice;
+    [SerializeField] private AudioClip m_NitrileInnerGloveGrabVoice;
 
     [Header("Work Plan Required PPE")]
     [Tooltip("밀폐공간 작업계획에서 입어야 하는 PPE 타입입니다. 좌·우 쌍은 각각 넣습니다. 진열은 숨기지 않습니다.")]
@@ -294,6 +300,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     private bool m_TeleportInputStarted;
     private bool m_BootGrabVoicePlayed;
     private bool m_GloveGrabVoicePlayed;
+    private bool m_NitrileInnerGloveGrabVoicePlayed;
     private bool m_TapeGrabVoicePlayed;
     private bool m_HazmatGrabVoicePlayed;
     private bool m_AllPpeMoveMirrorVoicePlayed;
@@ -301,6 +308,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     private bool m_HazmatEquippedVoicePlayed;
     private bool m_CenterMarkerArrivedVoicePlayed;
     private bool m_MirrorMarkerArrivedVoicePlayed;
+    private bool m_MidExitVoiceExclusive;
     private bool m_HasLoggedMissingVoicePlayer;
     private bool m_HasLoggedMissingControllerModelVisuals;
     private bool m_WindowPresentationAutoHidden;
@@ -343,6 +351,12 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         m_State == FlowState.TestSelected;
     public ScenarioDetailModal.PpeLearningMode ActiveLearningMode { get; private set; } =
         ScenarioDetailModal.PpeLearningMode.Education;
+    public bool AllowsPpeActionSfx =>
+        ActiveLearningMode != ScenarioDetailModal.PpeLearningMode.Test &&
+        !m_MidExitVoiceExclusive;
+    public bool AllowsPpeChoiceVoice =>
+        ActiveLearningMode == ScenarioDetailModal.PpeLearningMode.Education &&
+        !m_MidExitVoiceExclusive;
     public ScenarioDetailModal.PpeWorkPlan ActiveWorkPlan { get; private set; } =
         ScenarioDetailModal.PpeWorkPlan.None;
     public PPEItemType[] ActiveRequiredPpeItemTypes =>
@@ -1057,6 +1071,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
 
         StopModeSelectionRoutine();
         StopFlowPlayback();
+        CancelPendingPpeWrongChoiceVoices();
         m_TransitionVersion++;
         ActiveLearningMode = mode;
         ResetModeSessionTracking();
@@ -1209,7 +1224,15 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
             return;
         }
 
-        PlayPpeConditionalVoice(m_MidExitStopVoice);
+        // Mid-exit owns the Voice channel until the return completes. Cancel
+        // every producer that could resume or replace it, but keep the separate
+        // SFX channel available.
+        m_MidExitVoiceExclusive = true;
+        StopModeSelectionRoutine();
+        m_TransitionVersion++;
+        CancelPendingPpeWrongChoiceVoices();
+        StopFlowPlayback(stopSfx: false);
+        AudioManager.Instance?.PlayVoice(m_MidExitStopVoice);
     }
 
     public void NotifyCenterMarkerArrived()
@@ -1296,7 +1319,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         while (IsVoicePlaying)
             yield return null;
 
-        m_QuizController?.BeginQuiz(ActiveLearningMode);
+        m_QuizController?.BeginQuiz(ActiveLearningMode, ActiveWorkPlan);
         m_FinaleController?.NotifyQuizPresented();
     }
 
@@ -1318,15 +1341,24 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     public bool RejectUseBeforeConditionCheck(PPEActionPanelController panel)
     {
         PPEItemType? itemType = panel?.InspectionState?.PresentationBinding?.ItemIdentity?.ItemType;
-        if (itemType != PPEItemType.HazmatSuit ||
-            m_HazmatEquipController == null ||
-            !m_HazmatEquipController.IsEquipped)
+        if (itemType == PPEItemType.HazmatSuit &&
+            m_HazmatEquipController != null &&
+            m_HazmatEquipController.IsEquipped)
         {
-            return false;
+            RejectUseWithWrongSfx(panel, m_HazmatAlreadyEquippedVoice);
+            return true;
         }
 
-        RejectUseWithWrongSfx(panel, m_HazmatAlreadyEquippedVoice);
-        return true;
+        // Work-plan relevance owns the decision before the candidate's defect
+        // condition. Otherwise an out-of-scenario contaminated PPE would play
+        // EDU 202 (defect use) instead of EDU 205 (required PPE for scenario).
+        if (itemType.HasValue && !IsPpeTypeAllowedForActiveWorkPlan(itemType.Value))
+        {
+            RejectUseWithWrongSfx(panel, m_WorkPlanMismatchVoice);
+            return true;
+        }
+
+        return false;
     }
 
     public bool CanApprovePpeUse(PPEActionPanelController panel)
@@ -1335,11 +1367,6 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
             return false;
 
         PPEItemType? itemType = panel?.InspectionState?.PresentationBinding?.ItemIdentity?.ItemType;
-
-        if (itemType.HasValue && !IsPpeTypeAllowedForActiveWorkPlan(itemType.Value))
-        {
-            return RejectUseWithWrongSfx(panel, m_WorkPlanMismatchVoice);
-        }
 
         if (m_EnforceHazmatBeforeGlovesAndBoots &&
             RequiresHazmatBeforeUse(itemType) &&
@@ -1416,9 +1443,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
             panel?.ShowModeRejectedUseFeedback(
                 ActiveLearningMode,
                 m_TrainingWrongFeedbackMessage);
-            if (ActiveLearningMode == ScenarioDetailModal.PpeLearningMode.Training)
-                PlayPpeConditionalVoice(m_TrainingWrongButtonVoice);
-            else
+            if (ActiveLearningMode == ScenarioDetailModal.PpeLearningMode.Test)
                 RecordTestPpeChoice(panel, true);
         }
 
@@ -1495,10 +1520,12 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
 
     private void ResetModeSessionTracking()
     {
+        m_MidExitVoiceExclusive = false;
         m_ModeSessionStartedAt = Time.unscaledTime;
         m_ModeSessionElapsed = 0f;
         m_HazmatGrabVoicePlayed = false;
         m_GloveGrabVoicePlayed = false;
+        m_NitrileInnerGloveGrabVoicePlayed = false;
         m_TapeGrabVoicePlayed = false;
         m_TestPpeWrongChoiceCount = 0;
         m_TestQuizCorrectCount = 0;
@@ -1650,6 +1677,8 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         SubscribeGrabNarration(m_SuppliedAirMaskActionPanel, OnSuppliedAirMaskGrabbed, subscribe);
         SubscribeGrabNarration(m_HelmetActionPanel, OnHelmetGrabbed, subscribe);
         SubscribeGrabNarration(m_TapeActionPanel, OnTapeGrabbed, subscribe);
+        SubscribeGrabNarration(m_GoggleActionPanel, OnGoggleGrabbed, subscribe);
+        SubscribeGrabNarration(m_FaceShieldActionPanel, OnFaceShieldGrabbed, subscribe);
 
         if (m_BootActionPanels != null)
             foreach (PPEActionPanelController panel in m_BootActionPanels)
@@ -1658,6 +1687,10 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         if (m_GloveActionPanels != null)
             foreach (PPEActionPanelController panel in m_GloveActionPanels)
                 SubscribeGrabNarration(panel, OnGloveGrabbed, subscribe);
+
+        if (m_NitrileInnerGloveActionPanels != null)
+            foreach (PPEActionPanelController panel in m_NitrileInnerGloveActionPanels)
+                SubscribeGrabNarration(panel, OnNitrileInnerGloveGrabbed, subscribe);
     }
 
     private static void SubscribeGrabNarration(
@@ -1682,10 +1715,10 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         // The first exposed mask is contaminated and instructs a breathing
         // check. Once its existing discard path has changed it to Clean, the
         // same normal PPE uses the regular mask guide instead.
-        PlayPpeConditionalVoice(
-            IsCleanPanel(m_MaskActionPanel)
-                ? m_SuppliedAirMaskGrabVoice
-                : m_MaskGrabVoice);
+        if (IsCleanPanel(m_MaskActionPanel))
+            PlayNormalPpeGrabVoice(m_MaskActionPanel, m_SuppliedAirMaskGrabVoice);
+        else
+            PlayPpeConditionalVoice(m_MaskGrabVoice);
     }
 
     private void OnHazmatGrabbed(SelectEnterEventArgs _)
@@ -1729,16 +1762,33 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
 
     private void OnHelmetGrabbed(SelectEnterEventArgs _) => PlayNormalPpeGrabVoice(m_HelmetActionPanel, m_HelmetGrabVoice);
 
+    private void OnGoggleGrabbed(SelectEnterEventArgs _) => PlayNormalPpeGrabVoice(m_GoggleActionPanel, m_GoggleGrabVoice);
+
+    private void OnFaceShieldGrabbed(SelectEnterEventArgs _) => PlayNormalPpeGrabVoice(m_FaceShieldActionPanel, m_FaceShieldGrabVoice);
+
     private void OnGloveGrabbed(SelectEnterEventArgs args)
     {
         if (m_HazmatEquipController == null || !m_HazmatEquipController.IsEquipped)
             return;
 
         PPEActionPanelController panel = FindPanelForGrab(args, m_GloveActionPanels);
+        if (!CanPlayRequiredPpeHowTo(panel))
+            return;
+
         if (!TryConsumeGloveGrabVoice(IsCleanPanel(panel)))
             return;
 
         PlayPpeConditionalVoice(m_GloveGrabVoice);
+    }
+
+    private void OnNitrileInnerGloveGrabbed(SelectEnterEventArgs args)
+    {
+        PPEActionPanelController panel = FindPanelForGrab(args, m_NitrileInnerGloveActionPanels);
+        if (!CanPlayRequiredPpeHowTo(panel) || m_NitrileInnerGloveGrabVoicePlayed)
+            return;
+
+        m_NitrileInnerGloveGrabVoicePlayed = true;
+        PlayPpeConditionalVoice(m_NitrileInnerGloveGrabVoice);
     }
 
     private bool TryConsumeGloveGrabVoice(bool isClean)
@@ -1758,6 +1808,9 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
 
     private void OnTapeGrabbed(SelectEnterEventArgs _)
     {
+        if (!CanPlayRequiredPpeHowTo(m_TapeActionPanel))
+            return;
+
         if (!TryConsumeTapeGrabVoice(IsCleanPanel(m_TapeActionPanel)))
             return;
 
@@ -1786,7 +1839,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
             return;
 
         PPEActionPanelController panel = FindPanelForGrab(args, m_BootActionPanels);
-        if (!IsCleanPanel(panel))
+        if (!CanPlayRequiredPpeHowTo(panel))
             return;
 
         m_BootGrabVoicePlayed = true;
@@ -1829,9 +1882,6 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
                     choice,
                     result,
                     m_TrainingWrongFeedbackMessage);
-
-                if (ActiveLearningMode == ScenarioDetailModal.PpeLearningMode.Training && wrong)
-                    PlayPpeConditionalVoice(m_TrainingWrongButtonVoice);
             }
 
             if (ActiveLearningMode == ScenarioDetailModal.PpeLearningMode.Test &&
@@ -1974,16 +2024,23 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
 
     private void PlayNormalPpeGrabVoice(PPEActionPanelController panel, AudioClip clip)
     {
-        if (ActiveLearningMode != ScenarioDetailModal.PpeLearningMode.Education)
-            return;
-
-        if (IsCleanPanel(panel))
+        if (CanPlayRequiredPpeHowTo(panel))
             PlayPpeConditionalVoice(clip);
+    }
+
+    private bool CanPlayRequiredPpeHowTo(PPEActionPanelController panel)
+    {
+        PPEItemIdentity identity = panel?.InspectionState?.PresentationBinding?.ItemIdentity;
+        return ActiveLearningMode == ScenarioDetailModal.PpeLearningMode.Education &&
+            ActiveWorkPlan != ScenarioDetailModal.PpeWorkPlan.None &&
+            IsCleanPanel(panel) &&
+            identity != null &&
+            IsPpeTypeAllowedForActiveWorkPlan(identity.ItemType);
     }
 
     private void PlayPpeConditionalVoice(AudioClip clip)
     {
-        if (clip == null)
+        if (clip == null || m_MidExitVoiceExclusive)
             return;
 
         StopPpeConditionalVoiceSequence();
@@ -1994,6 +2051,9 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
 
     private void PlayPpeConditionalVoiceSequence(params AudioClip[] clips)
     {
+        if (m_MidExitVoiceExclusive)
+            return;
+
         StopPpeConditionalVoiceSequence();
         CancelPendingPpeWrongChoiceVoices();
         AudioManager.Instance?.StopVoice();
@@ -2646,7 +2706,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         m_WindowPresentationCanvasGroup.blocksRaycasts = alpha > 0f;
     }
 
-    private void StopFlowPlayback()
+    private void StopFlowPlayback(bool stopSfx = true)
     {
         StopPpeConditionalVoiceSequence();
 
@@ -2665,7 +2725,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         }
 
         StopRepeatPlayback();
-        StopVoicePlayback();
+        StopVoicePlayback(stopSfx);
     }
 
     private void StopRepeatPlayback()
@@ -2677,13 +2737,14 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         m_RepeatRoutine = null;
     }
 
-    private static void StopVoicePlayback()
+    private static void StopVoicePlayback(bool stopSfx)
     {
         if (AudioManager.Instance == null)
             return;
 
         AudioManager.Instance.StopVoice();
-        AudioManager.Instance.StopSfx();
+        if (stopSfx)
+            AudioManager.Instance.StopSfx();
     }
 
     private VoiceStep FindStep(FlowState state)

@@ -299,6 +299,39 @@ Fire Extinguisher 02다. 다음 수정 시에는 위 9개만 현재 Renderer Bou
 - 재정렬 후에는 Editor 하네스 결과와 Quest에서의 실제 통과 차단·PPE 손 도달 여부를 구분해
   검증하고, 사용자가 확인한 뒤 씬을 저장한다.
 
+## 2026-08-28 후속: 가구 Collider 재정렬 승인 및 변경 전 기준
+
+- 이번 변경이 대응하는 사용자 요청은 2026-08-27 진단에서 확인한 가구 차단체 9개의 위치·크기
+  재조정이다. 정상 정렬된 가구 4개, 메탈 셸브 베이스·상판 3개·헬멧 쪽 바깥 기둥 Collider,
+  PPE·Tablet·Marker Transform과 입력·레이어·Grab 동작은 보존한다.
+- 기존 Inspector/씬 작성값은 수정 대상 9개의 환경 차단 Collider 중심·크기를 제외하고 보존한다.
+  `PPE Environment Collision`과 각 대상 `BoxCollider`가 단일 작성 기준이며 런타임 보정은 추가하지 않는다.
+- 이동 충돌 경로는 `Move 입력 → PPEConfigurableDynamicMoveProvider → XRBodyTransformer →
+  CharacterController → Layer 2 solid BoxCollider`다. PPE 선택 경로의 Layer 6 Trigger Marker와
+  Near/Far caster는 변경하지 않는다.
+- 대상 차단체나 대응 Renderer가 누락됐거나 씬에 미저장 변경이 있으면 자동 생성·추정·저장하지 않고
+  명확한 오류로 중단한다.
+- 영향 소비자는 연속 이동의 가구 통과 차단과 체감 정지 위치다. UI·텔레포트·PPE Grab·거울·XR 양안
+  렌더링은 직접 변경하지 않는다.
+- 변경 전 기준은 `Validate Furniture Collider Alignment`에서 13개 중 9개 실패, 변경 후 기준은 같은
+  하네스 PASS다. 정적 씬 diff와 Unity Editor 검증을 수행하고, Quest/OpenXR의 실제 통과 차단과
+  PPE 손 도달 여부는 별도 수동 검증으로 남긴다.
+
+### 적용 및 검증 결과
+
+- 승인된 9개 차단체만 현재 Renderer Bounds 중심에 맞췄다. `Wooden Crate 02`는 변경된 Renderer에
+  맞춰 중심과 크기를 함께 조정했고, 나머지 8개는 크기를 유지한 채 중심만 조정했다.
+- 전용 메뉴 `Tools > PPE > Realign Moved Furniture Colliders`를 추가했다. 대상 씬이 아니거나 Play Mode,
+  dirty 씬, 누락 차단체, 복수 Collider, 예상 밖 회전·스케일에서는 자동 생성·저장하지 않고 중단한다.
+- 저장 직후 첫 검증은 Physics Collider Bounds가 이전 Transform을 유지해 실패했다. 재정렬 자체는 씬에
+  정확히 저장돼 있었으며, 저장 후 `Physics.SyncTransforms()`를 호출한 뒤 하네스를 실행하도록 수정했다.
+- Unity Editor 확인: `Validate Furniture Collider Alignment`, `Validate Primary PPE Marker Selection Radius`,
+  `Validate Interactive Shelf Access Collision`이 모두 PASS했고 대상 씬은 `dirty=false`였다.
+- 정적 diff는 차단체 Transform 9개와 `Wooden Crate 02` BoxCollider 크기 1개뿐이다. 기존 FileID,
+  정상 가구 4개, 메탈 셸브 전용 Collider, PPE·Tablet·Marker Transform은 변경하지 않았다.
+- Quest/OpenXR에서 9개 가구의 실제 통과 차단·체감 정지 위치와 뒤쪽 Tablet Marker 손 도달은 아직
+  수동 확인해야 한다.
+
 ## 다음 Quest/OpenXR 수동 검증
 
 1. Quest Link가 완전히 연결된 상태에서 앱을 새로 시작한다.

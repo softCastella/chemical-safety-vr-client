@@ -121,11 +121,11 @@ public sealed class PPEEquipmentVisualController : MonoBehaviour
 
     [SerializeField]
     [Range(0, 31)]
-    [Tooltip("헬멧·마스크·페이스실드·고글처럼 1인칭 시야를 가릴 수 있는 자식만 Mirror Only로 올립니다. 풀장착 몸통은 Main Camera에 남겨 내려다볼 수 있게 합니다.")]
+    [Tooltip("안전모·송기마스크·안면보호대·화학보안경처럼 1인칭 시야를 가릴 수 있는 자식만 Mirror Only로 올립니다. 풀장착 몸통은 Main Camera에 남겨 내려다볼 수 있게 합니다.")]
     int mirrorOnlyLayer = 30;
 
     [SerializeField]
-    [Tooltip("켜면 예전처럼 equipmentRoot 전체를 Mirror Only로 올립니다. 끄면 몸통은 1인칭에 보이고, 헬멧/마스크/페이스실드/고글 자식만 Mirror Only입니다.")]
+    [Tooltip("켜면 예전처럼 equipmentRoot 전체를 Mirror Only로 올립니다. 끄면 몸통은 1인칭에 보이고, 안전모/송기마스크/안면보호대/화학보안경 자식만 Mirror Only입니다.")]
     bool applyMirrorOnlyLayerToEntireEquipmentRoot;
 
     [SerializeField]

@@ -257,6 +257,7 @@ GameObject:
   - component: {fileID: 500000002}
   - component: {fileID: 500000003}
   - component: {fileID: 500000004}
+  - component: {fileID: 500000005}
   m_Layer: 0
   m_Name: AppMain
   m_TagString: Untagged
@@ -294,6 +295,7 @@ MonoBehaviour:
   titleSceneName: 1_Title
   startupDelay: 0
   waitForXrDisplayBeforeTitle: 1
+  waitForPhysicalXrDisplayInEditor: 0
   xrWarmupRenderFrames: 2
   xrReadinessWarningSeconds: 15
 --- !u!114 &500000004
@@ -309,7 +311,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MetaPlatformIdentityProbe
   runOnStart: 1
+  useMetaPlatformSdkInEditor: 1
   logAppScopedUserId: 1
+--- !u!114 &500000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2f8a37b6c1e4ad6a034c58fb2b73491, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::TycheTrainingTelemetryUploader
+  enableEditorTestUpload: 1
+  serverBaseUrl: http://127.0.0.1:3000
+  batchSize: 25
+  scanIntervalSeconds: 5
+  maximumRetrySeconds: 60
+  requestTimeoutSeconds: 15
 --- !u!1 &921992924
 GameObject:
   m_ObjectHideFlags: 0

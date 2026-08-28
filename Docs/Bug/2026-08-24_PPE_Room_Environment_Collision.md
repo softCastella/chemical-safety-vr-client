@@ -381,3 +381,17 @@
 - 진단만 수행했으며 PPE, Marker, 상판, 크레이트 차단체의 Transform과 Bounds는 변경하지 않았다.
 - 후속 수정 대상은 의도한 Tablet Marker가 아니라, 현재 Renderer와 중심·크기가 달라진
   Wooden Crate 02 차단체다.
+
+## 2026-08-28 수정: 이동된 가구 Collider 9개 재정렬
+
+- 2026-08-27 진단에서 확인한 9개만 현재 Renderer Bounds에 맞췄다. 8개는 차단체 중심만,
+  `Furniture - Wooden Crate 02`는 중심과 크기를 함께 조정했다.
+- 정상 가구 차단체 4개와 메탈 셸브 베이스·상판 3개·헬멧 쪽 바깥 기둥 Collider, PPE·Tablet·Marker
+  Transform, Layer와 입력 경로는 변경하지 않았다.
+- 명시적 Editor 메뉴 `Tools > PPE > Realign Moved Furniture Colliders`를 추가했으며, 미저장 씬이나
+  누락·중복·예상 밖 작성값에서는 중단한다. 런타임 자동 보정은 추가하지 않았다.
+- 저장 직후 검증 전에 `Physics.SyncTransforms()`를 호출해 새 Transform에 대한 Collider Bounds를
+  동기화한다. 이 호출이 없으면 씬 값은 저장됐어도 같은 프레임의 하네스가 이전 Bounds를 읽었다.
+- Unity Editor에서 Furniture 정렬, PPE Marker 반경, 메탈 셸브 접근 검증이 모두 PASS했고 씬은
+  `dirty=false`였다. 씬 diff는 차단체 Transform 9개와 Wooden Crate 02 크기 1개만 포함한다.
+- Quest/OpenXR의 실제 통과 차단·체감 정지 위치와 PPE 손 도달은 수동 검증이 남아 있다.

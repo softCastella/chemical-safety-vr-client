@@ -52,7 +52,7 @@ public static class PPEFaceShieldGoggleWearSetup
             DisplayName = "PPE_A_FaceShield_Clean",
             ItemType = PPEItemType.FaceShield,
             Condition = PPEItemCondition.Clean,
-            DisplayLabel = "페이스실드",
+            DisplayLabel = "안면보호대",
             EquippedChildName = EquippedFaceShieldName,
             AddVisualSlot = true
         },
@@ -61,7 +61,7 @@ public static class PPEFaceShieldGoggleWearSetup
             DisplayName = "PPE_A_FaceShield_Contam",
             ItemType = PPEItemType.FaceShield,
             Condition = PPEItemCondition.Contaminated,
-            DisplayLabel = "페이스실드",
+            DisplayLabel = "안면보호대",
             EquippedChildName = EquippedFaceShieldName,
             AddVisualSlot = false
         },
@@ -70,7 +70,7 @@ public static class PPEFaceShieldGoggleWearSetup
             DisplayName = "PPE_A_Goggle_Clean",
             ItemType = PPEItemType.SafetyGoggles,
             Condition = PPEItemCondition.Clean,
-            DisplayLabel = "고글",
+            DisplayLabel = "화학보안경",
             EquippedChildName = EquippedGoggleName,
             AddVisualSlot = true
         },
@@ -79,7 +79,7 @@ public static class PPEFaceShieldGoggleWearSetup
             DisplayName = "PPE_A_Goggle_Contam",
             ItemType = PPEItemType.SafetyGoggles,
             Condition = PPEItemCondition.Contaminated,
-            DisplayLabel = "고글",
+            DisplayLabel = "화학보안경",
             EquippedChildName = EquippedGoggleName,
             AddVisualSlot = false
         }
@@ -90,7 +90,7 @@ public static class PPEFaceShieldGoggleWearSetup
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
         {
-            Debug.LogError("Play Mode를 종료한 뒤 페이스실드·고글 착용 연결을 실행해야 합니다.");
+            Debug.LogError("Play Mode를 종료한 뒤 안면보호대·화학보안경 착용 연결을 실행해야 합니다.");
             return;
         }
 

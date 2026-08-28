@@ -573,6 +573,74 @@ PPE 교육: OnIncompletePpeScenarioSelected
 - 마스크는 초기 오염 상태에서 잡으면 `4_VO_PPE_EDU_011_Mask.ogg`를 재생한다. 이는 호흡 확인 안내다.
 - 기존 폐기 처리 후 같은 마스크가 `Clean` 상태가 되면, 이후 잡을 때 `4_VO_PPE_EDU_103_HowToMask.ogg`를 재생한다. 011과 103을 같은 시점에 겹쳐 재생하지 않는다.
 
+## 19. 2026-08-28 시나리오 필수 PPE 전용 How-To 음성
+
+### 적용한 변경
+
+- 사용자 표시 용어는 `고글` 대신 `화학보안경`, `방독면` 또는 `송기 마스크` 대신
+  `송기마스크`로 통일한다. 직렬화 호환성이 필요한 코드 식별자와 자산명인 `SafetyGoggles`,
+  `GasMask`, `Goggle`, `PPE_A_Goggle`은 변경하지 않는다.
+- 사용자가 추가한 다음 음원을 현재 기준 씬 `Assets/Scenes/3_PPE_Room_3mode_loco.unity`의
+  `PPE Voice Flow`에 직렬화했다.
+  - 정상 화학보안경: `4_VO_PPE_EDU_107_HowToGoggle.mp3`
+  - 정상 안면보호대: `4_VO_PPE_EDU_108_HowToFaceShield.mp3`
+  - 좌·우 니트릴 내부장갑 공용: `4_VO_PPE_EDU_109_HowToInneerGlove.mp3`
+- 107은 `PPE_A_Goggle_Clean`, 108은 `PPE_A_FaceShield_Clean`, 109는
+  `PPE_A_InnerGlove_L/R`의 Grab 이벤트에 연결했다. 오염 화학보안경과 오염 안면보호대에는 연결하지 않았다.
+- 좌·우 니트릴 내부장갑은 같은 안내를 공유하며, 한 교육 모드 세션에서 먼저 잡은 정상 장갑에만
+  109를 한 번 재생한다. 새 모드 세션을 시작하면 이 1회 상태를 초기화한다.
+
+### 재생 규칙과 단일 기준
+
+- How-To 음성은 `Education` 모드에서 작업계획이 확정된 뒤, 현재 상태가 `Clean`이고 해당
+  `PPEItemType`이 선택한 작업계획의 필수 목록에 포함된 경우에만 재생한다.
+- 밀폐공간 필수 목록은 `m_ConfinedSpaceRequiredItemTypes`, 누출 대응 필수 목록은
+  `m_LeakResponseRequiredItemTypes`를 그대로 사용한다. 음성 전용 PPE 목록을 중복 작성하지 않는다.
+- 현재 필수 목록에 따라 107·108은 누출 대응 교육에서만 재생하고 밀폐공간 교육에서는 재생하지 않는다.
+  109는 두 작업계획 모두 니트릴 내부장갑을 요구하므로 양쪽 교육에서 재생한다.
+- 현재 실제 Grab 경로에서 사용하는 기존 101~106 How-To도 같은 필수 PPE 게이트를 거친다. 안전대·송기마스크는 밀폐공간에서만,
+  화학보안경·안면보호대는 누출 대응에서만 안내하며 공통 장화·장갑·안전모는 양쪽에서 안내한다.
+- 방호복 Grab은 최근 확정된 005 패널 안내를 사용하고 100으로 되돌리지 않는다. 방호복은 양 작업계획의
+  공통 필수 PPE이므로 이번 시나리오 필터로 체감 동작이 달라지지 않는다.
+- `PackingTape`는 PPE 필수 배열에는 없지만 기존 작업계획 정책에서 양 시나리오 공통 착용 절차로
+  허용되는 항목이므로 106 안내를 유지한다.
+- `Training`, `Test`, 작업계획 미선택 상태에서는 How-To를 재생하지 않는다. 오염 송기마스크의 011처럼
+  How-To가 아닌 기존 상태 점검·오답·순서 안내는 이번 변경 대상이 아니다.
+
+### PPE별 재생·비재생 판정표
+
+아래 표는 `Education` 모드에서 작업계획을 선택하고 정상 PPE를 최초로 잡았을 때의 정적 판정이다.
+`재생 안 함`은 해당 PPE가 선택한 작업계획의 필수 항목이 아니어서 How-To 게이트가 차단한다는 뜻이다.
+
+| 대상 | 연결 음성 | 밀폐공간 | 누출 대응 | 비고 |
+| --- | --- | --- | --- | --- |
+| 방호복 | 005 패널 안내 | 재생 | 재생 | 현재 Grab 경로는 How-To 100이 아니라 기존 005를 유지한다. |
+| 안전화 | 101 | 재생 | 재생 | 양쪽 작업계획의 공통 필수 PPE다. |
+| 안전대 | 102 | 재생 | 재생 안 함 | 밀폐공간 필수 PPE다. |
+| 정상 송기마스크 | 103 | 재생 | 재생 안 함 | 오염 송기마스크의 011 상태 안내와 별도다. |
+| 안전모 | 104 | 재생 | 재생 | 양쪽 작업계획의 공통 필수 PPE다. |
+| 외부 화학장갑 | 105 | 재생 | 재생 | 좌·우 모두 양쪽 작업계획의 공통 필수 PPE다. |
+| 패킹 테이프 | 106 | 재생 | 재생 | 필수 PPE 배열 밖의 기존 양 시나리오 공통 착용 절차 예외다. |
+| 정상 화학보안경 | 107 | 재생 안 함 | 재생 | 누출 대응 필수 PPE다. |
+| 정상 안면보호대 | 108 | 재생 안 함 | 재생 | 누출 대응 필수 PPE다. |
+| 내부 니트릴 장갑 | 109 | 재생 | 재생 | 좌·우가 음성을 공유하며 교육 세션당 최초 한 번만 재생한다. |
+
+이 표는 코드와 씬 직렬화 연결을 대조한 결과다. 실제 음원 출력 성공, 음량, 음질 및 좌·우 장갑의
+중복 방지는 아래 수동 Play Mode 검증을 완료한 뒤 실행 검증 결과로 확정한다.
+
+### 검증
+
+- `PPELocomotionPpeRegressionValidationHarness`에 107~109 Clip·정상 PPE 참조, 밀폐/누출 필수 여부,
+  Education/Training 분리와 니트릴 1회 상태 초기화를 확인하는 검증을 추가했다.
+- `dotnet build Assembly-CSharp.csproj --no-restore`와
+  `dotnet build Assembly-CSharp-Editor.csproj --no-restore`는 오류 0개로 통과했다. 출력된 경고는 기존
+  deprecated API와 미할당 DTO 필드 경고다.
+- 열린 Unity Editor에서 외부 변경을 다시 읽은 뒤 Domain Reload가 완료됐고 최신 로그에 C# 컴파일 오류는
+  없었다. Unity MCP named pipe가 다시 열리지 않아 이번 세션에서는 Preview Scene 하네스 실행 결과를
+  확보하지 못했다.
+- 아직 필요한 수동 검증은 Play Mode에서 밀폐공간/누출 대응 교육을 각각 시작해 정상 PPE를 잡고,
+  필수 PPE만 해당 How-To가 재생되는지와 107~109의 음질·볼륨을 실제 출력으로 확인하는 것이다.
+
 ## 20. 2026-08-07 반복 안내와 게이지 초기값
 
 - 태블릿을 놓을 때의 004 안내와 방호복 Use 승인 때의 006 안내는 각 교육 실행에서 최초 한 번만 재생한다. 이후 태블릿을 다시 잡았다 놓거나 같은 방호복 상호작용이 다시 전달되어도 이전 안내를 재시작하지 않는다.
@@ -970,3 +1038,178 @@ PPE 교육: OnIncompletePpeScenarioSelected
 - Quest/OpenXR 오른손 컨트롤러에서 Trigger·Grip·Joystick 축이 각 단계에서 한 번씩 판정되는지 확인한다.
 - 실제 컨트롤러로 오답 Voice 재생 중 연속 입력했을 때 중복 판정되지 않는지 확인한다.
 - Quest 양안에서 Trigger·Grip·Exit Marker 가이드 이미지가 해당 입력 대기 동안 정상 표시되는지 확인한다.
+
+## 2026-08-28 PPE 판정 피드백 모드 정책
+
+PPE를 잡고 사용·폐기하는 구역의 How-To, 오답 안내 및 판정 효과는 다음 정책을 단일 기준으로 사용한다.
+훈련·테스트의 모드 선택, 이동, 종료 등 일반 흐름 Voice는 `PPE 판정 Voice`와 별도로 유지한다.
+
+| 모드 | 필수 PPE How-To | 잘못된 PPE Voice | PPE 판정 SFX | 빨간 판정 문구·구형 아이콘 |
+|---|---:|---:|---:|---:|
+| 교육 | 허용 | 허용 | 허용 | 기존 교육 피드백 유지 |
+| 훈련 | 금지 | 금지 | 허용 | 숨김 |
+| 테스트 | 금지 | 금지 | 금지 | 숨김 |
+
+- How-To는 교육모드이면서 현재 시나리오 작업계획의 필수 PPE이고 `Clean` 상태일 때만 재생한다.
+- 2026-08-28에 훈련 이동 음원 `Assets/Audio/Voice/5_TRAIN/4_VO_PPE_TRAIN_001_PPE_MoveToPPE.mp3`가
+  같은 경로에서 교체됐다. `.meta` GUID `dc274f57e6440d34da9a32985bdae17c`와 대상 씬의
+  `m_TrainingMoveToPpeVoice` 참조가 일치하므로 씬 재연결은 필요하지 않다.
+- 기존 씬 계약과 `PPETrainTestModeValidationHarness`의 11개 Clip 참조 검증을 보존하기 위해
+  `m_TrainingWrongButtonVoice`의 직렬화 참조는 유지하되 훈련 중에는 재생하지 않는다.
+- 테스트모드는 기존 하네스 기준인 `m_TestModeSelectedVoice`, `m_TestMoveToPpeVoice`,
+  `m_TestEndVoice`를 모두 유지한다. 무음 대상은 테스트 진행 자체가 아니라 PPE·퀴즈의 정오답 판정
+  피드백이다. 발걸음·서명 SFX도 판정 SFX가 아니므로 기존 동작을 유지한다.
+- 중도 퇴장 음성이 시작되면 대기 중인 오답 음성과 PPE 조건부 음성 코루틴을 취소하고, 복귀가 끝날
+  때까지 새 PPE Voice가 Voice 채널을 교체하지 못하게 한다. 별도 SFX 채널은 중도 퇴장 Voice와
+  동시에 사용할 수 있다.
+- `PPEVoiceFlowDirector`가 모드 정책을 소유하고 `PPEActionPanelController`가 표시·SFX·오답 Voice
+  직전에 해당 정책을 확인한다. 패널의 Inspector 작성값과 씬 UI 배치는 변경하지 않는다.
+
+### 모드별 Voice/SFX 재생 목록
+
+아래 목록은 현재 기준 씬 `Assets/Scenes/3_PPE_Room_3mode_loco.unity`에서 학습 모드를 선택한
+시점부터 퀴즈 완료 또는 중도 퇴장까지를 범위로 한다. 그 전에 재생되는 Welcome, 이름 입력,
+컨트롤러 안내, 카드·시나리오 선택 Voice는 세 모드 공통 선행 흐름이므로 각 모드 목록에 중복해서
+넣지 않는다.
+
+| 모드 | 진행 Voice | PPE How-To·오답 Voice | PPE·퀴즈 판정 SFX | 비판정 SFX |
+|---|---|---|---|---|
+| 교육 | 선택·이동·PPE 시작·태블릿·착용 순서·거울·퀴즈·종료 | 시나리오 필수 PPE에 한해 허용 | 허용 | 발걸음, 태블릿 체크·서명 허용 |
+| 훈련 | 선택·이동·태블릿 확인·거울·미완료·퀴즈·종료 | 금지 | 허용 | 발걸음, 태블릿 체크·서명 허용 |
+| 테스트 | 선택·이동·종료 | 금지 | 금지 | 발걸음, 태블릿 체크·서명 허용 |
+
+중도 퇴장 `4_VO_PPE_EDU_206_StopScenario.mp3`는 세 모드 공통 Voice다. 시작되면 기존 Voice와
+대기 중인 PPE 조건 Voice를 취소하고 복귀가 끝날 때까지 Voice 채널을 독점한다.
+
+#### 교육모드 Voice
+
+| 구간 | 재생 Voice |
+|---|---|
+| 모드 선택 | `VO_PPE_MODAL_006_EduSelect.mp3` |
+| PPE 구역 이동 | `4_VO_PPE_EDU_001_PPE_MoveToPPE.mp3` |
+| PPE 구역 도착 | `4_VO_PPE_EDU_002_PPE_Start.mp3` → `4_VO_PPE_EDU_003_Table.mp3` |
+| 태블릿 최초 해제 | 방호복 미착용 상태이면 `4_VO_PPE_EDU_004_HazmatSuit.mp3` 1회 |
+| 방호복·착용 순서 | 005 사용 안내, 006 방호복 완료, 007 순서 안내, 008 PPE 확인, 009 다음 PPE 안내 |
+| 정상 PPE Grab | 현재 시나리오의 필수 PPE만 How-To 101~109 재생. 상세 시나리오 표는 문서의 `19. 시나리오 필수 PPE 전용 How-To 음성`을 따른다. |
+| 상태·오답·선행 조건 | 오염 송기마스크 상태 확인, 오염 PPE 사용, 정상 PPE 폐기, 방호복·내부장갑·장화·테이프 선행 조건 위반 등에 연결된 교육 Voice |
+| 필수 PPE 완료 | `4_VO_PPE_EDU_011_MoveToMirror.ogg` |
+| 거울 확인 | `4_VO_PPE_EDU_012_MirrorCheckPPE.ogg` |
+| 미완료 | PPE 미완료 `4_VO_PPE_EDU_013_UnEnoughPpe.ogg`, 태블릿 미완료 `4_VO_PPE_EDU_016_CheckTablet.mp3`; 둘 다 미완료이면 순차 재생 |
+| 퀴즈·종료 | `4_VO_PPE_EDU_014_Quiz.ogg` → 퀴즈 완료 후 `4_VO_PPE_EDU_015_EduEnd.ogg` |
+
+#### 훈련모드 Voice
+
+| 순서 | 재생 조건 | 재생 Voice |
+|---:|---|---|
+| 1 | 훈련모드 선택 | `4_VO_PPE_MODAL_002_TrainSelect.mp3` |
+| 2 | PPE 구역 이동 | `4_VO_PPE_TRAIN_001_PPE_MoveToPPE.mp3` |
+| 3 | PPE 구역 도착 | `4_VO_PPE_TRAIN_002_CheckPPE_Tablet.mp3` |
+| 4 | 시나리오 필수 PPE 전체 착용 | `4_VO_PPE_TRAIN_004_MirrorCheckPPE.mp3` |
+| 5 | 거울 최종 확인 시 PPE 또는 태블릿 미완료 | `4_VO_PPE_TRAIN_005_UnEnoughPpeTablet.mp3` |
+| 6 | 퀴즈 시작 | `4_VO_PPE_TRAIN_006_Quiz.mp3` |
+| 7 | 퀴즈 완료 | `4_VO_PPE_TRAIN_007_TrainEnd.mp3` |
+
+`4_VO_PPE_TRAIN_003_WrongButton.mp3`는 씬 직렬화와 필수 Clip 검사에는 남아 있지만 현재 재생 호출은
+없다. 훈련 PPE 구역에서는 How-To와 잘못된 PPE Voice를 재생하지 않는다.
+
+#### 테스트모드 Voice
+
+| 순서 | 재생 조건 | 재생 Voice |
+|---:|---|---|
+| 1 | 테스트모드 선택 | `4_VO_PPE_MODAL_003_TestSelect.mp3` |
+| 2 | PPE 구역 이동 | `4_VO_PPE_TEST_001_PPE_MoveToPPE.mp3` |
+| 3 | 퀴즈 완료·테스트 종료 | `4_VO_PPE_TEST_002_TestEnd.mp3` |
+
+테스트에서는 PPE 구역 도착, How-To, 잘못된 PPE, 필수 PPE 완료, 미완료와 퀴즈 시작 Voice를
+추가 재생하지 않는다. 테스트 시작과 이동, 종료 Voice는 반드시 유지한다.
+
+#### 교육·훈련 PPE SFX
+
+교육과 훈련은 다음 PPE SFX를 공통으로 허용한다. 선택한 시나리오에서 실제 사용하는 PPE에
+해당하는 효과음만 발생한다.
+
+| SFX ID/파일 | 발생 조건 |
+|---|---|
+| `cloth` / `Cloth.wav` | 방호복 사용 승인 |
+| `Gloves` / `Gloves.ogg` | 외부 화학장갑 사용 승인 |
+| `Nitril InnerGlove` / `Nitril InnerGlove.ogg` | 내부 니트릴 장갑 사용 승인 |
+| `Boots` / `Boots.ogg` | 장화 사용 승인 |
+| `Helmet` / `Helmet.ogg` | 안전모 사용 승인 |
+| `harness` / `Harness.ogg` | 안전대·등판·송기장비 계열 사용 승인 |
+| `Wearing Mask Glass Shield` / `Wearing Mask Glass Shield.ogg` | 정상 송기마스크·화학보안경·안면보호대 사용 승인 |
+| `Taping` / `Taping.mp3` | 테이프 사용 승인 |
+| `mask_breathing_right` / `mask_breathing_right.ogg` | 정상 마스크 호흡 검사 |
+| `mask_breathing_wrong` / `mask_breathing_wrong.ogg` | 오염 마스크 호흡 검사 |
+| `Correct Answer` / `Correct Answer.ogg` | 정상 사용, 오염 PPE 정상 폐기 또는 검사 완료 |
+| `Wrong Answer` / `Wrong Answer.mp3` | 오염 PPE 사용, 정상 PPE 폐기, 검사 전 사용 등 잘못된 선택 |
+
+정상 PPE 사용 승인에서는 장비별 착용 SFX와 `Correct Answer`가 같은 판정에서 함께 재생될 수 있다.
+`Wrong Answer.mp3`는 “잘못된 PPE입니다” Voice가 아니라 SFX이므로 훈련모드에서도 유지된다.
+
+#### 퀴즈·이동·태블릿 SFX
+
+| 구간 | 교육 | 훈련 | 테스트 |
+|---|---:|---:|---:|
+| 이동 입력 `Foot Step.ogg` | 재생 | 재생 | 재생 |
+| 태블릿 체크 `check.ogg` | 재생 | 재생 | 재생 |
+| 플레이어 서명 `sign.ogg` | 재생 | 재생 | 재생 |
+| 퀴즈 정답 `Correct Answer.ogg` | 재생 | 재생 | 재생 안 함 |
+| 퀴즈 오답 `Wrong Answer.mp3` | 재생 | 재생 | 재생 안 함 |
+
+Voice는 `AudioManager`의 단일 Voice 채널을 사용하므로 한 번에 하나만 재생한다. SFX는 별도 채널이어서
+Voice와 동시에 재생할 수 있다. 다만 중도 퇴장 Voice가 채널을 독점하는 동안에는
+`PPEActionPanelController`가 새 PPE 판정 SFX를 시작하지 않는다.
+
+### 2026-08-28 시나리오 불일치 PPE의 205 우선 재생
+
+#### 변경 전 필수 질문
+
+1. Inspector와 씬의 AudioClip 참조는 변경하지 않고 기존 `m_WorkPlanMismatchVoice`의
+   `4_VO_PPE_EDU_205_PPE_forScenario.mp3` 연결을 그대로 사용한다.
+2. 작업계획과 판정 순서의 단일 소유자는 `PPEVoiceFlowDirector.ActiveWorkPlan`과
+   `PPEVoiceFlowDirector`다.
+3. 입력 경로는 `PPE Grab → Use → PPEActionPanelController.ResolveUseChoice() →
+   RejectUseBeforeConditionCheck() → 작업계획 적합성 → 상태·선행 조건 → 최종 승인`이다.
+4. 누락 Clip이나 참조를 런타임에서 자동 생성·수리하지 않는다.
+5. 교육 Voice와 훈련 PPE SFX, 테스트 오답 기록에 영향을 주며 Grab, Discard, 장착 시각,
+   텔레포트와 퀴즈는 변경하지 않는다.
+6. 변경 전 기준은 시나리오 불일치 오염 PPE 사용 시 상태 판정이 먼저 실행되어 EDU 202가
+   재생되는 것이고, 변경 후 기준은 하자 상태와 무관하게 작업계획 판정이 먼저 EDU 205를 선택하는 것이다.
+7. 정적 순서·Clip 참조와 C# 컴파일을 확인하고 Unity Play Mode 및 Quest 실음성은 별도로 검증한다.
+
+#### 확정 판정 우선순위
+
+PPE `사용` 선택에서는 장비의 하자 여부보다 현재 시나리오 필요 여부를 먼저 판정한다.
+
+| 현재 시나리오 필요 여부 | PPE 상태 | 교육 | 훈련 | 테스트 |
+|---|---|---|---|---|
+| 불필요 | 정상 또는 하자 | `Wrong Answer` SFX + EDU 205 | `Wrong Answer` SFX, Voice 없음 | SFX·Voice 없음, 오답 기록 |
+| 필요 | 하자 | `Wrong Answer` SFX + EDU 202 | `Wrong Answer` SFX, Voice 없음 | SFX·Voice 없음, 오답 기록 |
+| 필요 | 정상 | 기존 선행 조건을 통과하면 착용 SFX + `Correct Answer` | 기존 착용 SFX + `Correct Answer` | PPE 판정 SFX·Voice 없음 |
+
+따라서 누출 대응에서 안전대처럼 현재 작업계획에 포함되지 않은 PPE를 사용하면, 그 PPE가 오염
+상태이더라도 하자 PPE 사용 음성 EDU 202가 아니라 “시나리오에 필요한 PPE를 착용”하는 EDU 205를
+우선 재생한다. How-To와 잘못된 PPE Voice는 교육 전용이라는 기존 모드 정책은 유지한다.
+
+#### 구현·검증 기준
+
+- `ResolveUseChoice()`가 상태 판정 전에 `RejectUseBeforeConditionCheck()`를 호출하는 기존 구조를
+  유지하고, 이 선행 판정 안에 작업계획 적합성 검사를 배치했다.
+- 상태 판정 뒤의 `CanApprovePpeUse()`에서는 중복 작업계획 검사를 제거해 판정 소유자를 하나로 만들었다.
+- 회귀 하네스는 205 Clip 이름, 작업계획 판정이 상태 판정보다 앞서는 호출 순서와 선행 분기에서
+  `m_WorkPlanMismatchVoice`를 사용하는지를 검사한다.
+- Play Mode에서는 밀폐공간의 화학보안경·안면보호대와 누출 대응의 안전대를 각각 정상/하자 상태로
+  사용해 교육은 모두 205, 훈련은 SFX만, 테스트는 판정 음향 없이 오답 기록으로 처리되는지 확인한다.
+
+### 변경 판단 기준과 검증 범위
+
+1. Inspector·씬 작성값은 보존하며 런타임에서 UI 위치·색·크기를 덮어쓰지 않는다.
+2. Voice 단일 채널은 `AudioManager`, 모드 정책은 `PPEVoiceFlowDirector`, PPE 판정 표시는
+   `PPEActionPanelController`가 소유한다.
+3. PPE 입력 경로는 `Grab/Use/Discard → PPEActionPanelController → 판정 표시·SFX →
+   PPEVoiceFlowDirector`이며, Exit는 `Exit Collider/Relay → PPEFinaleController →
+   PPEVoiceFlowDirector → AudioManager`이다.
+4. 누락 참조의 런타임 자동 생성·수리는 추가하지 않는다.
+5. PPE Grab, 패널 표시, Voice와 SFX 소비자만 변경하며 텔레포트 입력·퀴즈 판정·장착 시각은 보존한다.
+6. 변경 전 재현 증상과 변경 후 모드별 정책 하네스를 비교 기준으로 사용한다.
+7. Runtime/Editor C# 정적 빌드는 통과했으며 Unity Play Mode와 Quest/OpenXR 실음성 검증은 별도이다.

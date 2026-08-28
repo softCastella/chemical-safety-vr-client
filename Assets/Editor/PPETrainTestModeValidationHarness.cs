@@ -302,7 +302,7 @@ public static class PPETrainTestModeValidationHarness
                 failures);
 
             string displayName = panel.ItemDisplayName;
-            bool isMask = displayName == "송기 마스크";
+            bool isMask = displayName == "송기마스크";
             bool isGloveOrBoot = displayName.Contains("장갑") || displayName.Contains("장화");
             if (isMask || isGloveOrBoot)
                 RequireSameObject(panelSerialized, "voiceFlowDirector", director, failures);
@@ -312,7 +312,7 @@ public static class PPETrainTestModeValidationHarness
 
         if (mask == null)
         {
-            failures.Add("The _1 work scene is missing the 송기 마스크 action panel.");
+            failures.Add("The _1 work scene is missing the 송기마스크 action panel.");
             return;
         }
 

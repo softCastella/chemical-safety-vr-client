@@ -22,6 +22,7 @@ public static class PPETrainingDataContractHarness
     const string FinaleSourcePath = "Assets/Scripts/PPEFinaleController.cs";
     const string QuitButtonSourcePath = "Assets/Scripts/QuitApplicationButton.cs";
     const string TelemetrySourcePath = "Assets/Scripts/PPETrainingTelemetryCapture.cs";
+    const string TelemetryUploaderSourcePath = "Assets/Scripts/TycheTrainingTelemetryUploader.cs";
     const string LocalRegistrationClientSourcePath = "Assets/Scripts/TycheLocalTrainingRegistrationClient.cs";
     const string XriInputActionsPath = "Assets/Samples/XR Interaction Toolkit/3.4.1/Starter Assets/XRI Default Input Actions.inputactions";
     const string DirectorRequiredConfined = "m_ConfinedSpaceRequiredItemTypes";
@@ -281,6 +282,76 @@ public static class PPETrainingDataContractHarness
             LocalRegistrationClientSourcePath,
             "FindFirstObjectByType<MetaPlatformIdentityProbe>",
             "Unity 로컬 등록 클라이언트가 Meta identity probe 없는 직접 씬 실행을 차단하지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            LocalRegistrationClientSourcePath,
+            "UsesPlatformSdkForCurrentRun",
+            "Unity 로컬 등록 클라이언트가 SDKless Editor 실행을 서버 등록에서 제외하지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetrySourcePath,
+            "public const string SourceProject = \"chemical-safety-vr-client\";",
+            "새 클라이언트 JSONL에 이전 모노리포와 구분할 sourceProject가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetrySourcePath,
+            "eventId = $\"{sessionId}:{sequence:D8}\"",
+            "새 클라이언트 JSONL에 재전송 중복 제거용 eventId가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "UploadTokenEnvironmentVariable = \"TYCHE_TELEMETRY_UPLOAD_TOKEN\"",
+            "로컬 업로더가 저장소 밖 환경 변수에서 테스트 토큰을 읽지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "EnvironmentVariableTarget.User",
+            "Windows Editor가 부모 프로세스의 오래된 환경 때문에 사용자 범위 테스트 토큰을 놓칠 수 있습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "RegGetValue(",
+            "실행 중인 Unity가 사용자 환경 변수의 최신 레지스트리 값을 직접 읽는 보완 경로가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "EditorUploadTokenFileName = \".editor-upload-token\"",
+            "Unity 프로세스가 환경 변수를 읽지 못할 때 사용할 저장소 밖 Editor 전용 토큰 경로가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "character < '!' || character > '~'",
+            "로컬 업로더가 HTTP 헤더에 사용할 수 없는 토큰 문자를 차단하지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "!uri.IsLoopback",
+            "Editor 테스트 업로더가 로컬 서버 주소로 제한되지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "Old monorepo JSONL intentionally",
+            "이전 모노리포 JSONL을 제외하는 출처·스키마 검사가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "/api/training-telemetry/sessions",
+            "새 서버 텔레메트리 세션 API 경로가 업로더에 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "client-instance-id.txt",
+            "Meta ID가 없는 테스트 사용자를 식별할 새 클라이언트 설치 ID가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "metaUserId = metaUserId",
+            "Meta 테스트 ID를 선택적으로 세션 요청에 포함하는 계약이 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "record.eventType == \"session_ended\"",
+            "Meta SDK가 응답하지 않아도 종료된 무ID 세션을 익명 사용자로 적재하는 보완이 없습니다.",
             failures);
     }
 

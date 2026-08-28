@@ -53,7 +53,7 @@ public static class PPERoomScaleValidationSetup
     internal static readonly ScaleSpec[] Specs =
     {
         new(
-            "방독면",
+            "송기마스크",
             "Assets/UIs/Things/PPE_room/gas_mask_3d_model_Clone1_Clone1_Clone1_Clone1_Clone1.prefab",
             1.02f,
             0.275f,

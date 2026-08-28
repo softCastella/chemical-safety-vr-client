@@ -104,3 +104,26 @@ Date: 2026-08-18
 - `PPELocomotionPpeRegressionValidationHarness`가 이 작성 참조와 걸어서 진입 모드를 검사한다.
 - Unity Play Mode와 Quest/OpenXR에서는 실제 진입 시 중도 음성, 페이드, 시작 위치 복귀, 모드 선택
   모달 표시 순서를 아직 확인해야 한다.
+
+## 2026-08-28 중도 퇴장 Voice 채널 독점
+
+### 근본 원인
+
+`AudioManager.PlayVoice()` 자체는 기존 Voice를 정지한 뒤 하나의 Voice Source에서 재생하지만,
+중도 퇴장 시 진행 중인 모드·PPE 조건부 코루틴과 지연 오답 Voice 생산자를 모두 취소하지 않았다.
+따라서 퇴장 Voice가 시작된 뒤 다른 생산자가 Voice Source를 다시 교체할 수 있었다.
+
+### 적용한 변경
+
+- 중도 퇴장 진입 시 모드 선택·PPE 조건부·지연 오답 Voice 생산자를 취소한다.
+- 복귀가 완료될 때까지 새 PPE Voice 재생을 차단하는 독점 상태를 유지한다.
+- Voice만 정지·교체하고 별도 SFX Source는 정지하지 않아 `SFX + Voice` 동시 재생 규칙을 보존한다.
+- 새 모드 세션이 시작될 때 독점 상태를 초기화한다.
+
+### 검증
+
+- `PPELocomotionPpeRegressionValidationHarness`가 중도 퇴장 독점 상태에서 새 PPE SFX/Voice 요청이
+  차단되고, `StopFlowPlayback(stopSfx: false)` 경로가 사용되는지 검사한다.
+- Runtime과 Editor C# 빌드는 오류 0개로 통과했다.
+- Unity Play Mode에서 일반 Voice, How-To, 지연 오답 Voice 각각의 재생 도중 Exit에 들어가 중도 퇴장
+  Voice 하나만 끝까지 유지되는지 확인해야 한다. Quest/OpenXR 실제 오디오 검증도 아직 필요하다.

@@ -15,6 +15,8 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 /// </summary>
 public sealed class PPETrainingTelemetryCapture : MonoBehaviour
 {
+    public const int CurrentSchemaVersion = 1;
+    public const string SourceProject = "chemical-safety-vr-client";
     const float GrabAttemptResolutionWindowSeconds = 0.5f;
 
     public static string CurrentSessionId => instance?.sessionId;
@@ -28,7 +30,11 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
     [Serializable]
     sealed class Record
     {
+        public int schemaVersion;
+        public string sourceProject;
         public string sessionId;
+        public string eventId;
+        public int sequence;
         public string timestampUtc;
         public string eventType;
         public string appVersion;
@@ -79,6 +85,7 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
     PPEVoiceFlowDirector director;
     string outputPath;
     string sessionId;
+    int nextSequence;
     string lastFlowState;
     string lastMode;
     string lastWorkPlan;
@@ -116,7 +123,7 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         Application.quitting += OnApplicationQuitting;
         Application.logMessageReceived += OnUnityLog;
         InputSystem.onActionChange += OnInputActionChange;
-        Write("session_started", note: $"outputPath={outputPath}");
+        Write("session_started", note:"local_jsonl_created");
     }
 
     void OnDestroy()
@@ -503,9 +510,14 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         if (string.IsNullOrEmpty(outputPath))
             return;
 
+        int sequence = ++nextSequence;
         Record record = new()
         {
+            schemaVersion = CurrentSchemaVersion,
+            sourceProject = SourceProject,
             sessionId = sessionId,
+            eventId = $"{sessionId}:{sequence:D8}",
+            sequence = sequence,
             timestampUtc = DateTime.UtcNow.ToString("O"),
             eventType = eventType,
             appVersion = eventType == "session_started" ? Application.version : null,

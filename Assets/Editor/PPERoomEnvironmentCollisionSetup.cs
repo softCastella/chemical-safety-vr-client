@@ -105,6 +105,19 @@ public static class PPERoomEnvironmentCollisionSetup
         new("Furniture - Fire Extinguisher 02", "interiorObjects/Bg/PPE_B_FireExtinguisher_02", false, false),
     };
 
+    private static readonly string[] MovedFurnitureBlockerNames =
+    {
+        "Furniture - Yellow Trash Bin 01",
+        "Furniture - Yellow Trash Bin 02",
+        "Furniture - Cleaning Cart",
+        "Furniture - Suit Hanger",
+        "Furniture - Safety Cabinet",
+        "Furniture - Bench",
+        "Furniture - Storage Wall Rack",
+        "Furniture - Wooden Crate 02",
+        "Furniture - Fire Extinguisher 01",
+    };
+
     internal static readonly CollisionTarget InteractiveShelfTarget = new(
         "PPE_B_MetalShelving Base Collider",
         InteractiveShelfPath,
@@ -145,6 +158,82 @@ public static class PPERoomEnvironmentCollisionSetup
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         PPERoomEnvironmentCollisionValidationHarness.Validate();
+    }
+
+    [MenuItem("Tools/PPE/Realign Moved Furniture Colliders")]
+    public static void RealignMovedFurnitureColliders()
+    {
+        Scene scene = RequireTargetScene();
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Stop Play Mode before realigning furniture colliders.");
+        if (scene.isDirty)
+        {
+            throw new InvalidOperationException(
+                "The active PPE scene has unsaved changes. Review or save them before realigning furniture colliders.");
+        }
+
+        GameObject collisionRoot = FindByPath(scene, CollisionRootName);
+        if (collisionRoot == null)
+            throw new InvalidOperationException("PPE environment collision root is missing.");
+
+        CollisionTarget[] targets = Targets
+            .Where(target => MovedFurnitureBlockerNames.Contains(target.BlockerName, StringComparer.Ordinal))
+            .ToArray();
+        if (targets.Length != MovedFurnitureBlockerNames.Length)
+        {
+            throw new InvalidOperationException(
+                $"Expected {MovedFurnitureBlockerNames.Length} approved furniture targets, found {targets.Length}.");
+        }
+
+        var entries = new List<(
+            CollisionTarget Target,
+            Transform Blocker,
+            BoxCollider Collider,
+            Bounds Expected)>();
+        foreach (CollisionTarget target in targets)
+        {
+            Transform blocker = FindDirectChild(collisionRoot.transform, target.BlockerName);
+            if (blocker == null)
+                throw new InvalidOperationException($"Authored furniture blocker is missing: {target.BlockerName}");
+
+            BoxCollider[] colliders = blocker.GetComponents<BoxCollider>();
+            if (colliders.Length != 1)
+            {
+                throw new InvalidOperationException(
+                    $"Expected one authored BoxCollider on {target.BlockerName}, found {colliders.Length}.");
+            }
+
+            if (Quaternion.Angle(blocker.rotation, Quaternion.identity) > 0.001f ||
+                Vector3.Distance(blocker.lossyScale, Vector3.one) > 0.001f)
+            {
+                throw new InvalidOperationException(
+                    $"Furniture blocker has an unexpected authored rotation or scale: {target.BlockerName}");
+            }
+
+            entries.Add((target, blocker, colliders[0], CalculateTargetBounds(scene, target)));
+        }
+
+        int undoGroup = Undo.GetCurrentGroup();
+        Undo.SetCurrentGroupName("Realign moved PPE furniture colliders");
+        foreach ((CollisionTarget target, Transform blocker, BoxCollider collider, Bounds expected) in entries)
+        {
+            Undo.RecordObjects(
+                new UnityEngine.Object[] { blocker, collider },
+                $"Realign {target.BlockerName}");
+            blocker.position = expected.center;
+            collider.center = Vector3.zero;
+            collider.size = expected.size;
+            EditorUtility.SetDirty(blocker);
+            EditorUtility.SetDirty(collider);
+        }
+
+        Undo.CollapseUndoOperations(undoGroup);
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        Physics.SyncTransforms();
+        PPERoomEnvironmentCollisionValidationHarness.ValidateFurnitureColliderAlignment();
+        Debug.Log(
+            $"[PPE Furniture Collision] Realigned {targets.Length} approved furniture colliders to current Renderer Bounds.");
     }
 
     [MenuItem("Tools/PPE/Apply Primary PPE Marker Selection Radius")]

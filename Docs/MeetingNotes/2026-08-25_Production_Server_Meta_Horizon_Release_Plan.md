@@ -1015,3 +1015,288 @@ cvr
 - Unity Hub에서 저장소 루트를 Unity `6000.4.8f1`로 열고 최초 재임포트가 끝난 뒤 Console 컴파일 오류가 없는지 확인한다.
 - `Tools > Documentation > Validate Authoring Policy`를 실행하고 `Assets/Scenes/0_App.unity`의 Build Settings 및 정상 로드를 확인한다.
 - Quest/OpenXR Play Mode와 양안 렌더링은 이번 경로 이전의 정적 검증 범위에 포함하지 않았으며 별도 실기 확인이 필요하다.
+
+## 2026-08-28 결정: Meta Horizon APK용 클라이언트 텔레메트리 전송 구조
+
+### 목적과 현재 기준
+
+- 목적은 Meta Horizon 릴리스 채널에 제출한 Quest APK에서 실제 Meta 테스트 계정으로 훈련을 실행하고,
+  해당 세션의 이벤트를 기존 Vultr 서버 프로젝트로 안전하게 전송해 MySQL과 관리자 대시보드에서 같은
+  `sessionId`로 확인할 수 있게 하는 것이다.
+- Vultr에는 Express·Nginx·HTTPS·MySQL과 관리자 인증 기반이 이미 배포되어 있다. 새 서버를 만드는 작업이
+  아니라 기존 서버 프로젝트에 훈련 텔레메트리 수신·저장·조회 기능을 추가한다.
+- 클라이언트 `main` 기준 커밋은 `2f7250e6c3ecdeaf9f712676d7d01074a6120b94`, 서버 저장소 로컬
+  `main` 기준 커밋은 `e5add7cdd3f0462a287bc9e193b95da41dafa5bd`다. Vultr에 실제 배포된 현재
+  커밋 SHA는 구현 시작 전에 서버에서 별도로 확인해야 한다.
+- 현재 Unity는 `PPETrainingTelemetryCapture`가 `Application.persistentDataPath/tyche-training-telemetry`에
+  세션 JSONL을 기록한다. 전체 JSONL의 운영 HTTPS 업로더와 서버 ACK 기반 재전송 상태는 아직 없다.
+- 이번 기록은 구현 결정만 확정한다. 사용자가 우선 진행할 버그 수정과 분리하며 클라이언트 코드·씬,
+  서버 코드·DB·배포 상태는 변경하지 않는다.
+
+### 확정한 클라이언트 흐름
+
+```text
+PPE 이벤트 발생
+→ 로컬 JSONL 원본 기록
+→ Meta 앱 범위 사용자 ID와 일회용 User Proof 획득
+→ Vultr가 Meta 사용자 증명을 검증하고 단기 업로드 토큰 발급
+→ 세션 시작·이벤트 배치·세션 완료 전송
+→ 서버 ACK의 마지막 sequence를 로컬에 저장
+→ 실패하거나 앱이 종료되면 다음 실행에서 미확인 이벤트 재전송
+```
+
+- 로컬 JSONL 기록은 네트워크·인증·서버 상태와 관계없이 계속한다. 업로드 실패가 PPE 입력, 음성, UI,
+  씬 전환이나 훈련 완료를 막아서는 안 된다.
+- 원본 JSONL은 서버가 저장 성공을 확인하기 전에 삭제하지 않는다. 서버 ACK 이후에도 직렬화 설정으로
+  정한 보존 기간까지 유지한 뒤 정리한다.
+- 직접 PPE 씬 시작과 SDKless Editor는 익명 로컬 JSONL만 기록한다. Meta 인증과 서버 업로드는
+  `0_App`에서 시작한 실제 Meta SDK 실행만 소유한다.
+- Editor에서 Meta 테스트 계정을 명시적으로 사용하는 경우에는 테스트 서버만 사용한다. 제출 APK는
+  `0_App`에서 시작하며 운영 HTTPS 설정을 사용한다.
+
+### 클라이언트 구성요소와 작성 기준
+
+| 구성요소 | 책임 |
+|---|---|
+| `PPETrainingTelemetryCapture` | 기존 PPE 이벤트와 로컬 JSONL 원본 생성 유지 |
+| `TycheTelemetryApiConfig` | 개발·테스트·운영 기본 주소, 배치·재시도·보존 설정 소유 |
+| `TycheMetaSessionAuthenticator` | 앱 범위 Meta ID와 `Users.GetUserProof()` 일회용 nonce 획득 |
+| `TycheTrainingTelemetryUploader` | 미완료 세션 탐색, 인증, 배치 전송과 재시도 |
+| `TycheTelemetryUploadState` | 세션별 서버 ACK와 마지막 확인 sequence의 로컬 상태 |
+
+- 업로더와 환경 설정은 `0_App`의 Inspector 직렬화 참조를 기준으로 작성하고 씬 전환 후 유지한다.
+  누락된 설정·프리팹·참조를 런타임에서 자동 생성하거나 운영 주소를 C#에 하드코딩하지 않는다.
+- 기존 직접 씬 테스트를 보존하기 위해 업로더를 `RuntimeInitializeOnLoadMethod`로 모든 씬에 자동 설치하지 않는다.
+- Meta App Secret, App Access Token, MySQL 자격 증명과 관리자 비밀정보는 APK, `PlayerPrefs`, JSONL에
+  저장하지 않는다. Meta 사용자 증명 검증에 필요한 비밀정보는 Vultr 서버만 소유한다.
+- `metaAgeCategory`는 서버 업무 요구와 개인정보 처리 근거가 별도로 승인되기 전에는 운영 텔레메트리로
+  업로드하지 않는다. 서버 계정 연결의 기준은 검증된 앱 범위 Meta 사용자 ID다.
+
+### 이벤트 식별과 배치 계약
+
+현재 이벤트에 다음 필드를 추가하는 방향으로 계약을 확정한다.
+
+```json
+{
+  "schemaVersion": 1,
+  "sessionId": "abc123",
+  "eventId": "abc123:00000042",
+  "sequence": 42,
+  "timestampUtc": "2026-08-28T00:00:00.0000000Z",
+  "eventType": "ppe_choice_resolved"
+}
+```
+
+- `sequence`는 세션 안에서 1부터 단조 증가한다.
+- `eventId`는 `sessionId + sequence`로 결정적으로 생성한다.
+- 서버는 `eventId`에 고유 제약을 적용해 같은 배치를 재전송해도 원본 이벤트가 중복 저장되지 않게 한다.
+- 기존 PPE 이벤트 필드와 JSONL 원본 형식은 필요한 범위에서 확장하며 기존 의미를 바꾸지 않는다.
+- 초기 기본 배치 크기는 25건으로 하되 Inspector/설정 자산에서 조정 가능하게 한다.
+
+클라이언트가 요구하는 서버 응답은 최소한 다음 상태를 포함한다.
+
+```json
+{
+  "accepted": 23,
+  "duplicates": 2,
+  "rejected": 0,
+  "acceptedThroughSequence": 75
+}
+```
+
+클라이언트는 HTTP 성공 여부만으로 파일 전체를 완료 처리하지 않고 `acceptedThroughSequence`까지만
+서버 저장 확인 상태로 기록한다. `rejected`가 있으면 해당 이벤트와 서버 오류 코드를 보존해 진단할 수 있어야 한다.
+
+### Meta 인증과 예상 서버 계약
+
+- 앱 범위 Meta 사용자 ID 문자열만 전송하는 기존 개발용 등록은 운영 사용자 검증으로 사용하지 않는다.
+- `MetaPlatformIdentityProbe`의 entitlement와 `Users.GetLoggedInUser()` 성공 후 `Users.GetUserProof()`를 호출해
+  한 번만 검증 가능한 nonce를 얻는다.
+- 클라이언트는 Meta ID와 nonce를 Vultr 인증 API로 보내고, 서버는 Meta API와 서버에만 보관된 자격 증명으로
+  사용자를 검증한 뒤 짧은 수명의 Tyche 업로드 토큰을 발급한다.
+- 일회용 nonce를 재사용하거나 Meta 테스트 사용자 access token을 APK에 포함하지 않는다.
+
+서버가 최종 계약 검토에서 확정할 예상 경로는 다음과 같다.
+
+```text
+POST /api/training-telemetry/auth/meta
+POST /api/training-telemetry/sessions
+POST /api/training-telemetry/sessions/{sessionId}/events
+POST /api/training-telemetry/sessions/{sessionId}/complete
+```
+
+### 실패·재전송 정책
+
+- 연결 실패 시 기본 재시도 간격은 `2초 → 5초 → 10초 → 30초 → 최대 60초`이며 작은 무작위 지연을 더한다.
+- 앱 실행 중 네트워크가 끊기면 원본 기록만 계속하고 연결 복구 후 다시 전송한다.
+- 앱 재시작 시 완료 ACK가 없는 세션 파일부터 탐색한다.
+- 서버의 수락·중복·거부 수와 마지막 sequence를 별도 상태 파일에 원자적으로 저장한다.
+- 운영 업로드 오류는 Console `Error Pause`로 훈련을 정지시키는 반복 `Debug.LogError`가 아니라 제한된 경고와
+  로컬 진단 상태로 남긴다. 데이터 손상이나 계약 위반은 한 번의 명확한 오류로 구분한다.
+- 배치 크기, 요청 제한 시간, 최대 재시도 간격, 보존 기간과 저장 한도는 직렬화 설정으로 관리한다.
+
+### 구현 순서와 완료 조건
+
+현재 버그 수정을 먼저 완료한 뒤 다음 순서로 별도 작업한다.
+
+1. 서버 저장소에서 Meta 증명 검증, 이벤트 스키마, ACK 응답과 오류 코드를 확정한다.
+2. 서버 API·신규 migration·중복 제거 자동 테스트를 구현하고 테스트 DB에서 검증한다.
+3. 서버 대상 브랜치와 커밋 SHA, 환경별 HTTPS 주소와 요청·응답 예시를 클라이언트 작업에 전달한다.
+4. 클라이언트 이벤트에 `schemaVersion`, `eventId`, `sequence`를 추가한다.
+5. `0_App` 작성형 설정·인증·업로더·ACK 상태와 오프라인 재전송을 구현한다.
+6. Unity Editor 테스트 계정으로 테스트 API·DB·대시보드의 같은 `sessionId`와 이벤트 수를 확인한다.
+7. Quest 개발 빌드에서 네트워크 차단·복구, 강제 종료·재실행과 중복 전송을 검증한다.
+8. 운영 HTTPS 주소를 사용하는 서명 APK를 Meta Horizon Alpha 채널에 제출하고 실제 테스트 계정으로 재검증한다.
+
+한 회차의 완료 조건은 다음과 같다.
+
+- Meta 테스트 사용자의 User Proof가 서버에서 검증된다.
+- `Unity 전송 수 = API 수락 수 = DB 고유 이벤트 수 = 대시보드 원본 수`가 일치한다.
+- 같은 배치를 두 번 보내도 DB 고유 이벤트 수가 증가하지 않는다.
+- 네트워크 차단과 앱 강제 종료 뒤에도 미확인 이벤트가 복구된다.
+- SDKless Editor와 직접 PPE 씬의 로컬 익명 기록 동작이 유지된다.
+- Quest/OpenXR 양안, PPE 입력, 음성, UI와 훈련 상태 전이가 업로더 때문에 정지하거나 변경되지 않는다.
+
+정적 계약이나 자동 테스트만 통과한 상태를 Meta Horizon 실기 수집 완료로 보고하지 않는다. 최종 완료는
+Meta Alpha APK의 실제 Quest 세션이 Vultr·MySQL·대시보드까지 같은 식별자와 수량으로 확인된 경우다.
+
+### 새 클라이언트 로컬 Unity 업로드 로직 구현 상태
+
+이번 후속 작업은 이전 모노리포가 아니라 분리된 `chemical-safety-vr-client` 저장소의 로컬 Unity Editor 테스트 경로만 대상으로 한다.
+
+- 새 JSONL 이벤트에 `schemaVersion=1`, `sourceProject=chemical-safety-vr-client`, 세션별 단조 증가 `sequence`와 결정적 `eventId`를 기록한다.
+- 기존 `Application.persistentDataPath/tyche-training-telemetry` 폴더는 유지하지만, 업로더는 위 출처·스키마 표식이 없는 이전 모노리포 JSONL을 무시한다.
+- `TycheTrainingTelemetryUploader`는 최대 25건 기본 배치로 세션 시작·원본 이벤트·세션 완료 API를 호출하고 서버의 `acceptedThroughSequence`를 별도 상태 파일에 보존한다.
+- 서버 연결 또는 앱 종료 뒤에도 로컬 JSONL을 먼저 보존하며, 다음 Editor 실행에서 미확인 sequence부터 재전송한다.
+- 현재 로컬 통합 시험은 `TYCHE_TELEMETRY_UPLOAD_TOKEN` 환경 변수와 loopback 서버 주소만 허용한다. 토큰은 저장소, `PlayerPrefs`, JSONL과 씬에 기록하지 않는다.
+- 새 클라이언트는 `client-instance-id.txt`에 32자리 익명 설치 ID를 보존한다. Meta 테스트 ID가 수집되면 세션 시작 요청에만 이를 선택적으로 포함하고, 없으면 설치 ID만 보낸다.
+- 서버는 두 경우 모두 숫자형 자체 `participantId`를 발급한다. 같은 Meta ID는 기기가 달라도 같은 자체 ID로, Meta ID가 없는 경우에는 같은 설치 ID가 같은 자체 ID로 조회된다.
+- 공유 기기에서 서로 다른 사용자를 잘못 합치지 않기 위해 익명 설치 ID와 이후 확인된 Meta ID는 자동 병합하지 않는다. 원본 Meta ID와 설치 ID 값은 개발 조회 화면에 노출하지 않는다.
+- 업로드 DTO에서 `metaAppScopedUserId`와 `metaAgeCategory`를 제외하고 로컬 파일 경로가 포함된 note는 전송 전에 대체한다.
+- Player와 출시 APK에서는 현재 테스트 토큰 업로드를 시작하지 않는다. Meta User Proof와 서버 단기 토큰 인증은 출시 전 별도 구현·검증한다.
+
+`Tools > PPE > Configure Local Telemetry DB Upload`은 사용자가 `0_App` 씬을 명시적으로 연 상태에서만 `AppMain`에 업로더를 추가한다. 기존 컴포넌트가 있으면 Inspector 값을 덮어쓰지 않는다. Unity가 생성한 컴파일 응답 설정으로 런타임 업로더와 Editor 설정 도구의 최신 소스를 별도 임시 DLL에 컴파일해 오류가 없음을 확인했다. 테스트 DB migration과 Express → MySQL 합성 데이터 왕복은 완료했으며, 열린 Unity의 자동 재컴파일, 설정 메뉴 실행, 씬 저장과 실제 Unity → Express → MySQL 전송은 아직 남아 있다.
+
+서버 기준 코드는 `0d47517faa2daa01e3fb337681a3b0b9bd7ea9a4` 작업 트리 위에 구현되었으며 아직 서버 텔레메트리 커밋 SHA가 생성되지 않았다. 로컬 테스트 DB migration과 합성 이벤트 왕복 결과는 아래에 기록한다. 서버 공용 문서 미러에도 같은 검증 사실을 반영했으며 최종 동기화 완료는 각 저장소 커밋 SHA가 생성된 뒤 다시 확인한다.
+
+### 2026-08-28 로컬 MySQL·인코딩 통합 검증
+
+서버 저장소 `main`의 기준 커밋 `0d47517faa2daa01e3fb337681a3b0b9bd7ea9a4`와 클라이언트 저장소 `main`의 기준 커밋 `2f7250e6c3ecdeaf9f712676d7d01074a6120b94` 위 작업 트리를 대상으로 검증했다. 두 저장소의 텔레메트리 변경은 아직 별도 커밋 SHA가 없으므로 기준 커밋과 작업 트리 변경을 구분한다.
+
+- 로컬 전용 `tyche_training_test`에 migration `001`~`012`를 적용했다. 기존 실행기가 migration 파일 하나를 SQL 문 하나로 실행하므로 텔레메트리 테이블은 `009`~`012` 네 파일로 분리했다.
+- MySQL `8.0.17`, 데이터베이스 문자 집합 `utf8mb4`, collation `utf8mb4_unicode_ci`를 확인했다.
+- `/telemetry-ingest-test/`는 HTTP `200`으로 응답했고 서버 자동 테스트는 33개 통과, 실패 0개다.
+- 실제 MySQL 합성 데이터 결과는 참여자 2명, 식별자 2개, 세션 4개, 원본 이벤트 8개다. 실제 사용자 정보와 이전 모노리포 JSONL은 사용하지 않았다.
+- Meta ID가 없는 동일 설치 ID는 두 세션 모두 자체 `participantId=1`, 같은 Meta 테스트 ID는 서로 다른 설치 ID의 두 세션 모두 `participantId=2`로 유지됐다.
+- 각 최초 세션의 3개 이벤트는 `accepted=3`, `acceptedThroughSequence=3`, 완료 상태 `completed`로 확인했다.
+- 합성 이벤트의 `itemName=안전모`, `note=한글 행동 데이터 정상 수신`을 UTF-8 JSON으로 전송하고 MySQL 저장 뒤 상세 조회 API에서 같은 문자열로 확인했다.
+- Bearer 토큰은 HTTP 헤더 인코딩 문제를 막기 위해 16~512자의 공백 없는 ASCII만 허용한다. HTML과 Unity 업로더도 전송 전에 같은 조건을 검사한다. 행동 데이터 JSON과 HTML 문서는 UTF-8, DB는 `utf8mb4`를 사용한다.
+- 현재 로컬 검증은 로컬 관리자 계정을 사용했으며 운영 자격 증명, 운영 DB, PM2, Nginx와 배포 상태는 변경하지 않았다. 운영 적용 전에는 최소 권한 애플리케이션 계정으로 전환해야 한다.
+- 브라우저 자동 제어 백엔드를 사용할 수 없어 화면의 시각·클릭 검증은 수행하지 못했다. HTML 제공, 스크립트 문법, 샘플과 조회 API 왕복은 자동·통합 검사로 확인했다.
+
+이 검증은 Express → 로컬 MySQL → 조회 API 경로의 완료를 의미한다. 새 Unity 클라이언트의 런타임·Editor 업로더 최신 소스는 Unity 컴파일 설정으로 오류 없이 컴파일했지만, `0_App` 설정 메뉴 실행과 실제 Unity Play Mode 행동 이벤트 전송은 아직 남아 있다. Meta User Proof, Quest Player, 운영 HTTPS와 Vultr 배포 성공으로 확대 해석하지 않는다.
+
+### 2026-08-28 첫 Unity 실기 수집 재현 결과
+
+사용자가 `0_App`부터 시작해 HMD를 착용하고 Education·Training·Test 모드와 작업 시나리오를 순회한 뒤 DB 확인 화면에서 익명 세션과 Education만 보이는 문제를 재현했다.
+
+- 당시 DB에는 실제 Unity 세션이 0건이었다. 표시된 참여자·세션은 이전 Express → MySQL 합성 검증 데이터뿐이었고, 익명 자체 ID `1`의 합성 세션 2개가 실제 익명 사용자 2명처럼 오해될 수 있었다.
+- 새 클라이언트 원본 `session-20260828-050205-32bf72164cbf4e19a655679b17721522.jsonl`은 `sourceProject=chemical-safety-vr-client` 표식을 가진 실제 Unity 파일이며 원본 이벤트 1,294건을 정상 기록했다.
+- 원본의 모드 분포는 Education 507건, Training 419건, Test 360건이다. 작업계획 분포는 ConfinedSpace 631건, LeakResponse 612건, None 43건으로 전체 실행 사실이 로컬 원본에 남아 있다.
+- Meta 상태는 Idle 2건 뒤 `SkippedForEditorTesting` 1,292건이었다. `0_App`의 `useMetaPlatformSdkInEditor=0` 때문에 HMD 착용 여부와 무관하게 Platform SDK, entitlement와 앱 범위 Meta ID 조회를 의도적으로 건너뛴 것이 원인이다.
+- Unity Editor 로그에는 `TYCHE_TELEMETRY_UPLOAD_TOKEN가 없어 로컬 DB 업로드를 시작하지 않습니다`가 기록됐다. 따라서 JSONL 수집은 성공했지만 Unity → Express → MySQL 전송은 시작되지 않았다.
+
+재현 뒤 `0_App`의 `useMetaPlatformSdkInEditor`를 켜고, Windows Editor 업로더가 프로세스 환경 변수에 값이 없을 때 사용자 범위 `TYCHE_TELEMETRY_UPLOAD_TOKEN`도 읽도록 보완했다. 확인 HTML에는 `앱 버전/출처` 열을 추가해 `local-db-test`, `identity-repeat-test` 합성 세션과 Unity `0.1.0` 원본 세션을 구분한다. 서버 자동 테스트 33개와 Unity 런타임·Editor 컴파일을 다시 통과했다.
+
+다음 실기에서는 Meta probe가 `Completed` 또는 `CompletedWithoutAgeCategory`인지, 앱 범위 Meta ID가 세션 시작 요청에 포함되는지, Unity 원본 세션이 MySQL에서 새 자체 ID와 전체 이벤트 수로 조회되는지를 확인한다. `Failed`나 `SkippedForEditorTesting`이면 Meta 사용자 수집 성공으로 표시하지 않는다.
+
+### 2026-08-28 두 번째 Unity 실기 수집 재현 결과
+
+`0_App`에서 다시 시작한 새 클라이언트 세션 `2e3a04b3f9be40b68d729e5b554650c6`은 로컬 원본 JSONL에 67개 이벤트를 기록했다. Education 22건과 Training 39건, 작업계획 ConfinedSpace 35건과 None 26건이 포함됐으며 이 짧은 실행에는 Test와 LeakResponse 이벤트가 없다. 따라서 클라이언트 행동 수집 자체는 확인했지만 전체 모드·시나리오 회차로 보지는 않는다.
+
+이 실행 직후 서버 조회에는 여전히 합성 검증 세션 4건만 있었고 실제 Unity 세션은 없었다. Unity 로그에는 다음 두 원인이 각각 확인됐다.
+
+- 사용자 범위 테스트 토큰은 32자의 유효한 ASCII 값으로 존재했지만, 기존 Unity/Hub 프로세스는 계속 환경 변수가 없다고 판단해 업로더를 시작하지 않았다.
+- Meta XR Platform SDK v203 이상과 현재 PCLink/Skyline 런타임이 호환되지 않아 Platform 초기화 뒤 요청을 처리하지 못했다. 원본의 Meta 상태는 `Initializing`에서 종료됐고 앱 범위 Meta ID는 기록되지 않았다.
+
+Windows Editor 업로더는 프로세스·사용자 범위 환경 변수에 이어 현재 사용자 레지스트리 값을 직접 읽도록 보완했다. Meta 조회가 응답하지 않아도 `session_ended`가 기록된 세션은 더 이상 무기한 대기하지 않고 Meta ID 없는 익명 사용자로 적재한다. Meta ID가 이미 기록된 경우에는 기존처럼 Meta 식별을 우선한다. 런타임과 Editor 소스를 Unity 컴파일 응답 설정으로 다시 컴파일해 새 오류가 없음을 확인했다.
+
+첫 실기의 1,294개 이벤트와 두 번째 실기의 67개 이벤트 원본은 삭제되지 않았다. 다음 Play에서 Unity가 최신 소스를 실제 재컴파일하고 업로더가 시작되면 두 파일 모두 새 클라이언트 출처 검사 뒤 재전송 대상이 된다. 다만 과거 파일에 없던 Meta ID를 소급 생성할 수는 없으므로 두 과거 세션은 익명 자체 ID로 적재된다. Meta 사용자 수집 성공은 PCLink/Platform SDK 호환을 해결한 뒤 새 세션에서 `Completed` 또는 `CompletedWithoutAgeCategory`, 앱 범위 Meta ID와 DB의 새 `participantId`를 함께 확인해야 한다.
+
+Meta Horizon 입점용 출시 경계에서는 이 익명 보완을 사용하지 않는다. Meta ID가 없는 사용자 수용은 로컬 QA·비 Meta 테스트 채널과 장애 진단을 위한 요구사항이다. 출시 APK는 entitlement, 앱 범위 Meta 사용자 ID와 User Proof의 서버 검증이 끝나기 전에는 해당 회차를 정상 사용자 수집 성공으로 표시하거나 익명 `participantId`로 확정하지 않는다. 일시적인 인증·네트워크 실패 때에는 원본을 기기에 보존하고 재시도하며, 반복 실패는 별도 진단 상태로 남긴다. 운영 서버에는 검증된 Meta 인증이 없는 세션을 거부하는 환경별 강제 설정을 적용하고, 실제 Quest 새 세션에서 `Meta ID → 서버 자체 participantId → 전체 이벤트` 연결을 확인해야 입점용 통합 완료로 판단한다.
+
+### 2026-08-28 Unity → Express → MySQL 첫 실제 적재 결과
+
+열려 있던 Unity 프로세스가 프로세스·사용자 환경 변수와 현재 사용자 레지스트리 값을 모두 읽지 못하는 현상이 반복됐다. 저장소 밖 `Application.persistentDataPath/tyche-training-telemetry/.editor-upload-token`에 로컬 Editor 전용 토큰을 두고 업로더가 마지막 보완 경로로 읽도록 변경했다. 이 파일과 값은 Git, 씬, JSONL과 출시 Player에 포함하지 않는다.
+
+보완 소스의 Unity 실제 재컴파일 뒤 Play Mode를 다시 시작해 다음 결과를 확인했다.
+
+- 과거 새 클라이언트 실제 세션 2건이 같은 익명 자체 ID `participantId=3`으로 MySQL에 적재됐다.
+- 세션 `32bf72164cbf4e19a655679b17721522`는 원본 이벤트 1,294건, 세션 `2e3a04b3f9be40b68d729e5b554650c6`은 67건이다.
+- 두 세션은 `appVersion=0.1.0`, 상태 `completed`, 합계 1,361개 고유 이벤트로 조회됐다.
+- 각 JSONL 옆에 완료 ACK를 보존한 `.upload-state.json`이 생성됐다.
+- 합성 검증 세션과 실제 Unity 세션은 확인 화면의 앱 버전·출처에서 구분된다.
+
+이는 로컬 Editor에서 `Unity JSONL → Express API → 로컬 MySQL → 조회 화면` 경로가 실제 행동 원본으로 동작함을 의미한다. 두 과거 세션에는 수집 당시 Meta ID가 없었으므로 익명 사용자로 적재됐으며 Meta 입점 연동 성공으로 보지 않는다. 사용자는 이번 적재 확인 Play를 HMD 없이 Game View로 진행했다. 같은 시점의 Meta probe에 `Invalid OAuth 2.0 Access Token` 코드 190과 빈 앱 범위 Meta ID가 남았지만, 이 무HMD 실행만으로 Meta 앱·테스트 계정 설정 결함을 확정하지 않는다. 다음 완료 조건은 HMD를 착용하고 Meta 테스트 계정이 활성화된 별도 새 세션에서 `Meta 연결 성공`, 자체 `participantId`와 원본 이벤트를 함께 확인하는 것이다.
+
+### 2026-08-28 클라이언트 수정 중 통합 테스트 보류 결정
+
+클라이언트의 별도 오류 수정이 완료될 때까지 추가 Game View, HMD, Meta ID와 Unity → DB 통합 테스트를 보류한다. 현재 확인한 익명 실제 세션 2건과 원본 이벤트 1,361건, 완료 ACK와 MySQL 조회 결과는 삭제하거나 성공 범위를 확대하지 않고 기준 증거로 보존한다. 테스트 재개 전에는 클라이언트 컴파일 오류가 없고 `0_App` 시작 흐름과 HMD 실행 준비가 끝났는지 먼저 확인한다.
+
+보류 기간에는 Linux 서버 작업 환경에서 홈페이지와 대시보드 정적 화면을 병렬 수정할 수 있다. 충돌을 피하기 위한 범위는 다음과 같다.
+
+- 홈페이지는 `public/site/**`, 대시보드는 `public/dashboard/**`를 별도 Git 브랜치에서 수정한다.
+- 현재 Windows 작업 트리의 `src/app.js`, `src/modules/training-telemetry/**`, `public/telemetry-ingest-test/**`, migration `009`~`012`, 환경 설정, README와 이 공용 문서는 Linux 병렬 작업에서 수정하지 않는다.
+- 병렬 작업 브랜치는 커밋과 push까지만 수행하고 현재 작업이 정리되기 전에 `main`에 병합하지 않는다.
+- 운영 배포, 운영 DB migration, PM2 재시작과 Nginx 공개 변경은 별도 승인 전까지 수행하지 않는다.
+- 작업 완료 뒤 브랜치명과 커밋 SHA를 기준으로 겹치는 파일과 계약 변경을 확인한 후 병합한다.
+
+보류 결정 시점의 기준 커밋은 서버 `main`/`origin/main` `0d47517faa2daa01e3fb337681a3b0b9bd7ea9a4`, 클라이언트 `main`/`origin/main` `2f7250e6c3ecdeaf9f712676d7d01074a6120b94`다. 텔레메트리와 문서 변경은 양쪽 작업 트리에 아직 커밋되지 않았으므로 기준 커밋과 구분한다. 이번 결정은 문서화만 수행하며 실행 코드, DB 데이터와 운영 상태를 추가로 변경하지 않는다.
+
+
+### 2026-08-28 HMD 실기 재개 결과와 출시 APK 후속작업
+
+클라이언트 오류 수정 중 보류했던 실기 테스트를 재개했다. 사용자는 HMD를 착용하고 `0_App`부터 시작해 Education·Training·Test와 두 작업계획을 연속 수행했다. 원본 씬 순서는 `0_App → 1_Title → 2_Intro → 6_LoadingScene_0 → 3_PPE_Room_3mode_loco`로 확인됐으므로 이번 Meta ID 누락은 직접 PPE 씬 시작 문제로 보지 않는다.
+
+#### 완료한 수집·DB 검증
+
+- 대상 세션은 `2ac1c70158554c658c7b14f291ff235c`, 앱 버전은 `0.1.0`, 원본 이벤트는 1,429개다.
+- 첫 이벤트 `session_started`, 마지막 이벤트 `session_ended`, 종료 사유 `application_quitting`을 확인했다.
+- 서버에서 같은 세션이 `completed`, 이벤트 1,429개로 조회됐고 로컬 ACK 상태도 `acceptedThroughSequence=1429`, `completed=true`로 일치했다.
+- 모드는 Education 583건, Training 448건, Test 392건과 초기 미선택 6건으로 구분됐다.
+- 작업계획은 ConfinedSpace 718건, LeakResponse 664건, None 41건과 초기 미선택 6건으로 구분됐다.
+- 각 모드와 두 작업계획의 조합이 모두 원본 및 DB 상세 조회에 존재했다. 이전 화면에서 Education만 보인 현상은 이번 원본·DB 기준으로 재현되지 않았다.
+- 직접 PPE 씬에서 시작한 확인용 세션은 로컬 원본은 생성하지만 `0_App`에만 있는 Editor 업로더가 실행되지 않았다. DB 재전송 확인은 반드시 `0_App`에서 Play를 시작해야 한다.
+- 재전송 과정에서 들어온 과거·확인용 세션과 대상 실기 세션을 구분했다. 이번 실기 판정의 기준은 1,429개 이벤트를 가진 위 세션 하나다.
+
+#### Meta ID 누락 원인
+
+대상 세션의 Meta 상태는 Idle 2건 뒤 Initializing 1,427건이었고 앱 범위 Meta 사용자 ID는 비어 있었다. 서버는 같은 설치의 익명 식별자로 `participantId=3`을 부여했다. 이는 로컬 QA 적재 성공일 뿐 Meta 입점 인증 성공이 아니다.
+
+클라이언트는 Meta XR Platform SDK `205.0.0`을 사용한다. 같은 실행의 Unity Editor 로그에는 현재 PC Meta Horizon Link LIVE 런타임이 Meta XR Platform SDK v203 이상과 호환되지 않아 초기화 뒤 Platform 요청을 처리할 수 없다는 오류가 기록됐다. 따라서 HMD 미착용이나 시작 씬 누락이 아니라 Unity Play-In-Editor의 PC Link 런타임 호환 문제가 직접 원인이다.
+
+Meta Horizon Link의 Public Test Channel 전환은 Editor에서 SDK 205를 진단하기 위한 임시 개발 경로다. 출시 사용자가 PTC를 사용해야 한다는 의미가 아니며 Quest 단독 실행 APK는 PC Link를 거치지 않는다.
+
+- Meta XR Platform SDK v205 공식 알려진 문제: https://developers.meta.com/horizon/downloads/package/meta-xr-platform-sdk/
+- Meta Horizon Alpha·Beta·RC·Production 릴리스 채널: https://developers.meta.com/horizon/resources/publish-release-channels/
+
+#### 현재 APK 동작 경계
+
+- `MetaPlatformIdentityProbe`는 Player에서 Platform SDK 초기화, entitlement, 앱 범위 사용자 ID 조회를 시도한다.
+- `PPETrainingTelemetryCapture`는 Quest의 `Application.persistentDataPath`에 JSONL 원본을 기록할 수 있다.
+- 현재 `TycheTrainingTelemetryUploader`는 `Application.isEditor`가 아니면 출시 Player 인증 미연결을 보고하고 업로드를 시작하지 않는다.
+- 따라서 현재 APK는 Meta ID와 로컬 JSONL 진단은 가능하지만 `Quest APK → 서버 → MySQL → 확인 HTML` 통합 검증은 불가능하다.
+- 단순 sideload만으로 entitlement 성공을 확정하지 않는다. Meta 테스트 계정과 Alpha 릴리스 채널을 사용한 실제 Quest 회차가 최종 기준이다.
+
+#### 재개 시 후속작업
+
+1. Editor 진단이 필요하면 PC Meta Horizon Link를 SDK 205 호환 Public Test Channel로 전환하고 Unity를 재시작한다.
+2. HMD와 Meta 테스트 계정으로 `0_App`부터 짧은 새 세션을 실행해 probe가 `Completed` 또는 `CompletedWithoutAgeCategory`인지 먼저 확인한다.
+3. 출시 경로에는 앱 범위 Meta ID와 `Users.GetUserProof()`를 획득하는 Quest 인증기를 구현한다.
+4. 서버는 User Proof를 Meta 측에 검증하고 검증 성공 세션에만 단기 업로드 토큰과 숫자형 `participantId`를 발급한다.
+5. Quest용 HTTPS 업로더에 로컬 원본 우선 저장, ACK, 중복 제거, 네트워크 복구와 앱 재실행 재전송을 연결한다. Editor Bearer 토큰을 APK에 포함하지 않는다.
+6. Meta ID가 없거나 검증되지 않은 출시 회차는 익명 정상 사용자로 확정하지 않고 기기에 보존해 재시도·진단 상태로 남긴다.
+7. Alpha 채널 APK에서 `Meta ID → User Proof 검증 → participantId → 전체 이벤트 → MySQL → 확인 화면`을 같은 `sessionId`와 이벤트 수로 대조한다.
+8. 네트워크 차단·복구, 중복 전송, 강제 종료·재실행 뒤에도 고유 이벤트 수와 완료 상태가 유지되는지 검증한다.
+
+현재 확정된 완료 범위는 `HMD 실기 원본 수집 → 로컬 Editor 업로드 → Express → 로컬 MySQL → 상세 조회`다. Meta ID, Quest Player 업로드, User Proof 서버 검증, 운영 HTTPS, 운영 DB와 Meta Alpha APK 통합은 후속작업으로 보류한다. 다음 재개 때 정적 하네스나 과거 익명 세션을 Meta 인증 성공으로 확대 해석하지 않는다.

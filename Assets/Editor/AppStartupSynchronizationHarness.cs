@@ -31,7 +31,8 @@ public static class AppStartupSynchronizationHarness
             ValidateTitleScene(titleScene);
 
             Debug.Log(
-                "[App Startup Synchronization] PASS: title loading is gated by physical XR render readiness, " +
+                "[App Startup Synchronization] PASS: builds gate title loading on physical XR readiness, " +
+                "Editor Game View may bypass that gate, Meta SDK Editor testing is opt-in, " +
                 "0_App does not auto-play BGM, and 1_Title owns title BGM start.");
         }
         finally
@@ -72,6 +73,8 @@ public static class AppStartupSynchronizationHarness
         SerializedObject serializedBootstrap = new(bootstrap);
         Require(serializedBootstrap.FindProperty("waitForXrDisplayBeforeTitle").boolValue,
             "AppSceneBootstrap must wait for the physical XR display.");
+        Require(!serializedBootstrap.FindProperty("waitForPhysicalXrDisplayInEditor").boolValue,
+            "Editor Game View must bypass physical HMD readiness unless explicitly enabled.");
         Require(serializedBootstrap.FindProperty("xrWarmupRenderFrames").intValue >= 2,
             "AppSceneBootstrap must wait for at least two XR render callbacks.");
         Require(serializedBootstrap.FindProperty("xrReadinessWarningSeconds").floatValue > 0f,
@@ -85,6 +88,11 @@ public static class AppStartupSynchronizationHarness
             "0_App AudioManager must persist into 1_Title.");
         Require(serializedAudio.FindProperty("m_StartupBgmId").stringValue == "title",
             "0_App title BGM library ID must remain 'title'.");
+
+        MetaPlatformIdentityProbe identityProbe = FindSingle<MetaPlatformIdentityProbe>(scene);
+        SerializedObject serializedIdentity = new(identityProbe);
+        Require(!serializedIdentity.FindProperty("useMetaPlatformSdkInEditor").boolValue,
+            "Meta Platform SDK use must remain opt-in for Editor Game View tests.");
     }
 
     private static void ValidateTitleScene(Scene scene)

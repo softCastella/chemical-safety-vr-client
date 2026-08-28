@@ -129,3 +129,80 @@ Android OpenXR의 Automatic Viewport Dynamic Resolution, Foveated Rendering과 A
 5. SMAA/FXAA는 글자 흐림과 추가 비용이 있어 마지막 비교 항목으로 둔다.
 
 현재 상태는 정적·Unity Editor 설정 검증까지이며 Quest 양안 화질과 성능은 아직 정상으로 확정하지 않는다.
+
+## 2026-08-28 로고·컨트롤러 가이드·태블릿 문서 이미지별 진단
+
+### 확인한 원인 후보
+
+- `VrLogo_2d.png`는 세밀한 한글, 얇은 세로선과 Glow가 한 이미지에 구워져 있지만 mipmap이 꺼진
+  상태로 약 `96 × 64` 크기의 World Space UI에 축소 표시된다. `Preserve Aspect`도 꺼져 있어 작은
+  머리 움직임마다 내부 1픽셀 선의 샘플이 교대할 가능성이 크다.
+- `Controller_tri.png`, `Controller_gri.png`, `Controller_joy.png`는 컨트롤러 도해와
+  `조이스틱/트리거 버튼/그립 버튼` 글자가 각각 한 PNG에 합쳐진 이미지다. 별도 TMP 텍스트는 없다.
+  얇은 사선과 글자가 함께 mipmap off, aniso 1, Android 일반 압축 상태이며, 씬에서는 정사각형
+  `100 × 100`, scale 5와 `Preserve Aspect` off로 표시되어 원본 종횡비와 맞지 않는다.
+- `work_confirm_tablet_readable.png`는 mipmap on, aniso 16, 비압축 상태라 기본 Import 설정은 이미
+  비교적 안전하다. 남은 번쩍임은 실제 화면 픽셀보다 얇은 표 선·글자와 비스듬한 관찰 각도의 영향이
+  우선 후보다.
+- 플레이어 서명은 획을 두껍게 보정했을 때 형태가 어색해져 현재 `sign_player_rm.png` 한 장으로
+  다시 만든 기준본이다. 이 이미지의 획 두께·형태·한 장 구성은 변경하지 않는다. mipmap on,
+  aniso 8과 전용 셰이더 depth offset이 이미 적용되어 있으므로 남은 비교 대상은 Android 압축,
+  투명 가장자리 처리와 문서 면과의 실제 깊이 간격이다.
+- MSAA 4x는 UI 쿼드의 외곽선에는 도움을 주지만 PNG 내부에 그려진 1픽셀 글자·사선의 시간축
+  반짝임을 직접 해결하지는 못한다.
+
+### 권장 적용 순서
+
+1. 로고와 컨트롤러 세 이미지에 mipmap, aniso 8~16, Clamp를 적용하고 Android는 비압축 또는 고품질
+   ASTC로 한 항목씩 비교한다.
+2. 씬/Prefab Inspector에서 `Preserve Aspect`를 켜고 RectTransform을 원본 비율에 맞춘다. 런타임
+   코드에서 크기나 비율을 덮어쓰지 않는지 함께 확인한다.
+3. 작은 로딩 로고는 세부 문구·Glow를 유지한 원본 축소본 대신 작은 화면용 단순 로고를 별도 사용한다.
+   컨트롤러 이미지는 현재처럼 한 장 구성을 유지한다. Import 설정을 바꾼 뒤에도 떨리면 원본의 도해
+   선과 포함된 글자 획을 최종 표시에서 최소 2~3픽셀이 되도록 함께 굵혀 다시 내보낸다.
+4. 태블릿 원본의 표 선과 작은 글자를 굵히거나 실제 물리 크기/관찰 거리를 조정한다. 서명은 현재의
+   한 장 이미지와 획 두께를 그대로 유지하고, `alphaIsTransparency`, 무압축/고품질 압축과 문서
+   법선 방향의 미세 간격만 단일 변수로 비교한다.
+5. 위 조치 뒤에도 화면 전체가 아지랑이처럼 움직일 때만 GPU frame time, 재투영과 Render Scale을
+   별도 원인으로 조사한다.
+
+이번 단계에서는 비교 기준을 잃지 않도록 로고·컨트롤러·태블릿의 Texture Importer, RectTransform,
+원본 이미지를 변경하지 않았다. 각 변경은 Game View 정면/사선/이동과 Quest 양안을 같은 위치에서
+비교한 뒤 채택한다.
+
+### 2026-08-28 적용
+
+#### 변경 전 필수 질문
+
+1. 기존 Inspector/씬 작성값은 위치·크기·앵커·스케일을 유지하고 각 `Image`의
+   `Preserve Aspect`만 켜서 보존한다.
+2. 단일 기준은 각 PNG의 `TextureImporter`와 씬/Prefab에 직렬화된 `Image`이다.
+3. 입력 경로는 변경하지 않는다. 이번 수정은 렌더링 샘플링만 대상으로 한다.
+4. 런타임 자동 수리나 fallback을 추가하지 않는다.
+5. 로고, 컨트롤러 가이드, 태블릿 문서와 플레이어 서명 렌더링에만 영향이 있고 음성, PPE Grab,
+   텔레포트와 퀴즈 상태는 보존한다.
+6. 변경 전 기준은 사용자가 제공한 정면 캡처와 기존 Import 설정이며, 변경 후에는 같은 거리의
+   정면/사선/머리 이동을 비교한다.
+7. 정적 설정과 Unity Import/컴파일을 먼저 확인하고 Quest/OpenXR 양안 확인은 별도로 구분한다.
+
+#### 적용한 변경
+
+- `VrLogo_2d.png`와 `Controller_tri/gri/joy.png`는 한 장짜리 원본 구성을 유지하고 mipmap,
+  Trilinear, aniso 8, Android 고품질 압축을 적용했다.
+- 현재 PPE 씬의 컨트롤러 이미지 3개, `6_LoadingScene_0`의 로고와
+  `Title_Logo_Canvas.prefab`의 로고는 위치·크기를 바꾸지 않고 `Preserve Aspect`를 켰다.
+- `work_confirm_tablet_readable.png`는 기존 mipmap/aniso 16/비압축을 유지하고 Trilinear만 적용했다.
+- 플레이어 서명은 현재 `sign_player_rm.png` 한 장과 획을 그대로 유지했다. Unity가 이 NPOT 원본을
+  강제로 정사각형 크기로 리사이즈하지 않도록 `nPOTScale: None`으로 바꾸고 Trilinear, Clamp,
+  투명 가장자리 처리와 Android 고품질 압축을 적용했다. 서명 굵기·형태·이미지 파일은 변경하지 않았다.
+- `PPELocomotionPpeRegressionValidationHarness`에 위 Import 설정, 컨트롤러/로고 종횡비 보존과
+  서명 단일 이미지 샘플링 조건 검사를 추가했다.
+
+#### 남은 수동 검증
+
+- 정적 설정 검사 `THIN_IMAGE_STATIC_VALIDATION_PASS`와 `dotnet build --no-restore` 오류 0개를
+  확인했다. Unity Editor 메뉴 하네스와 실제 렌더링 비교는 아직 실행 증거가 없어 완료로 확정하지 않는다.
+- Game View에서 로고, 컨트롤러 도해, 태블릿 표 선과 서명을 같은 거리의 정면·사선·머리 이동으로
+  비교한다.
+- Quest/OpenXR 양안에서 컨트롤러 이미지가 찌그러지지 않는지, 서명 획 형태가 기존 기준본과 같은지,
+  시간축 반짝임이 줄었는지 확인한다.

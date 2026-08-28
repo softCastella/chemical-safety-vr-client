@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,6 +19,7 @@ public sealed class PPEQuizPage
 [Serializable]
 public sealed class PPEQuizQuestion
 {
+    public PPEQuizTopic topic;
     [TextArea(3, 12)] public string prompt;
     public string[] options;
     [Range(0, 3)] public int correctOption;
@@ -73,6 +75,10 @@ public sealed class PPEQuizController : MonoBehaviour
     [SerializeField] string trainingWrongFeedbackMessage;
     [SerializeField] string testResultTitle;
 
+    [Header("Scenario And Mode Question Catalog")]
+    [Tooltip("Authored question pools separated by work plan and learning mode.")]
+    [SerializeField] PPEQuizQuestionCatalog questionCatalog;
+
     [Header("Authored Training Questions")]
     [SerializeField] PPEQuizQuestion[] trainingQuestions;
 
@@ -84,6 +90,8 @@ public sealed class PPEQuizController : MonoBehaviour
     bool isActive;
     bool hasAnswered;
     ScenarioDetailModal.PpeLearningMode activeMode;
+    PPEQuizQuestion[] activeQuestions;
+    bool usingCatalogQuestions;
     Coroutine advanceRoutine;
     string[] educationPrompts;
     string[][] educationOptions;
@@ -137,11 +145,22 @@ public sealed class PPEQuizController : MonoBehaviour
 
     public void BeginQuiz(ScenarioDetailModal.PpeLearningMode mode)
     {
-        if (!HasCompleteQuizReferences(mode) ||
+        ScenarioDetailModal.PpeWorkPlan workPlan = voiceFlowDirector != null
+            ? voiceFlowDirector.ActiveWorkPlan
+            : ScenarioDetailModal.PpeWorkPlan.None;
+        BeginQuiz(mode, workPlan);
+    }
+
+    public void BeginQuiz(
+        ScenarioDetailModal.PpeLearningMode mode,
+        ScenarioDetailModal.PpeWorkPlan workPlan)
+    {
+        if (!TryPrepareActiveQuestions(mode, workPlan) ||
+            !HasCompleteQuizReferences(mode) ||
             (mode == ScenarioDetailModal.PpeLearningMode.Test && !HasCompleteResultReferences()))
         {
             Debug.LogError(
-                "PPEQuizController requires five authored quiz pages and, for Test, complete Result Canvas references.",
+                $"PPEQuizController requires a valid {workPlan}/{mode} pool, five authored quiz pages, and, for Test, complete Result Canvas references.",
                 this);
             return;
         }
@@ -189,8 +208,8 @@ public sealed class PPEQuizController : MonoBehaviour
             correctAnswerCount++;
             SetButtonsInteractable(page, false);
             string correctMessage = activeMode == ScenarioDetailModal.PpeLearningMode.Training
-                ? trainingQuestions[currentPageIndex].feedback
-                : $"정답입니다. {page.explanation}";
+                ? activeQuestions[currentPageIndex].feedback
+                : $"정답입니다. {activeQuestions[currentPageIndex].feedback}";
             ShowFeedback(correctMessage, true, showText: true);
             AudioManager.Instance?.PlaySfx(correctSfxId);
             advanceRoutine = StartCoroutine(AdvanceAfterAnswer());
@@ -199,7 +218,7 @@ public sealed class PPEQuizController : MonoBehaviour
 
         string wrongMessage = activeMode == ScenarioDetailModal.PpeLearningMode.Training
             ? trainingWrongFeedbackMessage
-            : $"오답입니다. {page.explanation}";
+            : $"오답입니다. {activeQuestions[currentPageIndex].feedback}";
         ShowFeedback(wrongMessage, false, showText: true);
         Button selectedButton = page.optionButtons[optionIndex];
         if (selectedButton == null || !selectedButton.interactable)
@@ -250,24 +269,11 @@ public sealed class PPEQuizController : MonoBehaviour
     void ApplyQuestionContent(int pageIndex)
     {
         PPEQuizPage page = pages[pageIndex];
-        string prompt;
-        string[] options;
-
-        if (activeMode == ScenarioDetailModal.PpeLearningMode.Training)
-        {
-            prompt = trainingQuestions[pageIndex].prompt;
-            options = trainingQuestions[pageIndex].options;
-        }
-        else if (activeMode == ScenarioDetailModal.PpeLearningMode.Test)
-        {
-            prompt = testQuestions[pageIndex].prompt;
-            options = testQuestions[pageIndex].options;
-        }
-        else
-        {
-            prompt = educationPrompts[pageIndex];
-            options = educationOptions[pageIndex];
-        }
+        PPEQuizQuestion question = activeQuestions[pageIndex];
+        string prompt = usingCatalogQuestions
+            ? $"Q{pageIndex + 1}. {question.prompt}"
+            : question.prompt;
+        string[] options = question.options;
 
         page.questionLabel.text = prompt;
         for (int index = 0; index < page.optionButtons.Length; index++)
@@ -325,6 +331,8 @@ public sealed class PPEQuizController : MonoBehaviour
     {
         ResetQuizProgress();
         activeMode = ScenarioDetailModal.PpeLearningMode.Education;
+        activeQuestions = null;
+        usingCatalogQuestions = false;
         correctAnswerCount = 0;
         currentPageIndex = 0;
         SetActive(quizRoot, false);
@@ -405,20 +413,117 @@ public sealed class PPEQuizController : MonoBehaviour
 
     int GetCorrectOption(int pageIndex)
     {
-        if (activeMode == ScenarioDetailModal.PpeLearningMode.Training)
-            return trainingQuestions[pageIndex].correctOption;
-        if (activeMode == ScenarioDetailModal.PpeLearningMode.Test)
-            return testQuestions[pageIndex].correctOption;
-        return pages[pageIndex].correctOption;
+        return activeQuestions[pageIndex].correctOption;
     }
 
     int GetOptionCount(int pageIndex)
     {
-        if (activeMode == ScenarioDetailModal.PpeLearningMode.Training)
-            return trainingQuestions[pageIndex].options.Length;
-        if (activeMode == ScenarioDetailModal.PpeLearningMode.Test)
-            return testQuestions[pageIndex].options.Length;
-        return educationOptions[pageIndex].Length;
+        return activeQuestions[pageIndex].options.Length;
+    }
+
+    bool TryPrepareActiveQuestions(
+        ScenarioDetailModal.PpeLearningMode mode,
+        ScenarioDetailModal.PpeWorkPlan workPlan)
+    {
+        activeQuestions = null;
+        usingCatalogQuestions = questionCatalog != null;
+
+        if (questionCatalog != null)
+        {
+            if (pages == null || pages.Length == 0 ||
+                workPlan == ScenarioDetailModal.PpeWorkPlan.None ||
+                !questionCatalog.TryGetQuestions(workPlan, mode, out PPEQuizQuestion[] pool) ||
+                !HasCompleteQuestionBank(
+                    pool,
+                    ExpectedOptionCount(mode),
+                    RequiresFeedback(mode),
+                    minimumQuestionCount: pages?.Length ?? 5))
+            {
+                return false;
+            }
+
+            activeQuestions = SelectBalancedQuestions(pool, pages.Length);
+            return activeQuestions.Length == pages.Length;
+        }
+
+        activeQuestions = BuildLegacyQuestions(mode);
+        return activeQuestions != null && activeQuestions.Length == 5;
+    }
+
+    PPEQuizQuestion[] BuildLegacyQuestions(ScenarioDetailModal.PpeLearningMode mode)
+    {
+        if (mode == ScenarioDetailModal.PpeLearningMode.Training)
+            return trainingQuestions;
+        if (mode == ScenarioDetailModal.PpeLearningMode.Test)
+            return testQuestions;
+        if (pages == null || educationPrompts == null || educationOptions == null || pages.Length != 5)
+            return null;
+
+        PPEQuizQuestion[] questions = new PPEQuizQuestion[pages.Length];
+        for (int index = 0; index < pages.Length; index++)
+        {
+            questions[index] = new PPEQuizQuestion
+            {
+                prompt = educationPrompts[index],
+                options = educationOptions[index],
+                correctOption = pages[index].correctOption,
+                feedback = pages[index].explanation,
+            };
+        }
+        return questions;
+    }
+
+    static PPEQuizQuestion[] SelectBalancedQuestions(PPEQuizQuestion[] pool, int count)
+    {
+        Dictionary<PPEQuizTopic, List<PPEQuizQuestion>> byTopic = new();
+        foreach (PPEQuizQuestion question in pool)
+        {
+            if (!byTopic.TryGetValue(question.topic, out List<PPEQuizQuestion> topicQuestions))
+            {
+                topicQuestions = new List<PPEQuizQuestion>();
+                byTopic.Add(question.topic, topicQuestions);
+            }
+            topicQuestions.Add(question);
+        }
+
+        List<PPEQuizTopic> topics = new(byTopic.Keys);
+        Shuffle(topics);
+        List<PPEQuizQuestion> selected = new(count);
+        foreach (PPEQuizTopic topic in topics)
+        {
+            List<PPEQuizQuestion> topicQuestions = byTopic[topic];
+            selected.Add(topicQuestions[UnityEngine.Random.Range(0, topicQuestions.Count)]);
+            if (selected.Count == count)
+                return selected.ToArray();
+        }
+
+        List<PPEQuizQuestion> remaining = new(pool.Length - selected.Count);
+        foreach (PPEQuizQuestion question in pool)
+            if (!selected.Contains(question))
+                remaining.Add(question);
+        Shuffle(remaining);
+        for (int index = 0; selected.Count < count; index++)
+            selected.Add(remaining[index]);
+        return selected.ToArray();
+    }
+
+    static void Shuffle<T>(IList<T> values)
+    {
+        for (int index = values.Count - 1; index > 0; index--)
+        {
+            int swapIndex = UnityEngine.Random.Range(0, index + 1);
+            (values[index], values[swapIndex]) = (values[swapIndex], values[index]);
+        }
+    }
+
+    static int ExpectedOptionCount(ScenarioDetailModal.PpeLearningMode mode)
+    {
+        return mode == ScenarioDetailModal.PpeLearningMode.Test ? 4 : 3;
+    }
+
+    static bool RequiresFeedback(ScenarioDetailModal.PpeLearningMode mode)
+    {
+        return mode != ScenarioDetailModal.PpeLearningMode.Test;
     }
 
     void CaptureEducationContent()
@@ -696,19 +801,20 @@ public sealed class PPEQuizController : MonoBehaviour
                     return false;
         }
 
-        if (mode == ScenarioDetailModal.PpeLearningMode.Training)
-            return HasCompleteQuestionBank(trainingQuestions, 3, requireFeedback: true);
-        if (mode == ScenarioDetailModal.PpeLearningMode.Test)
-            return HasCompleteQuestionBank(testQuestions, 4, requireFeedback: false);
-        return true;
+        return HasCompleteQuestionBank(
+            activeQuestions,
+            ExpectedOptionCount(mode),
+            RequiresFeedback(mode),
+            minimumQuestionCount: pages.Length);
     }
 
     static bool HasCompleteQuestionBank(
         PPEQuizQuestion[] questions,
         int expectedOptionCount,
-        bool requireFeedback)
+        bool requireFeedback,
+        int minimumQuestionCount = 5)
     {
-        if (questions == null || questions.Length != 5)
+        if (questions == null || questions.Length < minimumQuestionCount)
             return false;
 
         foreach (PPEQuizQuestion question in questions)

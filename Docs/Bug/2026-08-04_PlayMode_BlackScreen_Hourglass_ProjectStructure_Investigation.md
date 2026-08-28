@@ -566,3 +566,71 @@ XR 카메라와 함께 동작하면 한 프레임에 추가 카메라 렌더링�
   Android APK 콜드 스타트에서도 같은 순서를 별도로 확인해야 한다.
 - Link의 모래시계 UI는 PC Link compositor 경로이므로 APK에서 동일 UI가 표시된다고 확정하지 않는다. 다만 APK에서도
   첫 프레임 지연·검정 화면이 없는지는 실제 빌드로 확인해야 한다.
+
+## 2026-08-28 후속: Meta SDK 없는 Editor·특정 씬 Play Mode
+
+### 변경 전 필수 판단
+
+1. 이번 변경이 대응하는 요청은 Unity Game View/Editor Play Mode에서 Meta App ID·SDK 계정 설정이 없어도
+   `0_App` 또는 현재 연 특정 PPE 씬을 실행할 수 있게 하는 것이다. Quest 빌드의 Meta 인증, 테스트 계정으로
+   얻은 앱 범위 사용자 ID, PPE 흐름·입력·UI·오디오·텔레포트는 보존한다.
+2. 기존 Inspector/씬 작성값은 보존한다. Editor의 Meta SDK 사용 여부는 `MetaPlatformIdentityProbe`, 물리 HMD
+   준비 대기 여부는 `AppSceneBootstrap`의 새 직렬화 옵션이 각각 소유하며 런타임에서 씬 값을 덮어쓰지 않는다.
+3. 계정 경로는 `0_App의 MetaPlatformIdentityProbe → Meta Platform SDK 초기화 → entitlement →
+   Users.GetLoggedInUser → TycheLocalTrainingRegistrationClient → /api/training-registrations`다. 직접 PPE 씬은
+   Probe와 등록 클라이언트 없이 `PPETrainingTelemetryCapture`의 로컬 익명 세션만 기록한다.
+4. SDKless Editor 실행은 가짜 Meta ID를 생성하거나 Meta 인증 성공으로 표시하지 않는다. 상태를 명시적으로
+   구분하고 로컬 텔레메트리의 `metaAppScopedUserId`는 비워 둔다. 누락 참조나 서버 응답은 자동 수리하지 않는다.
+5. 영향 소비자는 Meta Welcome 판정, 개발용 로컬 등록, App 씬의 HMD 준비 게이트와 텔레메트리의 Meta 진단
+   필드다. UI·XR 입력·Collider·PPE Grab·거울·Quest 양안 렌더링은 변경하지 않는다.
+6. 변경 전 기준은 `0_App` Editor 실행에서 Meta SDK 오류가 발생하고 물리 HMD가 없으면 Title 활성화가 계속
+   대기하는 상태다. 변경 후에는 SDKless App 씬과 직접 PPE 씬 Play Mode, 명시적 SDK Editor 테스트와 Quest
+   기본 SDK 사용 조건을 각각 검증한다.
+7. 정적 C# 빌드와 Editor 하네스, Game View Play Mode까지 실제로 확인한다. Meta 테스트 계정의 실제 앱 범위
+   ID, 서버 저장, Quest/OpenXR 양안은 계정과 HMD가 준비된 환경의 별도 수동 검증으로 남긴다.
+
+### 근본 원인
+
+- `MetaPlatformIdentityProbe`가 Editor에서도 Meta Platform SDK 초기화와 entitlement를 무조건 요청해 App ID 또는
+  로그인된 Meta 계정이 없는 개발 환경에서 오류가 발생했다.
+- `AppSceneBootstrap`의 물리 HMD 준비 게이트가 빌드와 Editor Game View에 동일하게 적용되어, HMD 없이
+  `0_App`에서 시작하면 다음 씬 활성화가 계속 대기했다.
+- 개발용 등록 클라이언트의 Meta ID·세션 대기 만료가 `Debug.LogError`여서 Console `Error Pause`가 켜진
+  테스트 환경을 다시 멈출 수 있었다.
+
+### 적용한 변경
+
+- `MetaPlatformIdentityProbe`에 Inspector 직렬화 옵션 `useMetaPlatformSdkInEditor`를 추가하고 `0_App` 기본값을
+  껐다. 이 상태의 Editor에서는 SDK 콜백을 시작하지 않고 `SkippedForEditorTesting` 상태로 진행한다.
+- SDKless 상태에서는 `TycheLocalTrainingRegistrationClient`를 생성하지 않는다. Meta 식별 경로가 중간에
+  실패하거나 제한 시간이 끝나도 개발용 서버 등록만 경고와 함께 건너뛰며 로컬 텔레메트리는 유지한다.
+- `AppSceneBootstrap`에 `waitForPhysicalXrDisplayInEditor`를 추가하고 `0_App` 기본값을 껐다. Editor Game View는
+  HMD를 기다리지 않지만 Editor가 아닌 Quest/Standalone 빌드는 기존 물리 XR 준비 게이트를 계속 사용한다.
+- 실제 Meta 계정을 Editor에서 검증할 때는 `0_App`의 `MetaPlatformIdentityProbe > Use Meta Platform SDK In Editor`를
+  명시적으로 켠다. Editor 외 빌드는 이 옵션 값과 관계없이 Meta SDK 경로를 사용한다.
+- 가짜 Meta ID, 자동 테스트 계정, 직접 PPE 씬용 identity probe는 만들지 않았다.
+- `AppStartupSynchronizationHarness`와 `PPETrainingDataContractHarness`에 두 실행 모드의 정적 계약을 추가했다.
+
+### 영향 범위
+
+- SDKless Editor의 앱 시작, 직접 PPE 씬 시작, 개발용 Meta 사용자 등록과 로컬 텔레메트리 식별 필드에만 영향을 준다.
+- SDKless 로컬 기록은 `metaAppScopedUserId`가 없는 익명 세션이다. 테스트 계정으로 SDK 인증에 성공한 경우에는
+  기존 앱 범위 Meta 사용자 ID를 사용해 서버 등록 경로로 진행한다.
+- PPE UI, 음성, 텔레포트, Grab, Collider, 거울, 입력 소비자와 Quest 양안 렌더 설정은 변경하지 않았다.
+
+### 완료한 검증
+
+- 정적 확인: `Assembly-CSharp-Editor.csproj --no-restore` 빌드 오류 0개.
+- Unity Editor 확인: `AppStartupSynchronizationHarness.Validate()`와
+  `PPETrainingDataContractHarness.Validate()` 모두 PASS.
+- `0_App` Game View Play Mode: 일시정지 없이 앱 흐름이 PPE 씬까지 진행했고,
+  Meta probe 1개가 `SkippedForEditorTesting`, 등록 클라이언트 0개, 텔레메트리 캡처 1개였다.
+- `3_PPE_Room_3mode_loco` 직접 Play Mode: Meta probe 0개, 등록 클라이언트 0개,
+  텔레메트리 캡처 1개였으며 Play Mode가 일시정지되지 않았다.
+- 두 Play Mode 실행 직후 Unity Console Error 조회 결과는 각각 0건이었다.
+
+### 아직 필요한 수동 검증
+
+- Meta 테스트 계정으로 `Use Meta Platform SDK In Editor`를 켠 뒤 실제 앱 범위 사용자 ID 획득과
+  `/api/training-registrations` 서버 저장을 확인해야 한다.
+- Quest/OpenXR 기기에서 entitlement, 계정 식별, 양안 렌더링과 빌드의 물리 HMD 준비 게이트를 확인해야 한다.

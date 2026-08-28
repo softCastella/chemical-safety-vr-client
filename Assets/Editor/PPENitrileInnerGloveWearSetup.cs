@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -12,7 +13,8 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public static class PPENitrileInnerGloveWearSetup
 {
-    const string ScenePath = "Assets/Scenes/3_PPE_Room_Train_Test_mask.unity";
+    const string ScenePath = "Assets/Scenes/3_PPE_Room_3mode_loco.unity";
+    const string ActionPanelSourcePath = "Assets/Scripts/PPEActionPanelController.cs";
     const string DisplayParentName = "PPE";
 
     sealed class ItemSpec
@@ -318,6 +320,8 @@ public static class PPENitrileInnerGloveWearSetup
         if (visual == null)
             failures.Add("PPEEquipmentVisualController is missing.");
 
+        ValidateGameViewActivationPath(failures);
+
         foreach (ItemSpec spec in Specs)
         {
             GameObject display;
@@ -403,6 +407,32 @@ public static class PPENitrileInnerGloveWearSetup
         {
             Debug.Log(
                 "Nitrile inner glove wear validation passed: InnerGlove is used before hazmat, InnerGloveSuit after.");
+        }
+    }
+
+    static void ValidateGameViewActivationPath(List<string> failures)
+    {
+        string source = File.ReadAllText(ActionPanelSourcePath);
+        const string methodStart = "public bool TryActivateBodyProximityFromGameView";
+        const string methodEnd = "public bool IsSelectedByInteractor";
+        int start = source.IndexOf(methodStart, StringComparison.Ordinal);
+        int end = start >= 0
+            ? source.IndexOf(methodEnd, start, StringComparison.Ordinal)
+            : -1;
+        if (start < 0 || end <= start)
+        {
+            failures.Add("Game View body-proximity activation method could not be inspected.");
+            return;
+        }
+
+        string method = source.Substring(start, end - start);
+        if (!method.Contains("IsWithinBodyAttachRange()", StringComparison.Ordinal))
+            failures.Add("Game View PPE activation must require the authored body-attach range.");
+        if (method.Contains("IsBodyProximityActivateAttempt()", StringComparison.Ordinal))
+        {
+            failures.Add(
+                "Game View PPE activation must not reuse physical-hand suppression; " +
+                "the authored right-hand test interactor would block the right nitrile glove only.");
         }
     }
 

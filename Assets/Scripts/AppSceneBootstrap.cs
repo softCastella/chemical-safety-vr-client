@@ -11,6 +11,8 @@ public sealed class AppSceneBootstrap : MonoBehaviour
 
     [Header("Physical HMD Readiness")]
     [SerializeField] private bool waitForXrDisplayBeforeTitle = true;
+    [Tooltip("Editor Game View에서도 물리 HMD 렌더 준비를 기다려야 할 때만 켭니다.")]
+    [SerializeField] private bool waitForPhysicalXrDisplayInEditor;
     [SerializeField, Min(1)] private int xrWarmupRenderFrames = 2;
     [SerializeField, Min(0f)] private float xrReadinessWarningSeconds = 15f;
 
@@ -47,10 +49,16 @@ public sealed class AppSceneBootstrap : MonoBehaviour
         while (titleLoad.progress < 0.9f)
             yield return null;
 
-        if (waitForXrDisplayBeforeTitle)
+        if (ShouldWaitForPhysicalXrDisplay())
             yield return WaitForPhysicalXrRenderReadiness();
 
         titleLoad.allowSceneActivation = true;
+    }
+
+    private bool ShouldWaitForPhysicalXrDisplay()
+    {
+        return waitForXrDisplayBeforeTitle &&
+            (!Application.isEditor || waitForPhysicalXrDisplayInEditor);
     }
 
     private IEnumerator WaitForPhysicalXrRenderReadiness()

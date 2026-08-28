@@ -30,6 +30,7 @@ Shader "Project/Handwritten Signature Reveal"
 
             Blend SrcAlpha OneMinusSrcAlpha
             ZWrite Off
+            Offset -1, -1
             Cull Off
 
             HLSLPROGRAM

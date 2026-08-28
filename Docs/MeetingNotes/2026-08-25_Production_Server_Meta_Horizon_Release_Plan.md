@@ -1177,7 +1177,7 @@ Meta Alpha APK의 실제 Quest 세션이 Vultr·MySQL·대시보드까지 같은
 
 `Tools > PPE > Configure Local Telemetry DB Upload`은 사용자가 `0_App` 씬을 명시적으로 연 상태에서만 `AppMain`에 업로더를 추가한다. 기존 컴포넌트가 있으면 Inspector 값을 덮어쓰지 않는다. Unity가 생성한 컴파일 응답 설정으로 런타임 업로더와 Editor 설정 도구의 최신 소스를 별도 임시 DLL에 컴파일해 오류가 없음을 확인했다. 테스트 DB migration과 Express → MySQL 합성 데이터 왕복은 완료했으며, 열린 Unity의 자동 재컴파일, 설정 메뉴 실행, 씬 저장과 실제 Unity → Express → MySQL 전송은 아직 남아 있다.
 
-서버 기준 코드는 `0d47517faa2daa01e3fb337681a3b0b9bd7ea9a4` 작업 트리 위에 구현되었으며 아직 서버 텔레메트리 커밋 SHA가 생성되지 않았다. 로컬 테스트 DB migration과 합성 이벤트 왕복 결과는 아래에 기록한다. 서버 공용 문서 미러에도 같은 검증 사실을 반영했으며 최종 동기화 완료는 각 저장소 커밋 SHA가 생성된 뒤 다시 확인한다.
+서버 텔레메트리 구현은 서버 `main`의 `a036897fce5f8c6e2244f217ead418458402721b`에 커밋·푸시했다. 클라이언트 연동 구현은 `260828_ppe_client_integration_followup` 브랜치의 `ae997d68970deeeacf34af27137425047ffaff72`에 커밋·푸시했으며 아직 클라이언트 `main`에는 병합하지 않았다. 아래 로컬 MySQL·실기 결과는 이 구현의 검증 근거지만 운영 DB migration, 운영 수집과 Meta Alpha APK 통합 완료를 의미하지 않는다.
 
 ### 2026-08-28 로컬 MySQL·인코딩 통합 검증
 

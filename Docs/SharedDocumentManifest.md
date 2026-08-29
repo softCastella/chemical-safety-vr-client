@@ -16,6 +16,8 @@ Unity XR 클라이언트와 Express 서버를 별도 저장소에서 작업하�
   - 서버가 제공하는 브랜드 홈페이지와 VR 상세페이지의 현재 구조 및 검증 기록
 - `Docs/MeetingNotes/2026-08-26_PPE_Training_Data_Dashboard_Followup.md`
   - Unity 계측, JSONL, Express API와 실데이터 대시보드의 후속 계약 및 검증 기록
+- `Docs/MeetingNotes/2026-08-30_Client_Server_Auth_Channel_Handoff.md`
+  - Meta 인증, 로컬 등록·텔레메트리 API, 채널·큐 상태와 교차 저장소 인수인계
 
 ## 동기화 규칙
 

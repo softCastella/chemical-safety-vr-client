@@ -124,6 +124,7 @@ public sealed class ScenarioDetailModal : MonoBehaviour
     private void OnEnable()
     {
         ownerCanvas = GetComponent<Canvas>();
+        ClearCurrentSelection();
         SetSelectionListeners(true);
         if (trainingButton != null)
             trainingButton.onClick.AddListener(SelectTraining);
@@ -241,12 +242,7 @@ public sealed class ScenarioDetailModal : MonoBehaviour
         modalRoot.transform.SetAsLastSibling();
         Debug.Log($"ScenarioDetailModal showing scenario {scenarioIndex + 1} on {modalRoot.name}.", modalRoot);
         LogModalTransformDiagnostics();
-        if (openWithPpeModeChoices)
-            ppeEducationModeButton?.Select();
-        else if (openWithTrainingChoices)
-            incompletePpeButton?.Select();
-        else
-            trainingButton?.Select();
+        ClearCurrentSelection();
         ModalShown?.Invoke(scenarioIndex);
     }
 
@@ -261,6 +257,7 @@ public sealed class ScenarioDetailModal : MonoBehaviour
     {
         Hide();
         SetSelectionUiVisible(true);
+        ClearCurrentSelection();
         ScenarioSelectionRestored?.Invoke();
     }
 
@@ -286,7 +283,7 @@ public sealed class ScenarioDetailModal : MonoBehaviour
             if (descriptionText != null) descriptionText.text = trainingChoiceDescription;
         }
         ShowTrainingChoiceActions();
-        incompletePpeButton?.Select();
+        ClearCurrentSelection();
         TrainingSelected?.Invoke();
     }
 
@@ -347,7 +344,7 @@ public sealed class ScenarioDetailModal : MonoBehaviour
             if (descriptionText != null) descriptionText.text = detail.Description;
         }
         ShowPrimaryActions();
-        trainingButton?.Select();
+        ClearCurrentSelection();
     }
 
     private void SelectPpeEducationMode()
@@ -501,7 +498,7 @@ public sealed class ScenarioDetailModal : MonoBehaviour
         if (ppeModeDescriptionRoot != null)
             ppeModeDescriptionRoot.SetActive(true);
         ppeModeChoiceRoot.SetActive(true);
-        ppeEducationModeButton?.Select();
+        ClearCurrentSelection();
     }
 
     private void ShowWorkPlanChoices()
@@ -535,7 +532,7 @@ public sealed class ScenarioDetailModal : MonoBehaviour
                 educationChoiceRoot.SetActive(false);
             testWorkPlanChoiceRoot.SetActive(true);
             ShowWorkPlanDescription();
-            testConfinedSpaceButton?.Select();
+            ClearCurrentSelection();
             return;
         }
 
@@ -552,7 +549,7 @@ public sealed class ScenarioDetailModal : MonoBehaviour
 
         educationChoiceRoot.SetActive(true);
         ShowWorkPlanDescription();
-        incompletePpeButton?.Select();
+        ClearCurrentSelection();
     }
 
     private void ShowWorkPlanDescription()
@@ -595,7 +592,13 @@ public sealed class ScenarioDetailModal : MonoBehaviour
             ppeModeDescriptionRoot.SetActive(false);
         SetOnlyActive(scenarioDescriptionObjects, selectedScenario);
         educationChoiceRoot.SetActive(true);
-        incompletePpeButton?.Select();
+        ClearCurrentSelection();
+    }
+
+    private static void ClearCurrentSelection()
+    {
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(null);
     }
 
     private void ShowScenarioContent(int scenarioIndex)

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const hangulPattern = /[가-힣]/u;
@@ -69,6 +70,60 @@ function runSelfTest() {
   process.stdout.write(`[Korean Commit Message Harness] PASS: ${cases.length}개 사례\n`);
 }
 
+function runGit(arguments_) {
+  const result = spawnSync("git", arguments_, {
+    encoding: "utf8",
+    windowsHide: true,
+  });
+  if (result.status !== 0) {
+    const detail = result.stderr?.trim() || result.stdout?.trim() || "Git 명령 실패";
+    throw new Error(detail);
+  }
+  return result.stdout.trim();
+}
+
+function outgoingCommitIds(input, remoteName) {
+  const zeroOid = /^0+$/u;
+  const commits = new Set();
+
+  for (const line of input.replace(/\r\n?/gu, "\n").split("\n")) {
+    if (!line.trim()) continue;
+    const [, localOid, , remoteOid] = line.trim().split(/\s+/u);
+    if (!localOid || zeroOid.test(localOid)) continue;
+
+    const revisionArguments = remoteOid && !zeroOid.test(remoteOid)
+      ? [`${remoteOid}..${localOid}`]
+      : [localOid, "--not", remoteName ? `--remotes=${remoteName}` : "--remotes"];
+    const output = runGit(["rev-list", ...revisionArguments]);
+    for (const commitId of output.split("\n")) {
+      if (commitId) commits.add(commitId);
+    }
+  }
+
+  return [...commits];
+}
+
+function runPrePush(remoteName) {
+  const input = fs.readFileSync(0, "utf8");
+  const failures = [];
+
+  for (const commitId of outgoingCommitIds(input, remoteName)) {
+    const message = runGit(["show", "-s", "--format=%B", commitId]);
+    const errors = validateKoreanCommitMessage(message);
+    if (errors.length > 0) {
+      failures.push({ commitId, errors });
+    }
+  }
+
+  if (failures.length === 0) return;
+
+  process.stderr.write("푸시 하네스가 원격 전송을 거부했습니다.\n");
+  for (const [index, failure] of failures.entries()) {
+    process.stderr.write(`${index + 1}. ${failure.commitId.slice(0, 12)}: ${failure.errors.join(" ")}\n`);
+  }
+  process.exitCode = 1;
+}
+
 function runCommitHook(messagePath) {
   if (!messagePath) {
     process.stderr.write("커밋 메시지 파일 경로가 필요합니다.\n");
@@ -94,6 +149,8 @@ const executedPath = process.argv[1] ? path.resolve(process.argv[1]) : "";
 if (executedPath === fileURLToPath(import.meta.url)) {
   if (process.argv[2] === "--self-test") {
     runSelfTest();
+  } else if (process.argv[2] === "--pre-push") {
+    runPrePush(process.argv[3]);
   } else {
     runCommitHook(process.argv[2]);
   }

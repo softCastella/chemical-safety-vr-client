@@ -83,7 +83,7 @@ Prefer adding project-specific code under `Assets/Scripts` and editor-only code 
 
 - 커밋 제목에는 한글을 포함한다.
 - 커밋 본문에는 `1. `부터 시작하는 번호 목록으로 변경 내용과 검증 결과를 기록한다.
-- 저장소의 `.githooks/commit-msg`와 `Tools/KoreanCommitMessageHarness.mjs`를 기준 하네스로 사용한다.
+- 저장소의 `.githooks/commit-msg`, `.githooks/pre-push`와 `Tools/KoreanCommitMessageHarness.mjs`를 기준 하네스로 사용한다.
 - 새 clone에서는 `git config core.hooksPath .githooks`로 Git 훅을 활성화한다.
 - 커밋·푸시 결과를 사용자에게 보고할 때도 한글 번호 목록으로 커밋 SHA, 제목과 푸시 대상을 구분한다.
 

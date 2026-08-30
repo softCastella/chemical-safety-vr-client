@@ -82,6 +82,14 @@ function runGit(arguments_) {
   return result.stdout.trim();
 }
 
+function gitCommitExists(commitId) {
+  const result = spawnSync("git", ["cat-file", "-e", `${commitId}^{commit}`], {
+    encoding: "utf8",
+    windowsHide: true,
+  });
+  return result.status === 0;
+}
+
 function outgoingCommitIds(input, remoteName) {
   const zeroOid = /^0+$/u;
   const commits = new Set();
@@ -90,6 +98,13 @@ function outgoingCommitIds(input, remoteName) {
     if (!line.trim()) continue;
     const [, localOid, , remoteOid] = line.trim().split(/\s+/u);
     if (!localOid || zeroOid.test(localOid)) continue;
+
+    if (remoteOid && !zeroOid.test(remoteOid) && !gitCommitExists(remoteOid)) {
+      throw new Error(
+        `원격 기준 커밋 ${remoteOid.slice(0, 12)}이 로컬에 없습니다. ` +
+        `git fetch ${remoteName || "<remote>"} 실행 후 다시 푸시하세요.`,
+      );
+    }
 
     const revisionArguments = remoteOid && !zeroOid.test(remoteOid)
       ? [`${remoteOid}..${localOid}`]
@@ -107,7 +122,16 @@ function runPrePush(remoteName) {
   const input = fs.readFileSync(0, "utf8");
   const failures = [];
 
-  for (const commitId of outgoingCommitIds(input, remoteName)) {
+  let commitIds;
+  try {
+    commitIds = outgoingCommitIds(input, remoteName);
+  } catch (error) {
+    process.stderr.write(`푸시 하네스가 원격 전송을 중단했습니다.\n1. ${error.message}\n`);
+    process.exitCode = 1;
+    return;
+  }
+
+  for (const commitId of commitIds) {
     const message = runGit(["show", "-s", "--format=%B", commitId]);
     const errors = validateKoreanCommitMessage(message);
     if (errors.length > 0) {

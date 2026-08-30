@@ -182,6 +182,8 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     [Tooltip("송기마스크를 잡았을 때 재생할 음성입니다.")]
     [SerializeField] private AudioClip m_MaskGrabVoice;
     [SerializeField] private AudioClip m_HelmetGrabVoice;
+    [Tooltip("방호복 미착용 상태에서 헬멧을 사용 처리했을 때 재생하는 음성입니다.")]
+    [SerializeField] private AudioClip m_HelmetUseWithoutHazmatVoice;
     [Tooltip("방호복 미착용 상태에서 부츠를 사용 처리했을 때 재생할 음성입니다.")]
     [SerializeField] private AudioClip m_BootUseWithoutHazmatVoice;
     [Tooltip("장갑·부츠 좌우 착용 전 테이프를 사용 처리했을 때 재생할 음성입니다.")]
@@ -1367,6 +1369,14 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
             return false;
 
         PPEItemType? itemType = panel?.InspectionState?.PresentationBinding?.ItemIdentity?.ItemType;
+
+        if (itemType == PPEItemType.ConstructionHelmet &&
+            (m_HazmatEquipController == null || !m_HazmatEquipController.IsEquipped))
+        {
+            return RejectUseWithWrongSfx(
+                panel,
+                m_HelmetUseWithoutHazmatVoice);
+        }
 
         if (m_EnforceHazmatBeforeGlovesAndBoots &&
             RequiresHazmatBeforeUse(itemType) &&

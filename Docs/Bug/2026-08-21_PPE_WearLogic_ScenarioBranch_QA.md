@@ -372,3 +372,27 @@
   때 `UseApproved`와 오른손 착용 시각이 나타나는지 확인해야 한다. 같은 순서로 왼쪽도 비교한다.
 - Quest/OpenXR에서는 기존대로 오른쪽 장갑은 오른손, 왼쪽 장갑은 왼손으로 잡는 손별 규칙이 유지되는지
   별도 확인해야 한다.
+## 2026-08-30 후속: 방호복보다 헬멧을 먼저 착용할 때 교육 음성
+
+### 적용한 변경
+
+- 활성 빌드 씬 `Assets/Scenes/3_PPE_Room_3mode_loco.unity`의 교육 모드에서 방호복을 착용하지 않은 채 헬멧 `Use`를 시도하면 사용 승인을 차단한다.
+- 헬멧 패널의 기존 `Wrong Answer` SFX를 재생한 뒤 `Assets/Audio/Voice/4_PPE/4_VO_PPE_EDU_208_SuitFirst.mp3`를 재생한다.
+- `208_SuitFirst`는 교육 모드 전용이다. 훈련 모드와 테스트 모드에서는 이 음성을 재생하지 않고 기존 모드별 거절 피드백 정책을 유지한다.
+- `PPEHazmatVoiceSetup`의 명시적 설정·검증 메뉴에 `m_HelmetUseWithoutHazmatVoice` 직렬화 연결과 누락 검사를 추가했다.
+
+### 근본 원인
+
+- 기존 `PPEVoiceFlowDirector.CanApprovePpeUse()`에는 장갑·장화 등의 방호복 선행 조건은 있었지만 `ConstructionHelmet`의 방호복 선행 조건과 `208_SuitFirst` 참조가 없었다.
+
+### 영향 범위
+
+- 상태 기준은 기존 `PPEHazmatEquipController.IsEquipped`, 입력과 승인 경로는 기존 `PPEActionPanelController.ResolveUseChoice()`와 `PPEVoiceFlowDirector.CanApprovePpeUse()`를 사용한다.
+- 헬멧 Grab 안내, 방호복 착용 처리, 다른 PPE의 순서·음성, UI 작성값, 텔레포트와 거울 동작은 변경하지 않는다.
+
+### 검증
+
+- 정적 확인: 헬멧 `ConstructionHelmet` 조건, 교육 전용 `RejectUseWithWrongSfx()` 분기, `208_SuitFirst` 자산 GUID와 설정 도구의 직렬화 속성명을 대조한다.
+- Unity Editor 확인: `Tools > PPE > Voice > Connect Hazmat and Suit Order Voices` 실행 후 `Validate Hazmat and Suit Order Voices`가 PASS인지 확인해야 한다.
+- Play Mode 확인: 교육 모드에서는 `Wrong Answer` SFX 뒤 `208_SuitFirst`가 한 번 재생되고 헬멧이 장착되지 않는지 확인해야 한다. 훈련·테스트 모드에서는 `208`이 재생되지 않는지 별도로 확인해야 한다.
+- Quest/OpenXR 확인: 실제 컨트롤러 입력과 HMD 오디오 출력은 아직 확인이 필요하다.

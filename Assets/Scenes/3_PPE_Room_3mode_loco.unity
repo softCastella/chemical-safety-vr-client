@@ -36090,6 +36090,7 @@ MonoBehaviour:
   m_EnforceHazmatBeforeGlovesAndBoots: 1
   m_MaskGrabVoice: {fileID: 8300000, guid: 758d940d74814c74da23d9b489fcc54d, type: 3}
   m_HelmetGrabVoice: {fileID: 8300000, guid: 02d1b350d760947488160156db110c85, type: 3}
+  m_HelmetUseWithoutHazmatVoice: {fileID: 8300000, guid: ce77eecac48dde04fb9af537d99c6ca7, type: 3}
   m_BootUseWithoutHazmatVoice: {fileID: 8300000, guid: 6ac1c03027d8f3a4b83f1cb906ba20e1, type: 3}
   m_TapeUseBeforeGlovesAndBootsVoice: {fileID: 8300000, guid: b259c8014e714294bb27efc6f641f37d, type: 3}
   m_OuterGloveUseWithoutNitrileVoice: {fileID: 8300000, guid: 1aec12d0cae3a244c87ce78f5211114c, type: 3}

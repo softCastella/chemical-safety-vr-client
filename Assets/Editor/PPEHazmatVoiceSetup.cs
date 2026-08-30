@@ -15,6 +15,8 @@ public static class PPEHazmatVoiceSetup
         "Assets/Audio/Voice/4_PPE/4_VO_PPE_EDU_006_Suit_End.mp3";
     const string SuitAlreadyVoicePath =
         "Assets/Audio/Voice/4_PPE/4_VO_PPE_EDU_204_SuitAlready.mp3";
+    const string SuitFirstVoicePath =
+        "Assets/Audio/Voice/4_PPE/4_VO_PPE_EDU_208_SuitFirst.mp3";
 
     static readonly string[] HazmatPanelNames =
     {
@@ -23,7 +25,7 @@ public static class PPEHazmatVoiceSetup
         "PPE_A_SuitHang_Ripped",
     };
 
-    [MenuItem("Tools/PPE/Voice/Connect Hazmat 005, 006, and SuitAlready")]
+    [MenuItem("Tools/PPE/Voice/Connect Hazmat and Suit Order Voices")]
     public static void Apply()
     {
         Scene scene = RequireTargetScene();
@@ -32,6 +34,7 @@ public static class PPEHazmatVoiceSetup
         AudioClip usePpeVoice = RequireClip(UsePpeVoicePath);
         AudioClip suitEndVoice = RequireClip(SuitEndVoicePath);
         AudioClip suitAlreadyVoice = RequireClip(SuitAlreadyVoicePath);
+        AudioClip suitFirstVoice = RequireClip(SuitFirstVoicePath);
 
         Undo.RecordObject(director, "Connect hazmat variant voices");
         SerializedObject serialized = new(director);
@@ -55,16 +58,17 @@ public static class PPEHazmatVoiceSetup
         serialized.FindProperty("m_HazmatPanelVoice").objectReferenceValue = usePpeVoice;
         serialized.FindProperty("m_HazmatEquippedVoice").objectReferenceValue = suitEndVoice;
         serialized.FindProperty("m_HazmatAlreadyEquippedVoice").objectReferenceValue = suitAlreadyVoice;
+        serialized.FindProperty("m_HelmetUseWithoutHazmatVoice").objectReferenceValue = suitFirstVoice;
         serialized.ApplyModifiedProperties();
 
         EditorUtility.SetDirty(director);
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         Validate();
-        Debug.Log("Connected hazmat Clean/Contam/Ripped grab narration to 005 UsePPE, approved wear narration to 006 Suit_End, and repeated wear narration to 204 SuitAlready.", director);
+        Debug.Log("Connected hazmat Clean/Contam/Ripped grab narration to 005 UsePPE, approved wear narration to 006 Suit_End, repeated wear narration to 204 SuitAlready, and education helmet-before-suit rejection to 208 SuitFirst.", director);
     }
 
-    [MenuItem("Tools/PPE/Voice/Validate Hazmat 005, 006, and SuitAlready")]
+    [MenuItem("Tools/PPE/Voice/Validate Hazmat and Suit Order Voices")]
     public static void Validate()
     {
         Scene scene = RequireTargetScene();
@@ -73,6 +77,7 @@ public static class PPEHazmatVoiceSetup
         AudioClip expected005 = RequireClip(UsePpeVoicePath);
         AudioClip expected006 = RequireClip(SuitEndVoicePath);
         AudioClip expectedSuitAlready = RequireClip(SuitAlreadyVoicePath);
+        AudioClip expectedSuitFirst = RequireClip(SuitFirstVoicePath);
 
         SerializedObject serialized = new(director);
         SerializedProperty panelArray = serialized.FindProperty("m_HazmatActionPanels");
@@ -106,8 +111,10 @@ public static class PPEHazmatVoiceSetup
             throw new InvalidOperationException("Hazmat approved-wear narration must reference 006 Suit_End.");
         if (serialized.FindProperty("m_HazmatAlreadyEquippedVoice").objectReferenceValue != expectedSuitAlready)
             throw new InvalidOperationException("Repeated hazmat use must reference 204 SuitAlready.");
+        if (serialized.FindProperty("m_HelmetUseWithoutHazmatVoice").objectReferenceValue != expectedSuitFirst)
+            throw new InvalidOperationException("Education helmet use before hazmat must reference 208 SuitFirst.");
 
-        Debug.Log("[PPE Hazmat Voice Validation] PASS: three suit panels -> 005 UsePPE, approved wear -> 006 Suit_End, repeated wear -> 204 SuitAlready.", director);
+        Debug.Log("[PPE Hazmat Voice Validation] PASS: three suit panels -> 005 UsePPE, approved wear -> 006 Suit_End, repeated wear -> 204 SuitAlready, education helmet-before-suit rejection -> 208 SuitFirst.", director);
     }
 
     static Scene RequireTargetScene()

@@ -617,6 +617,7 @@ MonoBehaviour:
   visibleDuration: 1.5
   fadeOutDuration: 1.5
   nextSceneName: 2_Intro
+  preloadNextScene: 1
   playTitleBgmOnStart: 1
   titleBgmId: title
 --- !u!1 &823054475
@@ -820,7 +821,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 46117f9037ae325499ac3ab7d2eefb31, type: 3}
+  m_Sprite: {fileID: 21300000, guid: cb2a4a44f487e0744a339a973f7a36f3, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -1164,7 +1165,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: cbf5db553974ec84fb37aea653f5f1bf, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1

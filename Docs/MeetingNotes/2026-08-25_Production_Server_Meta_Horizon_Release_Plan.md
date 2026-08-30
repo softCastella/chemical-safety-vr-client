@@ -1177,7 +1177,7 @@ Meta Alpha APK의 실제 Quest 세션이 Vultr·MySQL·대시보드까지 같은
 
 `Tools > PPE > Configure Local Telemetry DB Upload`은 사용자가 `0_App` 씬을 명시적으로 연 상태에서만 `AppMain`에 업로더를 추가한다. 기존 컴포넌트가 있으면 Inspector 값을 덮어쓰지 않는다. Unity가 생성한 컴파일 응답 설정으로 런타임 업로더와 Editor 설정 도구의 최신 소스를 별도 임시 DLL에 컴파일해 오류가 없음을 확인했다. 테스트 DB migration과 Express → MySQL 합성 데이터 왕복은 완료했으며, 열린 Unity의 자동 재컴파일, 설정 메뉴 실행, 씬 저장과 실제 Unity → Express → MySQL 전송은 아직 남아 있다.
 
-서버 텔레메트리 구현은 서버 `main`의 `a036897fce5f8c6e2244f217ead418458402721b`에 커밋·푸시했다. 클라이언트 연동 구현은 `260828_ppe_client_integration_followup` 브랜치의 `ae997d68970deeeacf34af27137425047ffaff72`에 커밋·푸시했으며 아직 클라이언트 `main`에는 병합하지 않았다. 아래 로컬 MySQL·실기 결과는 이 구현의 검증 근거지만 운영 DB migration, 운영 수집과 Meta Alpha APK 통합 완료를 의미하지 않는다.
+서버 텔레메트리 구현은 서버 `main`의 `a036897453724f5ab9bc9f0aecbfb3c3b36d4a23`에 커밋·푸시했다. 클라이언트 연동 구현은 `260828_ppe_client_integration_followup` 브랜치의 `ae997d68970deeeacf34af27137425047ffaff72`에 커밋했고, 저장소 이력상 2026-08-28 18:24:28 KST의 `e4c34177bdb2e9cd962592f863edb661c53d52a1`에서 클라이언트 `main`에 병합됐다. 아래 로컬 MySQL·실기 결과는 이 구현의 검증 근거지만 운영 DB migration, 운영 수집과 Meta Alpha APK 통합 완료를 의미하지 않는다.
 
 ### 2026-08-28 로컬 MySQL·인코딩 통합 검증
 
@@ -1300,3 +1300,25 @@ Meta Horizon Link의 Public Test Channel 전환은 Editor에서 SDK 205를 진�
 8. 네트워크 차단·복구, 중복 전송, 강제 종료·재실행 뒤에도 고유 이벤트 수와 완료 상태가 유지되는지 검증한다.
 
 현재 확정된 완료 범위는 `HMD 실기 원본 수집 → 로컬 Editor 업로드 → Express → 로컬 MySQL → 상세 조회`다. Meta ID, Quest Player 업로드, User Proof 서버 검증, 운영 HTTPS, 운영 DB와 Meta Alpha APK 통합은 후속작업으로 보류한다. 다음 재개 때 정적 하네스나 과거 익명 세션을 Meta 인증 성공으로 확대 해석하지 않는다.
+
+### 2026-08-29 교차 저장소 병렬 DB 실테스트 기록 해석
+
+2026-08-28에는 서버 저장소 작업과 클라이언트 저장소 작업이 별도 작업 트리에서 동시에 진행됐고, 그 과정에서 Unity 원본 수집, Editor 업로드, Express 수신과 로컬 MySQL 적재를 실제로 시험했다. Git 커밋 시각은 각 작업 트리의 스냅샷이 저장된 시점이지 Unity 실행, HTTP 전송 또는 DB 적재의 시작·종료 시각이 아니다. 따라서 당시 시험 순서를 커밋 시각만으로 재구성하거나, 한 저장소가 다른 저장소의 최신 병합 상태를 즉시 알고 있었다고 가정하지 않는다.
+
+위에 기록된 세션 `32bf72164cbf4e19a655679b17721522`, `2e3a04b3f9be40b68d729e5b554650c6`, `2ac1c70158554c658c7b14f291ff235c`와 이벤트 수·ACK 결과는 당시 실테스트 기록으로 보존한다. 이번 문서 재검토에서는 클라이언트 `main`이 `ae997d68970deeeacf34af27137425047ffaff72`의 코드와 씬을 포함하고 현재 작업 트리의 핵심 파일 blob도 같은 것을 확인했다. 서버 구현 커밋은 `a036897453724f5ab9bc9f0aecbfb3c3b36d4a23`으로 확인했다.
+
+현재 PC의 `Application.persistentDataPath/tyche-training-telemetry`에는 2026-08-26 세션 파일만 남아 있고 위 2026-08-28 세션 JSONL과 `.upload-state.json`은 다시 찾지 못했다. 이번 재검토에서는 당시 MySQL 행과 Express 요청 로그도 재조회하지 않았다. 이는 기존 실테스트가 수행되지 않았다는 반증이 아니라, 현재 환경에서 원본을 독립적으로 재검증할 수 없는 상태라는 뜻이다. 최종 제출자료나 운영 전환 판단에 이 수치를 다시 사용할 때는 원본 JSONL·ACK, Express 로그와 MySQL 세션·이벤트 행을 같은 `sessionId`로 재대조한다.
+
+현재 상태는 다음과 같이 구분한다.
+
+- 서버 수신·로컬 DB 기반 구현과 클라이언트 코드 병합: Git 코드와 씬 기준 확인 완료
+- 2026-08-28 Unity Editor/HMD → Express → 로컬 MySQL 실테스트: 당시 기록 유지, 이번 재검토에서 원본 재조회는 미완료
+- Meta ID, Quest Player 업로드, User Proof 검증, 운영 HTTPS·DB와 Meta Alpha APK 통합: 후속작업
+
+2026-08-29 재연동 전 로컬 실행 상태를 확인한 결과 MariaDB `wampstackMariaDB-1`은 TCP `3306`에서 실행 중이었지만 Express의 TCP `3000` 리스너, 서버 `.env`, 서버 업로드 토큰과 Unity Editor용 `TYCHE_TELEMETRY_UPLOAD_TOKEN`은 없었다. 이 시점에는 `Unity → Express → 로컬 DB` 업로드 경로를 실행할 수 없었고 `PPETrainingTelemetryCapture`의 로컬 JSONL 기록만 별도로 계속 가능한 상태였다.
+
+같은 날 사용자 승인 후 로컬 서버 경로를 복구했다. `npm ci`로 서버 의존성을 복원하고, 기존 MariaDB에 `tyche_training` 데이터베이스와 `tyche_app` 계정이 존재하지 않는 것을 확인한 뒤 로컬 전용 계정·데이터베이스를 새로 만들었다. 저장소의 기존 migration `001`~`012`를 적용했으며, Git에서 제외되는 서버 `.env`와 Windows 사용자 범위 Unity Editor 토큰에 같은 로컬 전용 업로드 토큰을 설정했다. 자격 값은 문서·Git·씬·JSONL에 기록하지 않았다.
+
+복구 뒤 Express는 `127.0.0.1:3000`, MariaDB는 `127.0.0.1:3306`에서 실행된다. health, 대시보드와 `/telemetry-ingest-test/`는 HTTP `200`, 무토큰 DB API는 `401`, 토큰을 사용한 세션·참여자 조회는 `200`으로 확인했다. migration 12개는 재실행 시 모두 적용 완료로 판정됐고 서버 자동 테스트 34개가 통과했다. Unity 로컬 JSONL 조회에는 13개 세션이 있지만 새 DB의 참여자·세션·이벤트 행은 모두 0개다. 따라서 2026-08-28 MySQL 행을 현재 DB에서 복구 또는 재검증한 것은 아니며, 새 `0_App` Play에서 실제 Unity 이벤트가 DB에 적재되는지는 별도 수동 검증으로 남는다. Meta PTC·앱 범위 사용자 ID 진단은 DB 재연동과 구분한다.
+
+병렬 작업 중 생성된 서버·클라이언트 고유 기록은 한쪽 파일로 덮어쓰지 않는다. 공용 문서 기준본을 통합할 때 각 절의 서버 코드·DB 근거와 클라이언트 코드·씬·Unity 근거를 각각 확인한 뒤 시간순으로 합친다.

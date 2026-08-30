@@ -24,6 +24,7 @@ public static class PPETrainingDataContractHarness
     const string TelemetrySourcePath = "Assets/Scripts/PPETrainingTelemetryCapture.cs";
     const string TelemetryUploaderSourcePath = "Assets/Scripts/TycheTrainingTelemetryUploader.cs";
     const string LocalRegistrationClientSourcePath = "Assets/Scripts/TycheLocalTrainingRegistrationClient.cs";
+    const string TelemetryUploaderSetupSourcePath = "Assets/Editor/TycheTrainingTelemetryUploaderSetup.cs";
     const string XriInputActionsPath = "Assets/Samples/XR Interaction Toolkit/3.4.1/Starter Assets/XRI Default Input Actions.inputactions";
     const string DirectorRequiredConfined = "m_ConfinedSpaceRequiredItemTypes";
     const string DirectorRequiredLeak = "m_LeakResponseRequiredItemTypes";
@@ -289,6 +290,21 @@ public static class PPETrainingDataContractHarness
             "Unity 로컬 등록 클라이언트가 SDKless Editor 실행을 서버 등록에서 제외하지 않습니다.",
             failures);
         ValidateSourceContains(
+            LocalRegistrationClientSourcePath,
+            "IdentityTimeoutSeconds = 180f",
+            "Unity 로컬 등록 클라이언트의 Meta ID 제한 시간이 PPE 세션 대기와 분리되지 않았습니다.",
+            failures);
+        ValidateSourceContains(
+            LocalRegistrationClientSourcePath,
+            "while (!PPETrainingTelemetryCapture.HasActivePpeModeSession",
+            "Meta ID 성공 뒤 PPE 활성 세션을 앱 수명 동안 기다리는 경로가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            LocalRegistrationClientSourcePath,
+            "PPE 활성 세션 진입을 앱 수명 동안 기다립니다.",
+            "PPE 세션 무기한 대기 상태를 구분하는 진단 로그가 없습니다.",
+            failures);
+        ValidateSourceContains(
             TelemetrySourcePath,
             "public const string SourceProject = \"chemical-safety-vr-client\";",
             "새 클라이언트 JSONL에 이전 모노리포와 구분할 sourceProject가 없습니다.",
@@ -352,6 +368,91 @@ public static class PPETrainingDataContractHarness
             TelemetryUploaderSourcePath,
             "record.eventType == \"session_ended\"",
             "Meta SDK가 응답하지 않아도 종료된 무ID 세션을 익명 사용자로 적재하는 보완이 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetrySourcePath,
+            "internal static event Action TelemetryRecordAppended;",
+            "JSONL append 직후 업로더에 알리는 텔레메트리 이벤트가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetrySourcePath,
+            "TelemetryRecordAppended?.Invoke();",
+            "JSONL 기록 완료 뒤 텔레메트리 append 알림을 발생시키지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "PPETrainingTelemetryCapture.TelemetryRecordAppended += OnTelemetryRecordAppended;",
+            "Editor 업로더가 새 JSONL 레코드 알림을 구독하지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "RecordScanDebounceSeconds = 0.2f",
+            "새 텔레메트리 이벤트를 짧게 묶어 스캔하는 debounce 기준이 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "Mathf.Max(requestedScanAt, retryNotBefore)",
+            "append 알림이 서버 오류의 지수 재시도 대기보다 빠르게 재요청할 수 있습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "QuestLanServerBaseUrlEnvironmentVariable = \"TYCHE_QUEST_LAN_SERVER_BASE_URL\"",
+            "Quest 개발 APK의 LAN 서버 주소를 저장소 밖에서 전달하는 설정명이 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "DevelopmentLanConfigurationFileName = \".tyche-development-lan.json\"",
+            "Quest 개발 APK의 일회성 LAN 설정 파일 계약이 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "#if UNITY_ANDROID && DEVELOPMENT_BUILD && !UNITY_EDITOR",
+            "Quest LAN 전송 경로가 Android Development Build로 제한되지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "File.Delete(path);",
+            "Quest 개발 APK가 LAN 설정을 읽은 뒤 일회성 파일을 삭제하지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "IsPrivateIpv4(address)",
+            "Quest LAN 주소가 RFC1918 사설 IPv4로 제한되지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "void OnApplicationPause(bool paused)",
+            "모바일 pause/resume 시 durable queue 스캔을 요청하는 업로더 경로가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetrySourcePath,
+            "Write(paused ? \"application_paused\" : \"application_resumed\");",
+            "pause/resume가 비종료 텔레메트리 이벤트로 구분되지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            LocalRegistrationClientSourcePath,
+            "TryGetAndroidDevelopmentLanConfiguration(",
+            "Quest 개발 APK 등록 클라이언트가 텔레메트리와 같은 LAN 설정을 사용하지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSetupSourcePath,
+            "Inject Quest Development LAN Configuration",
+            "주소·토큰을 APK 밖에서 주입하는 Unity Editor 메뉴가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSetupSourcePath,
+            "RedirectStandardInput = standardInput != null",
+            "Quest 개발 설정의 민감값을 adb 표준 입력으로 전달하는 경로가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSetupSourcePath,
+            "(report.summary.options & BuildOptions.Development) != 0",
+            "Android cleartext 허용 여부가 Development Build 옵션과 연결되지 않았습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSetupSourcePath,
+            "developmentAndroidBuild ? \"true\" : \"false\"",
+            "Release 생성 Manifest에서 cleartext를 다시 차단하는 경로가 없습니다.",
             failures);
     }
 

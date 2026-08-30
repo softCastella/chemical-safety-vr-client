@@ -35,7 +35,7 @@ public sealed class PPETabletChecklistController : MonoBehaviour
 
     [SerializeField, Min(0)]
     [Tooltip("Checklist steps revealed immediately when the held Tablet receives its check Trigger.")]
-    int instantChecklistStepCount = 6;
+    int instantChecklistStepCount = 7;
 
     [SerializeField]
     bool logProgress;
@@ -345,7 +345,21 @@ public sealed class PPETabletChecklistController : MonoBehaviour
         signatureSequence = configuredSequence;
         requireHoldingHandTrigger = true;
         resetSequenceOnEnable = true;
-        instantChecklistStepCount = 6;
+        instantChecklistStepCount = 0;
+        if (configuredSequence != null)
+        {
+            Renderer[] authoredRenderers =
+                configuredSequence.GetComponentsInChildren<Renderer>(true);
+            for (int index = 0; index < authoredRenderers.Length; index++)
+            {
+                if (authoredRenderers[index].name.StartsWith(
+                    "Checklist_Check_",
+                    StringComparison.Ordinal))
+                {
+                    instantChecklistStepCount++;
+                }
+            }
+        }
     }
 #endif
 }

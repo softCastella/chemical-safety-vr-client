@@ -13,7 +13,7 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
 {
     const string DefaultLocalServerBaseUrl = "http://127.0.0.1:3000";
     const string LocalServerBaseUrlPlayerPrefsKey = "Tyche.LocalServerBaseUrl";
-    const float IdentityAndSessionTimeoutSeconds = 180f;
+    const float IdentityTimeoutSeconds = 180f;
 
     static TycheLocalTrainingRegistrationClient instance;
 
@@ -84,8 +84,8 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
 
     IEnumerator Start()
     {
-        float deadline = Time.realtimeSinceStartup + IdentityAndSessionTimeoutSeconds;
-        while (!CanSendRegistration())
+        float identityDeadline = Time.realtimeSinceStartup + IdentityTimeoutSeconds;
+        while (MetaPlatformIdentityProbe.CurrentAppScopedUserId == 0)
         {
             MetaPlatformIdentityProbe identityProbe =
                 FindFirstObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include);
@@ -100,20 +100,50 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
                 yield break;
             }
 
-            if (Time.realtimeSinceStartup >= deadline)
+            if (Time.realtimeSinceStartup >= identityDeadline)
             {
                 Debug.LogWarning(
-                    "[Tyche Local Registration] Meta ID 또는 활성 PPE 세션을 제한 시간 안에 확인하지 못했습니다.",
+                    "[Tyche Local Registration] Meta ID를 제한 시간 안에 확인하지 못했습니다. " +
+                    "PPE 로컬 텔레메트리는 계속 기록됩니다.",
                     this);
                 yield break;
             }
             yield return null;
         }
 
+        Debug.Log(
+            "[Tyche Local Registration] Meta ID 확인 완료. " +
+            "PPE 활성 세션 진입을 앱 수명 동안 기다립니다.",
+            this);
+
+        while (!PPETrainingTelemetryCapture.HasActivePpeModeSession ||
+            string.IsNullOrEmpty(PPETrainingTelemetryCapture.CurrentSessionId))
+        {
+            MetaPlatformIdentityProbe identityProbe =
+                FindFirstObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include);
+            if (identityProbe == null || !identityProbe.UsesPlatformSdkForCurrentRun ||
+                identityProbe.State == MetaPlatformIdentityProbe.ProbeState.Failed ||
+                identityProbe.State == MetaPlatformIdentityProbe.ProbeState.SkippedForEditorTesting)
+            {
+                Debug.LogWarning(
+                    "[Tyche Local Registration] PPE 세션 대기 중 Meta 계정 식별 경로가 종료되어 " +
+                    "개발용 서버 등록을 건너뜁니다. PPE 로컬 텔레메트리는 계속 기록됩니다.",
+                    this);
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        if (!TryResolveServerBaseUrl(out string baseUrl, out string configurationFailure))
+        {
+            Debug.LogWarning(
+                $"[Tyche Local Registration] {configurationFailure} PPE 로컬 텔레메트리는 계속 기록됩니다.",
+                this);
+            yield break;
+        }
+
         RegistrationRequest payload = BuildRequest();
-        string baseUrl = PlayerPrefs
-            .GetString(LocalServerBaseUrlPlayerPrefsKey, DefaultLocalServerBaseUrl)
-            .TrimEnd('/');
         string collectionUrl = $"{baseUrl}/api/training-registrations";
 
         RegistrationResponse created = null;
@@ -150,11 +180,34 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
         Debug.Log("가입이 완료되었습니다.");
     }
 
-    static bool CanSendRegistration()
+    static bool TryResolveServerBaseUrl(out string baseUrl, out string failure)
     {
-        return MetaPlatformIdentityProbe.CurrentAppScopedUserId != 0 &&
-            !string.IsNullOrEmpty(PPETrainingTelemetryCapture.CurrentSessionId) &&
-            PPETrainingTelemetryCapture.HasActivePpeModeSession;
+#if UNITY_EDITOR
+        string editorValue = PlayerPrefs
+            .GetString(LocalServerBaseUrlPlayerPrefsKey, DefaultLocalServerBaseUrl)
+            .TrimEnd('/');
+        if (!Uri.TryCreate(editorValue, UriKind.Absolute, out Uri editorUri) ||
+            (editorUri.Scheme != Uri.UriSchemeHttp && editorUri.Scheme != Uri.UriSchemeHttps) ||
+            !editorUri.IsLoopback)
+        {
+            baseUrl = null;
+            failure = "Editor 등록 서버 주소는 loopback HTTP(S)여야 합니다.";
+            return false;
+        }
+
+        baseUrl = editorUri.AbsoluteUri.TrimEnd('/');
+        failure = null;
+        return true;
+#elif UNITY_ANDROID && DEVELOPMENT_BUILD
+        return TycheTrainingTelemetryUploader.TryGetAndroidDevelopmentLanConfiguration(
+            out baseUrl,
+            out _,
+            out failure);
+#else
+        baseUrl = null;
+        failure = "로컬 LAN 등록은 Unity Editor 또는 Android Development Build에서만 활성화됩니다.";
+        return false;
+#endif
     }
 
     static RegistrationRequest BuildRequest()
@@ -180,6 +233,7 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
     {
         using UnityWebRequest request = new(url, method);
         request.downloadHandler = new DownloadHandlerBuffer();
+        request.timeout = 15;
         if (json != null)
         {
             request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
@@ -191,8 +245,8 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
         if (request.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError(
-                $"[Tyche Local Registration] {method} {url} 실패: " +
-                $"HTTP {request.responseCode}, {request.error}, {request.downloadHandler?.text}",
+                $"[Tyche Local Registration] {method} {DescribeRequest(url)} 실패: " +
+                $"HTTP {request.responseCode}, {request.error}",
                 this);
             yield break;
         }
@@ -201,12 +255,19 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
         if (response == null || response.data == null)
         {
             Debug.LogError(
-                $"[Tyche Local Registration] {method} {url} 응답 JSON을 읽지 못했습니다: {request.downloadHandler.text}",
+                $"[Tyche Local Registration] {method} {DescribeRequest(url)} 응답 JSON을 읽지 못했습니다.",
                 this);
             yield break;
         }
 
         onSuccess?.Invoke(response);
+    }
+
+    static string DescribeRequest(string url)
+    {
+        return Uri.TryCreate(url, UriKind.Absolute, out Uri uri)
+            ? uri.AbsolutePath
+            : "invalid_request_path";
     }
 
     static bool IsMatching(RegistrationData data, RegistrationRequest request)

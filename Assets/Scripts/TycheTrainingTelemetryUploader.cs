@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -10,7 +11,8 @@ using UnityEngine.Networking;
 /// <summary>
 /// Uploads only schema-versioned JSONL records created by the separated
 /// chemical-safety-vr-client project. The current authentication path is for
-/// local Unity Editor integration testing and is never enabled in a player.
+/// local Unity Editor integration testing and explicitly configured Android
+/// Development Builds. Release players never enable this transport.
 /// </summary>
 [DisallowMultipleComponent]
 [DefaultExecutionOrder(100)]
@@ -18,8 +20,11 @@ using UnityEngine.Networking;
 public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
 {
     public const string UploadTokenEnvironmentVariable = "TYCHE_TELEMETRY_UPLOAD_TOKEN";
+    public const string QuestLanServerBaseUrlEnvironmentVariable = "TYCHE_QUEST_LAN_SERVER_BASE_URL";
+    public const string DevelopmentLanConfigurationFileName = ".tyche-development-lan.json";
     const string ExpectedSourceProject = "chemical-safety-vr-client";
     const string EditorUploadTokenFileName = ".editor-upload-token";
+    const float RecordScanDebounceSeconds = 0.2f;
 #if UNITY_EDITOR_WIN
     static readonly IntPtr HkeyCurrentUser = new(unchecked((int)0x80000001));
     const uint RegistryStringTypes = 0x00000002 | 0x00000004;
@@ -167,15 +172,34 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
         public bool completed;
     }
 
+    [Serializable]
+    sealed class DevelopmentLanConfiguration
+    {
+        public string serverBaseUrl;
+        public string uploadToken;
+    }
+
     static TycheTrainingTelemetryUploader instance;
+    static bool developmentLanConfigurationChecked;
+    static string cachedDevelopmentLanServerBaseUrl;
+    static string cachedDevelopmentLanUploadToken;
+    static string cachedDevelopmentLanFailure;
     bool uploadFailedThisScan;
     string lastFailure;
     string clientInstanceId;
+    bool recordNotificationSubscribed;
+    bool uploadLoopReady;
+    float requestedRecordScanAt = float.PositiveInfinity;
+    float retryNotBefore;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStaticState()
     {
         instance = null;
+        developmentLanConfigurationChecked = false;
+        cachedDevelopmentLanServerBaseUrl = null;
+        cachedDevelopmentLanUploadToken = null;
+        cachedDevelopmentLanFailure = null;
     }
 
     void Awake()
@@ -193,38 +217,37 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    void OnDisable()
+    {
+        UnsubscribeFromRecordNotifications();
+    }
+
+    void OnDestroy()
+    {
+        UnsubscribeFromRecordNotifications();
+    }
+
+    void OnApplicationPause(bool paused)
+    {
+        if (!uploadLoopReady)
+            return;
+
+        // Mobile suspension can cut the final request short. Ask the durable
+        // queue to scan immediately, but never bypass an active retry backoff.
+        ScheduleRecordScan(paused ? 0f : RecordScanDebounceSeconds);
+    }
+
     IEnumerator Start()
     {
-        if (!Application.isEditor)
-        {
-            Debug.Log(
-                "[Tyche Telemetry Upload] 출시 Player 인증은 아직 연결되지 않아 업로드를 시작하지 않습니다.",
-                this);
-            yield break;
-        }
-
-        if (!enableEditorTestUpload)
+        if (Application.isEditor && !enableEditorTestUpload)
             yield break;
 
-        if (!TryGetLoopbackServerBaseUrl(out string normalizedBaseUrl))
+        if (!TryResolveTransport(
+                out string normalizedBaseUrl,
+                out string uploadToken,
+                out string transportFailure))
         {
-            ReportFailure(
-                "serverBaseUrl은 로컬 Unity 테스트에서 http://127.0.0.1 또는 localhost 주소여야 합니다.");
-            yield break;
-        }
-
-        string uploadToken = GetEditorUploadToken();
-        if (string.IsNullOrEmpty(uploadToken))
-        {
-            ReportFailure(
-                $"환경 변수 {UploadTokenEnvironmentVariable}가 없어 로컬 DB 업로드를 시작하지 않습니다.");
-            yield break;
-        }
-        if (uploadToken.Length < 16 || uploadToken.Length > 512 ||
-            uploadToken.Any(character => character < '!' || character > '~'))
-        {
-            ReportFailure(
-                $"환경 변수 {UploadTokenEnvironmentVariable}는 16~512자의 공백 없는 ASCII여야 합니다.");
+            ReportFailure(transportFailure);
             yield break;
         }
 
@@ -234,16 +257,104 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
             yield break;
         }
 
+        SubscribeToRecordNotifications();
+        uploadLoopReady = true;
         float retrySeconds = scanIntervalSeconds;
+        float nextPeriodicScanAt = Time.realtimeSinceStartup;
+        retryNotBefore = nextPeriodicScanAt;
         while (enabled)
         {
+            float now = Time.realtimeSinceStartup;
+            float nextScanAt = Mathf.Min(nextPeriodicScanAt, requestedRecordScanAt);
+            if (now < nextScanAt)
+            {
+                yield return null;
+                continue;
+            }
+
+            requestedRecordScanAt = float.PositiveInfinity;
             uploadFailedThisScan = false;
             yield return UploadPendingFiles(normalizedBaseUrl, uploadToken);
+            now = Time.realtimeSinceStartup;
             retrySeconds = uploadFailedThisScan
                 ? Mathf.Min(maximumRetrySeconds, Mathf.Max(scanIntervalSeconds, retrySeconds * 2f))
                 : scanIntervalSeconds;
-            yield return new WaitForSecondsRealtime(retrySeconds);
+            retryNotBefore = uploadFailedThisScan ? now + retrySeconds : now;
+            nextPeriodicScanAt = now + retrySeconds;
+            if (requestedRecordScanAt < retryNotBefore)
+                requestedRecordScanAt = retryNotBefore;
         }
+
+        uploadLoopReady = false;
+        UnsubscribeFromRecordNotifications();
+    }
+
+    void SubscribeToRecordNotifications()
+    {
+        if (recordNotificationSubscribed)
+            return;
+
+        PPETrainingTelemetryCapture.TelemetryRecordAppended += OnTelemetryRecordAppended;
+        recordNotificationSubscribed = true;
+    }
+
+    void UnsubscribeFromRecordNotifications()
+    {
+        uploadLoopReady = false;
+        if (!recordNotificationSubscribed)
+            return;
+
+        PPETrainingTelemetryCapture.TelemetryRecordAppended -= OnTelemetryRecordAppended;
+        recordNotificationSubscribed = false;
+    }
+
+    void OnTelemetryRecordAppended()
+    {
+        if (!uploadLoopReady)
+            return;
+
+        ScheduleRecordScan(RecordScanDebounceSeconds);
+    }
+
+    void ScheduleRecordScan(float delaySeconds)
+    {
+        float requestedScanAt = Time.realtimeSinceStartup + Mathf.Max(0f, delaySeconds);
+        requestedScanAt = Mathf.Max(requestedScanAt, retryNotBefore);
+        requestedRecordScanAt = Mathf.Min(requestedRecordScanAt, requestedScanAt);
+    }
+
+    bool TryResolveTransport(
+        out string normalizedBaseUrl,
+        out string uploadToken,
+        out string failure)
+    {
+        normalizedBaseUrl = null;
+        uploadToken = null;
+        failure = null;
+
+        if (Application.isEditor)
+        {
+            if (!TryGetLoopbackServerBaseUrl(out normalizedBaseUrl))
+            {
+                failure = "serverBaseUrl은 로컬 Unity 테스트에서 http://127.0.0.1 또는 localhost 주소여야 합니다.";
+                return false;
+            }
+
+            uploadToken = GetEditorUploadToken();
+            if (!TryValidateUploadToken(uploadToken, out failure))
+                return false;
+            return true;
+        }
+
+#if UNITY_ANDROID && DEVELOPMENT_BUILD && !UNITY_EDITOR
+        return TryGetAndroidDevelopmentLanConfiguration(
+            out normalizedBaseUrl,
+            out uploadToken,
+            out failure);
+#else
+        failure = "Quest 로컬 LAN 업로드는 Android Development Build에서만 활성화됩니다.";
+        return false;
+#endif
     }
 
     bool TryGetLoopbackServerBaseUrl(out string normalizedBaseUrl)
@@ -285,6 +396,162 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
             uploadToken = ReadEditorUploadTokenFile();
 #endif
         return uploadToken;
+    }
+
+    public static bool TryGetAndroidDevelopmentLanConfiguration(
+        out string normalizedBaseUrl,
+        out string uploadToken,
+        out string failure)
+    {
+#if UNITY_ANDROID && DEVELOPMENT_BUILD && !UNITY_EDITOR
+        if (!developmentLanConfigurationChecked)
+            ReadAndroidDevelopmentLanConfiguration();
+
+        normalizedBaseUrl = cachedDevelopmentLanServerBaseUrl;
+        uploadToken = cachedDevelopmentLanUploadToken;
+        failure = cachedDevelopmentLanFailure;
+        return !string.IsNullOrEmpty(normalizedBaseUrl) &&
+            !string.IsNullOrEmpty(uploadToken);
+#else
+        normalizedBaseUrl = null;
+        uploadToken = null;
+        failure = "Quest 로컬 LAN 설정은 Android Development Build에서만 읽을 수 있습니다.";
+        return false;
+#endif
+    }
+
+#if UNITY_ANDROID && DEVELOPMENT_BUILD && !UNITY_EDITOR
+    static void ReadAndroidDevelopmentLanConfiguration()
+    {
+        developmentLanConfigurationChecked = true;
+        string path = null;
+        try
+        {
+            using AndroidJavaClass unityPlayer = new("com.unity3d.player.UnityPlayer");
+            using AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+            using AndroidJavaObject filesDirectory = activity.Call<AndroidJavaObject>("getFilesDir");
+            path = Path.Combine(
+                filesDirectory.Call<string>("getAbsolutePath"),
+                DevelopmentLanConfigurationFileName);
+            if (!File.Exists(path))
+            {
+                cachedDevelopmentLanFailure =
+                    $"개발용 LAN 설정이 없습니다. Unity 메뉴로 {QuestLanServerBaseUrlEnvironmentVariable}와 " +
+                    $"{UploadTokenEnvironmentVariable}를 Quest에 주입하세요.";
+                return;
+            }
+
+            DevelopmentLanConfiguration configuration =
+                JsonUtility.FromJson<DevelopmentLanConfiguration>(
+                    File.ReadAllText(path, Encoding.UTF8));
+            if (configuration == null ||
+                !TryNormalizePrivateLanServerBaseUrl(
+                    configuration.serverBaseUrl,
+                    out string validatedBaseUrl,
+                    out cachedDevelopmentLanFailure) ||
+                !TryValidateUploadToken(
+                    configuration.uploadToken,
+                    out cachedDevelopmentLanFailure))
+            {
+                cachedDevelopmentLanServerBaseUrl = null;
+                cachedDevelopmentLanUploadToken = null;
+                return;
+            }
+
+            File.Delete(path);
+            if (File.Exists(path))
+            {
+                cachedDevelopmentLanFailure =
+                    "개발용 LAN 일회성 설정 파일을 삭제하지 못해 전송을 시작하지 않습니다.";
+                return;
+            }
+
+            cachedDevelopmentLanServerBaseUrl = validatedBaseUrl;
+            cachedDevelopmentLanUploadToken = configuration.uploadToken;
+        }
+        catch (Exception exception)
+        {
+            cachedDevelopmentLanServerBaseUrl = null;
+            cachedDevelopmentLanUploadToken = null;
+            cachedDevelopmentLanFailure =
+                $"개발용 LAN 설정을 읽지 못했습니다: {exception.GetType().Name}";
+        }
+        finally
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
+                try
+                {
+                    if (File.Exists(path))
+                        File.Delete(path);
+                }
+                catch (Exception)
+                {
+                    // Failure was already reported without printing file contents.
+                }
+            }
+        }
+    }
+#endif
+
+    public static bool TryNormalizePrivateLanServerBaseUrl(
+        string value,
+        out string normalizedBaseUrl,
+        out string failure)
+    {
+        normalizedBaseUrl = null;
+        failure = null;
+        if (!Uri.TryCreate(value?.TrimEnd('/'), UriKind.Absolute, out Uri uri) ||
+            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps) ||
+            !string.IsNullOrEmpty(uri.UserInfo) ||
+            !string.IsNullOrEmpty(uri.Query) ||
+            !string.IsNullOrEmpty(uri.Fragment) ||
+            uri.AbsolutePath != "/" ||
+            uri.IsDefaultPort ||
+            !IPAddress.TryParse(uri.Host, out IPAddress address) ||
+            address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork ||
+            !IsPrivateIpv4(address))
+        {
+            failure =
+                $"{QuestLanServerBaseUrlEnvironmentVariable}는 명시적 포트를 포함한 사설 IPv4 HTTP(S) 주소여야 합니다.";
+            return false;
+        }
+
+        normalizedBaseUrl = uri.AbsoluteUri.TrimEnd('/');
+        return true;
+    }
+
+    public static string DescribeEndpoint(string baseUrl)
+    {
+        return Uri.TryCreate(baseUrl, UriKind.Absolute, out Uri uri)
+            ? $"{uri.Scheme}://private_ipv4:{uri.Port}"
+            : "invalid_private_lan_endpoint";
+    }
+
+    static bool TryValidateUploadToken(string uploadToken, out string failure)
+    {
+        if (string.IsNullOrEmpty(uploadToken))
+        {
+            failure = $"환경 변수 {UploadTokenEnvironmentVariable}가 없어 로컬 DB 업로드를 시작하지 않습니다.";
+            return false;
+        }
+        if (uploadToken.Length < 16 || uploadToken.Length > 512 ||
+            uploadToken.Any(character => character < '!' || character > '~'))
+        {
+            failure = $"환경 변수 {UploadTokenEnvironmentVariable}는 16~512자의 공백 없는 ASCII여야 합니다.";
+            return false;
+        }
+
+        failure = null;
+        return true;
+    }
+
+    static bool IsPrivateIpv4(IPAddress address)
+    {
+        byte[] octets = address.GetAddressBytes();
+        return octets[0] == 10 ||
+            (octets[0] == 172 && octets[1] >= 16 && octets[1] <= 31) ||
+            (octets[0] == 192 && octets[1] == 168);
     }
 
 #if UNITY_EDITOR
@@ -567,9 +834,16 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
         if (!success)
         {
             ReportFailure(
-                $"POST {url} 실패: HTTP {request.responseCode}, {request.error}, {body}");
+                $"POST {DescribeRequest(url)} 실패: HTTP {request.responseCode}, {request.error}");
         }
         completed(success, body);
+    }
+
+    static string DescribeRequest(string url)
+    {
+        return Uri.TryCreate(url, UriKind.Absolute, out Uri uri)
+            ? uri.AbsolutePath
+            : "invalid_request_path";
     }
 
     static UploadEvent ToUploadEvent(LocalRecord record)

@@ -1,13 +1,29 @@
+using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Xml;
 using UnityEditor;
+using UnityEditor.Android;
+using UnityEditor.Build;
+using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Debug = UnityEngine.Debug;
 
 public static class TycheTrainingTelemetryUploaderSetup
 {
     const string AppScenePath = "Assets/Scenes/0_App.unity";
     const string AppRootName = "AppMain";
+
+    [Serializable]
+    sealed class DevelopmentLanConfiguration
+    {
+        public string serverBaseUrl;
+        public string uploadToken;
+    }
 
     [MenuItem("Tools/PPE/Configure Local Telemetry DB Upload")]
     public static void Configure()
@@ -84,5 +100,191 @@ public static class TycheTrainingTelemetryUploaderSetup
         Debug.Log(
             "[Tyche Telemetry Upload Setup] PASS: 새 클라이언트 0_App의 AppMain에 로컬 DB 업로더가 1개 연결되어 있습니다.",
             uploaders[0]);
+    }
+
+    [MenuItem("Tools/PPE/Inject Quest Development LAN Configuration")]
+    public static void InjectQuestDevelopmentLanConfiguration()
+    {
+        string serverBaseUrl = ReadEnvironmentVariable(
+            TycheTrainingTelemetryUploader.QuestLanServerBaseUrlEnvironmentVariable);
+        string uploadToken = ReadEnvironmentVariable(
+            TycheTrainingTelemetryUploader.UploadTokenEnvironmentVariable);
+        if (!TycheTrainingTelemetryUploader.TryNormalizePrivateLanServerBaseUrl(
+                serverBaseUrl,
+                out string normalizedBaseUrl,
+                out string addressFailure))
+        {
+            Debug.LogError($"[Quest LAN Setup] {addressFailure}");
+            return;
+        }
+        if (string.IsNullOrEmpty(uploadToken) || uploadToken.Length < 16 ||
+            uploadToken.Length > 512 || uploadToken.Any(character => character < '!' || character > '~'))
+        {
+            Debug.LogError(
+                $"[Quest LAN Setup] {TycheTrainingTelemetryUploader.UploadTokenEnvironmentVariable}는 " +
+                "16~512자의 공백 없는 ASCII여야 합니다.");
+            return;
+        }
+
+        string packageName = PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.Android);
+        if (string.IsNullOrEmpty(packageName) ||
+            packageName.Any(character =>
+                !(char.IsLetterOrDigit(character) || character == '.' || character == '_')))
+        {
+            Debug.LogError("[Quest LAN Setup] Android application identifier가 안전한 패키지 이름이 아닙니다.");
+            return;
+        }
+
+        string editorDirectory = Path.GetDirectoryName(EditorApplication.applicationPath);
+        string adbPath = Path.Combine(
+            editorDirectory ?? string.Empty,
+            "Data",
+            "PlaybackEngines",
+            "AndroidPlayer",
+            "SDK",
+            "platform-tools",
+            "adb.exe");
+        if (!File.Exists(adbPath))
+        {
+            Debug.LogError($"[Quest LAN Setup] Unity Android SDK의 adb를 찾지 못했습니다: {adbPath}");
+            return;
+        }
+
+        if (!RunAdb(adbPath, $"shell am force-stop {packageName}", null, out string stopFailure))
+        {
+            Debug.LogError($"[Quest LAN Setup] 설치된 개발 APK를 중지하지 못했습니다: {stopFailure}");
+            return;
+        }
+
+        DevelopmentLanConfiguration configuration = new()
+        {
+            serverBaseUrl = normalizedBaseUrl,
+            uploadToken = uploadToken,
+        };
+        string json = JsonUtility.ToJson(configuration);
+        string injectArguments =
+            $"shell run-as {packageName} sh -c \"mkdir -p files && cat > files/{TycheTrainingTelemetryUploader.DevelopmentLanConfigurationFileName}\"";
+        if (!RunAdb(adbPath, injectArguments, json, out string injectFailure))
+        {
+            Debug.LogError(
+                "[Quest LAN Setup] 개발용 LAN 설정을 주입하지 못했습니다. " +
+                "Quest에 같은 package identifier의 debuggable Development APK가 설치되어 있는지 확인하세요. " +
+                injectFailure);
+            return;
+        }
+
+        Debug.Log(
+            "[Quest LAN Setup] PASS: 주소와 토큰을 명령줄·로그에 노출하지 않고, " +
+            $"중지된 개발 APK 내부에 일회성 설정을 주입했습니다 ({TycheTrainingTelemetryUploader.DescribeEndpoint(normalizedBaseUrl)}). " +
+            "앱이 읽은 뒤 파일은 즉시 삭제됩니다. 이제 Quest에서 앱을 직접 시작하세요.");
+    }
+
+    static string ReadEnvironmentVariable(string name)
+    {
+        string value = Environment.GetEnvironmentVariable(name);
+        if (string.IsNullOrEmpty(value))
+            value = Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User);
+        return value?.Trim();
+    }
+
+    static bool RunAdb(
+        string adbPath,
+        string arguments,
+        string standardInput,
+        out string failure)
+    {
+        ProcessStartInfo startInfo = new()
+        {
+            FileName = adbPath,
+            Arguments = arguments,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            RedirectStandardInput = standardInput != null,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            StandardOutputEncoding = Encoding.UTF8,
+            StandardErrorEncoding = Encoding.UTF8,
+        };
+
+        try
+        {
+            using Process process = Process.Start(startInfo);
+            if (process == null)
+            {
+                failure = "adb 프로세스를 시작하지 못했습니다.";
+                return false;
+            }
+            if (standardInput != null)
+            {
+                process.StandardInput.Write(standardInput);
+                process.StandardInput.Close();
+            }
+
+            if (!process.WaitForExit(15000))
+            {
+                failure = "adb 응답 시간이 15초를 초과했습니다.";
+                return false;
+            }
+
+            string error = process.StandardError.ReadToEnd().Trim();
+            string output = process.StandardOutput.ReadToEnd().Trim();
+            if (process.ExitCode != 0)
+            {
+                failure = string.IsNullOrEmpty(error) ? output : error;
+                return false;
+            }
+
+            failure = null;
+            return true;
+        }
+        catch (Exception exception)
+        {
+            failure = exception.Message;
+            return false;
+        }
+    }
+}
+
+/// <summary>
+/// Alters only the generated Gradle manifest. The authored project manifest and
+/// Release build policy remain unchanged.
+/// </summary>
+public sealed class QuestDevelopmentLanManifestBuildProcessor :
+    IPreprocessBuildWithReport,
+    IPostGenerateGradleAndroidProject
+{
+    const string AndroidNamespace = "http://schemas.android.com/apk/res/android";
+    static bool developmentAndroidBuild;
+
+    public int callbackOrder => 0;
+
+    public void OnPreprocessBuild(BuildReport report)
+    {
+        developmentAndroidBuild = report.summary.platform == BuildTarget.Android &&
+            (report.summary.options & BuildOptions.Development) != 0;
+    }
+
+    public void OnPostGenerateGradleAndroidProject(string path)
+    {
+        string manifestPath = Path.Combine(path, "src", "main", "AndroidManifest.xml");
+        if (!File.Exists(manifestPath))
+            throw new BuildFailedException($"생성된 AndroidManifest.xml을 찾지 못했습니다: {manifestPath}");
+
+        XmlDocument document = new();
+        document.PreserveWhitespace = true;
+        document.Load(manifestPath);
+        XmlElement application = document.DocumentElement?["application"];
+        if (application == null)
+            throw new BuildFailedException("생성된 AndroidManifest.xml에 application 요소가 없습니다.");
+
+        application.SetAttribute(
+            "usesCleartextTraffic",
+            AndroidNamespace,
+            developmentAndroidBuild ? "true" : "false");
+        document.Save(manifestPath);
+        Debug.Log(
+            developmentAndroidBuild
+                ? "[Quest LAN Build] Development APK의 생성 Manifest에만 cleartext LAN을 허용했습니다."
+                : "[Quest LAN Build] Release 생성 Manifest에서 cleartext를 명시적으로 차단했습니다.");
     }
 }

@@ -195,7 +195,8 @@
 
 ## 2026-08-27 후속: Trigger 순간 체크리스트 즉시 표시
 
-- 현재 로코모션 씬의 활성 태블릿 시퀀스는 체크 6개와 서명 2개로 구성된다.
+- 현재 로코모션 씬의 활성 태블릿 시퀀스는 체크 6개, 플레이어 서명 애니메이션 1개,
+  처음부터 보이는 확인자 고정 서명 1개로 구성된다.
 - 기존에는 체크 6개가 각각 `0.85초`와 단계 간 지연으로 순차 표시되어, Trigger 입력 뒤 체크리스트
   전체가 보이기까지 약 5초 이상 걸렸다.
 - 이제 잡은 손의 Trigger/Activate가 승인되는 순간 체크 6개를 모두 표시하고 체크 SFX는 한 번만
@@ -204,3 +205,85 @@
   작성값은 `6`이다.
 - Unity Editor 전용 검증에서 양 작업계획 시퀀스의 앞 6단계 순서와 즉시 표시 경로가 PASS했다.
 - 실제 Quest Trigger, 체크 표시 양안 가시성, 서명 완료 이벤트는 HMD에서 수동 확인이 필요하다.
+
+## 2026-08-31 후속: 7번째 체크 표시 누락
+
+### 변경 전 필수 질문
+
+1. 기존 두 문서의 `Checklist_Check_01~07`, 서명 오브젝트, Transform·Renderer·머티리얼 작성값을 보존한다.
+2. 단일 상태 소유자는 `PPETabletChecklistController`이며, 작업계획별 시각 순서는 각
+   `HandwrittenSignatureSequence.signatures` 배열이 소유한다.
+3. 입력 경로는 잡은 태블릿의 XRI Activate/Trigger → `StartChecklistSequence()` →
+   `PlayRangeWithInstantPrefix()` → 각 Renderer reveal이다. 입력 Action·Interactor·Collider는 변경하지 않는다.
+4. 누락 Renderer를 런타임에서 자동 탐색하지 않는다. 기존 씬의 `Checklist_Check_07` Renderer를 명시적으로
+   직렬화하고 하네스에서 순서를 검사한다.
+5. 영향 소비자는 밀폐공간·누출대응 두 작업계획의 체크/서명 재생과 문서 완료 이벤트다. PPE 착용·모달·
+   텔레포트·오디오는 기존 동작을 보존한다.
+6. 변경 전 기준은 두 시퀀스 모두 체크 6+플레이어 서명 애니메이션 1+확인자 고정 서명 1, 즉시 표시 상한
+   6이다. 변경 후 체크 7+플레이어 서명 애니메이션 1+확인자 고정 서명 1과 상한 7을 비교한다.
+7. 씬 직렬화·코드·컴파일을 정적으로 확인한다. Unity Trigger 재생과 Quest 양안 표시는 수동 확인한다.
+
+### 근본 원인
+
+- 두 작업계획 문서 모두 `Checklist_Check_07` GameObject와 MeshRenderer는 씬에 작성돼 있었다.
+- 그러나 두 `HandwrittenSignatureSequence.signatures` 배열은 `Checklist_Check_06` 다음에 바로
+  `Player_Signature`로 이어져 7번째 Renderer를 재생하지 않았다.
+- `PPETabletChecklistController.instantChecklistStepCount`와 동기화 도구의 `OrderedStepNames`도 6에서
+  끝나 동일 누락을 정상으로 간주했다.
+
+### 적용한 변경
+
+- 누출대응 시퀀스(fileID `572508689`)의 7번째 단계에 기존 `Checklist_Check_07` Renderer
+  (fileID `463784345`)를 연결했다.
+- 밀폐공간 시퀀스(fileID `1603400733`)의 7번째 단계에 기존 `Checklist_Check_07` Renderer
+  (fileID `1433562491`)를 연결했다.
+- 새 체크 단계는 `Checklist_Check_06`과 같은 체크 SFX, `delayBefore=0.05`, `duration=0.85`, reveal curve를
+  사용한다. 뒤의 플레이어·확인 서명 순서와 작성값은 그대로 유지했다.
+- 현재 씬의 즉시 표시 상한과 새 컴포넌트 기본값을 7로 변경하고 `PPETabletSignatureSequenceSync`의 순서를
+  `Checklist_Check_01~07 → Player_Signature → Conductor_Signature`로 확장했다. 레거시 Editor 설정 함수는
+  대상 시퀀스 아래 실제 `Checklist_Check_*` Renderer 수를 세어 5체크 문서의 서명을 즉시 표시하지 않는다.
+- 회귀 하네스와 즉시 표시 검증이 양 작업계획 시퀀스 모두 정확히 9단계인지 확인하도록 확장했다.
+  회귀 하네스는 `Player_Signature`만 `animateReveal=true`이고 `Conductor_Signature`는
+  `animateReveal=false`인 것도 검사한다.
+
+### 검증 결과와 남은 항목
+
+- 정적 씬 검사에서 두 시퀀스 모두 `Checklist_Check_01~07`, `Player_Signature`,
+  `Conductor_Signature` 순서의 9개 Renderer 참조를 확인했다.
+- `instantChecklistStepCount` 씬 작성값과 코드 기본값은 모두 7이며 `git diff --check`를 통과했다.
+- Runtime·Editor C# 빌드는 기존 경고만 있고 오류 0개로 통과했다.
+- Unity Editor가 대상 씬을 연 상태이므로 외부 변경을 다시 불러온 뒤
+  `Tools > PPE > Validate Immediate Tablet Checklist Reveal` 및
+  `Tools > PPE > Validate Locomotion PPE Regressions`를 실행해야 한다.
+- 실제 Trigger 1회에서 체크 7개가 모두 즉시 보이고 체크 SFX가 한 번만 재생되는지, 그 뒤 플레이어 서명
+  애니메이션 1개만 재생되며 확인자 서명은 고정 표시를 유지하고 문서 완료 이벤트가 발생하는지는 Game View와
+  Quest/OpenXR에서 수동 확인한다.
+
+## 2026-08-31 후속: 원거리에서 태블릿 파란 면이 문서 위로 사선 비침
+
+### 변경 전 필수 질문
+
+1. 태블릿 루트, 두 작업계획 문서의 XY 위치·회전·크기, 체크·서명 Renderer와 재생 순서를 보존한다.
+2. 문서 표시의 단일 기준은 `PPE_C_Tablet` 아래의 `ConfinedSpace`와 `Leak` 문서 루트다.
+3. 입력·Grab·Trigger·서명 재생 경로는 변경하지 않는다.
+4. 런타임 자동 위치 보정은 추가하지 않고 씬에 작성된 문서 루트의 깊이만 수정한다.
+5. 영향 소비자는 태블릿 표면과 두 문서의 깊이 판정이다. 모달, PPE 착용, 완료 이벤트는 보존한다.
+6. 변경 전과 후에 태블릿 Canvas 및 두 문서 루트의 로컬 Z와 실제 월드 깊이 간격을 비교한다.
+7. 씬 YAML은 정적으로 확인하고 원거리 Game View 및 Quest/OpenXR 표시는 수동 검증한다.
+
+### 근본 원인과 적용
+
+- 태블릿의 파란 표면 위에 표시되는 Canvas의 로컬 Z는 `0.0069`였고, `ConfinedSpace`와 `Leak` 문서 루트는
+  모두 `0.007`이었다. 두 표면의 차이가 거의 없어 거리가 멀어질수록 깊이 버퍼가 앞뒤를 안정적으로
+  구분하지 못하는 Z-fighting이 발생했고, 파란 면이 문서 위로 사선 형태로 비쳤다.
+- 두 문서 루트의 로컬 Z만 `0.007 → 0.018`로 변경했다. 태블릿 루트의 로컬 Z 스케일
+  `0.27530435`를 적용하면 Canvas와 문서 사이의 실제 깊이 간격은 약 `3.06mm`다.
+- 두 문서에 동일한 값을 적용했으며 태블릿 루트 Transform, 문서 XY·회전·크기, 체크·서명 자식 Transform,
+  머티리얼, 입력과 재생 코드는 변경하지 않았다.
+
+### 완료한 검증과 남은 수동 검증
+
+- 정적 씬 검사에서 `ConfinedSpace`와 `Leak` 모두 로컬 Z `0.018`, 이전 값 `0.007` 잔존 0개를 확인했다.
+- `git diff --check`를 통과했다. 이번 후속은 씬 Transform 작성값만 변경해 별도 런타임 코드는 추가하지 않았다.
+- Unity에서 외부 변경을 Refresh/Reload한 뒤 저장했다. 문서를 정면과 사선에서 멀리 보았을 때 파란 면이
+  다시 비치지 않는지는 Game View와 Quest/OpenXR 양안에서 수동 확인해야 한다.

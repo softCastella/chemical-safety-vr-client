@@ -24,6 +24,7 @@ public static class PPETabletSignatureSequenceSync
         "Checklist_Check_04",
         "Checklist_Check_05",
         "Checklist_Check_06",
+        "Checklist_Check_07",
         "Player_Signature",
         "Conductor_Signature"
     };
@@ -226,21 +227,14 @@ public static class PPETabletSignatureSequenceSync
                 $"configured value is {controller.InstantChecklistStepCount}.");
         }
 
-        SerializedProperty steps =
-            new SerializedObject(controller.SignatureSequence).FindProperty(StepsProperty);
-        if (steps == null || steps.arraySize < checklistCount)
-            throw new InvalidOperationException("Tablet signature sequence is missing checklist steps.");
+        SerializedObject serializedController = new(controller);
+        HashSet<HandwrittenSignatureSequence> sequences = new();
+        AddSequenceReference(serializedController, "confinedSignatureSequence", sequences);
+        AddSequenceReference(serializedController, "leakSignatureSequence", sequences);
+        sequences.Add(controller.SignatureSequence);
 
-        for (int index = 0; index < checklistCount; index++)
-        {
-            Renderer renderer = steps.GetArrayElementAtIndex(index)
-                .FindPropertyRelative(TargetRendererProperty).objectReferenceValue as Renderer;
-            if (renderer == null || renderer.name != OrderedStepNames[index])
-            {
-                throw new InvalidOperationException(
-                    $"Tablet checklist step {index} must reference '{OrderedStepNames[index]}'.");
-            }
-        }
+        foreach (HandwrittenSignatureSequence sequence in sequences)
+            ValidateOrderedSequence(sequence, checklistCount);
 
         string controllerSource = File.ReadAllText("Assets/Scripts/PPETabletChecklistController.cs");
         string sequenceSource = File.ReadAllText("Assets/Scripts/HandwrittenSignatureSequence.cs");
@@ -255,6 +249,45 @@ public static class PPETabletSignatureSequenceSync
             $"[PPE Tablet] PASS: Trigger reveals all {checklistCount} checklist marks immediately; " +
             "the remaining signature steps keep their authored playback.",
             controller);
+    }
+
+    static void AddSequenceReference(
+        SerializedObject controller,
+        string propertyName,
+        HashSet<HandwrittenSignatureSequence> sequences)
+    {
+        HandwrittenSignatureSequence sequence = controller.FindProperty(propertyName)
+            ?.objectReferenceValue as HandwrittenSignatureSequence;
+        if (sequence != null)
+            sequences.Add(sequence);
+    }
+
+    static void ValidateOrderedSequence(
+        HandwrittenSignatureSequence sequence,
+        int checklistCount)
+    {
+        SerializedProperty steps = new SerializedObject(sequence).FindProperty(StepsProperty);
+        if (steps == null || steps.arraySize != OrderedStepNames.Length)
+        {
+            throw new InvalidOperationException(
+                $"Tablet sequence '{Describe(sequence)}' must contain exactly " +
+                $"{OrderedStepNames.Length} ordered steps.");
+        }
+
+        for (int index = 0; index < OrderedStepNames.Length; index++)
+        {
+            Renderer renderer = steps.GetArrayElementAtIndex(index)
+                .FindPropertyRelative(TargetRendererProperty).objectReferenceValue as Renderer;
+            if (renderer == null || renderer.name != OrderedStepNames[index])
+            {
+                throw new InvalidOperationException(
+                    $"Tablet sequence '{Describe(sequence)}' step {index} must reference " +
+                    $"'{OrderedStepNames[index]}'.");
+            }
+        }
+
+        if (checklistCount != 7)
+            throw new InvalidOperationException("Tablet checklist contract must contain seven checks.");
     }
 
     static bool TryResolveSequence(out HandwrittenSignatureSequence sequence)

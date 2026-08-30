@@ -51,6 +51,8 @@ public static class PPELocomotionPpeRegressionValidationHarness
                 FindSingle<PPEEquipmentVisualController>(previewScene, failures);
             PPEEducationWearChecklist checklist =
                 FindSingle<PPEEducationWearChecklist>(previewScene, failures);
+            PPETabletChecklistController tabletChecklist =
+                FindSingle<PPETabletChecklistController>(previewScene, failures);
 
             if (director != null && equipment != null)
             {
@@ -69,16 +71,22 @@ public static class PPELocomotionPpeRegressionValidationHarness
                 ValidateFinaleAndExitWiring(previewScene, director, failures);
                 ValidateControllerGuideVisuals(previewScene, director, failures);
                 ValidateTemporaryKeyboardBypass(previewScene, director, failures);
+                ValidateScenarioModalHoverColors(director, failures);
             }
 
             if (director != null && checklist != null)
                 ValidateChecklistWorkPlanReset(director, checklist, failures);
+
+            if (tabletChecklist != null)
+                ValidateTabletChecklistSequences(tabletChecklist, failures);
 
             ValidateFootstepInputOwnership(previewScene, failures);
             ValidateHeadRelativeLocomotion(previewScene, failures);
             ValidateHazmatAlreadyEquippedPriority(failures);
             ValidateBodyColliderProximity(failures);
             ValidateTabletSurfaceSampling(failures);
+            ValidatePosterSampling(failures);
+            ValidateQuestRenderQuality(failures);
         }
         finally
         {
@@ -104,8 +112,170 @@ public static class PPELocomotionPpeRegressionValidationHarness
             "leak harness rejection routing, Meta-account Welcome voices, PPE-area voices, authored controller-guide mapping " +
             "and detailed input feedback, " +
             "body-collider proximity, " +
+            "Quest render scale/MSAA, " +
             "tablet/signature anti-shimmer sampling, " +
+            "seven-step tablet checklists, high-resolution PPE poster sampling, neutral modal hover colors, " +
             "checklist work-plan reset, and input-owned footsteps are valid.");
+    }
+
+    static void ValidateScenarioModalHoverColors(
+        PPEVoiceFlowDirector director,
+        List<string> failures)
+    {
+        ScenarioDetailModal modal = new SerializedObject(director)
+            .FindProperty("m_ScenarioDetailModal")?.objectReferenceValue as ScenarioDetailModal;
+        if (modal == null)
+        {
+            failures.Add("PPEVoiceFlowDirector requires its authored ScenarioDetailModal reference.");
+            return;
+        }
+
+        string[] buttonProperties =
+        {
+            "trainingButton",
+            "backButton",
+            "incompletePpeButton",
+            "standardTrainingButton",
+            "trainingChoiceBackButton",
+            "ppeEducationModeButton",
+            "ppeTrainingModeButton",
+            "ppeTestModeButton",
+            "ppeModeChoiceBackButton",
+            "testConfinedSpaceButton",
+            "testLeakResponseButton",
+            "testWorkPlanBackButton"
+        };
+
+        SerializedObject serializedModal = new(modal);
+        Color expectedNormal = Color.white;
+        Color expectedHighlighted = new(0.84f, 0.84f, 0.84f, 1f);
+        Color expectedPressed = new(0.62f, 0.62f, 0.62f, 1f);
+        foreach (string propertyName in buttonProperties)
+        {
+            Button button = serializedModal.FindProperty(propertyName)
+                ?.objectReferenceValue as Button;
+            if (button == null)
+            {
+                failures.Add($"ScenarioDetailModal.{propertyName} requires an authored Button reference.");
+                continue;
+            }
+
+            ColorBlock colors = button.colors;
+            Color normal = colors.normalColor;
+            Color highlighted = colors.highlightedColor;
+            Color pressed = colors.pressedColor;
+            Color selected = colors.selectedColor;
+            if (normal != expectedNormal ||
+                highlighted != expectedHighlighted ||
+                pressed != expectedPressed ||
+                selected != expectedNormal)
+            {
+                failures.Add(
+                    $"Scenario modal button '{button.name}' must retain distinct authored " +
+                    "normal, gray hover, and dark-gray pressed colors, with selected returning to normal.");
+            }
+        }
+    }
+
+    static void ValidateTabletChecklistSequences(
+        PPETabletChecklistController controller,
+        List<string> failures)
+    {
+        const int ChecklistCount = 7;
+        string[] expectedNames =
+        {
+            "Checklist_Check_01",
+            "Checklist_Check_02",
+            "Checklist_Check_03",
+            "Checklist_Check_04",
+            "Checklist_Check_05",
+            "Checklist_Check_06",
+            "Checklist_Check_07",
+            "Player_Signature",
+            "Conductor_Signature"
+        };
+
+        if (controller.InstantChecklistStepCount != ChecklistCount)
+        {
+            failures.Add(
+                $"Tablet must reveal {ChecklistCount} checklist marks immediately; " +
+                $"configured value is {controller.InstantChecklistStepCount}.");
+        }
+
+        SerializedObject serializedController = new(controller);
+        foreach (string propertyName in new[] { "confinedSignatureSequence", "leakSignatureSequence" })
+        {
+            HandwrittenSignatureSequence sequence = serializedController.FindProperty(propertyName)
+                ?.objectReferenceValue as HandwrittenSignatureSequence;
+            if (sequence == null)
+            {
+                failures.Add($"Tablet {propertyName} requires an authored sequence reference.");
+                continue;
+            }
+
+            SerializedProperty steps = new SerializedObject(sequence).FindProperty("signatures");
+            if (steps == null || steps.arraySize != expectedNames.Length)
+            {
+                failures.Add(
+                    $"Tablet {propertyName} must contain {expectedNames.Length} ordered steps.");
+                continue;
+            }
+
+            for (int index = 0; index < expectedNames.Length; index++)
+            {
+                SerializedProperty step = steps.GetArrayElementAtIndex(index);
+                Renderer renderer = step.FindPropertyRelative("targetRenderer")
+                    .objectReferenceValue as Renderer;
+                if (renderer == null || renderer.name != expectedNames[index])
+                {
+                    failures.Add(
+                        $"Tablet {propertyName} step {index} must reference '{expectedNames[index]}'.");
+                }
+
+                bool animateReveal = step.FindPropertyRelative("animateReveal").boolValue;
+                if (index == 7 && !animateReveal)
+                {
+                    failures.Add(
+                        $"Tablet {propertyName} Player_Signature must be the single animated signature.");
+                }
+                else if (index == 8 && animateReveal)
+                {
+                    failures.Add(
+                        $"Tablet {propertyName} Conductor_Signature must remain a static confirmation mark.");
+                }
+            }
+        }
+    }
+
+    static void ValidatePosterSampling(List<string> failures)
+    {
+        const string PosterPath = "Assets/UIs/Poster/PPE_Poster_1.png";
+        TextureImporter importer = AssetImporter.GetAtPath(PosterPath) as TextureImporter;
+        Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(PosterPath);
+        if (importer == null || texture == null)
+        {
+            failures.Add($"PPE poster texture is missing: '{PosterPath}'.");
+            return;
+        }
+
+        if (importer.maxTextureSize < 4096 ||
+            importer.npotScale != TextureImporterNPOTScale.None ||
+            importer.filterMode != FilterMode.Trilinear ||
+            importer.anisoLevel < 8 ||
+            importer.compressionQuality < 100 ||
+            importer.wrapModeU != TextureWrapMode.Clamp ||
+            importer.wrapModeV != TextureWrapMode.Clamp)
+        {
+            failures.Add(
+                "PPE_Poster_1 requires 4096 max size, no NPOT resize, Trilinear/aniso 8, " +
+                "maximum compression quality, and Clamp wrapping for small-text readability.");
+        }
+
+        if (texture.width < 2381 || texture.height < 3402)
+        {
+            failures.Add(
+                $"PPE_Poster_1 imported resolution is only {texture.width}x{texture.height}.");
+        }
     }
 
     static void ValidateModeFeedbackPolicy(
@@ -285,7 +455,6 @@ public static class PPELocomotionPpeRegressionValidationHarness
 
         string[] androidHighQualityTextures =
         {
-            "Assets/UIs/Logo/VrLogo_2d.png",
             "Assets/UIs/Guide/Controller_tri.png",
             "Assets/UIs/Guide/Controller_gri.png",
             "Assets/UIs/Guide/Controller_joy.png",
@@ -305,6 +474,17 @@ public static class PPELocomotionPpeRegressionValidationHarness
         }
 
         if (AssetImporter.GetAtPath(
+                "Assets/UIs/Logo/VrLogo_2d.png") is not TextureImporter titleLogo)
+        {
+            failures.Add("Title logo texture importer is missing.");
+        }
+        else
+        {
+            ValidateUncompressedLogoPlatform(titleLogo, "Android", failures);
+            ValidateUncompressedLogoPlatform(titleLogo, "Standalone", failures);
+        }
+
+        if (AssetImporter.GetAtPath(
                 "Assets/UIs/sign_stamp/sign_player_rm.png") is TextureImporter playerSignature &&
             (playerSignature.npotScale != TextureImporterNPOTScale.None ||
              playerSignature.wrapModeU != TextureWrapMode.Clamp ||
@@ -315,6 +495,10 @@ public static class PPELocomotionPpeRegressionValidationHarness
                 "Player signature must preserve the one-piece NPOT source and use Clamp/transparent-edge sampling.");
         }
 
+        ValidateYamlSpritePreserveAspect(
+            "Assets/Scenes/1_Title.unity",
+            "cbf5db553974ec84fb37aea653f5f1bf",
+            failures);
         ValidateYamlSpritePreserveAspect(
             "Assets/Scenes/6_LoadingScene_0.unity",
             "cbf5db553974ec84fb37aea653f5f1bf",
@@ -359,6 +543,35 @@ public static class PPELocomotionPpeRegressionValidationHarness
         if (spriteIndex < 0 || preserveIndex < 0 || preserveIndex - spriteIndex > 320)
         {
             failures.Add($"Sprite must preserve its source aspect ratio in '{assetPath}'.");
+        }
+    }
+
+    static void ValidateQuestRenderQuality(List<string> failures)
+    {
+        string mobilePipeline = File.ReadAllText("Assets/Settings/Mobile_RPAsset.asset");
+        if (!mobilePipeline.Contains("m_RenderScale: 0.9", StringComparison.Ordinal))
+            failures.Add("Mobile_RPAsset render scale must remain 0.9 for distant Quest scene clarity.");
+        if (!mobilePipeline.Contains("m_MSAA: 4", StringComparison.Ordinal))
+            failures.Add("Mobile_RPAsset must retain 4x MSAA.");
+
+        string qualitySettings = File.ReadAllText("ProjectSettings/QualitySettings.asset");
+        if (!qualitySettings.Contains("Android: 0", StringComparison.Ordinal))
+            failures.Add("Android must continue to use the Mobile quality level.");
+    }
+
+    static void ValidateUncompressedLogoPlatform(
+        TextureImporter importer,
+        string platformName,
+        List<string> failures)
+    {
+        TextureImporterPlatformSettings platform =
+            importer.GetPlatformTextureSettings(platformName);
+        if (!platform.overridden ||
+            platform.format != TextureImporterFormat.RGBA32 ||
+            platform.textureCompression != TextureImporterCompression.Uncompressed)
+        {
+            failures.Add(
+                $"Title logo requires an uncompressed RGBA32 {platformName} override.");
         }
     }
 
@@ -1121,6 +1334,7 @@ public static class PPELocomotionPpeRegressionValidationHarness
         ValidateGuideImage(triggerController, "Assets/UIs/Guide/Controller_tri.png", failures);
         ValidateGuideImage(gripController, "Assets/UIs/Guide/Controller_gri.png", failures);
         ValidateGuideImage(joystickController, "Assets/UIs/Guide/Controller_joy.png", failures);
+        ValidateControllerGuideArtworkUniformity(failures);
         ValidateGuideChild(ray, "Card", true, "Assets/UIs/Guide/Ray.png", failures);
         ValidateGuideChild(ray, "Panel", false, null, failures);
         ValidateGuideChild(marker, "Item", true, "Assets/UIs/Guide/Marker_Item.png", failures);
@@ -1259,16 +1473,68 @@ public static class PPELocomotionPpeRegressionValidationHarness
         }
 
         ValidateAuthoredActive(hint, true, failures);
-        TMP_Text[] texts = hint.GetComponentsInChildren<TMP_Text>(true);
-        if (!texts.Any(text => text.text.Trim() == "A"))
-            failures.Add("The mini controller-education hint requires a visible authored A label.");
-        if (!texts.Any(text => text.text.Contains("컨트롤러 교육")))
-            failures.Add("The mini controller-education hint requires the authored controller-education label.");
+        Transform aButtonVisual = hint.Find("A Button Visual");
+        if (aButtonVisual == null)
+        {
+            failures.Add("The mini controller-education hint requires its authored A Button Visual child.");
+        }
+        else
+        {
+            ValidateAuthoredActive(aButtonVisual, false, failures);
+        }
+
+        TMP_Text educationLabel = hint.Find("Controller Education Label")?.GetComponent<TMP_Text>();
+        TMP_Text toggleHintText = mini.Find("Context/Use")?.GetComponent<TMP_Text>();
+        if (educationLabel == null || educationLabel.text != "A버튼 : 컨트롤러 상세 교육")
+        {
+            failures.Add(
+                "The mini controller-education hint requires the authored 'A버튼 : 컨트롤러 상세 교육' label.");
+        }
+        else
+        {
+            if (toggleHintText == null ||
+                Mathf.Abs(educationLabel.fontSize - toggleHintText.fontSize) > 0.01f)
+            {
+                failures.Add(
+                    "The controller-education label must use the same authored font size as the joystick-click hint.");
+            }
+
+            if (educationLabel.horizontalAlignment != HorizontalAlignmentOptions.Left)
+                failures.Add("The controller-education label must remain authored left-aligned.");
+
+            RectTransform labelRect = educationLabel.rectTransform;
+            if (labelRect.sizeDelta.x < 500f ||
+                labelRect.sizeDelta.y < 70f)
+            {
+                failures.Add(
+                    "The controller-education label RectTransform must retain at least its authored 500x70 text area.");
+            }
+
+            RectTransform hintRect = hint as RectTransform;
+            RectTransform titleRect = mini.Find("Context/Label") as RectTransform;
+            if (hintRect == null || titleRect == null)
+            {
+                failures.Add("The mini controller guide requires its authored title and education-hint RectTransforms.");
+            }
+            else
+            {
+                float educationLeft = hintRect.anchoredPosition.x + labelRect.anchoredPosition.x -
+                    labelRect.sizeDelta.x * labelRect.pivot.x;
+                float titleLeft = titleRect.anchoredPosition.x -
+                    titleRect.sizeDelta.x * titleRect.pivot.x;
+                if (Mathf.Abs(educationLeft - titleLeft) > 0.01f)
+                {
+                    failures.Add(
+                        "The A-button education label must start on the same authored left edge as the controller-guide title.");
+                }
+            }
+        }
 
         if (hint.GetComponentsInChildren<Selectable>(true).Length > 0 ||
             hint.GetComponentsInChildren<PPEControllerEducationEntry>(true).Length > 0)
         {
-            failures.Add("The mini A hint must remain display-only and must not add another input consumer.");
+            failures.Add(
+                "The mini controller-education hint must remain display-only and must not add another input consumer.");
         }
 
         Graphic raycastGraphic = hint.GetComponentsInChildren<Graphic>(true)
@@ -1276,7 +1542,49 @@ public static class PPELocomotionPpeRegressionValidationHarness
         if (raycastGraphic != null)
         {
             failures.Add(
-                $"The mini A hint Graphic '{raycastGraphic.name}' must not receive UI raycasts.");
+                $"The mini controller-education hint Graphic '{raycastGraphic.name}' must not receive UI raycasts.");
+        }
+
+        RectTransform context = mini.Find("Context") as RectTransform;
+        RectTransform controllerImage = mini.Find("Context/Controller_Image") as RectTransform;
+        Image controllerGraphic = controllerImage?.GetComponent<Image>();
+        if (context == null || controllerImage == null || controllerGraphic?.sprite == null)
+        {
+            failures.Add("The mini controller guide requires its authored Context/Controller_Image sprite.");
+        }
+        else
+        {
+            string spritePath = AssetDatabase.GetAssetPath(controllerGraphic.sprite);
+            Texture2D texture = controllerGraphic.sprite.texture;
+            if (spritePath != "Assets/UIs/Guide/controller.png")
+                failures.Add($"The mini controller guide sprite is '{spritePath}', not the authored controller.png.");
+            if (texture == null || texture.width != texture.height)
+                failures.Add("The mini controller guide source must retain its square white canvas.");
+            if (Mathf.Abs(controllerImage.sizeDelta.x - 100f) > 0.01f ||
+                Mathf.Abs(controllerImage.sizeDelta.y - 100f) > 0.01f)
+            {
+                failures.Add("The mini Controller_Image authored RectTransform must remain 100x100.");
+            }
+            if (Mathf.Abs(controllerImage.anchoredPosition.y - -10f) > 0.01f)
+                failures.Add("The mini Controller_Image must retain its raised authored Y position (-10).");
+        }
+
+        RectTransform useHint = mini.Find("Context/Use") as RectTransform;
+        TMP_Text useText = useHint?.GetComponent<TMP_Text>();
+        if (useHint == null || useText == null ||
+            !useText.text.Contains("컨트롤러 가이드 온/오프"))
+        {
+            failures.Add("The mini guide requires its authored controller-guide toggle hint.");
+        }
+        else
+        {
+            float bottomMargin = useHint.anchoredPosition.y - useHint.sizeDelta.y * 0.5f -
+                (context.anchoredPosition.y - context.sizeDelta.y * 0.5f);
+            if (useHint.sizeDelta.y < 70f || bottomMargin < 25f)
+            {
+                failures.Add(
+                    "The mini controller-guide toggle hint RectTransform is too short or too close to the panel bottom.");
+            }
         }
     }
 
@@ -1482,6 +1790,85 @@ public static class PPELocomotionPpeRegressionValidationHarness
         ValidateGuideImage(child, expectedSpritePath, failures);
     }
 
+    static void ValidateControllerGuideArtworkUniformity(List<string> failures)
+    {
+        string[] paths =
+        {
+            "Assets/UIs/Guide/Controller_tri.png",
+            "Assets/UIs/Guide/Controller_gri.png",
+            "Assets/UIs/Guide/Controller_joy.png",
+        };
+
+        RectInt? referenceBounds = null;
+        string referencePath = null;
+        foreach (string path in paths)
+        {
+            Texture2D source = new(2, 2, TextureFormat.RGBA32, false, true);
+            try
+            {
+                if (!source.LoadImage(File.ReadAllBytes(path), false))
+                {
+                    failures.Add($"Controller guide artwork could not be decoded: '{path}'.");
+                    continue;
+                }
+
+                Color32[] pixels = source.GetPixels32();
+                int minX = source.width;
+                int minY = source.height;
+                int maxX = -1;
+                int maxY = -1;
+                for (int y = 0; y < source.height; y++)
+                {
+                    int row = y * source.width;
+                    for (int x = 0; x < source.width; x++)
+                    {
+                        Color32 pixel = pixels[row + x];
+                        if (pixel.r >= 220 && pixel.g >= 220 && pixel.b >= 220)
+                            continue;
+
+                        minX = Mathf.Min(minX, x);
+                        minY = Mathf.Min(minY, y);
+                        maxX = Mathf.Max(maxX, x);
+                        maxY = Mathf.Max(maxY, y);
+                    }
+                }
+
+                if (maxX < minX || maxY < minY)
+                {
+                    failures.Add($"Controller guide artwork is empty: '{path}'.");
+                    continue;
+                }
+
+                RectInt bounds = new(minX, minY, maxX - minX + 1, maxY - minY + 1);
+                if (referenceBounds == null)
+                {
+                    referenceBounds = bounds;
+                    referencePath = path;
+                    continue;
+                }
+
+                RectInt reference = referenceBounds.Value;
+                float centerX = bounds.xMin + (bounds.width - 1) * 0.5f;
+                float centerY = bounds.yMin + (bounds.height - 1) * 0.5f;
+                float referenceCenterX = reference.xMin + (reference.width - 1) * 0.5f;
+                float referenceCenterY = reference.yMin + (reference.height - 1) * 0.5f;
+                if (Mathf.Abs(bounds.width - reference.width) > 3f ||
+                    Mathf.Abs(bounds.height - reference.height) > 3f ||
+                    Mathf.Abs(centerX - referenceCenterX) > 3f ||
+                    Mathf.Abs(centerY - referenceCenterY) > 3f)
+                {
+                    failures.Add(
+                        $"Controller guide artwork bounds differ between '{referencePath}' and '{path}'. " +
+                        "All trigger/grip/joystick variants must retain the same authored visual scale and center.");
+                }
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(source);
+            }
+        }
+    }
+
     static void ValidateGuideImage(
         Transform transform,
         string expectedSpritePath,
@@ -1500,6 +1887,41 @@ public static class PPELocomotionPpeRegressionValidationHarness
 
         if (image != null && !image.preserveAspect)
             failures.Add($"Controller guide '{transform.name}' must preserve the baked PNG aspect ratio.");
+
+        bool isControllerDiagram = expectedSpritePath == "Assets/UIs/Guide/Controller_tri.png" ||
+            expectedSpritePath == "Assets/UIs/Guide/Controller_gri.png" ||
+            expectedSpritePath == "Assets/UIs/Guide/Controller_joy.png";
+        if (isControllerDiagram && transform is RectTransform rectTransform && image?.sprite != null)
+        {
+            Texture2D texture = image.sprite.texture;
+            if (texture == null || texture.width != texture.height)
+            {
+                failures.Add(
+                    $"Controller guide '{transform.name}' source must retain its square white canvas.");
+            }
+
+            if (Mathf.Abs(rectTransform.sizeDelta.x - 100f) > 0.01f ||
+                Mathf.Abs(rectTransform.sizeDelta.y - 100f) > 0.01f)
+            {
+                failures.Add(
+                    $"Controller guide '{transform.name}' authored RectTransform must remain 100x100.");
+            }
+
+            if (Mathf.Abs(rectTransform.anchoredPosition.x - -166f) > 0.01f)
+            {
+                failures.Add(
+                    $"Controller guide '{transform.name}' authored X position must remain -166.");
+            }
+
+            float effectiveAuthoredWidth =
+                rectTransform.sizeDelta.x * Mathf.Abs(rectTransform.localScale.x);
+            if (Mathf.Abs(effectiveAuthoredWidth - 500f) > 0.5f)
+            {
+                failures.Add(
+                    $"Controller guide '{transform.name}' effective authored width " +
+                    $"({effectiveAuthoredWidth:F1}) must remain 500 panel units.");
+            }
+        }
     }
 
     static void ValidateAuthoredActive(

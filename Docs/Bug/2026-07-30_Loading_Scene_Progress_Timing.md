@@ -120,3 +120,48 @@ Intro에서 넘기는 대상, 로딩 씬 fallback, 코드 기본값, Build Setti
 ### 아직 필요한 수동 검증
 
 - Meta Quest/OpenXR 헤드셋에서 Intro와 로딩 UI의 양안 표시, XR 초기화 시간, 최종 씬 활성화를 확인해야 한다.
+
+## 2026-08-31 후속: PPE 활성화 순간 전체 화면 에메랄드 플래시
+
+### 증상과 원인 분리
+
+- 사용자가 지목한 현상은 파란 룸 벽이나 태블릿·포스터 Renderer가 아니라, 로딩 씬에서 PPE 씬으로
+  교체되는 순간 화면 전체에 밝은 에메랄드 단색이 한 번 노출되는 현상이다.
+- PPE 씬의 Main Camera와 비활성 Hand Tracking Camera를 검정 Solid Color로 바꾸는 1차 비교를 했지만
+  현상이 유지됐다. 따라서 PPE 카메라 배경이나 Skybox가 원인이 아니며 해당 비교 변경은 되돌렸다.
+- 기존 `LoadingSceneController`는 PPE 로드를 `LoadSceneMode.Single`로 활성화했다. 이 방식은 로딩 씬의
+  카메라가 제거된 뒤 PPE 카메라가 XR 프레임을 처음 제출하기 전까지 전환 공백이 생길 수 있으며,
+  이때 XR 쪽 기본 단색이 전체 화면에 노출되는 것이 현재 원인 후보다.
+
+### 비교 적용한 변경과 롤백
+
+- PPE 대상 씬을 `LoadSceneMode.Additive`로 활성화하고, 로드 완료 뒤 PPE 씬을 Active Scene으로 지정한다.
+- 로딩 씬의 검정 카메라는 depth `100`으로 작성해 PPE 카메라보다 마지막에 렌더링한다.
+- 새 Inspector 작성값 `postActivationCoverFrames=2` 동안 로딩 씬을 유지한 뒤
+  `SceneManager.UnloadSceneAsync`로 로딩 씬만 내린다. 따라서 PPE 카메라가 준비되기 전 XR 전환 공백은
+  기존 로딩 화면이 가린다.
+- 로딩 UI의 기존 RectTransform·색·진행 시간, PPE 씬의 카메라·룸·입력·상태 흐름은 변경하지 않았다.
+- `LoadingSceneBuilder` 검증은 검정 Solid Color, 카메라 depth 100 이상, 활성화 후 커버 프레임 1 이상을
+  요구하도록 확장했다.
+
+실제 Unity Play Mode에서 이 Additive 비교안은 채택할 수 없었다. 로딩 씬의 XR 오브젝트가 unload된 뒤
+PPE 씬의 `XRInteractionManager`와 `NearFarInteractor`가 파괴된 Attach GameObject를 계속 참조해
+`InteractionAttachController.DoUpdate()`에서 `MissingReferenceException`이 매 프레임 반복됐다.
+즉시 Play Mode와 Unity를 종료하고 다음 항목을 모두 기존 상태로 되돌렸다.
+
+- 대상 PPE 로드: `LoadSceneMode.Additive` → 기존 `LoadSceneMode.Single`
+- 로딩 카메라 depth: `100` → 기존 `0`
+- `postActivationCoverFrames`, Active Scene 변경 및 로딩 씬 수동 unload 코드 제거
+- `LoadingSceneBuilder`의 Additive 커버 전용 검증 제거
+
+현재 저장소에는 반복 오류를 일으킨 Additive 전환이 남아 있지 않다. 에메랄드 플래시는 별도 안전한
+전환 방식이 실제 XR 참조 수명주기를 보존한다는 근거를 확보하기 전까지 미해결로 유지한다.
+
+### 실패 재현, 복구 검증과 남은 항목
+
+- 실패 로그에서 파괴된 GameObject를 참조하는 XRI `InteractionAttachController` → `NearFarInteractor` →
+  `XRInteractionManager.Update()` 반복 경로를 확인했다.
+- 롤백 뒤 씬과 코드에서 Additive 대상 로드, depth `100`, `postActivationCoverFrames`, 수동 unload 경로가
+  모두 제거됐는지 정적으로 확인한다.
+- Unity 재실행 후 반복 `MissingReferenceException`이 없는지 먼저 확인해야 한다. 에메랄드 전체 화면은
+  아직 미해결이며, 오류가 없는 기존 전환을 보존한 상태에서 후속 원인 분리를 진행한다.

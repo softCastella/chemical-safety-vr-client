@@ -26,6 +26,7 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
     public static string CurrentFlowState => instance?.director?.CurrentState.ToString();
     public static bool HasActivePpeModeSession =>
         instance?.director != null && instance.director.IsActivePpeModeSession;
+    internal static event Action TelemetryRecordAppended;
 
     [Serializable]
     sealed class Record
@@ -94,6 +95,13 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
     string lastRequiredPpeStatus;
     AudioClip activeVoiceClip;
     float activeVoiceStartedAt;
+    bool applicationPaused;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStaticNotifications()
+    {
+        TelemetryRecordAppended = null;
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void Install()
@@ -483,6 +491,15 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         Write("session_ended", note:"application_quitting");
     }
 
+    void OnApplicationPause(bool paused)
+    {
+        if (paused == applicationPaused)
+            return;
+
+        applicationPaused = paused;
+        Write(paused ? "application_paused" : "application_resumed");
+    }
+
     void Write(
         string eventType,
         string itemType = null,
@@ -552,6 +569,14 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         };
 
         File.AppendAllText(outputPath, JsonUtility.ToJson(record) + Environment.NewLine);
+        try
+        {
+            TelemetryRecordAppended?.Invoke();
+        }
+        catch (Exception exception)
+        {
+            Debug.LogException(exception, this);
+        }
         Debug.Log($"[PPE Telemetry] {eventType} -> {outputPath}");
     }
 

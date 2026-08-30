@@ -33,7 +33,8 @@ public static class AppStartupSynchronizationHarness
             Debug.Log(
                 "[App Startup Synchronization] PASS: builds gate title loading on physical XR readiness, " +
                 "Editor Game View may bypass that gate, Meta SDK Editor testing is opt-in, " +
-                "0_App does not auto-play BGM, and 1_Title owns title BGM start.");
+                "0_App does not auto-play BGM, 1_Title owns title BGM start, " +
+                "and 2_Intro is preloaded before the title fade completes.");
         }
         finally
         {
@@ -103,6 +104,8 @@ public static class AppStartupSynchronizationHarness
             "1_Title must start title BGM after its gated activation.");
         Require(serializedTitle.FindProperty("titleBgmId").stringValue == "title",
             "1_Title title BGM ID must be 'title'.");
+        Require(serializedTitle.FindProperty("preloadNextScene").boolValue,
+            "1_Title must preload 2_Intro before completing the title transition.");
     }
 
     private static T FindSingle<T>(Scene scene) where T : Component

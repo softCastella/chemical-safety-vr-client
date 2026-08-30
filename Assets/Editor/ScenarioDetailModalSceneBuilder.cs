@@ -375,6 +375,12 @@ internal static class ScenarioDetailModalSceneBuilder
         image.color = new Color(0.43f, 0.46f, 0.48f, 1f);
         Button button = gameObject.AddComponent<Button>();
         button.targetGraphic = image;
+        ColorBlock colors = button.colors;
+        colors.normalColor = Color.white;
+        colors.highlightedColor = new Color(0.84f, 0.84f, 0.84f, 1f);
+        colors.pressedColor = new Color(0.62f, 0.62f, 0.62f, 1f);
+        colors.selectedColor = Color.white;
+        button.colors = colors;
         Text(name + " Label", gameObject.transform, font, label, 24f, FontStyles.Bold,
             TextAlignmentOptions.Center, Vector2.zero, dimensions);
         return button;

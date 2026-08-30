@@ -34,6 +34,7 @@ public sealed class TitleSplashController : MonoBehaviour
     [SerializeField, Min(0f)] private float visibleDuration = 1.5f;
     [SerializeField, Min(0f)] private float fadeOutDuration = 0.6f;
     [SerializeField] private string nextSceneName = "2_Intro";
+    [SerializeField] private bool preloadNextScene;
 
     [Header("Title Audio")]
     [SerializeField] private bool playTitleBgmOnStart = true;
@@ -42,6 +43,7 @@ public sealed class TitleSplashController : MonoBehaviour
     private CanvasGroup primaryGroup;
     private CanvasGroup versionGroup;
     private CanvasGroup partnerGroup;
+    private AsyncOperation nextSceneLoad;
 
     private void Awake()
     {
@@ -75,6 +77,22 @@ public sealed class TitleSplashController : MonoBehaviour
             }
         }
 
+        if (preloadNextScene && Application.CanStreamedLevelBeLoaded(nextSceneName))
+        {
+            nextSceneLoad = SceneManager.LoadSceneAsync(nextSceneName, LoadSceneMode.Single);
+            if (nextSceneLoad == null)
+            {
+                Debug.LogError(
+                    $"TitleSplashController: Could not begin preloading scene '{nextSceneName}'.",
+                    this);
+            }
+            else
+            {
+                nextSceneLoad.allowSceneActivation = false;
+                nextSceneLoad.priority = -1;
+            }
+        }
+
         Canvas.ForceUpdateCanvases();
         for (int frame = 0; frame < prewarmFrames; frame++)
             yield return new WaitForEndOfFrame();
@@ -91,6 +109,13 @@ public sealed class TitleSplashController : MonoBehaviour
             AudioManager.Instance.FadeOutBgm(fadeOutDuration);
         yield return FadeOutLogos();
         AudioManager.Instance?.StopAndReleasePersistentPlayback();
+
+        if (nextSceneLoad != null)
+        {
+            nextSceneLoad.allowSceneActivation = true;
+            yield return nextSceneLoad;
+            yield break;
+        }
 
         if (!Application.CanStreamedLevelBeLoaded(nextSceneName))
         {

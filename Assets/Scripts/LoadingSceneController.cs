@@ -61,7 +61,12 @@ public sealed class LoadingSceneController : MonoBehaviour
         }
 
         requestedSceneName = targetSceneName;
-        SceneManager.LoadScene(LoadingSceneName, LoadSceneMode.Single);
+        AsyncOperation operation = SceneManager.LoadSceneAsync(LoadingSceneName, LoadSceneMode.Single);
+        if (operation == null)
+        {
+            requestedSceneName = null;
+            Debug.LogError($"LoadingSceneController failed to begin loading '{LoadingSceneName}'.");
+        }
     }
 
     IEnumerator Start()

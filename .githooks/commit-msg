@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec node Tools/KoreanCommitMessageHarness.mjs "$1"

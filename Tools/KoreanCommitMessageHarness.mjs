@@ -1,0 +1,100 @@
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const hangulPattern = /[가-힣]/u;
+const numberedListStartPattern = /^1\.\s+\S/u;
+
+function meaningfulLines(message) {
+  return message
+    .replace(/\r\n?/gu, "\n")
+    .split("\n")
+    .filter((line) => !line.trimStart().startsWith("#"));
+}
+
+export function validateKoreanCommitMessage(message) {
+  const lines = meaningfulLines(message);
+  const subjectIndex = lines.findIndex((line) => line.trim().length > 0);
+  const errors = [];
+
+  if (subjectIndex < 0) {
+    return ["커밋 메시지가 비어 있습니다."];
+  }
+
+  const subject = lines[subjectIndex].trim();
+  if (!hangulPattern.test(subject)) {
+    errors.push("커밋 제목에 한글을 포함해야 합니다.");
+  }
+
+  const bodyLines = lines.slice(subjectIndex + 1);
+  if (!bodyLines.some((line) => numberedListStartPattern.test(line.trim()))) {
+    errors.push("커밋 본문에 '1. '부터 시작하는 번호 목록을 추가해야 합니다.");
+  }
+
+  return errors;
+}
+
+function runSelfTest() {
+  const cases = [
+    {
+      name: "한글 제목과 번호 목록 허용",
+      message: "커밋 메시지 하네스 추가\n\n1. 한글 제목을 검사한다.\n2. 번호 목록을 검사한다.\n",
+      valid: true,
+    },
+    {
+      name: "영문 전용 제목 거부",
+      message: "Add commit message harness\n\n1. 검증 규칙을 추가한다.\n",
+      valid: false,
+    },
+    {
+      name: "번호 목록 없는 본문 거부",
+      message: "커밋 메시지 하네스 추가\n\n검증 규칙을 추가한다.\n",
+      valid: false,
+    },
+    {
+      name: "Git 주석 제외",
+      message: "한글 커밋 제목\n\n1. 검증 결과를 기록한다.\n# 변경 파일 목록\n",
+      valid: true,
+    },
+  ];
+
+  for (const testCase of cases) {
+    const errors = validateKoreanCommitMessage(testCase.message);
+    const actual = errors.length === 0;
+    if (actual !== testCase.valid) {
+      throw new Error(`${testCase.name} 실패: ${errors.join(" ")}`);
+    }
+  }
+
+  process.stdout.write(`[Korean Commit Message Harness] PASS: ${cases.length}개 사례\n`);
+}
+
+function runCommitHook(messagePath) {
+  if (!messagePath) {
+    process.stderr.write("커밋 메시지 파일 경로가 필요합니다.\n");
+    process.exitCode = 2;
+    return;
+  }
+
+  const message = fs.readFileSync(messagePath, "utf8");
+  const errors = validateKoreanCommitMessage(message);
+  if (errors.length === 0) {
+    return;
+  }
+
+  process.stderr.write("커밋 메시지 하네스가 커밋을 거부했습니다.\n");
+  for (const [index, error] of errors.entries()) {
+    process.stderr.write(`${index + 1}. ${error}\n`);
+  }
+  process.stderr.write("예시:\n\n한글 커밋 제목\n\n1. 변경 내용을 기록한다.\n2. 검증 결과를 기록한다.\n");
+  process.exitCode = 1;
+}
+
+const executedPath = process.argv[1] ? path.resolve(process.argv[1]) : "";
+if (executedPath === fileURLToPath(import.meta.url)) {
+  if (process.argv[2] === "--self-test") {
+    runSelfTest();
+  } else {
+    runCommitHook(process.argv[2]);
+  }
+}

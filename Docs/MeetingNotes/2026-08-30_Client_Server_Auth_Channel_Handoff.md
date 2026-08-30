@@ -9,7 +9,7 @@
 - 서버 검증 기준 커밋: `6512f0c8e65401e5e32b88c971961cf6aea90f22`
 - 서버 미러·검증 결과 커밋: `5adc9ef647fd786f918db33ba1f698e61a5ce5b3`
 - 서버 작업 트리: 기존 수정 파일이 남아 있어 clean 상태가 아님
-- 동기화 상태: 서버 미러·정적 계약 검증 완료 / 서버 결과의 클라이언트 반영 완료 / 통합 검증 대기
+- 동기화 상태: 클라이언트 기준본·서버 미러 내용 일치 / 변경 전 Editor 통합 검증 완료 / 변경 후 Editor 단계별 회귀 검증 완료 / 동일 실행의 `180초 초과 → PPE 진입` 및 Quest·APK 미검증
 
 ## 목적
 
@@ -21,13 +21,50 @@
 
 | 구분 | 상태 | 근거 또는 제한 |
 |---|---|---|
-| 클라이언트 로컬 텔레메트리 기록 | 확인 | 2026-08-29 Unity Editor 로그에 PPE 이벤트 JSONL 기록이 남음 |
-| Meta 앱 범위 사용자 ID | 이번 실행에서 미확인 | 로컬 등록이 Meta ID 또는 활성 PPE 세션을 제한 시간 안에 확인하지 못하고 종료됨 |
+| 클라이언트 로컬 텔레메트리 기록 | 확인 | 2026-08-30 Unity Editor 검증 세션에서 JSONL 240개와 연속 sequence를 확인 |
+| Meta 앱 범위 사용자 ID | Editor Standalone 테스트 사용자 확인 / Quest 미검증 | Platform 초기화·entitlement·앱 범위 ID 조회 성공, 원문은 기록하지 않음 |
 | 로컬 Express 실행 | 확인 | 2026-08-30 현재 TCP 3000 listen 및 `GET /` HTTP 200 확인 |
-| 로컬 등록 API | 서버 구현 확인 / 왕복 미검증 | 서버 라우트·테스트는 존재하지만 이번 Unity POST/GET 성공 근거가 없음 |
-| 텔레메트리 업로드 API | 서버 구현·설정 확인 / 통합 미검증 | ingest 활성화와 서버용 token 설정은 확인했지만 Unity 수신·DB 적재 근거가 없음 |
-| 대화 채널·큐 전달 | 미검증 | 클라이언트 코드·Unity 로그만으로 대화가 서버 큐에 전달됐다고 판단할 수 없음 |
+| 로컬 등록 API | 변경 전·후 Editor 왕복 확인 | 변경 후 PPE 진입 세션에서 POST/GET의 Meta ID·연령 범주·`sessionId` 일치 확인. 별도 세션에서 180초 초과 대기 유지 확인. 동일 실행의 `180초 초과 → PPE 진입`은 미검증 |
+| 텔레메트리 업로드 API | 변경 전 Editor 240/240 / 변경 후 Editor 종료 복구 59/59 확인 | 실행 중 58/58 및 약 0.27초 ACK 확인. 종료 직후 로컬 59/서버 58이었고 다음 실행에서 59/59, `completed`, 누락·중복 0으로 복구 |
+| 대화 채널·큐 전달 | 로컬 런처 구현 확인 / 이번 전달 미검증 | `CodexPairLauncher`는 존재하지만 클라이언트 코드·Unity 로그나 대화 표시만으로 특정 메시지의 큐 전달 성공을 판단할 수 없음 |
 | 출시 Player 업로드 | 미구현 | 현재 업로더는 Editor만 허용하고 Player에서는 업로드를 시작하지 않음 |
+
+## 로컬 Codex Pair Launcher
+
+### 위치와 역할
+
+- 이 PC의 런처 경로는 `C:\Users\lanoc\Tools\CodexPairLauncher`다.
+- 런처는 클라이언트·서버 저장소 밖에 있는 Windows용 로컬 도구이며, 확인 시점에는 별도 Git 저장소가 아니다.
+- 같은 PC에서 Codex CLI 세션 두 개를 로컬 app-server에 연결하고 사용자가 명시적으로 요청할 때만 상대 세션에 메시지를 전달한다.
+- 통신 대상은 `ws://127.0.0.1`뿐이다. `--remote`는 이 구성에서 외부 서버가 아니라 같은 PC의 Codex CLI 연결을 뜻한다.
+- 자동 답장이나 무한 대화 루프를 만들지 않으며 프로젝트 파일 또는 Git 저장소를 자동 수정하지 않는다.
+
+### 주요 명령
+
+- `Setup.cmd`: 클라이언트·서버 저장소 경로와 로컬 릴레이 설정을 작성한다.
+- `Self-Test.cmd`: 모델 턴을 시작하지 않고 런처 호환성과 임시 검사 세션을 확인한다.
+- `Start-CodexPair.cmd`: 숨겨진 로컬 app-server와 클라이언트·서버 Codex 창을 시작하고, 호환되는 기존 중계기와 저장 세션이 있으면 재사용한다.
+- `Start-Fresh-CodexPair.cmd`: 기존 세션을 재사용할 수 없을 때 새 세션 두 개를 만든다.
+- `Send-ToClient.cmd`, `Send-ToServer.cmd`: 사용자가 입력한 메시지를 상대 세션의 새 턴으로 전달한다.
+- `Open-SessionManager.cmd`: 세션 관리 화면을 연다.
+- `Stop-CodexPair.cmd`: 런처가 시작한 로컬 app-server만 종료한다.
+- `Logout-Codex.cmd`: 공용 PC 사용 후 Codex 인증정보를 제거한다. GitHub 인증정보는 별도로 관리한다.
+- `Build-Zip.cmd`: 로컬 설정과 실행 로그를 제외한 배포 ZIP을 만든다.
+
+### 설정과 보안 제한
+
+- PC별 경로 설정은 `relay.local.json`에 저장되며 `.gitignore`와 배포 ZIP에서 제외된다.
+- `relay.local.json`에는 저장소 경로, `listenHost`, port와 세션 재사용 여부만 두고 로그인 token이나 API key를 저장하지 않는다.
+- `listenHost`는 반드시 `127.0.0.1`이어야 한다. `0.0.0.0`으로 열거나 집·학원 PC를 직접 연결하지 않는다.
+- 로그인 token, API key, DB 비밀번호와 실제 사용자 데이터를 전달 메시지에 넣지 않는다.
+- app-server 포트를 다른 프로세스가 사용하면 해당 프로세스에 임의 연결하거나 종료하지 않고 중단한다.
+- 런처는 Codex CLI의 실험적 `app-server`, `--remote`, `queue`와 세션 프로토콜을 사용하므로 CLI 업데이트 뒤에는 `Self-Test.cmd` 통과 전 사용하지 않는다.
+
+### 기록과 검증 경계
+
+- 런처의 `queue`는 일시적인 대화 전달 수단이며 영구 작업 기록이 아니다. 완료 사실은 코드, 테스트 결과, Git 커밋과 `Docs/SharedDocumentManifest.md`의 공용 문서로 남긴다.
+- 대화가 상대 Codex 화면에 보였다는 사실은 Unity 등록·텔레메트리 API 수신, Express 로그, MariaDB 적재 또는 대시보드 조회 성공을 의미하지 않는다.
+- 이번 서버 문서 보강에서는 README, 명령 파일, PowerShell 스크립트 목록, `.gitignore`와 `relay.example.json`을 정적으로 확인했다. `Self-Test.cmd` 실행과 실제 양방향 메시지 전달은 이번 검증 범위에 포함하지 않았다.
 
 ## 클라이언트에서 확인된 계약
 
@@ -128,3 +165,396 @@
 
 - Meta 사용자 ID, 계정 ID, 비밀번호, access token, 업로드 token 원문을 이 문서에 기록하지 않는다.
 - 사용자 식별이 필요한 검증 결과에는 마스킹 값 또는 일치 여부만 기록한다.
+
+## 2026-08-30 사용자 전달 후속 — Meta 등록 성공 및 종료 직전 업로드 지연
+
+> 이 절은 앞선 `통합 검증 대기` 기록 이후 전달받은 후속 실행 결과다. 기존 기록을 소급해 지우지
+> 않으며, 아래 결과와 아직 필요한 코드·로그 대조를 구분한다. 사용자는 2026-08-30 후속 지시에서
+> 이 이미지가 기록 전용이 아니라 실제 수정·검증 요청임을 명확히 했다.
+
+### 전달받은 기준
+
+- 클라이언트 기준: `main@8b1b4300349529a3ebcb260f1da614769bef6b34`
+- 서버 기준: `main@e85e718529283988771cd817e29a0aa46473c80d`
+- 기존 미커밋 파일은 보존하고 임의로 병합하지 않는다.
+- Meta ID, 테스트 사용자 이메일·비밀번호, access token, 업로드 token 원문은 출력하거나 문서·Git에
+  기록하지 않는다.
+- 이 문서 외의 새 문서를 만들지 않고 본 기준 문서를 갱신한다.
+
+### 전달받은 실제 검증 결과
+
+1. Meta Platform Standalone 테스트 사용자 로그인이 성공했다.
+2. Platform SDK 초기화, entitlement 및 앱 범위 사용자 ID 조회가 성공했다.
+3. 새 검증 세션에서 등록 `POST/GET`이 성공했고 Meta ID와 `sessionId`가 일치했다.
+4. 로컬 JSONL과 서버 DB의 이벤트가 최종 `240/240`으로 일치했고 서버 세션 상태가
+   `completed`였다.
+5. `sequence` 누락과 중복은 없었다.
+6. `appVersion` 수집이 확인됐다.
+7. 종료 의미는 `application_quitting`이며 교육 과정의 `Completed`로 확대 해석하지 않는다.
+
+위 항목은 최초에는 사용자 실행 결과로 전달됐다. 이후 서버 담당이 같은 로컬 환경에서 원문 ID를
+출력하지 않고 로컬 조회 API, 등록 GET과 DB 기반 텔레메트리 조회 API를 재대조해 `240/240`,
+`completed`, 등록 ID·`sessionId` 일치와 sequence 누락·중복 없음까지 독립 확인했다. 다만 이 결과는
+아래 클라이언트 패치 전 실행 근거이며 패치 후 Editor 회귀 또는 Quest·APK 검증으로 확대하지 않는다.
+
+### 재현 문제 1 — 등록 대기 180초 제한
+
+- `TycheLocalTrainingRegistrationClient`가 앱 시작부터 Meta ID와 활성 PPE 세션을 함께 최대
+  180초 기다린다.
+- Meta ID는 이미 성공했지만 사용자가 컨트롤러 안내 단계에 머무르는 동안 제한 시간이 먼저 끝나
+  `등록 조건을 기다리다 종료`가 발생했다.
+- 이후 사용자가 Meta 인증 대기 시간을 분리하고 새 실행에서는 등록 성공을 확인했다.
+- 요구 동작은 Meta 인증이 terminal failure 또는 `Skipped`일 때만 명확히 중단하고, ID 성공 뒤에는
+  PPE 활성 단계 진입을 앱 수명 동안 기다리는 것이다.
+- PPE 단계 진입 뒤 등록은 한 번만 수행하고 기존 `POST/GET` 일치 검증은 유지한다.
+- 임의 자동 진행, 교육 흐름 변경 및 입력 소비자 변경은 금지한다.
+
+### 재현 문제 2 — 종료 직전 이벤트의 다음 실행 업로드
+
+- 첫 종료 직후 로컬 JSONL은 마지막 `sequence=240`이었으나 서버 checkpoint는 `235`였다.
+- 미전송 `236~240`의 마지막 이벤트는 `session_ended/application_quitting`이었다.
+- 다음 Play에서 기존 durable upload state를 읽어 `236~240`을 재전송했고 서버 세션을
+  `completed`로 변경했다.
+- 다음 실행의 새 세션에서도 종료 직후 `로컬 24 / 서버 23`이 재현됐고, 빠진 것은
+  `sequence 24 session_ended/application_quitting`이었다.
+- 원인은 5초 스캔 뒤 종료 직전 이벤트가 기록되고, 다음 스캔 전에 Play/Application이 종료되는 생명주기
+  순서로 판단한다.
+- 로컬 JSONL과 체크포인트 재전송 경로는 정상 동작했다.
+- `application_quitting`에서 네트워크 성공을 보장한다고 주장하거나 종료를 블로킹하는 위험한 처리는
+  추가하지 않는다.
+
+### 구현 범위와 제한
+
+- 종료 시 이벤트를 업로더가 즉시 또는 짧은 debounce로 인지하도록 개선할 수 있는지 검토한다.
+- Quest의 pause/kill에서는 종료 콜백과 네트워크가 보장되지 않는 제한을 문서에 유지한다.
+- 현재 Player 업로더의 비활성 정책을 임의로 해제하거나 APK에서의 동작을 추정하지 않는다. Player 인증은
+  별도 후속 작업으로 유지한다.
+- 변경 전 필수 질문 7개, `PPETrainingDataContractHarness`, `DocumentationPolicyHarness`, C# 정적
+  컴파일 및 가능한 Unity Editor 검증을 이번 수정에서 수행한다.
+- 결과는 `정적 확인 / Unity Editor 확인 / Quest·APK 미검증`으로 구분하고 남은 수동 검증을 명시한다.
+
+### 변경 전 필수 질문 답변
+
+1. **기존 Inspector/씬 작성값을 보존하는가?** 등록과 업로드 수명주기 코드는 씬 UI·Transform·입력
+   작성값을 변경하지 않는다. `0_App`에 작성된 로컬 서버 주소, batch size, 5초 정기 스캔, 재시도와
+   timeout 값도 보존한다.
+2. **단일 기준 오브젝트와 상태 소유자는 무엇인가?** Meta 인증 상태는
+   `MetaPlatformIdentityProbe`, PPE 활성 여부와 JSONL은 `PPETrainingTelemetryCapture`, 서버 ACK와
+   durable checkpoint는 `TycheTrainingTelemetryUploader`가 각각 소유한다. 등록 클라이언트는 이 값을
+   읽고 POST/GET을 한 번 수행할 뿐 상태를 만들지 않는다.
+3. **입력 전체 경로는 무엇인가?** 이번 변경은 입력 이벤트, Interactor/Caster, Raycaster, Layer,
+   Collider 및 press/select action을 소비하지 않는다. 기존 카드·모달·컨트롤러 교육 입력 경로는
+   변경하지 않는다.
+4. **실패 시 자동 수리 대신 멈춰야 하는가?** Meta probe가 `Failed`, `SkippedForEditorTesting`이거나
+   SDK 경로가 사라지면 명확한 경고 후 등록만 중단한다. 서버·파일 오류는 기존 실패 로그와 durable
+   재시도를 유지하며 씬이나 사용자 흐름을 자동 수정하지 않는다.
+5. **함께 영향을 받는 소비자는 무엇인가?** 개발용 등록 POST/GET과 Editor 전용 텔레메트리 업로더만
+   영향받는다. UI, 텔레포트, PPE Grab, 거울, XR 양안, 음성 및 출시 Player 업로드 정책은 보존한다.
+6. **변경 전후 비교 실행은 무엇인가?** 변경 전 기준은 Meta ID 성공 뒤에도 앱 시작 180초에 등록이
+   종료되는 재현과 종료 직후 `로컬 N / 서버 N-1`이다. 변경 후에는 180초가 지나 PPE 모드에 들어가도
+   등록이 한 번 성공하는지, JSONL append 알림 뒤 다음 5초 폴링 전 서버 ACK가 진행되는지 비교한다.
+7. **검증 수준은 어디까지인가?** 소스·씬 정적 계약, Runtime/Editor C# 컴파일과 가능한 Unity Editor
+   하네스까지 수행한다. Meta Standalone 재로그인, 실제 DB POST/GET, Quest pause/kill 및 APK 업로드는
+   새 실행 증거 없이는 완료로 표시하지 않는다.
+
+이번 변경이 대응하는 사용자 요청은 `Meta 인증 제한 시간과 PPE 진입 대기를 분리`하고 `JSONL 새 이벤트를
+업로더가 즉시 인지`하는 것이다. 보존해야 하는 기존 동작은 등록 1회, POST/GET 일치 검증, 5초 정기 스캔,
+지수 재시도, durable 체크포인트, 종료 비블로킹 및 Player 업로드 비활성 정책이다.
+
+### 실제 적용 내용
+
+- `TycheLocalTrainingRegistrationClient`의 180초 제한을 Meta ID 확인에만 적용하도록 분리했다.
+  Meta ID 성공 뒤에는 `PPETrainingTelemetryCapture`가 활성 PPE 세션과 `sessionId`를 제공할 때까지 앱
+  수명 동안 기다린다. Meta probe가 실패·SDKless Editor `Skipped` 상태로 끝나거나 식별 경로가
+  사라진 경우에만 등록을 명확히 중단한다.
+- PPE 단계 진입 뒤 기존 등록 요청 작성, `POST`, `GET` 재조회 및 Meta ID·`sessionId` 일치 검증은
+  그대로 한 번만 수행한다. 컨트롤러 안내, PPE 진행, 입력 및 UI 상태를 자동으로 진행하는 코드는
+  추가하지 않았다.
+- `PPETrainingTelemetryCapture`는 JSONL `File.AppendAllText`가 성공한 직후
+  `TelemetryRecordAppended` 알림을 발생시킨다. 파일 append가 먼저이므로 알림 소비자가 실패해도 원본
+  JSONL의 durable 복구 근거는 보존된다.
+- Editor 전용 `TycheTrainingTelemetryUploader`는 이 알림을 구독하고 새 레코드를 0.2초 debounce로
+  묶어 기존 5초 정기 스캔보다 먼저 확인한다. 서버 실패 뒤에는 append 알림도 기존 지수 재시도 시각
+  `retryNotBefore`보다 앞서 재요청하지 못하도록 제한했다.
+- `Application.isEditor` Player 가드, loopback 서버 제한, token 검증, durable 업로드 상태,
+  checkpoint 재전송 및 종료 비블로킹 정책은 변경하지 않았다. 종료 콜백에서 네트워크를 기다리거나
+  성공을 보장하는 처리를 추가하지 않았다.
+- `PPETrainingDataContractHarness`에 Meta ID/PPE 대기 분리, append 알림, debounce 및 재시도 하한을
+  확인하는 회귀 계약을 추가했다.
+
+### 검증 결과
+
+- **기준 커밋 확인:** 로컬 클라이언트는
+  `main@8b1b4300349529a3ebcb260f1da614769bef6b34`, 로컬 서버는
+  `main@e85e718529283988771cd817e29a0aa46473c80d`로 전달 기준과 일치했다.
+- **정적 확인 PASS:** 결합 제한 상수 제거, Meta ID 전용 180초 제한, PPE 세션 무기한 대기,
+  JSONL append 뒤 알림, 0.2초 debounce, 지수 재시도 하한, Player 업로드 비활성 가드를 소스에서
+  확인했다. `git diff --check`도 오류 없이 통과했으며 줄바꿈 변환 경고만 있었다.
+- **C# 정적 컴파일 PASS:** `Assembly-CSharp.csproj --no-restore`와
+  `Assembly-CSharp-Editor.csproj --no-restore`는 모두 오류 0개였다. 출력된 경고는 기존 Unity API,
+  DTO 및 소스 생성기 관련 경고이며 이번 변경으로 새 컴파일 오류는 발생하지 않았다.
+- **Unity Editor 메뉴 PASS:** 사용자가 Play Mode 밖에서
+  `Tools > PPE > Validate Training Data Contract`와
+  `Tools > Documentation > Validate Authoring Policy`를 실행했다. `Editor.log`에서 PPE 데이터 계약
+  PASS와 문서 작성 원칙 검증 통과 로그를 확인했다.
+- **변경 후 Editor 대기 회귀 PASS:** Meta Standalone 초기화·entitlement·앱 범위 사용자 ID 조회 뒤
+  `Meta ID 확인 완료. PPE 활성 세션 진입을 앱 수명 동안 기다립니다.` 로그가 출력됐고, 180초를
+  넘긴 뒤에도 기존 결합 타임아웃 경고가 새로 발생하지 않았다. 이 실행은 PPE 진입 전에 종료했으므로
+  동일 실행에서 180초 초과 뒤 등록까지 완료한 증거로 확대하지 않는다.
+- **변경 후 Editor 등록 왕복 PASS:** 다음 실행에서 PPE 활성 상태에 진입해 `가입이 완료되었습니다.`
+  로그를 확인했다. 서버 등록 GET의 Meta ID·연령 범주·`sessionId`가 같은 JSONL의 Meta identity와
+  일치했고, 등록 당시 상태는 `TeleportInstruction`, 모드는 `Education`, 작업 계획은
+  `ConfinedSpace`였다. 이 실행의 등록은 앱 시작 약 103초 뒤였으므로 180초 초과 사례는 아니다.
+- **변경 후 Editor 즉시 ACK PASS:** 위 등록 실행에서 로컬 JSONL과 서버 조회가 58/58로 일치했고
+  sequence 누락·중복은 0이었다. 최신 JSONL 파일 기록 시각과 durable checkpoint 파일 갱신 시각의
+  차이는 약 0.27초로, 5초 정기 스캔 전 append 알림 경로가 동작했다. 확인 당시 세션은 실행 중인
+  `open` 상태였으며 종료 이벤트나 과정 완료를 뜻하지 않는다.
+- **변경 후 Editor 종료 복구 PASS:** Play Mode 종료 직후 로컬 JSONL에는
+  `sequence=59`, `session_ended`, `application_quitting`이 기록됐지만 durable checkpoint와 서버는
+  58에 머물렀고 서버 상태는 `open`이었다. 다음 Play 실행 약 10초 뒤 이전 세션은 로컬/서버 59/59,
+  checkpoint 59, `completed`, 종료 이유 `application_quitting`으로 복구됐다. 양쪽 sequence 누락·중복은
+  0이었다. 이는 다음 실행 durable 복구를 검증한 것이며 종료 콜백의 같은 실행 전송 보장은 아니다.
+- **Quest·APK 미검증:** Quest pause/kill, 양안 및 Player 업로드는 확인하지 않았다. 특히
+  `application_quitting` 직후에는 다음 프레임과 네트워크 완료가 보장되지 않으므로 마지막 이벤트가
+  같은 실행에서 서버에 도달한다고 주장하지 않는다. 이 경우 다음 실행의 durable checkpoint 복구가
+  계속 기준 경로다.
+
+### 남은 수동 검증
+
+1. 같은 실행에서 Meta ID 성공 후 컨트롤러 안내에 180초 이상 머문 다음 PPE 모드에 진입해 등록이
+   정확히 한 번 수행되고 기존 POST/GET 일치 검증이 성공하는지 확인한다. 180초 초과 대기 유지와
+   PPE 진입 등록은 각각 확인했지만 한 실행으로 연결한 증거는 아직 없다.
+2. Quest·APK에서 pause/kill 및 Player 업로드 정책을 별도 설계·검증한다. 현재 Player 업로드 비활성
+   정책과 Editor의 다음 실행 복구 결과를 Quest 전송 성공으로 확대하지 않는다.
+
+## 후속 계획: Quest APK 로컬 LAN 연동 1단계
+
+### 상태와 목표
+
+- **상태:** 클라이언트 1단계 구현·정적 검증 완료 / 서버 준비·통합 검증 미완료 / 실제 Quest 미검증
+- **목표:** 같은 Wi-Fi에 연결된 Quest의 Android Development APK가 PC에서 실행 중인 서버로 훈련
+  등록과 텔레메트리를 전송하고, 정상 종료·pause/resume·강제 종료 복구를 실제 기기에서 구분 검증한다.
+- **범위 제한:** 이번 단계는 내부 개발 검증용이다. 운영 HTTPS 배포, Meta 기반 서버 인증 및 출시
+  Player 정책은 이 결과만으로 완료 처리하지 않는다.
+
+### 구현 원칙
+
+1. 기존 Editor loopback 경로를 보존하면서 Android Development Build에만 명시적인 LAN 설정이
+   있을 때 Player 전송을 허용한다. 설정이 없으면 임의 주소나 토큰으로 계속하지 않고 설정명과 실패
+   지점을 보고한다.
+2. PC의 LAN 주소와 개발용 업로드 토큰을 코드·씬·문서에 고정하지 않는다. 실제 값은 저장소 밖에서
+   빌드 시 공급하고, 내부 테스트용·폐기 가능한 값으로만 사용한다. Release Build에서는 이 개발 경로가
+   자동 활성화되지 않아야 한다.
+3. Android에서 HTTP cleartext 허용이 필요하면 Development Build와 사설 LAN 검증으로 제한한다.
+   출시 빌드의 HTTPS 정책을 약화하지 않는다.
+4. 기존 JSONL 선기록, append 알림, durable checkpoint, 지수 재시도와 다음 실행 복구를 유지한다.
+   `OnApplicationPause(true)`는 완료로 해석하지 않고 pause 전송도 best-effort로만 취급한다.
+5. 코드에 실제로 연결된 정상 훈련 완료 또는 기존 종료 경로가 확인되면 앱이 살아 있는 동안
+   `session_ended`와 `/complete`를 먼저 전송한다. 확인되지 않은 종료 버튼·원인·과정 완료 의미는
+   새로 만들지 않는다.
+6. 강제 종료 순간의 네트워크 성공을 보장한다고 주장하지 않는다. 로컬 보존과 다음 실행 재전송을
+   기준으로 하고, 재실행되지 않은 장기 미갱신 세션은 향후 서버에서 `completed`와 구분되는 상태로
+   다루는 방안을 별도 설계한다.
+7. 실제 토큰, Meta 앱 범위 사용자 ID, 이메일과 자격 증명을 저장소·문서·로그에 남기지 않는다.
+
+### 클라이언트 작업 범위
+
+- `TycheTrainingTelemetryUploader`와 `TycheLocalTrainingRegistrationClient`의 Editor/Player 가드,
+  서버 주소, 토큰 공급 및 Android 수명주기 처리를 조사한다.
+- Android Development Build의 명시적 LAN 설정 경로를 추가하되 Editor 경로, 등록 1회, POST/GET
+  일치 검증, 실행 중 즉시 ACK와 durable 복구를 보존한다.
+- 정상 종료 연결점은 실제 씬·런타임 흐름을 확인한 뒤 연결한다. 기존 의미를 확인할 수 없으면 구현을
+  추측하지 않고 blocker로 기록한다.
+- 관련 Unity 하네스, C# 정적 컴파일과 `git diff --check`를 수행한다. 실제 기기에서 실행하지 않은
+  항목은 정적 PASS와 분리한다.
+
+### 서버 준비 범위
+
+- 서버가 PC의 사설 LAN 인터페이스에서 수신 가능한지, Quest에서 접근할 포트와 Windows 방화벽 범위를
+  확인한다. `127.0.0.1`은 Quest에서 PC를 가리키지 않는다.
+- 기존 등록·텔레메트리 API 계약을 유지하고, 필요한 설정은 실제 값 없이 `.env.example`에 이름과
+  용도만 기록한다. 서버 바인딩·방화벽·DB·운영 설정은 정적 확인과 실제 변경을 구분한다.
+- 내부 개발용 Bearer token을 운영 인증으로 확대하지 않는다. 운영 단계에서는 APK에 장기 공용 토큰을
+  넣지 않는 단기 세션 인증과 HTTPS를 별도 설계한다.
+
+### 실제 Quest 합격 기준
+
+1. `0_App`에서 Meta 앱 범위 ID 조회가 성공한다.
+2. 등록 POST/GET의 Meta ID와 `sessionId`가 같은 기기 세션과 일치한다.
+3. 실행 중 로컬 JSONL sequence와 서버 이벤트·checkpoint가 누락·중복 없이 진행된다.
+4. 확인된 정상 종료 경로에서는 앱이 살아 있는 동안 서버 세션이 `completed`로 닫힌다.
+5. 홈 버튼 pause/resume은 완료로 오인되지 않고 복귀 뒤 전송이 계속된다.
+6. 네트워크 단절 또는 강제 종료 뒤 로컬 원본이 남고 다음 실행에서 checkpoint가 복구된다.
+7. 설정이 없는 Development Build와 Release Build는 개발용 LAN 경로를 조용히 활성화하지 않는다.
+
+검증 결과에는 클라이언트·서버 기준 브랜치와 커밋 SHA, 변경 파일, 설정 공급 방법, 정적 검증,
+실제 Quest 검증 및 남은 수동 검증을 각각 기록한다. 명시적 요청 전에는 커밋·배포·운영 변경을 하지 않는다.
+
+### 2026-08-30 클라이언트 구현 전 필수 질문
+
+1. **기존 Inspector/씬 작성값을 보존하는가?** `0_App`의 Editor loopback 주소, batch size, 5초 정기
+   스캔, 최대 재시도 및 timeout을 유지한다. Quest 주소와 token을 새 씬 필드로 저장하지 않는다.
+2. **단일 기준과 상태 소유자는 무엇인가?** JSONL과 pause/resume 원본 이벤트는
+   `PPETrainingTelemetryCapture`, 전송·checkpoint·재시도는 `TycheTrainingTelemetryUploader`, Meta 등록
+   POST/GET은 `TycheLocalTrainingRegistrationClient`가 소유한다. Development LAN 설정은 업로더의
+   프로세스 수명 정적 캐시 한 곳에서 두 소비자에게 제공한다.
+3. **입력 전체 경로는 무엇인가?** 이번 변경은 XR 입력, Interactor/Caster, Raycaster, Layer, Collider,
+   카드·모달 및 PPE Grab 입력을 사용하거나 변경하지 않는다. Android `OnApplicationPause` 수명주기와
+   JSONL append 알림만 전송 스캔을 깨운다.
+4. **실패 시 자동 수리 대신 멈추는가?** 명시적인 임시 설정이 없거나, 주소가 사설 IPv4가 아니거나,
+   token 형식이 잘못됐거나, 임시 파일 삭제에 실패하면 주소 fallback 없이 등록·업로드를 중단하고 설정명과
+   실패 단계만 알린다. 실제 주소·token·Meta ID 및 응답 본문은 로그에 출력하지 않는다.
+5. **함께 영향을 받는 소비자는 무엇인가?** Editor loopback 등록/업로드와 Android Development APK의
+   LAN 등록/업로드만 영향받는다. Release Player, 운영 HTTPS, 교육 완료 의미, UI, 음성 및 XR 렌더링은
+   보존한다.
+6. **변경 전후 비교 실행은 무엇인가?** 변경 전 Android Player는 업로더를 항상 중단하고 등록 주소는
+   loopback 기본값에 머문다. 변경 후에는 설정 없음·공인/loopback 주소·Release를 각각 거부하고,
+   명시적으로 주입한 Development APK만 사설 LAN으로 등록 1회와 durable 업로드를 수행하는지 비교한다.
+7. **검증 수준은 어디까지인가?** 소스 계약, 생성 Gradle manifest의 Development gate, C# Runtime/Editor
+   컴파일과 가능한 Unity 메뉴를 정적으로 검증한다. 실제 Quest Meta ID, LAN POST/GET, checkpoint,
+   pause/resume, 정상 완료 및 강제 종료 복구는 기기 실행 전까지 미검증으로 둔다.
+
+이번 구현은 앱 내부 임시 설정 파일을 사용한다. Unity Editor 메뉴가 저장소 밖 환경 변수
+`TYCHE_QUEST_LAN_SERVER_BASE_URL`과 `TYCHE_TELEMETRY_UPLOAD_TOKEN`을 읽고 ADB 프로세스의 표준입력으로
+Development APK의 내부 `files/.tyche-development-lan.json`에 전달한다. token은 명령행 인수, APK,
+씬, PlayerPrefs와 Git 파일에 넣지 않는다. 앱은 파일을 한 번 읽고 삭제에 성공한 경우에만 메모리에
+유지한다. 서버 주소는 `http(s)://사설 IPv4:port` 형식만 허용한다.
+
+### 2026-08-30 클라이언트 1단계 적용 결과
+
+#### 적용한 변경
+
+- `TycheTrainingTelemetryUploader`는 기존 Unity Editor loopback 경로를 유지하고,
+  `UNITY_ANDROID && DEVELOPMENT_BUILD && !UNITY_EDITOR`에서만 Quest LAN 설정을 읽는다. 주소는
+  명시적 port가 있는 RFC1918 사설 IPv4의 HTTP(S)만 허용하며 loopback, 공인 IP, DNS 이름,
+  user info, query와 별도 path는 거부한다.
+- Unity 메뉴 `Tools > PPE > Inject Quest Development LAN Configuration`을 추가했다. 메뉴는 저장소 밖
+  환경 변수 `TYCHE_QUEST_LAN_SERVER_BASE_URL`과 `TYCHE_TELEMETRY_UPLOAD_TOKEN`을 읽고, 설치된
+  debuggable Development APK를 중지한 뒤 ADB 표준 입력으로 앱 내부 일회성 파일에 전달한다. 실제 주소와
+  token은 명령행·로그에 넣지 않는다. 앱은 설정을 읽은 뒤 파일 삭제를 확인해야만 값을 메모리에 유지한다.
+- Android Gradle 후처리는 Development Build의 생성 Manifest에만
+  `android:usesCleartextTraffic="true"`를 쓰고, Release 생성 Manifest에는 `false`를 명시한다. 프로젝트
+  원본 Manifest나 Release HTTPS 정책을 약화하지 않는다.
+- `TycheLocalTrainingRegistrationClient`는 Editor에서는 기존 loopback PlayerPrefs를 사용하고,
+  Android Development APK에서는 업로더와 같은 일회성 설정을 사용한다. 등록 `POST/GET`, Meta ID와
+  `sessionId` 일치 검증, 등록 1회 동작은 유지했다.
+- 등록과 텔레메트리 HTTP 실패 로그는 실제 서버 주소와 응답 본문 대신 API path, HTTP status와 일반 오류만
+  남기도록 제한했다. Meta ID, token과 실제 LAN 주소를 새 로그에 출력하지 않는다.
+- `PPETrainingTelemetryCapture.OnApplicationPause`는 `application_paused`와 `application_resumed`를
+  비종료 JSONL 이벤트로 기록한다. 업로더는 pause에서 durable queue 즉시 스캔을 best-effort로 요청하고,
+  기존 지수 재시도 하한을 우회하지 않는다. pause를 `session_ended`나 `/complete`로 해석하지 않는다.
+- JSONL 선기록, append 알림, 0.2초 debounce, 5초 정기 스캔, durable upload-state/checkpoint, 지수 재시도,
+  다음 실행 복구 및 `application_quitting` 분리 정책은 유지했다.
+
+#### 정상 완료 연결 판단
+
+- 현재 JSONL 세션은 앱 수명 단위이고 `PPEFinaleController`의 과정 완료 뒤에도 모드 선택으로 돌아가 같은
+  앱 세션에서 다음 교육을 계속할 수 있다. 이 시점에 앱 세션을 `completed`로 닫으면 이후 이벤트가 기존
+  upload-state에 의해 무시될 수 있다.
+- 따라서 확인되지 않은 “정상 앱 종료” 버튼이나 완료 의미를 새로 만들지 않았고, 과정 완료에
+  `session_ended`와 `/complete`를 임의 연결하지 않았다. 현재 확정된 terminal 이벤트는 기존
+  `application_quitting`뿐이다. 앱 수명 세션과 과정별 세션을 분리하거나 명시적 정상 종료 UX를 확정하는
+  후속 설계가 필요하다.
+
+#### 정적 검증 결과와 서버 후속 요구
+
+- `PPETrainingDataContractHarness`에 Development Build compile gate, 일회성 파일 삭제, 사설 IPv4 제한,
+  ADB 표준 입력, Development/Release cleartext 분기, pause/resume 비종료 이벤트와 등록 설정 공유 검사를
+  추가했다.
+- `Assembly-CSharp.csproj --no-restore`는 경고 91개, 오류 0개였고
+  `Assembly-CSharp-Editor.csproj --no-restore`는 경고 34개, 오류 0개였다. 경고는 기존 Unity API,
+  source generator와 DTO 관련 항목이며 새 컴파일 오류는 없었다. `git diff --check`도 오류 없이 통과했고
+  줄바꿈 변환 경고만 있었다.
+- 서버 코드·DB·실행 프로세스·방화벽·배포는 이번 클라이언트 작업에서 변경하지 않았다. Quest 연결 전 서버가
+  사설 LAN 인터페이스에서 수신하는지, 대상 port의 Windows 방화벽이 개발 PC의 사설 네트워크 범위에서
+  허용되는지 서버 측에서 확인해야 한다. 서버가 `127.0.0.1`에만 bind되어 있으면 클라이언트에서 우회하지
+  않고 서버 준비 미완료로 보고한다.
+- Unity 메뉴 하네스, 실제 ADB 주입, Development APK 생성 Manifest, Meta ID 등록 POST/GET, JSONL ACK,
+  pause/resume, 네트워크 단절·강제 종료 복구와 Quest 양안은 아직 실행하지 않았다. 정적 PASS를 실제 기기
+  통합 성공으로 확대하지 않는다.
+
+#### 초보자용 실제 검증 순서
+
+1. PC와 Quest를 같은 신뢰 가능한 Wi-Fi에 연결하고 PC의 사설 IPv4를 확인한다.
+2. 서버를 실행하고 사설 LAN bind 및 대상 port의 Windows 방화벽 허용 여부를 서버 담당자가 확인한다.
+3. Unity를 Android Development Build로 빌드해 같은 package identifier의 debuggable APK를 Quest에
+   설치한다. Release 빌드는 이 경로의 검증 대상이 아니다.
+4. 실제 값은 저장소 파일에 쓰지 않고 PC 사용자 환경 변수
+   `TYCHE_QUEST_LAN_SERVER_BASE_URL`, `TYCHE_TELEMETRY_UPLOAD_TOKEN`에 설정한다.
+5. Unity에서 `Tools > PPE > Inject Quest Development LAN Configuration`을 실행한다. PASS 후 Quest에서
+   앱을 직접 시작한다. 설정은 앱이 한 번 읽으면 삭제되므로 각 새 실행 전 다시 주입한다.
+6. Meta ID 등록 POST/GET, 같은 `sessionId`, 실행 중 JSONL sequence/서버 checkpoint, 홈 버튼
+   pause/resume, 네트워크 단절 후 복구와 강제 종료 다음 실행 복구를 순서대로 확인한다. 실제 ID와 token은
+   화면 캡처·문서·로그에 옮기지 않는다.
+
+### 2026-08-31 종료 시점 인수인계
+
+#### 기준과 완료 범위
+
+- 이 절 작성 전 서버 기준은 `main@dd9f6be462f780241eacef1d9fb9b1a10f188f0a`다. 문서 커밋 전
+  클라이언트 구현 기준 HEAD는 `main@8b1b4300349529a3ebcb260f1da614769bef6b34`지만 Unity 코드·씬·하네스 변경이 작업 트리에 남아
+  있으므로 HEAD만으로 오늘 클라이언트 구현 상태를 재현할 수 있다고 주장하지 않는다.
+- Unity Editor Standalone 테스트 사용자로 Platform 초기화, entitlement와 앱 범위 사용자 ID 조회를
+  확인했다. 로컬 등록 POST/GET과 Meta ID·`sessionId` 일치도 확인했으며 실제 식별자와 자격 값은 문서에
+  기록하지 않았다.
+- Meta ID 확인의 180초 제한과 PPE 활성 세션 대기를 분리한 변경 후, 180초를 넘겨도 대기가 유지되는 실행과
+  PPE 진입 뒤 등록되는 실행을 각각 확인했다. 같은 한 실행에서 `180초 초과 → PPE 진입 → 등록 1회`를
+  연결한 검증은 아직 남아 있다.
+- Editor 종료 직전 `application_quitting` 이벤트가 같은 실행에서 서버에 도달하지 못한 사례는 다음 Play의
+  durable checkpoint 재전송으로 로컬/서버 `59/59`, 누락·중복 0, 서버 `completed`까지 복구됨을 확인했다.
+  이를 Android 강제 종료나 Quest kill에서의 전송 보장으로 확대하지 않는다.
+- 최종 Unity 메뉴 확인에서 `PPE Training Data Contract`는 PPE 항목 binding 25개로 PASS했고,
+  `Tyche Telemetry Upload Setup`은 `0_App`의 `AppMain`에 로컬 DB 업로더 1개가 연결된 상태로 PASS했다.
+  이는 코드·씬·Editor 설정 검증이며 APK 실행 성공 근거는 아니다.
+- 개발 PC와 Quest는 같은 사설망에서 ADB 승인 및 TCP 3000 접근을 확인했다. Windows 방화벽은 현재 개발 PC
+  주소와 로컬 서브넷의 TCP 3000만 허용하도록 준비했고, Quest Development LAN 주소와 업로드 token은
+  저장소 밖 사용자 환경 변수에만 두었다. Unity가 환경 변수를 다시 읽도록 설정 뒤 재시작한 상태를 기준으로
+  한다.
+
+#### 로컬 데이터와 용량 확인
+
+2026-08-31 로컬 MySQL을 읽기 전용으로 조회한 전체 스냅샷은 참여자 2, identity 2, 세션 23,
+이벤트 1,080건이다. 이벤트 `payload_json`은 평균 790바이트, 최대 1,096바이트, 합계 852,705바이트였고
+텔레메트리 4개 테이블의 InnoDB data·index 할당량은 약 2MB였다. 이는 현재 로컬 DB 전체 상태이며
+Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는다.
+
+현재 클라이언트 씬의 batch size는 25, 정기 스캔은 5초, 최대 재시도 간격은 60초다. 서버는 이벤트 요청당
+최대 50개와 JSON 요청 본문 1MB를 제한하고, `eventId`와 세션 sequence 고유 제약으로 동일 재전송을
+중복 저장하지 않는다. 반면 텔레메트리 자동 보존기간·정리 작업, 호출 속도 제한, 세션당 총 이벤트 상한과
+긴 세션 상세 조회 pagination은 아직 없다. 소규모 개발 검증에는 즉시 문제가 될 크기가 아니지만 운영
+배포 전에는 실제 Quest 세션 표본으로 일·월·연 용량을 다시 계산하고 이 네 가지 운영 방어선을 확정한다.
+
+#### 웹 개인정보처리방침과 운영 상태
+
+- VR 상세페이지 푸터의 `VR PRIVACY POLICY`는 공개 GitHub Pages 정책으로 연결되고 새 창
+  `target="_blank"`, `rel="noopener noreferrer"`로 운영 반영됐다. 상세페이지·정책 페이지·헬스체크
+  HTTP 200과 운영 자동 테스트 21개, audit 취약점 0건, Nginx 설정 통과를 확인했다.
+- 서버 `main`의 최신 링크 반영은 `25cf5aa6e7b845c9be2a90a5bb9f34df47677dae`, 운영 전용 브랜치의
+  최신 배포는 `ba93ee0ebe104bae4b7ec39c56fc0d328c4200eb`다. 상세 운영 기록은 서버 저장소의
+  `Docs/ProductionDeployment.md`를 기준으로 한다.
+- 운영 서버는 현재 위 개인정보 링크 전용 브랜치이며 텔레메트리 route와 migration `009`~`012`가 없다.
+  따라서 현재 로컬 DB 검증 데이터를 운영 서버가 수집하거나 운영 DB에 누적하는 상태가 아니다. 운영
+  텔레메트리 배포, 운영 DB migration, PM2 재시작과 운영 데이터 변경은 수행하지 않았다.
+
+#### 2026-09-01 재개 순서
+
+1. 클라이언트 Codex 작업이 끝난 뒤 `git status`, 변경 파일과 최종 커밋 SHA를 먼저 확인한다. 현재 미커밋
+   Unity 변경을 임의로 덮어쓰거나 서버 문서만 보고 구현 완료로 판단하지 않는다.
+2. Unity 컴파일 오류가 없는 상태에서 Android **Development Build**를 생성한다. 아직 APK를 빌드하지
+   않았으므로 기존 Editor PASS를 APK 빌드 PASS로 표시하지 않는다.
+3. 승인된 Quest에 같은 package identifier의 Development APK를 설치한다. 앱을 실행하기 전
+   `Tools > PPE > Inject Quest Development LAN Configuration`을 실행해 일회성 내부 설정을 주입한다.
+   앱이 설정 파일을 읽고 삭제하므로 새 실행 검증 전에는 다시 주입한다.
+4. HMD에서 `0_App`부터 시작해 Meta 앱 범위 ID, 등록 POST/GET, PPE 진입과 텔레메트리 전송을 진행한다.
+   실제 Meta ID, token과 전체 응답 본문은 캡처·문서·Git에 남기지 않는다.
+5. 실행 중에는 해당 세션의 로컬 JSONL sequence, 서버 event count와 checkpoint를 비교한다. 홈 버튼
+   pause/resume이 `application_paused`·`application_resumed`로 남고 세션 완료로 오인되지 않는지 확인한다.
+6. 정상 종료와 강제 종료를 구분한다. 종료 직전 꼬리 이벤트가 남으면 같은 실행 전송 성공을 강제하지 않고,
+   다음 실행에서 기존 세션의 checkpoint·event count·`completed`가 누락·중복 없이 복구되는지 확인한다.
+7. 실제 Quest 한 세션의 이벤트 수, JSON payload 합계와 DB 증가량을 기록한 뒤 예상 일일 세션 수를 적용해
+   보존기간, 정리 방식, rate limit, 세션 이벤트 상한과 상세 조회 pagination을 결정한다.
+8. Development LAN 통합이 통과한 뒤에만 운영 HTTPS, Meta User Proof 기반 단기 인증과 운영 배포 계획으로
+   넘어간다. 개발용 장기 공용 token과 cleartext LAN 설정을 Release APK에 포함하지 않는다.
+
+재개 시 완료 표시는 `클라이언트 코드 커밋`, `Development APK 빌드·설치`, `Quest 실제 수집`,
+`서버·DB 조회`, `종료·재실행 복구`, `운영 배포`를 각각 분리한다.

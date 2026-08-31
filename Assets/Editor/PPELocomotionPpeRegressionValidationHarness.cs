@@ -8,6 +8,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using TMPro;
 
 public static class PPELocomotionPpeRegressionValidationHarness
@@ -78,7 +79,10 @@ public static class PPELocomotionPpeRegressionValidationHarness
                 ValidateChecklistWorkPlanReset(director, checklist, failures);
 
             if (tabletChecklist != null)
+            {
                 ValidateTabletChecklistSequences(tabletChecklist, failures);
+                ValidateGameViewTabletMouseGrab(tabletChecklist, failures);
+            }
 
             ValidateFootstepInputOwnership(previewScene, failures);
             ValidateHeadRelativeLocomotion(previewScene, failures);
@@ -114,7 +118,8 @@ public static class PPELocomotionPpeRegressionValidationHarness
             "body-collider proximity, " +
             "Quest render scale/MSAA, " +
             "tablet/signature anti-shimmer sampling, " +
-            "seven-step tablet checklists, high-resolution PPE poster sampling, neutral modal hover colors, " +
+            "seven-step tablet checklists, Game View tablet marker selection and Editor-only simulator isolation, " +
+            "high-resolution PPE poster sampling, neutral modal hover colors, " +
             "checklist work-plan reset, and input-owned footsteps are valid.");
     }
 
@@ -244,6 +249,61 @@ public static class PPELocomotionPpeRegressionValidationHarness
                         $"Tablet {propertyName} Conductor_Signature must remain a static confirmation mark.");
                 }
             }
+        }
+    }
+
+    public static void ValidateGameViewTabletMouseGrab(
+        PPETabletChecklistController tablet,
+        List<string> failures)
+    {
+        const string ExpectedTabletName = "PPE_C_Tablet";
+        const string MarkerName = "XR Item Marker_small";
+        const string GateSourcePath = "Assets/Scripts/PhysicalHmdSimulatorGate.cs";
+
+        if (tablet.name != ExpectedTabletName)
+        {
+            failures.Add(
+                $"Current locomotion tablet must be named '{ExpectedTabletName}', found '{tablet.name}'.");
+        }
+
+        XRGrabInteractable grab = tablet.GetComponent<XRGrabInteractable>();
+        BoxCollider bodyCollider = tablet.GetComponent<BoxCollider>();
+        Transform marker = tablet.transform.Find(MarkerName);
+        Collider markerCollider = marker != null ? marker.GetComponent<Collider>() : null;
+        if (grab == null || bodyCollider == null || markerCollider == null)
+        {
+            failures.Add(
+                "Game View tablet grab requires the authored XRGrabInteractable, body BoxCollider, " +
+                $"and '{MarkerName}' Collider.");
+        }
+        else
+        {
+            if (!grab.colliders.Contains(markerCollider))
+                failures.Add("Tablet XRGrabInteractable must register its authored marker Collider.");
+            if (grab.colliders.Contains(bodyCollider))
+                failures.Add("Tablet body BoxCollider must not replace the authored marker selection point.");
+        }
+
+        string gateSource = File.ReadAllText(GateSourcePath);
+        if (!gateSource.Contains("#if !UNITY_EDITOR", StringComparison.Ordinal) ||
+            !gateSource.Contains(
+                "Game View simulation is an Editor-only authoring aid.",
+                StringComparison.Ordinal))
+        {
+            failures.Add(
+                "PhysicalHmdSimulatorGate must keep Game View simulation disabled in non-Editor players.");
+        }
+
+        if (!gateSource.Contains(
+                "TryBeginTabletMouseGrabOverrides(grab, mousePosition)",
+                StringComparison.Ordinal) ||
+            !gateSource.Contains(
+                "TryPositionMouseGrabAnchor(m_MousePointerDragPlane, mousePosition)",
+                StringComparison.Ordinal))
+        {
+            failures.Add(
+                "Game View tablet selection must attach the authored marker to the mouse grab anchor " +
+                "and keep that anchor following the pointer plane while selected.");
         }
     }
 

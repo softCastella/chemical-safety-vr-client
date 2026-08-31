@@ -98,6 +98,8 @@ public sealed class PhysicalHmdSimulatorGate : MonoBehaviour
     private Transform m_PreviousMouseGrabAttach;
     private bool m_PreviousMouseGrabUseDynamicAttach;
     private bool m_MouseGrabOverridesApplied;
+    private Plane m_MousePointerDragPlane;
+    private bool m_MousePointerDragPlaneActive;
     private InputActionReference m_PreviousPointAction;
     private InputActionReference m_PreviousLeftClickAction;
     private bool m_PreviousEnableMouseInput;
@@ -134,6 +136,13 @@ public sealed class PhysicalHmdSimulatorGate : MonoBehaviour
         }
 
         m_SimulatorRoot.SetActive(false);
+
+#if !UNITY_EDITOR
+        // Game View simulation is an Editor-only authoring aid. A delayed
+        // OpenXR startup in an Android player must never activate simulated
+        // HMD/controller devices or replace the physical Quest input path.
+        return;
+#endif
 
         if (m_ForceGameViewTestMode)
         {
@@ -232,7 +241,6 @@ public sealed class PhysicalHmdSimulatorGate : MonoBehaviour
 
         TrySkipVoiceFromGameViewBackgroundClick();
     }
-
 
     private void Start()
     {
@@ -626,7 +634,14 @@ public sealed class PhysicalHmdSimulatorGate : MonoBehaviour
         EndMouseManualInteraction();
 
         PPEActionPanelController panel = grab.GetComponent<PPEActionPanelController>();
-        if (panel != null && panel.ApproveUseByBodyProximity &&
+        PPETabletChecklistController tablet = grab.GetComponent<PPETabletChecklistController>();
+        if (tablet != null &&
+            !TryBeginTabletMouseGrabOverrides(grab, mousePosition))
+        {
+            return true;
+        }
+
+        if (tablet == null && panel != null && panel.ApproveUseByBodyProximity &&
             !TryBeginMouseGrabOverrides(grab, panel, mousePosition))
         {
             return true;
@@ -688,16 +703,80 @@ public sealed class PhysicalHmdSimulatorGate : MonoBehaviour
         return true;
     }
 
+    private bool TryBeginTabletMouseGrabOverrides(
+        XRGrabInteractable grab,
+        Vector2 mousePosition)
+    {
+        if (m_GameViewMouseGrabAnchor == null)
+        {
+            if (!m_HasReportedMissingMouseGrabAnchor)
+            {
+                Debug.LogError(
+                    $"{nameof(PhysicalHmdSimulatorGate)} requires the scene-authored Game View mouse grab anchor.",
+                    this);
+                m_HasReportedMissingMouseGrabAnchor = true;
+            }
+
+            return false;
+        }
+
+        PPEMarkerToggleGrab markerGrab = grab.GetComponent<PPEMarkerToggleGrab>();
+        Transform marker = markerGrab != null ? markerGrab.InteractionMarker : null;
+        if (marker == null)
+        {
+            Debug.LogError(
+                $"Game View tablet mouse grab requires the authored interaction marker on '{grab.name}'.",
+                grab);
+            return false;
+        }
+
+        Camera camera = Camera.main;
+        if (camera == null)
+        {
+            if (!m_HasReportedMissingMouseTeleportCamera)
+            {
+                Debug.LogError(
+                    $"{nameof(PhysicalHmdSimulatorGate)} requires a MainCamera for Game View tablet mouse grab.",
+                    this);
+                m_HasReportedMissingMouseTeleportCamera = true;
+            }
+
+            return false;
+        }
+
+        Plane pointerPlane = new(camera.transform.forward, marker.position);
+        if (!TryPositionMouseGrabAnchor(pointerPlane, mousePosition))
+            return false;
+
+        m_GameViewMouseGrabAnchor.rotation = marker.rotation;
+        m_PreviousMouseInteractorAttach = m_GameViewMouseSelectInteractor.attachTransform;
+        m_PreviousMouseGrabAttach = grab.attachTransform;
+        m_PreviousMouseGrabUseDynamicAttach = grab.useDynamicAttach;
+        m_GameViewMouseSelectInteractor.attachTransform = m_GameViewMouseGrabAnchor;
+        grab.attachTransform = marker;
+        grab.useDynamicAttach = false;
+        m_MousePointerDragPlane = pointerPlane;
+        m_MousePointerDragPlaneActive = true;
+        m_MouseGrabOverridesApplied = true;
+        return true;
+    }
+
     private void UpdateMouseGrabAnchor(Vector2 mousePosition)
     {
         if (m_MouseSelectedGrab == null ||
-            m_MouseSelectedPanel == null ||
             !m_MouseGrabOverridesApplied)
         {
             return;
         }
 
-        TryPositionMouseGrabAnchor(m_MouseSelectedPanel, mousePosition);
+        if (m_MouseSelectedPanel != null)
+        {
+            TryPositionMouseGrabAnchor(m_MouseSelectedPanel, mousePosition);
+            return;
+        }
+
+        if (m_MousePointerDragPlaneActive)
+            TryPositionMouseGrabAnchor(m_MousePointerDragPlane, mousePosition);
     }
 
     private bool TryPositionMouseGrabAnchor(
@@ -725,9 +804,23 @@ public sealed class PhysicalHmdSimulatorGate : MonoBehaviour
             return false;
         }
 
-        Ray pointerRay = camera.ScreenPointToRay(mousePosition);
         Plane bodyPlane = new(camera.transform.forward, bodyTarget);
-        if (!bodyPlane.Raycast(pointerRay, out float distance) || distance < 0f)
+        return TryPositionMouseGrabAnchor(bodyPlane, mousePosition);
+    }
+
+    private bool TryPositionMouseGrabAnchor(
+        Plane pointerPlane,
+        Vector2 mousePosition)
+    {
+        if (m_GameViewMouseGrabAnchor == null)
+            return false;
+
+        Camera camera = Camera.main;
+        if (camera == null)
+            return false;
+
+        Ray pointerRay = camera.ScreenPointToRay(mousePosition);
+        if (!pointerPlane.Raycast(pointerRay, out float distance) || distance < 0f)
             return false;
 
         m_GameViewMouseGrabAnchor.position = pointerRay.GetPoint(distance);
@@ -815,6 +908,8 @@ public sealed class PhysicalHmdSimulatorGate : MonoBehaviour
 
     private void RestoreMouseGrabOverrides(XRGrabInteractable grab)
     {
+        m_MousePointerDragPlaneActive = false;
+
         if (!m_MouseGrabOverridesApplied)
             return;
 

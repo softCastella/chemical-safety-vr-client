@@ -401,6 +401,7 @@ GameObject:
   - component: {fileID: 626181026}
   - component: {fileID: 626181025}
   - component: {fileID: 626181024}
+  - component: {fileID: 626181027}
   m_Layer: 0
   m_Name: XR Origin (VR)
   m_TagString: Untagged
@@ -455,6 +456,21 @@ Transform:
   - {fileID: 1890090469}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &626181027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 626181023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 887f47894c194c04ea311fdd975d25ae, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::XRSessionForwardAlignment
+  m_AuthoredForward: {x: 0, y: 0, z: 1}
+  m_TrackingWarmupFrames: 3
+  m_TrackingWaitSeconds: 10
 --- !u!1 &853483164
 GameObject:
   m_ObjectHideFlags: 0

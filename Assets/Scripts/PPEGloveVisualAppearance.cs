@@ -33,7 +33,9 @@ public sealed class PPEGloveVisualAppearance : MonoBehaviour
 
     void Reset()
     {
+#if UNITY_EDITOR
         CaptureRendererAndMaterialDefaults();
+#endif
     }
 
     void OnEnable()

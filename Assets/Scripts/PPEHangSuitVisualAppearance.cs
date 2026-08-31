@@ -43,7 +43,9 @@ public sealed class PPEHangSuitVisualAppearance : MonoBehaviour
 
     void Reset()
     {
+#if UNITY_EDITOR
         CaptureRendererAndMaterialDefaults();
+#endif
     }
 
     void OnEnable()

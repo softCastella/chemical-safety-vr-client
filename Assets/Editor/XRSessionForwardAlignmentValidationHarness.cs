@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Unity.XR.CoreUtils;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -24,6 +25,8 @@ public static class XRSessionForwardAlignmentValidationHarness
         foreach (string path in RequiredScenePaths)
             ValidateScene(path, failures);
 
+        ValidateTrackingTimeoutClassification(failures);
+
         if (failures.Count > 0)
         {
             throw new InvalidOperationException(
@@ -33,6 +36,39 @@ public static class XRSessionForwardAlignmentValidationHarness
         Debug.Log(
             "[XR Session Forward Validation] PASS: Title, Intro, and PPE scenes share one authored +Z " +
             "session-forward alignment contract. A standalone Quest launch is still required.");
+    }
+
+    private static void ValidateTrackingTimeoutClassification(ICollection<string> failures)
+    {
+        MethodInfo method = typeof(XRSessionForwardAlignment).GetMethod(
+            "ShouldReportTrackingTimeoutAsError",
+            BindingFlags.Static | BindingFlags.NonPublic);
+        if (method == null)
+        {
+            failures.Add("tracking timeout classification method is missing.");
+            return;
+        }
+
+        ValidateTrackingTimeoutCase(method, true, false, false, failures);
+        ValidateTrackingTimeoutCase(method, true, true, true, failures);
+        ValidateTrackingTimeoutCase(method, false, false, true, failures);
+        ValidateTrackingTimeoutCase(method, false, true, true, failures);
+    }
+
+    private static void ValidateTrackingTimeoutCase(
+        MethodInfo method,
+        bool isEditor,
+        bool hasRunningXrDisplay,
+        bool expectedError,
+        ICollection<string> failures)
+    {
+        bool actualError = (bool)method.Invoke(null, new object[] { isEditor, hasRunningXrDisplay });
+        if (actualError != expectedError)
+        {
+            failures.Add(
+                $"tracking timeout classification mismatch: editor={isEditor}, " +
+                $"display={hasRunningXrDisplay}, expectedError={expectedError}, actualError={actualError}.");
+        }
     }
 
     private static void ValidateScene(string path, ICollection<string> failures)

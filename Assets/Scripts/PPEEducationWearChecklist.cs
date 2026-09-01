@@ -186,8 +186,7 @@ public sealed class PPEEducationWearChecklist : MonoBehaviour
 
         subscribedPanels.Clear();
         PPEActionPanelController[] panels = FindObjectsByType<PPEActionPanelController>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
         for (int index = 0; index < panels.Length; index++)
         {
             PPEActionPanelController panel = panels[index];

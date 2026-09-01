@@ -162,8 +162,17 @@ public static class TycheTrainingTelemetryUploaderSetup
             uploadToken = uploadToken,
         };
         string json = JsonUtility.ToJson(configuration);
+        string createFilesArguments = $"shell run-as {packageName} mkdir -p files";
+        if (!RunAdb(adbPath, createFilesArguments, null, out string createFilesFailure))
+        {
+            Debug.LogError(
+                "[Quest LAN Setup] 개발 APK의 내부 설정 디렉터리를 준비하지 못했습니다. " +
+                createFilesFailure);
+            return;
+        }
+
         string injectArguments =
-            $"shell run-as {packageName} sh -c \"mkdir -p files && cat > files/{TycheTrainingTelemetryUploader.DevelopmentLanConfigurationFileName}\"";
+            $"shell run-as {packageName} tee files/{TycheTrainingTelemetryUploader.DevelopmentLanConfigurationFileName}";
         if (!RunAdb(adbPath, injectArguments, json, out string injectFailure))
         {
             Debug.LogError(

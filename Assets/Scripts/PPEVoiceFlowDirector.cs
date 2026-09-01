@@ -2145,8 +2145,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         }
 
         foreach (PPEActionPanelController panel in FindObjectsByType<PPEActionPanelController>(
-                     FindObjectsInactive.Include,
-                     FindObjectsSortMode.None))
+                     FindObjectsInactive.Include))
         {
             if (panel != null)
                 panels.Add(panel);

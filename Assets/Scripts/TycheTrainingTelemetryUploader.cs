@@ -198,10 +198,12 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
     }
 
     static TycheTrainingTelemetryUploader instance;
+#if UNITY_ANDROID && DEVELOPMENT_BUILD && !UNITY_EDITOR
     static bool developmentLanConfigurationChecked;
     static string cachedDevelopmentLanServerBaseUrl;
     static string cachedDevelopmentLanUploadToken;
     static string cachedDevelopmentLanFailure;
+#endif
     bool uploadFailedThisScan;
     string lastFailure;
     string clientInstanceId;
@@ -214,10 +216,12 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
     static void ResetStaticState()
     {
         instance = null;
+#if UNITY_ANDROID && DEVELOPMENT_BUILD && !UNITY_EDITOR
         developmentLanConfigurationChecked = false;
         cachedDevelopmentLanServerBaseUrl = null;
         cachedDevelopmentLanUploadToken = null;
         cachedDevelopmentLanFailure = null;
+#endif
     }
 
     void Awake()

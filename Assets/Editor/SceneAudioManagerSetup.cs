@@ -56,7 +56,7 @@ public static class SceneAudioManagerSetup
         }
 
         AudioManager[] managers = Object.FindObjectsByType<AudioManager>(
-            FindObjectsInactive.Include, FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
         if (managers.Length != 1)
         {
             Debug.LogError($"Expected exactly one scene AudioManager, found {managers.Length}.");
@@ -124,7 +124,7 @@ public static class SceneAudioManagerSetup
         }
 
         AudioManager[] managers = Object.FindObjectsByType<AudioManager>(
-            FindObjectsInactive.Include, FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
         if (managers.Length != 1)
         {
             Debug.LogError($"Expected exactly one scene AudioManager, found {managers.Length}.");
@@ -208,7 +208,7 @@ public static class SceneAudioManagerSetup
         }
 
         AudioManager[] managers = Object.FindObjectsByType<AudioManager>(
-            FindObjectsInactive.Include, FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
         if (managers.Length != 1)
         {
             Debug.LogError($"Expected exactly one scene AudioManager, found {managers.Length}.");
@@ -239,7 +239,7 @@ public static class SceneAudioManagerSetup
     private static AudioManager GetOrCreateManager()
     {
         AudioManager[] managers = Object.FindObjectsByType<AudioManager>(
-            FindObjectsInactive.Include, FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
         if (managers.Length > 1)
             throw new System.InvalidOperationException("The target scene already has more than one AudioManager.");
 
@@ -384,7 +384,7 @@ public static class SceneAudioManagerSetup
     private static void ConfigureVoiceLibrary(SerializedProperty library)
     {
         PPEVoiceFlowDirector[] directors = Object.FindObjectsByType<PPEVoiceFlowDirector>(
-            FindObjectsInactive.Include, FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
         if (directors.Length != 1)
         {
             Debug.LogWarning($"Expected one PPEVoiceFlowDirector while importing Voice clips, found {directors.Length}.");
@@ -418,8 +418,7 @@ public static class SceneAudioManagerSetup
         }
 
         foreach (PPEActionPanelController panel in Object.FindObjectsByType<PPEActionPanelController>(
-                     FindObjectsInactive.Include,
-                     FindObjectsSortMode.None))
+                     FindObjectsInactive.Include))
         {
             SerializedObject serializedPanel = new(panel);
             AddSoundIfClipMissing(

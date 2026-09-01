@@ -21,8 +21,7 @@ public static class PPEBodyProximityWearSetup
 
         int panels = 0;
         foreach (PPEActionPanelController panel in Object.FindObjectsByType<PPEActionPanelController>(
-                     FindObjectsInactive.Include,
-                     FindObjectsSortMode.None))
+                     FindObjectsInactive.Include))
         {
             SerializedObject so = new SerializedObject(panel);
             so.Update();
@@ -61,8 +60,7 @@ public static class PPEBodyProximityWearSetup
         int changed = 0;
         int skipped = 0;
         foreach (PPEItemPresentationBinding binding in Object.FindObjectsByType<PPEItemPresentationBinding>(
-                     FindObjectsInactive.Include,
-                     FindObjectsSortMode.None))
+                     FindObjectsInactive.Include))
         {
             if (!TryResolveNamedCondition(binding.gameObject.name, out PPEItemCondition condition))
             {

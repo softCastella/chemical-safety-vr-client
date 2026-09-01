@@ -234,7 +234,7 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         }
 
         MetaPlatformIdentityProbe probe =
-            FindFirstObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include);
+            FindAnyObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include);
         string metaState = probe == null ? "probe_missing" : probe.State.ToString();
         ulong metaUserId = MetaPlatformIdentityProbe.CurrentAppScopedUserId;
         if (metaState != lastMetaIdentityState || metaUserId != lastMetaAppScopedUserId)
@@ -276,10 +276,10 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
     void BindRuntimeObjects()
     {
         if (director == null)
-            director = FindFirstObjectByType<PPEVoiceFlowDirector>(FindObjectsInactive.Include);
+            director = FindAnyObjectByType<PPEVoiceFlowDirector>(FindObjectsInactive.Include);
 
         PPEActionPanelController[] currentPanels =
-            FindObjectsByType<PPEActionPanelController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            FindObjectsByType<PPEActionPanelController>(FindObjectsInactive.Include);
         foreach (PPEActionPanelController panel in currentPanels)
         {
             if (panel == null || !panels.Add(panel))
@@ -289,7 +289,7 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         }
 
         PPEInspectionState[] currentInspections =
-            FindObjectsByType<PPEInspectionState>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            FindObjectsByType<PPEInspectionState>(FindObjectsInactive.Include);
         foreach (PPEInspectionState inspection in currentInspections)
         {
             if (inspection == null || !inspections.Add(inspection))
@@ -633,7 +633,7 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
             choice = SanitizeTelemetryText(choice),
             result = SanitizeTelemetryText(result),
             note = SanitizeTelemetryText(note),
-            metaProbeState = FindFirstObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include)?.State.ToString() ?? "probe_missing",
+            metaProbeState = FindAnyObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include)?.State.ToString() ?? "probe_missing",
             metaWelcomeState = MetaPlatformIdentityProbe.CurrentWelcomeState.ToString(),
             metaAppScopedUserId = MetaPlatformIdentityProbe.CurrentAppScopedUserId == 0
                 ? null

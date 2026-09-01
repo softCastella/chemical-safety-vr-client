@@ -50,9 +50,6 @@ public sealed class PPEHelmetEquipController : MonoBehaviour
     [SerializeField]
     AnimationCurve motionCurve;
 
-    [SerializeField]
-    bool logStateChanges = true;
-
     Coroutine equipRoutine;
     GameObject equippedVisualInstance;
     Vector3 authoredLocalPosition;

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.XR;
@@ -17,6 +18,7 @@ public sealed class XRSessionForwardAlignment : MonoBehaviour
 
     private static bool s_HasSessionAlignment;
     private static Quaternion s_TrackingSpaceToWorldYaw = Quaternion.identity;
+    private static readonly List<XRDisplaySubsystem> s_DisplaySubsystems = new();
 
     private XROrigin m_Origin;
 
@@ -48,10 +50,22 @@ public sealed class XRSessionForwardAlignment : MonoBehaviour
             {
                 if (Time.realtimeSinceStartup >= deadline)
                 {
-                    Debug.LogError(
+                    string message =
                         $"{nameof(XRSessionForwardAlignment)} could not read a valid head rotation within " +
-                        $"{m_TrackingWaitSeconds:0.##} seconds. The authored XR Origin rotation was preserved.",
-                        this);
+                        $"{m_TrackingWaitSeconds:0.##} seconds. The authored XR Origin rotation was preserved.";
+
+                    bool hasRunningXrDisplay = HasRunningXrDisplay();
+                    if (ShouldReportTrackingTimeoutAsError(Application.isEditor, hasRunningXrDisplay))
+                    {
+                        Debug.LogError(message, this);
+                    }
+                    else
+                    {
+                        Debug.Log(
+                            $"{message} No XR display is running, so this is the expected Editor/Game View fallback.",
+                            this);
+                    }
+
                     yield break;
                 }
 
@@ -92,6 +106,27 @@ public sealed class XRSessionForwardAlignment : MonoBehaviour
         s_TrackingSpaceToWorldYaw = Quaternion.FromToRotation(trackingForward, authoredForward);
         s_HasSessionAlignment = true;
         return true;
+    }
+
+    internal static bool ShouldReportTrackingTimeoutAsError(
+        bool isEditor,
+        bool hasRunningXrDisplay)
+    {
+        return !isEditor || hasRunningXrDisplay;
+    }
+
+    private static bool HasRunningXrDisplay()
+    {
+        s_DisplaySubsystems.Clear();
+        SubsystemManager.GetSubsystems(s_DisplaySubsystems);
+
+        foreach (XRDisplaySubsystem displaySubsystem in s_DisplaySubsystems)
+        {
+            if (displaySubsystem != null && displaySubsystem.running)
+                return true;
+        }
+
+        return false;
     }
 
     private static bool IsFinite(Quaternion value)

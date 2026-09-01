@@ -283,7 +283,7 @@ public static class PPETrainingDataContractHarness
             failures);
         ValidateSourceContains(
             LocalRegistrationClientSourcePath,
-            "FindFirstObjectByType<MetaPlatformIdentityProbe>",
+            "FindAnyObjectByType<MetaPlatformIdentityProbe>",
             "Unity 로컬 등록 클라이언트가 Meta identity probe 없는 직접 씬 실행을 차단하지 않습니다.",
             failures);
         ValidateSourceContains(
@@ -480,6 +480,16 @@ public static class PPETrainingDataContractHarness
             TelemetryUploaderSetupSourcePath,
             "RedirectStandardInput = standardInput != null",
             "Quest 개발 설정의 민감값을 adb 표준 입력으로 전달하는 경로가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSetupSourcePath,
+            "shell run-as {packageName} mkdir -p files",
+            "Quest 개발 설정 디렉터리 생성이 Windows에서 안전한 adb 인수 경로로 분리되지 않았습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSetupSourcePath,
+            "shell run-as {packageName} tee files/",
+            "Quest 개발 설정 주입이 sh -c 인수 분리 없이 adb 표준 입력을 파일로 기록하지 않습니다.",
             failures);
         ValidateSourceContains(
             TelemetryUploaderSetupSourcePath,

@@ -19,12 +19,9 @@ public static class PPEScenarioQuizValidationHarness
         try
         {
             previewScene = EditorSceneManager.OpenPreviewScene(ScenePath);
-            PPEQuizController[] controllers =
-                UnityEngine.Object.FindObjectsByType<PPEQuizController>(FindObjectsInactive.Include);
             List<PPEQuizController> sceneControllers = new();
-            foreach (PPEQuizController controller in controllers)
-                if (controller.gameObject.scene == previewScene)
-                    sceneControllers.Add(controller);
+            foreach (GameObject root in previewScene.GetRootGameObjects())
+                sceneControllers.AddRange(root.GetComponentsInChildren<PPEQuizController>(true));
 
             if (sceneControllers.Count != 1)
             {

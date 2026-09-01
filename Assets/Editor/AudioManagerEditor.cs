@@ -241,8 +241,7 @@ public sealed class AudioManagerEditor : Editor
         List<AudioCandidate> missing)
     {
         PPEVoiceFlowDirector[] directors = UnityEngine.Object.FindObjectsByType<PPEVoiceFlowDirector>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
         foreach (PPEVoiceFlowDirector director in directors)
         {
             if (director.gameObject.scene != manager.gameObject.scene)
@@ -280,8 +279,7 @@ public sealed class AudioManagerEditor : Editor
         List<AudioCandidate> missing)
     {
         HandwrittenSignatureSequence[] sequences = UnityEngine.Object.FindObjectsByType<HandwrittenSignatureSequence>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
         foreach (HandwrittenSignatureSequence sequence in sequences)
         {
             if (sequence.gameObject.scene != manager.gameObject.scene)
@@ -317,8 +315,7 @@ public sealed class AudioManagerEditor : Editor
         };
 
         AudioSource[] sources = UnityEngine.Object.FindObjectsByType<AudioSource>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
         foreach (AudioSource source in sources)
         {
             if (source.gameObject.scene != manager.gameObject.scene || source.clip == null || managerSources.Contains(source))

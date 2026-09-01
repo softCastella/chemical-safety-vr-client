@@ -15,7 +15,7 @@ public static class MixerRoomFrontCapture
         if (!scene.IsValid() || !scene.isLoaded)
             scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
 
-        Camera camera = Camera.main ?? Object.FindFirstObjectByType<Camera>();
+        Camera camera = Camera.main ?? Object.FindAnyObjectByType<Camera>();
         if (camera == null)
         {
             Debug.LogError("Mixer room front capture failed: no camera found.");

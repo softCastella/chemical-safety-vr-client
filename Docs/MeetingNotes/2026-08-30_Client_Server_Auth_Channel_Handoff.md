@@ -558,3 +558,175 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
 
 재개 시 완료 표시는 `클라이언트 코드 커밋`, `Development APK 빌드·설치`, `Quest 실제 수집`,
 `서버·DB 조회`, `종료·재실행 복구`, `운영 배포`를 각각 분리한다.
+
+## 2026-09-01 제출 브랜치 정리와 Quest LAN 통합 재개 기록
+
+### 기준 브랜치와 보존 상태
+
+- 전체 삭제 전 기준본은 클라이언트
+  `archive/2026-09-01-client-full-no-delete@506664fb39a410d31e8620be59b920b7c8683bbc`에 있으며,
+  로컬과 `origin`이 같은 SHA를 가리킨다. 이 보존 브랜치에는 이후 정리 작업을 추가로 푸시하지 않는다.
+- 현재 정리 작업 브랜치는
+  `release/2026-09-01-meta-horizon-submission@506664fb39a410d31e8620be59b920b7c8683bbc`다.
+  정리 변경은 아직 커밋하거나 푸시하지 않았다.
+- 씬 기준 이름은 `0_App`, `1_Title`, `2_Intro`, `3_Loading`, `4_PPE_Room`, `5_MixerRoom`,
+  `6_InsideMixer`다. 앞의 다섯 씬만 Build Settings에서 활성화됐고 Mixer 두 씬은 비활성 후속 씬이다.
+- 현재 작업 트리에는 삭제 1,932개와 프로젝트 설정 변경이 남아 있다. 삭제 범위는 미참조 후보 모델,
+  중복 RPG 복구 백업, Unity 복구 씬 사본 `Assets/_Recovery`, `SnipAutoSaver`, 완료된 일부 PPE 일회성 도구다. `PlaneMaker`, Ghost Hand,
+  HandTest, 외부 임포트 도구와 회귀 진단·복구 도구는 보존한다.
+- `.codex-tmp`, 성능 테스트 설정 JSON, PPT 및 `qa` 경로의 미추적 파일은 이 정리 작업의 소유로
+  판단하지 않았고 삭제·수정·커밋 대상에 포함하지 않는다.
+
+### 삭제 의존성 확인과 정적 검증
+
+- 삭제 `.meta` GUID의 씬·프리팹·머티리얼 참조를 조사했다. 삭제된 RPG 백업의 Hangar GUID 한 건은
+  현재 유효한 원본 자산이 같은 GUID로 남아 있어 미해결 참조로 분류하지 않았다.
+- `5_MixerRoom`의 건물, 바닥, Hangar, Support set, Asphalt 관련 핵심 자산과 GUID를 별도로 확인했고
+  현재 원본 경로와 프리팹 연결을 보존했다.
+- 이전 씬 이름 문자열은 하네스의 금지 토큰 검사 외에 남지 않았고, Build Settings의 순서·활성 상태와
+  씬 전환 직렬화 참조가 현재 이름과 일치한다.
+- Unity에서 `[Scene Dependency Validation] PASS`, `[Meta Quest Android Build] PASS`,
+  `[PPE Training Data Contract] PASS`를 확인했다. PPE 계약은 `4_PPE_Room`의 장비 binding 25개와
+  교육·훈련·테스트 데이터 계약을 확인했다. 이 결과는 정적 계약 PASS이며 실제 Quest 서버 수신 PASS는 아니다.
+- C# Editor 프로젝트 정적 컴파일은 오류 0개였고 기존 경고만 남았다. HMD 미연결 상태에서 관찰했던
+  AnimatorController 및 Hand Tracking/OpenXR 경고는 삭제 GUID, `MissingReference`, `NullReference` 오류와
+  구분했다.
+
+### Release Build And Run과 HMD 확인
+
+- 첫 Build And Run은 이전 Company/Product 값으로 성공했고 이후 작성값이 원래 저장소 값이었다는 사실을
+  확인했다. 빌드 실행기가 이름을 되돌린 것이 아니었다.
+- `ProjectSettings/ProjectSettings.asset`의 작성값을 Company Name `Tyche works`, Product Name
+  `Chemical Safety Training VR`로 변경했다. Android package identifier는 기존
+  `com.softcastella.prototype.tyche.jinyoung`을 유지한다.
+- 두 번째 Release Build And Run 결과물
+  `Builds/Android/ChemicalSafetyVR_SubmissionCandidate_20260901.apk`는 220,538,552바이트다.
+  Manifest 확인 결과 versionName `0.1.0`, minSdk 25, targetSdk 36, Quest VR category 및 필수
+  head tracking 선언이 들어 있다.
+- Quest 2 `1WMHHA63DE2502`에 2026-09-01 15:10:29 설치됐고 사용자가 HMD에서 앱이 플레이되는 것을
+  확인했다. 이 확인은 실행·표시 확인이며 전체 PPE 기능 체크리스트와 서버 수신 검증을 모두 통과했다는 뜻은 아니다.
+- 기기에서 확인한 설치 APK는 `DEBUGGABLE` 플래그가 없는 Release다. 따라서 아래 Development 전용 LAN
+  업로드 경로는 이 설치본에서 활성화되지 않는다. Release 보안 정책이 유지된 결과다.
+- APK 파일 크기는 약 220.5MB이고 Quest의 설치 패키지 영역은 약 333MB였다. 프로젝트 약 20GB의 주된
+  구성은 `Library` 약 15.16GB와 `Builds` 약 3.48GB이며, Editor 도구·문서·전체 프로젝트가 APK에 그대로
+  들어간 결과가 아니다.
+- Development 빌드 재시도 전 C 드라이브 여유가 약 661MB뿐인 것을 확인했다. 사용자가 현재 로컬 APK는
+  없어도 된다고 승인한 범위에서 APK 3개와 Unity 빌드 부속 폴더 5개를 직접 삭제해 약 3.48GB를 확보했다.
+  Quest에 설치된 Release 앱은 유지된다. 삭제한 로컬 빌드 결과는 휴지통 복구 대상이 아니며 필요하면 같은
+  소스에서 다시 빌드한다.
+
+### 서버 준비와 교차 저장소 상태
+
+- 2026-09-01 재확인한 서버 기준은
+  `main@e20e59e5a1c209e66cda5b604f4815540d6a24a0`이다. 로컬 서버 브랜치는 `origin/main`보다 3개
+  커밋 뒤에 있고 텔레메트리 서비스·테스트 등 미커밋 변경이 있으므로 HEAD만으로 현재 실행 상태를 재현했다고
+  주장하지 않는다. 서버 작업 트리는 이번 클라이언트 작업에서 수정하거나 덮어쓰지 않았다.
+- 현재 서버 작업 트리에서 등록·텔레메트리 대상 테스트 16개를 실행해 16개 통과, 실패 0개를 확인했다.
+- 서버 `.env`에는 수집 활성화와 16자 이상 업로드 token이 값 노출 없이 확인됐다. PM2의
+  `tyche-safety-training-server`를 시작했고 `http://127.0.0.1:3000/api/health`와 개발 PC 사설 LAN 주소의
+  같은 health 경로가 HTTP 200을 반환했다.
+- 위 결과는 서버 수신 준비와 API 계약 확인이다. 2026-09-01 Quest 실행에서 새 세션이 서버·DB에 들어왔다는
+  결과는 아직 없다.
+
+### 중단된 Development Build와 근본 원인
+
+- 프로젝트 용량 증가를 피하려고 Development APK 출력 위치를 프로젝트 밖
+  `C:/Users/Public/Documents/ESTsoft/CreatorTemp/TycheQuestLanDevelopment`로 지정했다.
+- 일회성 Editor 실행기로 Scene Dependency, Meta Quest Android Build, PPE Training Data Contract를
+  차례로 PASS한 뒤 `BuildOptions.Development | BuildOptions.AutoRunPlayer` 빌드를 시작했다.
+- Player script assembly 생성 단계에서 `GC: PER_HEAP_ISOLATED data members initialization failed`,
+  `GC heap initialization failed with error 0x80004005`, `Failed to create CoreCLR`이 반복됐다. Unity는
+  `errors=11`, `warnings=3`, 결과 `Failed`로 종료했다. 같은 시각 Windows 명령에서도 페이징 파일 부족
+  오류가 확인돼, 현재 근거상 삭제 자산이나 C# 코드 오류가 아니라 시스템 commit/pagefile 여유 부족이
+  직접 실패 원인이다.
+- Development APK와 Unity 백업 폴더는 생성되지 않았고 Quest에는 기존 Release APK가 그대로 남아 있다.
+  LAN 설정 주입, Development 앱 실행, Quest JSONL 생성 대조 및 서버·DB 수신 검증도 아직 실행하지 않았다.
+- 빌드에만 사용한 `OneShotQuestLanDevelopmentBuildRunner.cs`와 `.meta`는 실패 근거를 확인한 뒤 제거했다.
+  런타임 코드, 씬, 프리팹과 Inspector 작성값은 이 시도로 변경하지 않았다.
+
+### 다음 재개 순서와 완료 게이트
+
+1. Unity와 불필요한 메모리 사용 프로세스 상태를 확인하고 Windows commit/pagefile 여유를 확보한다.
+   원인 확인 없이 C# 코드나 씬을 수정해 빌드 실패를 우회하지 않는다.
+2. 동일 세 하네스를 다시 실행한 뒤 프로젝트 밖 임시 경로에 Android Development APK를 빌드하고 Quest에
+   설치한다. BuildReport 성공과 기기의 `DEBUGGABLE` 플래그를 각각 확인한다.
+3. 서버 `.env`의 기존 token과 개발 PC 사설 LAN 주소를 값 노출 없이 사용해 Quest 내부 일회성 설정을
+   주입한다. 실제 주소와 token을 씬, APK, 문서, Git 또는 명령행 출력에 남기지 않는다.
+4. 사용자는 HMD에서 `0_App → 1_Title → 2_Intro → 3_Loading → 4_PPE_Room`을 플레이한다. 자동 빌드,
+   설치, 설정 주입, 앱 재실행 및 서버·DB 조회는 클라이언트 작업자가 수행한다.
+5. Meta 등록 POST/GET, 같은 `sessionId`, 로컬 JSONL sequence, 서버 event count·checkpoint를 대조한다.
+   pause/resume과 강제 종료 뒤 다음 실행 복구는 정상 실행과 구분해 검증한다.
+6. Development LAN 통합 PASS 뒤 최종 Release APK를 다시 설치하고 전체 HMD 기능·양안·오디오·입력 검증을
+   마친다. 그 전에는 정리 삭제분을 커밋하거나 푸시하지 않는다.
+7. 최종 통과 뒤에만 의도한 삭제와 Company/Product 설정만 선별 스테이징해 한글 제목과 번호 목록 본문으로
+   커밋하고 `release/2026-09-01-meta-horizon-submission`에 푸시한다. 보존 브랜치에는 푸시하지 않는다.
+
+이 절은 클라이언트 저장소의 공용 문서 기준본에 먼저 기록했다. 서버 저장소의 같은 상대 경로 미러는 서버
+작업 트리의 미커밋 변경을 덮어쓰지 않도록 별도 동기화가 필요하다.
+
+### 2026-09-01 Development 재빌드와 Quest 복구 전송 결과
+
+#### 빌드 실패 원인 제거와 최종 Development 설치
+
+- 첫 실패 뒤 프로젝트의 기존 로컬 APK 3개와 Unity 빌드 부속 폴더 5개를 승인 범위에서 제거해 약
+  3.48GB를 확보했다. 두 번째 Development 빌드는 CoreCLR 단계를 통과했지만 Gradle의
+  `:unityLibrary:copyDebugJniLibsProjectOnly`에서 `libil2cpp.so` 복사 중 디스크 공간 부족으로 실패했다.
+- `C:/Users/Public/Documents/ESTsoft/CreatorTemp/codex_publish`의 이전 버전 클론
+  `Prototype_Tyche_Jinyoung`과 `One_Loop_Original`은 사용자가 삭제해도 되는 예전 버전이라고 명시한 뒤
+  제거했다. `One_Loop_Original`의 미커밋 변경 4개는 직접 삭제되어 복구할 수 없고 원격 기준본만 다시
+  clone할 수 있다. 이후 사용자가 저장소 밖의 추가 공간을 정리해 C 드라이브 여유는 약 27.74GB가 됐다.
+- GC 서버 모드를 빌드 프로세스에만 임시로 끄고 세 하네스를 다시 실행한 결과 모두 PASS했으며,
+  Android Development Build And Run이 성공했다. Quest에 설치된 앱의 `DEBUGGABLE` 플래그를 확인했다.
+- 최초 Development 실행은 생성 Manifest의 `usesCleartextTraffic=true`만으로는 충분하지 않아
+  `InvalidOperationException: Insecure connection not allowed`가 발생했다. 프로젝트의
+  `PlayerSettings.insecureHttpOption`을 `DevelopmentOnly`로 변경한 뒤 다시 빌드했다. Unity Editor에서
+  실제 열거형 값이 `DevelopmentOnly`임을 확인했으며 Release에서는 HTTP가 계속 차단된다.
+- 최종 Development APK는 프로젝트 밖
+  `C:/Users/Public/Documents/ESTsoft/CreatorTemp/TycheQuestLanDevelopment/ChemicalSafetyVR_QuestLanDevelopment_20260901.apk`에
+  생성됐고 크기는 246,820,521바이트다. Build And Run 성공 뒤 Quest에 재설치됐다.
+- 빌드 전용 `OneShotQuestLanDevelopmentBuildRunner.cs`와 `.meta`는 최종 성공 근거를 확인한 뒤 제거했다.
+  이 임시 실행기는 제출 브랜치 커밋 대상에 포함하지 않는다.
+
+#### Quest 중간 종료와 서버 복구 검증
+
+- 사용자는 HMD에서 `0_App → 1_Title → 2_Intro → 3_Loading → 4_PPE_Room`까지 진행하고 PPE 모드를
+  시작했으나 전체 흐름 완료 전에 앱에서 나왔다. 이 실행은 최종 정상 완료 실기 검증으로 표시하지 않는다.
+- 종료 직후 Quest에는 `session_ended`를 포함한 JSONL이 남았지만 프로세스 종료 전에 서버 전송을 마치지
+  못했다. 일회성 LAN 설정을 다시 주입하고 앱을 재실행하자 업로더가 기존 파일을 복구 전송했다.
+- 복구 후 Quest 로컬 이벤트 112개, 서버 상세 조회 이벤트 112개가 일치했다. 업로드 상태는
+  `acceptedThroughSequence=112`, `completed=true`, 서버 상태는 `completed`, 종료 사유는
+  `application_quitting`, 스키마는 1, 원본 프로젝트는 `chemical-safety-vr-client`였다. 실제 session ID와
+  token은 출력하거나 문서에 남기지 않았다.
+- 해당 세션에는 `application_paused`와 `application_resumed`가 각각 1개 들어 있고,
+  `mode_session_started` 1개에는 `modeSessionId`가 포함됐다. 중간 종료로
+  `quiz_answer_resolved`와 `mode_session_completed`는 0개이므로 퀴즈 원본과 모드 완료 집계의 Quest 통합
+  검증은 아직 완료되지 않았다.
+- Meta Platform 초기화에서는 현재 로그인 계정이 앱 ID의 개발자 entitlement를 갖지 않았다는 오류가
+  별도로 발생했다. 이는 로컬 JSONL과 장기 개발 token 기반 LAN 복구 전송 성공과 구분하며, Meta 앱 범위
+  사용자 ID 등록의 성공 근거로 사용하지 않는다.
+
+#### 서버 미커밋 구현과 검증 경계
+
+- 서버 저장소 기준은 `main@e20e59e5a1c209e66cda5b604f4815540d6a24a0`, 원격 기준은
+  `origin/main@e07cf97c3e2cd365a191310ba4749313391c7708`이며 로컬 `main`이 3커밋 뒤에 있다.
+- 서버 작업 트리에는 `training-telemetry-service.js` 98줄, `training-telemetry.test.js` 110줄,
+  PPE 대시보드 후속 문서 74줄로 총 282줄의 오늘 미커밋 추가가 있다. 별도의 미추적 사이트 이미지 1개는
+  2026-08-31 생성 파일이라 오늘 작업으로 분류하지 않는다.
+- 위 서버 변경은 `modeSessionId`, `quiz_answer_resolved`, `mode_session_completed`, 퀴즈 집계와
+  `modeElapsedSec` 수신 계약을 추가하며 클라이언트 전송 필드와 직접 대응한다. 서버 쪽 Codex 작업에서
+  만들어진 미커밋 변경이며, 이번 클라이언트 작업에서는 서버 파일을 수정·커밋·푸시하지 않고 현재 작업
+  트리를 실행해 테스트와 Quest 수신 대조만 수행했다.
+- 서버 자동 테스트 16개 PASS와 Quest 112건 수신은 현재 미커밋 서버 작업 트리 기준이다. 서버 커밋·푸시와
+  클라이언트 공용 문서 미러는 아직 미완료로 분리한다.
+
+#### 남은 제출 전 수동 검증
+
+1. Quest에서 Education·Training·Test 중 최소 한 모드를 끝까지 완료해 `quiz_answer_resolved`와
+   `mode_session_completed`를 같은 `modeSessionId`로 서버에서 조회한다.
+2. 최종 Release APK를 다시 빌드·설치하고 `DEBUGGABLE` 없음, cleartext HTTP 차단, 양안 렌더링, 입력,
+   오디오와 주요 PPE 흐름을 실기 확인한다.
+3. 서버 미커밋 구현은 서버 저장소에서 별도 한글 커밋·푸시하고, 그 SHA를 확인한 뒤 이 공용 문서를 서버의
+   같은 상대 경로에 미러링한다.
+
+사용자가 2026-09-01 현재 결과를 보존하도록 요청했으므로 전체 모드 완료 실기와 최종 Release 재검증은
+미완료 사실로 남긴 채 클라이언트 정리 변경을 제출 브랜치에 커밋·푸시한다. 보존 브랜치에는 추가 푸시하지 않는다.

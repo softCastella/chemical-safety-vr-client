@@ -7,12 +7,12 @@ using UnityEngine.SceneManagement;
 [DisallowMultipleComponent]
 public sealed class LoadingSceneController : MonoBehaviour
 {
-    const string LoadingSceneName = "6_LoadingScene_0";
+    const string LoadingSceneName = "3_Loading";
 
     static string requestedSceneName;
 
     [Header("Scene Loading")]
-    [SerializeField] string nextSceneName = "3_PPE_Room_3mode_loco";
+    [SerializeField] string nextSceneName = "4_PPE_Room";
     [SerializeField, Min(0)] int prewarmFrames = 2;
 
     [Header("Progress Timing")]
@@ -36,8 +36,8 @@ public sealed class LoadingSceneController : MonoBehaviour
     }
 
     /// <summary>
-    /// Routes a scene change through 6_LoadingScene_0. The serialized nextSceneName is
-    /// used when 6_LoadingScene_0 is opened directly.
+    /// Routes a scene change through 3_Loading. The serialized nextSceneName is
+    /// used when 3_Loading is opened directly.
     /// </summary>
     public static void LoadTarget(string targetSceneName)
     {

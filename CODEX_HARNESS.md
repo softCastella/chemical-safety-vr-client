@@ -28,9 +28,10 @@ Main scene flow:
 0_App
 1_Title
 2_Intro
-3_PPE_Room
+3_Loading
+4_PPE_Room
 5_MixerRoom
-4_InsideMixer
+6_InsideMixer
 ```
 
 Scene names used in Unity, code, and documentation must stay consistent with Build Settings. If a scene name changes, update this document, scene-name constants, and any serialized scene references together.
@@ -232,9 +233,10 @@ public static class SceneNames
     public const string App = "0_App";
     public const string Title = "1_Title";
     public const string Intro = "2_Intro";
-    public const string PPERoom = "3_PPE_Room";
+    public const string Loading = "3_Loading";
+    public const string PPERoom = "4_PPE_Room";
     public const string MixerRoom = "5_MixerRoom";
-    public const string InsideMixer = "4_InsideMixer";
+    public const string InsideMixer = "6_InsideMixer";
 }
 ```
 

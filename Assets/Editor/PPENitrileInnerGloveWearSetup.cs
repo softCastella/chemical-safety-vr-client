@@ -13,7 +13,7 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public static class PPENitrileInnerGloveWearSetup
 {
-    const string ScenePath = "Assets/Scenes/3_PPE_Room_3mode_loco.unity";
+    const string ScenePath = "Assets/Scenes/4_PPE_Room.unity";
     const string ActionPanelSourcePath = "Assets/Scripts/PPEActionPanelController.cs";
     const string DisplayParentName = "PPE";
 

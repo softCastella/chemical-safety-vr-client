@@ -1640,7 +1640,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4c7f2a8b3194e56a1d8c03e72f94b65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LoadingSceneController
-  nextSceneName: 3_PPE_Room_3mode_loco
+  nextSceneName: 4_PPE_Room
   prewarmFrames: 2
   minimumDisplayDuration: 1
   progressFillDuration: 6

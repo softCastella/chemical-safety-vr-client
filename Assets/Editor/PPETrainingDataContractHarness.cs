@@ -17,12 +17,14 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 /// </summary>
 public static class PPETrainingDataContractHarness
 {
-    const string ScenePath = "Assets/Scenes/3_PPE_Room_3mode_loco.unity";
+    const string ScenePath = "Assets/Scenes/4_PPE_Room.unity";
     const string ExitRelaySourcePath = "Assets/Scripts/PPEExitTeleportMarkerRelay.cs";
     const string FinaleSourcePath = "Assets/Scripts/PPEFinaleController.cs";
     const string QuitButtonSourcePath = "Assets/Scripts/QuitApplicationButton.cs";
     const string TelemetrySourcePath = "Assets/Scripts/PPETrainingTelemetryCapture.cs";
     const string TelemetryUploaderSourcePath = "Assets/Scripts/TycheTrainingTelemetryUploader.cs";
+    const string VoiceFlowDirectorSourcePath = "Assets/Scripts/PPEVoiceFlowDirector.cs";
+    const string QuizControllerSourcePath = "Assets/Scripts/PPEQuizController.cs";
     const string LocalRegistrationClientSourcePath = "Assets/Scripts/TycheLocalTrainingRegistrationClient.cs";
     const string TelemetryUploaderSetupSourcePath = "Assets/Editor/TycheTrainingTelemetryUploaderSetup.cs";
     const string XriInputActionsPath = "Assets/Samples/XR Interaction Toolkit/3.4.1/Starter Assets/XRI Default Input Actions.inputactions";
@@ -428,6 +430,41 @@ public static class PPETrainingDataContractHarness
             TelemetrySourcePath,
             "Write(paused ? \"application_paused\" : \"application_resumed\");",
             "pause/resume가 비종료 텔레메트리 이벤트로 구분되지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetrySourcePath,
+            "\"mode_session_started\"",
+            "세 모드의 실행 시작 원본 이벤트가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetrySourcePath,
+            "\"quiz_answer_resolved\"",
+            "모드별 퀴즈 선택과 정오 원본 이벤트가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetrySourcePath,
+            "\"mode_session_completed\"",
+            "세 모드의 실행 완료 원본 이벤트가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            VoiceFlowDirectorSourcePath,
+            "BeginModeSessionTracking();",
+            "모드 선택을 모드 실행 시작 계측에 연결하지 않았습니다.",
+            failures);
+        ValidateSourceContains(
+            QuizControllerSourcePath,
+            "RecordQuizAnswer(optionIndex, correct);",
+            "퀴즈 선택을 원본 계측에 연결하지 않았습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "modeSessionId = record.modeSessionId",
+            "모드 실행 ID를 서버 업로드 이벤트로 전달하지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetrySourcePath,
+            "modeSessionId ?? director?.ActiveModeSessionId",
+            "모드 실행 중 공통 PPE·음성 이벤트를 현재 모드 실행 ID에 연결하지 않습니다.",
             failures);
         ValidateSourceContains(
             LocalRegistrationClientSourcePath,

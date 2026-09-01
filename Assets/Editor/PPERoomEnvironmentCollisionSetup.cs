@@ -15,7 +15,7 @@ using UnityEngine.XR.Interaction.Toolkit.UI;
 
 public static class PPERoomEnvironmentCollisionSetup
 {
-    public const string ScenePath = "Assets/Scenes/3_PPE_Room_3mode_loco.unity";
+    public const string ScenePath = "Assets/Scenes/4_PPE_Room.unity";
     public const string CollisionRootName = "PPE Environment Collision";
     public const int CollisionLayer = 2;
     public const string PpeMarkerName = "XR Item Marker_small";

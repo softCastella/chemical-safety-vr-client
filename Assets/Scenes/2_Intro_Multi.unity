@@ -1159,7 +1159,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IntroSceneTransition
   visibleDuration: 3
   fadeOutDuration: 0.8
-  nextSceneName: 3_PPE_Room_3mode_loco
+  nextSceneName: 4_PPE_Room
 --- !u!1 &1890090468
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,7 +14,7 @@ using TMPro;
 public static class PPELocomotionPpeRegressionValidationHarness
 {
     const string ScenePath =
-        "Assets/Scenes/3_PPE_Room_3mode_loco.unity";
+        "Assets/Scenes/4_PPE_Room.unity";
 
     const BindingFlags InstancePrivate = BindingFlags.Instance | BindingFlags.NonPublic;
 
@@ -560,7 +560,7 @@ public static class PPELocomotionPpeRegressionValidationHarness
             "cbf5db553974ec84fb37aea653f5f1bf",
             failures);
         ValidateYamlSpritePreserveAspect(
-            "Assets/Scenes/6_LoadingScene_0.unity",
+            "Assets/Scenes/3_Loading.unity",
             "cbf5db553974ec84fb37aea653f5f1bf",
             failures);
         ValidateYamlSpritePreserveAspect(

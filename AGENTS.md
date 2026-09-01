@@ -23,10 +23,10 @@ The Express server is maintained in the private repository `softCastella/chemica
 1. `Assets/Scenes/0_App.unity`
 2. `Assets/Scenes/1_Title.unity`
 3. `Assets/Scenes/2_Intro.unity`
-4. `Assets/Scenes/6_LoadingScene_0.unity`
-5. `Assets/Scenes/3_PPE_Room_3mode_loco.unity`
+4. `Assets/Scenes/3_Loading.unity`
+5. `Assets/Scenes/4_PPE_Room.unity`
 
-`4_InsideMixer`, `5_MixerRoom_Unlit`, and the older loading scene remain disabled follow-up scenes. The disabled `Confined Space Scene_half` entry points to an absent asset and must not be treated as the current primary scene.
+`5_MixerRoom` and `6_InsideMixer` remain disabled follow-up scenes. The disabled `Confined Space Scene_half` entry points to an absent asset and must not be treated as the current primary scene.
 
 ## Project-owned runtime code
 

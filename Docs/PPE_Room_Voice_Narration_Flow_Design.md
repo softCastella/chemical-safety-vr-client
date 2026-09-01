@@ -580,7 +580,7 @@ PPE 교육: OnIncompletePpeScenarioSelected
 - 사용자 표시 용어는 `고글` 대신 `화학보안경`, `방독면` 또는 `송기 마스크` 대신
   `송기마스크`로 통일한다. 직렬화 호환성이 필요한 코드 식별자와 자산명인 `SafetyGoggles`,
   `GasMask`, `Goggle`, `PPE_A_Goggle`은 변경하지 않는다.
-- 사용자가 추가한 다음 음원을 현재 기준 씬 `Assets/Scenes/3_PPE_Room_3mode_loco.unity`의
+- 사용자가 추가한 다음 음원을 현재 기준 씬 `Assets/Scenes/4_PPE_Room.unity`의
   `PPE Voice Flow`에 직렬화했다.
   - 정상 화학보안경: `4_VO_PPE_EDU_107_HowToGoggle.mp3`
   - 정상 안면보호대: `4_VO_PPE_EDU_108_HowToFaceShield.mp3`
@@ -1067,7 +1067,7 @@ PPE를 잡고 사용·폐기하는 구역의 How-To, 오답 안내 및 판정 �
 
 ### 모드별 Voice/SFX 재생 목록
 
-아래 목록은 현재 기준 씬 `Assets/Scenes/3_PPE_Room_3mode_loco.unity`에서 학습 모드를 선택한
+아래 목록은 현재 기준 씬 `Assets/Scenes/4_PPE_Room.unity`에서 학습 모드를 선택한
 시점부터 퀴즈 완료 또는 중도 퇴장까지를 범위로 한다. 그 전에 재생되는 Welcome, 이름 입력,
 컨트롤러 안내, 카드·시나리오 선택 Voice는 세 모드 공통 선행 흐름이므로 각 모드 목록에 중복해서
 넣지 않는다.

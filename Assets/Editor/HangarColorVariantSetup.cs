@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public static class HangarColorVariantSetup
 {
-    const string TargetScenePath = "Assets/Scenes/5_MixerRoom_Unlit.unity";
+    const string TargetScenePath = "Assets/Scenes/5_MixerRoom.unity";
     const string TargetObjectName = "Hangar_v2_6 Variant";
 
     [MenuItem("Tools/Mixer Room/Setup Hangar Color Variants")]

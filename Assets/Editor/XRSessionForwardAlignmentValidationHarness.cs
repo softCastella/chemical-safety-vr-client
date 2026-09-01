@@ -13,7 +13,7 @@ public static class XRSessionForwardAlignmentValidationHarness
     {
         "Assets/Scenes/1_Title.unity",
         "Assets/Scenes/2_Intro.unity",
-        "Assets/Scenes/3_PPE_Room_3mode_loco.unity"
+        "Assets/Scenes/4_PPE_Room.unity"
     };
 
     [MenuItem("Tools/XR/Validate Session Forward Alignment")]

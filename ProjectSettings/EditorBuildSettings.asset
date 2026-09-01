@@ -15,20 +15,17 @@ EditorBuildSettings:
     path: Assets/Scenes/2_Intro.unity
     guid: 7def8ae4c77d1fd43affdc27146a489f
   - enabled: 1
-    path: Assets/Scenes/6_LoadingScene_0.unity
+    path: Assets/Scenes/3_Loading.unity
     guid: 33987000c09f408ab5a5ca7a4e73cd12
   - enabled: 1
-    path: Assets/Scenes/3_PPE_Room_3mode_loco.unity
+    path: Assets/Scenes/4_PPE_Room.unity
     guid: e4c91a8b7d254f3aa6e0c1d5928476bf
   - enabled: 0
-    path: Assets/Scenes/4_InsideMixer.unity
+    path: Assets/Scenes/5_MixerRoom.unity
+    guid: d1925986e2c5e3b46819e2fd8e31ee7e
+  - enabled: 0
+    path: Assets/Scenes/6_InsideMixer.unity
     guid: de100982fa3753449a7976e76e56c436
-  - enabled: 0
-    path: Assets/Scenes/5_MixerRoom_Unlit.unity
-    guid: 6cd8ff9e1c57f2241b18a825741820d4
-  - enabled: 0
-    path: Assets/Scenes/6_LoadingScene.unity
-    guid: db44af3b166fb9f448ddf3ab7a969da6
   - enabled: 0
     path: Assets/Scenes/Confined Space Scene_half.unity
     guid: 99c9720ab356a0642a771bea13969a05

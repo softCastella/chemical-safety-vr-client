@@ -260,7 +260,7 @@ data = [
     ("문서 성격", "발표자료가 아닌 개발·QA·검토용 실무 기획서"),
     ("기준 프로젝트", "Final_VR_Tyche_Pivot/client · Unity 6000.4.8f1"),
     ("기준 씬", "Assets/Scenes/3_PPE_Room_HandTest_scale_0.unity"),
-    ("실행 경로", "0_App → 1_Title → 2_Intro → 6_LoadingScene_0 → PPE Room"),
+    ("실행 경로", "0_App → 1_Title → 2_Intro → 3_Loading → 4_PPE_Room"),
     ("관리 원칙", "씬·Prefab·Inspector 작성값을 UI와 Transform의 기준값으로 사용"),
 ]
 for r, pair in enumerate(data, 1):
@@ -349,8 +349,8 @@ route = [
     ("0_App", "앱 공통 초기화"),
     ("1_Title", "로고·타이틀"),
     ("2_Intro", "교육 목적·주의"),
-    ("6_LoadingScene_0", "비동기 로딩"),
-    ("3_PPE_Room_HandTest_scale_0", "PPE 교육 실행"),
+    ("3_Loading", "비동기 로딩"),
+    ("4_PPE_Room", "PPE 교육 실행"),
 ]
 for i, (name, body) in enumerate(route):
     yy = y + 0.15 + i * 1.45

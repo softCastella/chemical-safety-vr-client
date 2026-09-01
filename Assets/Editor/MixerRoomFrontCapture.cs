@@ -5,8 +5,8 @@ using UnityEngine;
 
 public static class MixerRoomFrontCapture
 {
-    const string ScenePath = "Assets/Scenes/5_MixerRoom_Unlit.unity";
-    const string OutputPath = "Captures/5_MixerRoom_Unlit_Front.png";
+    const string ScenePath = "Assets/Scenes/5_MixerRoom.unity";
+    const string OutputPath = "Captures/5_MixerRoom_Front.png";
 
     [MenuItem("Tools/Mixer Room/Capture Front Camera")]
     public static void CaptureFrontCamera()

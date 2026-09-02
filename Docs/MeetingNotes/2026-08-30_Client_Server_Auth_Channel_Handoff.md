@@ -705,19 +705,21 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
   별도로 발생했다. 이는 로컬 JSONL과 장기 개발 token 기반 LAN 복구 전송 성공과 구분하며, Meta 앱 범위
   사용자 ID 등록의 성공 근거로 사용하지 않는다.
 
-#### 서버 미커밋 구현과 검증 경계
+#### 서버 구현 커밋과 검증 경계
 
-- 서버 저장소 기준은 `main@e20e59e5a1c209e66cda5b604f4815540d6a24a0`, 원격 기준은
-  `origin/main@e07cf97c3e2cd365a191310ba4749313391c7708`이며 로컬 `main`이 3커밋 뒤에 있다.
-- 서버 작업 트리에는 `training-telemetry-service.js` 98줄, `training-telemetry.test.js` 110줄,
-  PPE 대시보드 후속 문서 74줄로 총 282줄의 오늘 미커밋 추가가 있다. 별도의 미추적 사이트 이미지 1개는
-  2026-08-31 생성 파일이라 오늘 작업으로 분류하지 않는다.
-- 위 서버 변경은 `modeSessionId`, `quiz_answer_resolved`, `mode_session_completed`, 퀴즈 집계와
-  `modeElapsedSec` 수신 계약을 추가하며 클라이언트 전송 필드와 직접 대응한다. 서버 쪽 Codex 작업에서
-  만들어진 미커밋 변경이며, 이번 클라이언트 작업에서는 서버 파일을 수정·커밋·푸시하지 않고 현재 작업
-  트리를 실행해 테스트와 Quest 수신 대조만 수행했다.
-- 서버 자동 테스트 16개 PASS와 Quest 112건 수신은 현재 미커밋 서버 작업 트리 기준이다. 서버 커밋·푸시와
-  클라이언트 공용 문서 미러는 아직 미완료로 분리한다.
+- 2026-09-02 재확인한 서버 저장소 기준은
+  `main@777ab453810e60b382f709541d1e4d67f493af8f`이며 `origin/main`과 일치하고 작업 트리는 clean이다.
+- 앞서 미커밋이었던 `training-telemetry-service.js` 98줄, `training-telemetry.test.js` 110줄과
+  PPE 대시보드 후속 문서 74줄은 서버
+  `main@6ba52ed7dbb4a5b86b256035eb743b59a3432c37`의 `feat: 모드별 훈련 계측 계약 보완` 커밋으로 반영됐다.
+- 해당 서버 커밋은 `modeSessionId`, `quiz_answer_resolved`, `mode_session_completed`, 퀴즈 집계와
+  `modeElapsedSec` 수신 계약을 추가하며 클라이언트 전송 필드와 직접 대응한다. 커밋 본문에는 서버 자동
+  테스트 65개 PASS가 기록돼 있다. 이번 2026-09-02 재확인에서는 테스트를 다시 실행하지 않았으므로 현재
+  실행 결과로 확대하지 않는다.
+- Quest 112건 수신 결과는 서버 커밋 전 작업 트리에서 확인한 통합 근거다. 서버 구현의 커밋·푸시는
+  완료됐지만, 한 모드 완료 실행의 `quiz_answer_resolved`와 `mode_session_completed` 수신은 아직 미검증이다.
+- 서버의 같은 상대 경로 공용 문서는 이 절을 포함한 클라이언트 기준본보다 175줄 뒤에 있다. 서버 커밋
+  `6ba52ed` 반영과 공용 문서 미러 완료는 구분하며, 서버 미러 동기화는 아직 필요하다.
 
 #### 남은 제출 전 수동 검증
 
@@ -725,8 +727,142 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
    `mode_session_completed`를 같은 `modeSessionId`로 서버에서 조회한다.
 2. 최종 Release APK를 다시 빌드·설치하고 `DEBUGGABLE` 없음, cleartext HTTP 차단, 양안 렌더링, 입력,
    오디오와 주요 PPE 흐름을 실기 확인한다.
-3. 서버 미커밋 구현은 서버 저장소에서 별도 한글 커밋·푸시하고, 그 SHA를 확인한 뒤 이 공용 문서를 서버의
-   같은 상대 경로에 미러링한다.
+3. 이 공용 문서의 최신 절을 서버 저장소의 같은 상대 경로에 미러링하고, 서버의 별도 한글 커밋·푸시 SHA를
+   기록한다. 서버 런타임 구현은 `6ba52ed7dbb4a5b86b256035eb743b59a3432c37`로 이미 반영됐다.
 
 사용자가 2026-09-01 현재 결과를 보존하도록 요청했으므로 전체 모드 완료 실기와 최종 Release 재검증은
 미완료 사실로 남긴 채 클라이언트 정리 변경을 제출 브랜치에 커밋·푸시한다. 보존 브랜치에는 추가 푸시하지 않는다.
+
+## 2026-09-02 기준 정상 플레이 데이터 분리·보존 및 실서버 전 게이트
+
+### 사용자 결정과 적용 범위
+
+- 대시보드에서 실제 병목을 판단하려면 시나리오와 모드별 정상 플레이 시간이 먼저 필요하므로, 운영 데이터
+  수집이나 대시보드 구현보다 기준 데이터 수집을 선행한다.
+- 기준 데이터는 일반 훈련 DB와 섞지 않고 별도의 로컬 보존 요소로 관리한다. 이 결정은 운영 서버 전송이나
+  운영 DB 변경 승인이 아니며, 기준 수집과 검증은 개발 PC의 로컬 환경에서만 수행한다.
+- 정상 기준본은 `ConfinedSpace`, `LeakResponse` 두 시나리오와 `Education`, `Training`, `Test` 세 모드의
+  조합 6개다. `Random Test`는 두 시나리오 중 하나를 선택하는 편의 기능이므로 별도 기준 조합으로 두지 않는다.
+- 이번 절의 클라이언트 기준은
+  `release/2026-09-01-meta-horizon-submission@518fca01980c9d8335a29f1c201e197e2806713a`, 서버 기준은
+  `main@777ab453810e60b382f709541d1e4d67f493af8f`다. 양쪽 저장소의 미커밋 변경과 로컬 실행 설정은 각
+  HEAD와 구분한다.
+
+### 2026-09-02 로컬 수집 채널 복구 상태
+
+- 로컬 Express 프로세스는 실행 중이었지만 텔레메트리 수집 플래그와 서버 업로드 토큰이 없는 상태로
+  재시작되어 있었다. 이 상태에서는 health 응답만 성공하고 Unity/Quest 이벤트는 서버 DB로 전송되지 않는다.
+- 개발용 64자 보안 난수 토큰을 새로 생성해 로컬 서버와 Unity Editor 전용 보조 토큰 파일에 동일하게
+  설정하고, 로컬 서버의 텔레메트리 수집을 활성화한 뒤 PM2 프로세스를 재시작했다. 토큰 원문은 명령 출력,
+  문서, Git, 씬, JSONL 및 APK에 기록하지 않았다.
+- 재시작 후 인증된 텔레메트리 조회 API와 Quest가 사용할 사설 LAN health 경로가 각각 HTTP 200을
+  반환했다. 이는 로컬 수신 준비 근거이며 기준 세션 수집 완료나 운영 전송 근거는 아니다.
+- Quest Development 앱에는 현재 로컬 수집 채널용 일회성 설정이 주입돼 있고 앱은 중지 상태다. 앱이 설정을
+  읽으면 설정 파일은 즉시 삭제된다. 그러나 아직 별도 기준 DB로 전환하지 않았으므로 이 상태에서 앱을
+  실행해 얻은 데이터는 기준 DB 분리 조건을 충족하지 않는다.
+- 서버 코드에서 훈련 텔레메트리 자동 purge, retention cleanup, 세션 DELETE API는 찾지 못했다. 이는 현재
+  자동 삭제 경로가 없다는 정적 확인일 뿐이며, 별도 기준 저장소와 백업 없이 삭제 불가능하다는 뜻은 아니다.
+
+### 별도 기준 저장소 설계
+
+- 기준 데이터의 단일 저장 대상은 일반 로컬 DB와 분리된 MySQL schema/database
+  `tyche_training_baseline`로 한다. 운영 서버와 운영 DB에는 이 기준 수집 단계에서 연결하지 않는다.
+- 일반 로컬 수집 프로필과 기준 수집 프로필은 DB 이름과 실행 목적을 명확히 구분한다. Quest에는 기준 수집
+  프로필이 준비된 뒤 해당 로컬 endpoint와 일회성 token을 다시 주입한다.
+- 기준 DB에는 검증을 통과한 정상 완료 세션만 등록한다. 중단, pause/resume, 음성 건너뛰기, 입력 오류,
+  네트워크 단절 또는 잘못된 선택이 포함된 실행은 삭제하지 않고 일반 검증 로그로 분리하며 기준 통계에는
+  포함하지 않는다.
+- 기준 DB에 자동 보존기간이나 정리 작업을 적용하지 않는다. 향후 일반 텔레메트리 retention을 도입할 때도
+  기준 DB를 대상에서 제외하고, 기준 저장 계정과 운영 조회 계정에는 가능한 범위에서 DELETE/DROP 권한을
+  부여하지 않는다.
+
+### 정상 플레이 측정 규칙
+
+1. 같은 앱 버전과 빌드, 같은 HMD, 같은 조작자와 같은 네트워크 조건을 사용한다.
+2. 음성을 건너뛰지 않고 앱 pause, HMD 이탈, 강제 종료와 네트워크 단절 없이 진행한다.
+3. 잘못된 PPE 선택 없이 시나리오의 정상 순서를 따르고 퀴즈는 가능한 한 첫 선택에서 정답으로 완료한다.
+4. 측정 시작은 `mode_session_started`, 종료는 같은 `modeSessionId`의 `mode_session_completed`로 하며
+   기준 총시간은 `modeElapsedSec`를 사용한다.
+5. 오늘 최소 목표는 6개 조합별 정상 실행 1회다. 최종 대시보드 기준값은 가능하면 조합별 3회 이상을
+   확보한 뒤 평균보다 이상치 영향이 작은 중앙값으로 결정한다.
+6. 각 실행 직후 시나리오, 모드, 앱 버전, `sessionId`, `modeSessionId`, 시작·완료 시각, 퀴즈 문항·정답 수,
+   PPE 오선택 수와 `modeElapsedSec`를 확인한다.
+
+### 기준본 승인과 보존 절차
+
+1. Quest 원본 JSONL과 기준 DB 상세 조회의 event count 및 마지막 sequence가 일치해야 한다.
+2. sequence 누락·중복이 0이고, `mode_session_started`, 문제별 `quiz_answer_resolved`,
+   `mode_session_completed`가 같은 `modeSessionId`로 연결돼야 한다.
+3. 기준 승인 직후 Quest 원본 JSONL, 서버 상세 조회 내보내기와 기준 DB 백업을 서로 다른 보관 단위로
+   남긴다. Meta 앱 범위 사용자 ID 등 식별 정보가 포함된 원본은 Git과 제출 문서에 넣지 않는다.
+4. 보존 목록에는 원문 식별자 대신 내부 참조, 앱 버전, 시나리오, 모드, 측정 조건, 정상 시간, 이벤트 수와
+   각 보관 파일의 SHA-256을 기록한다.
+5. 승인된 6개 기준본에는 삭제·초기화·일반 테스트 데이터 정리 작업을 수행하지 않는다. 백업 복구 시험이
+   끝나기 전에는 기준 수집 완료로 표시하지 않는다.
+
+### 대시보드에서 사용할 후속 계산 기준
+
+- `Education`, `Training`, `Test`는 음성 길이와 요구 행동이 다르므로 서로 다른 기준시간을 사용한다.
+- `ConfinedSpace`와 `LeakResponse`도 필수 PPE와 흐름이 다르므로 시나리오별로 분리한다.
+- 병목은 기준 총시간과 단계별 `flow_state_changed`, PPE inspection/grab/choice 및 quiz event 시각을 이용해
+  `실제 소요시간 - 기준 소요시간`과 기준 대비 초과율로 계산한다.
+- 단일 실행값을 정상 상한으로 확정하지 않는다. 반복 표본이 쌓이면 중앙값과 상위 분위수 기준을 별도로
+  결정하고, pause·중단·오류 세션은 정상시간 분포와 구분한다.
+
+### 운영 서버 전송 전 완료 게이트
+
+1. `tyche_training_baseline` 생성, migration 적용, 일반 로컬 DB와의 분리 및 삭제 권한 제한을 확인한다.
+2. 6개 조합의 최소 기준본을 수집하고 원본 JSONL·기준 DB·백업·보존 목록을 대조한다.
+3. 운영과 같은 staging HTTPS 환경에서 인증, 배치 업로드, 중복 방지, 재전송, 완료 처리와 복구를 확인한다.
+4. Development LAN 장기 공용 token과 cleartext HTTP를 Release APK에서 제거한다. 운영 인증은 Meta 검증과
+   서버가 발급하는 단기 자격 증명으로 분리한다.
+5. Release APK의 `DEBUGGABLE` 비활성, cleartext 차단, 비밀값 미포함, Quest 양안·입력·오디오와 6개
+   시나리오/모드 흐름을 확인한다.
+6. 운영 서버에는 rate limit, 세션당 이벤트 상한, 상세 조회 pagination, 일반 데이터 retention, 기준 데이터
+   삭제 제외, DB 백업·모니터링·롤백 절차를 마련한다.
+7. 클라이언트와 서버의 대상 브랜치·커밋 SHA, API·DB 계약, 하네스, 실제 staging 이벤트를 대조하고 공용
+   문서를 양쪽 저장소에 동기화한다.
+8. 허용된 테스트 계정 한 개로 제한 운영 검증을 통과한 뒤에만 일반 사용자 수집을 활성화한다.
+
+### 현재 완료와 미완료 구분
+
+- **완료:** 로컬 서버 수집 플래그와 개발 token 복구, 서버·Unity token 일치, PM2 재시작, 인증 API와 LAN
+  health HTTP 200, Quest Development APK의 일회성 설정 주입.
+- **미완료:** `tyche_training_baseline` 생성과 migration, Quest 기준 프로필 재주입, 6개 정상 실행 수집,
+  원본·DB·백업 대조, staging HTTPS, Release 보안 검증 및 운영 서버 전송.
+- 별도 기준 DB 전환 전에는 현재 주입 상태로 Quest 앱을 실행하지 않는다. 기준 수집을 시작할 때는 첫 조합을
+  `ConfinedSpace/Test`로 하고, 완료 직후 서버 수신과 보존 조건을 확인한 뒤 다음 조합으로 진행한다.
+
+### 2026-09-02 첫 기준 실행 시도와 APK 버전 불일치
+
+- 기준 DB 전환 후 첫 Quest 실행에서 파트너 로고 시머링과 이전 컨트롤러 이미지가 보였다. 이는 현재 Unity
+  씬·Importer·점선 링 수정이 포함되지 않은 기존 Development APK를 실행했기 때문이다. 최신 프로젝트
+  변경이 런타임에서 되돌아간 것으로 해석하지 않는다.
+- 해당 실행은 서버의 기준 DB에 앱 세션 1건, 이벤트 24건을 남겼으나 `mode`와 `workPlan`이 비어 있었다.
+  서버 `completed` 상태는 업로드 세션 종료를 뜻할 뿐 훈련 모드 완료가 아니므로 기준 데이터에서 제외한다.
+- 이 24건 세션과 원본 JSONL은 삭제하지 않고 검증 실패·비기준 후보로 보존한다. 기준 통계와 정상 기준본
+  목록에는 포함하지 않는다.
+- 다음 기준 실행 전 최신 Unity 프로젝트로 Development APK를 다시 빌드·설치하고, 설치 후 Quest LAN
+  일회성 설정을 다시 주입한다. HMD에서 파트너 로고, 공통 `controller.png`, 버튼별 파란 점선 링을 먼저
+  확인한 뒤 `ConfinedSpace/Test` 기준 측정을 시작한다.
+
+### 2026-09-02 패키지명 정리와 이전 APK 데이터 보존
+
+- 회사·제품 식별을 위해 Android/Standalone/iPhone application identifier를 기존
+  `com.softcastella.prototype.tyche.jinyoung`에서 `com.tycheworks.immersa.safetyvr`로 변경했다.
+  저장소명 `prototype`은 새 패키지명에 사용하지 않는다.
+- 이전 패키지 앱의 외부 저장소에서 `tyche-training-telemetry` JSONL 1개(16개 이벤트)를 삭제 전에 PC로
+  `.baseline-preservation/quest-20260902/`에 백업했다. 백업 SHA-256은
+  `8EF51C7DE140C784E713448D24F07A9C543D245A7C8C3F5F7D6126FE0D4561A3`이다.
+- 백업 원본은 `mode`·`workPlan`이 비어 있고 정상 모드 완료 이벤트가 없어 기준 통계에서 제외한다. 서버
+  `tyche_training_baseline`의 기존 세션도 삭제하지 않고 비기준 원본으로 보존한다.
+- 백업 확인 후 Quest에서 이전 앱을 삭제했다. 새 패키지 앱은 별도 앱으로 설치되며, Development APK 재빌드와
+  Quest LAN 설정 재주입이 필요하다.
+
+#### 후속작업
+
+1. 새 패키지명으로 Unity Development APK를 재빌드·설치하고 `debuggable` 및 LAN 설정 파일 존재를 확인한다.
+2. 서버 `tyche_training_baseline` 수신을 확인한 뒤 `ConfinedSpace/Test → Training → Education`, 이어서
+   `LeakResponse/Test → Training → Education` 순서로 정상 기준 시간을 측정한다.
+3. 각 실행의 Quest JSONL, 서버 이벤트 수·sequence·`modeSessionId`, DB 백업과 SHA-256을 대조해 승인된
+   기준본만 별도 목록에 확정한다.

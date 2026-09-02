@@ -369,3 +369,93 @@
 - 후속 조사 항목으로 등록했다.
 - 아직 근본 원인 확정이나 렌더링 설정 변경은 하지 않았다.
 - 다음 작업 시작 조건은 Quest Link 안정화와 변경 전 기준 실행 확보다.
+## 2026-09-02 후속: 미니 컨트롤러 가이드 오른쪽 이미지 시머링
+
+### 사용자 관찰과 최근 변경 대조
+
+- Quest 독립 실행에서 `ControllerGuide_mini` 오른쪽 컨트롤러 이미지가 아지랑이처럼 흔들려 보였다.
+- 최근 품질 변경은 상세 단계용 `Controller_tri.png`, `Controller_gri.png`, `Controller_joy.png`만
+  mipmap·Trilinear·Android 고품질 대상으로 포함했고, 미니 가이드의 `controller.png`는 mipmap 비활성,
+  Bilinear, aniso 1, Android 기본 압축 품질 50으로 남아 있었다.
+- `ControllerGuideMiniActivator`는 가이드 활성 상태만 전환하며 Image, RectTransform, Material을 런타임에
+  덮어쓰지 않는다. 따라서 먼저 누락된 Importer 설정을 단일 원인 후보로 수정한다.
+
+### 변경 전 필수 질문
+
+1. 씬의 `ControllerGuide_mini/Context/Controller_Image` RectTransform 100×100, 앵커, 피벗, Sprite와
+   활성화 순서를 보존한다.
+2. 화질의 단일 기준은 `Assets/UIs/Guide/controller.png`의 `TextureImporter`, 표시 상태 소유자는 기존
+   `ControllerGuideMiniActivator`다.
+3. 이미지 자체는 `Raycast Target`이 아니며 XR 입력, Interactor, Raycaster, EventSystem, Select action을
+   변경하지 않는다.
+4. 누락 참조를 런타임 자동 수리하지 않고 Importer 누락·설정 회귀는 하네스 오류로 중단한다.
+5. 이번 단계의 소비자는 미니 가이드 오른쪽 이미지뿐이다. 상세 컨트롤러 교육, 타이틀, 거울, 진열장,
+   PPE 상태 전이는 변경하지 않는다.
+6. 변경 전 기준은 Quest 관찰과 mipmap Off/Bilinear/aniso 1/압축 품질 50이다. 변경 후 같은 거리와
+   머리 이동에서 윤곽·버튼 선의 시간축 안정성을 비교한다.
+7. 정적 Importer·C# 컴파일·Unity Import와 Quest/OpenXR 양안 검증을 구분한다.
+
+### 적용 내용과 검증 상태
+
+- `controller.png`에 mipmap, Trilinear, aniso 8을 적용했다.
+- Android에는 기존 상세 컨트롤러 이미지와 같은 `CompressedHQ`, 품질 100 override를 적용했다.
+- `PPELocomotionPpeRegressionValidationHarness`가 해당 이미지의 샘플링과 Android 고품질 override를
+  함께 검사하도록 확장했다.
+- 씬과 런타임 표시 코드에는 변경이 없다. 정적 설정 대조와 Runtime/Editor C# 빌드는 오류 0개로
+  통과했다.
+- Unity 배치 하네스는 `com.unity.editor.headless` 라이선스 부재로 Editor 초기화 전에 종료되어 실행하지
+  못했다. 일반 Unity Import·메뉴 하네스와 새 APK의 Quest 양안 비교는 아직 필요하다.
+
+## 2026-09-02 후속: 컨트롤러 버튼 파란 점선 강조
+
+### 사용자 요청과 기준
+
+- Trigger, Grip, Joystick 안내 이미지에서 해당 버튼 위치를 파란 점선의 속이 투명한 원으로 강조하고,
+  안내 중 부드럽게 밝아졌다 어두워지는 효과를 추가한다.
+- 원본 `Controller_tri.png`, `Controller_gri.png`, `Controller_joy.png`의 선화·한글·현재 녹색 표시와
+  씬의 이미지 배치는 보존한다.
+
+### 변경 전 필수 질문
+
+1. `4_PPE_Room`의 기존 ControllerGuide RectTransform, Sprite, 크기, 위치와 단계별 활성 상태를 보존한다.
+2. 표시 상태의 단일 소유자는 기존 `PPEVoiceFlowDirector`이며, 강조 원은 각 단계 이미지의 씬 작성 자식
+   UI로 두어 부모 표시 상태만 그대로 상속한다.
+3. 강조 원은 `Raycast Target`을 끄고 XR Interactor, Caster, Raycaster, EventSystem, 입력 action과
+   Trigger·Grip·Joystick 판정 코드를 변경하지 않는다.
+4. 런타임 자동 생성·자동 수리는 하지 않는다. 명시적 Editor 메뉴가 최초 자식 UI를 만들고, 이후 실행은
+   기존 Inspector 작성값을 덮어쓰지 않는다.
+5. 영향 소비자는 상세·간단 컨트롤러 교육에서 함께 쓰는 세 ControllerGuide 이미지뿐이다. 미니 가이드,
+   카드·모달·텔레포트·PPE Grab·거울은 변경하지 않는다.
+6. 변경 전 기준은 세 PNG에 포함된 녹색 정적 원과 현재 단계별 표시 동작이다. 변경 후 같은 안내 단계에서
+   좌우 버튼 위 점선 원의 위치, 가독성, 맥동과 기존 입력 진행을 비교한다.
+7. 정적 C#·씬 직렬화·Unity 메뉴 하네스와 Quest/OpenXR 양안 표시를 구분해 검증한다.
+
+### 구현 방향
+
+- 표준 Unity UI `MaskableGraphic` 메시로 점선 원을 그려 별도 PNG와 커스텀 XR 셰이더를 추가하지 않는다.
+- 색, 점선 수, 두께, 맥동 속도·알파·크기 범위는 직렬화하고, RectTransform 위치·크기는 씬 작성값으로 둔다.
+- Editor 생성기는 현재 빌드 대상인 `Assets/Scenes/4_PPE_Room.unity`가 열린 경우에만 누락된 강조 자식을
+  최초 생성하고 씬을 자동 저장하지 않는다.
+
+### 적용 내용과 검증 상태
+
+- `ControllerGuideDashedRing`은 표준 UI 메시로 12개의 파란 점선을 그리고, 내부는 투명하게 유지하면서
+  초당 1.4회 알파와 반지름만 맥동시킨다. RectTransform, 색과 표시 단계는 런타임에서 덮어쓰지 않는다.
+- `1_Ctrl_Trigger`, `2_Ctrl_Grip`, `3_Ctrl_Joystick` 아래에 좌우 강조 자식을 각각 2개씩, 총 6개 작성했다.
+  각 자식은 `CanvasRenderer`를 포함하고 `Raycast Target`이 꺼져 있어 기존 XR 입력을 소비하지 않는다.
+- 공통 고가독성 이미지의 버튼 윤곽 중심과 다시 대조해 X와 크기는 유지하고 Y만 내렸다. Trigger는 좌우
+  `(0.335, 0.530)`·`(0.665, 0.530)`, Grip은 `(0.207, 0.462)`·`(0.793, 0.462)`, Joystick은
+  `(0.2, 0.602)`·`(0.8, 0.602)`다.
+- Unity Editor에서 `PPELocomotionPpeRegressionValidationHarness.Validate()`가 PASS했다. 이 검증은 강조 자식
+  6개, 필수 `CanvasRenderer`, 표준 UI 재질, 비입력 상태, 좌우 앵커와 맥동 직렬화 범위를 포함한다.
+- `Assembly-CSharp.csproj`와 `Assembly-CSharp-Editor.csproj` 빌드는 오류 0개로 통과했다. 새 APK의
+  Quest/OpenXR 양안에서 실제 점선 위치·맥동·가독성과 기존 단계 진행을 확인하는 수동 검증은 남아 있다.
+
+### 공통 고가독성 컨트롤러 이미지 시험
+
+- 사용자 요청에 따라 `1_Ctrl_Trigger`, `2_Ctrl_Grip`, `3_Ctrl_Joystick`의 Sprite를 모두 글자를 키운
+  `Assets/UIs/Guide/controller.png`로 통일했다.
+- 세 Image의 기존 RectTransform, 활성 상태와 6개 점선 링의 앵커·크기는 변경하지 않았다. 따라서 단계별로
+  공통 바탕 이미지가 표시되며, 해당 설명의 좌우 버튼 점선 한 쌍만 부모 활성 상태를 따라 표시된다.
+- 공통 Sprite 참조를 기준으로 `PPELocomotionPpeRegressionValidationHarness.Validate()`를 다시 실행해 PASS했다.
+  실제 Quest/OpenXR에서 확대된 글자의 가독성과 점선 위치를 비교한 뒤 유지 또는 원복을 결정한다.

@@ -146,6 +146,8 @@ PlayerSettings:
   bundleVersion: 0.1.0
   preloadedAssets:
   - {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  - {fileID: -4542623029959321941, guid: b689d03abd37433419b270a07b211bfb, type: 2}
+  - {fileID: 5751100029746635702, guid: 28f997c8d691c1947bca4b5be45637a4, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   xboxOneDisableKinectGpuReservation: 1
@@ -165,9 +167,9 @@ PlayerSettings:
   androidMaxAspectRatio: 2.4
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Android: com.softcastella.prototype.tyche.jinyoung
-    Standalone: com.softcastella.prototype.tyche.jinyoung
-    iPhone: com.softcastella.prototype.tyche.jinyoung
+    Android: com.tycheworks.immersa.safetyvr
+    Standalone: com.tycheworks.immersa.safetyvr
+    iPhone: com.tycheworks.immersa.safetyvr
   buildNumber:
     Standalone: 0
     VisionOS: 0

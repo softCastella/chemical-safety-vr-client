@@ -23,7 +23,7 @@ Express 서버는 별도 비공개 저장소인 `softCastella/chemical-safety-vr
 
 ## 빌드 씬
 
-활성 빌드 흐름은 `ProjectSettings/EditorBuildSettings.asset`을 기준으로 합니다. 현재 `0_App`, 타이틀, 인트로, `6_LoadingScene_0`, `3_PPE_Room_3mode_loco` 순서이며 Mixer 씬은 후속 콘텐츠로 비활성화되어 있습니다.
+활성 빌드 흐름은 `ProjectSettings/EditorBuildSettings.asset`을 기준으로 합니다. 현재 `0_App`, `1_Title`, `2_Intro`, `3_Loading`, `4_PPE_Room` 순서이며 `5_MixerRoom`과 `6_InsideMixer`는 후속 콘텐츠로 비활성화되어 있습니다.
 
 ## 주요 경로
 

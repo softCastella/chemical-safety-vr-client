@@ -238,8 +238,6 @@ public sealed class PPEActionPanelController : MonoBehaviour
     bool inspectAnimationPlaying;
     static PPEActionPanelController activePanelOwner;
     PPEHazmatEquipController cachedHazmatEquip;
-    float bodyAttachHoldElapsed;
-    bool bodyAttachAttemptConsumed;
     bool loggedMissingBodyAttach;
 
     public static PPEActionPanelController ActivePanelOwner => activePanelOwner;
@@ -343,7 +341,6 @@ public sealed class PPEActionPanelController : MonoBehaviour
             panelRoot.SetActive(false);
         if (activePanelOwner == this)
             activePanelOwner = null;
-        ResetBodyAttachTracking();
     }
 
     void OnEnable()
@@ -391,7 +388,6 @@ public sealed class PPEActionPanelController : MonoBehaviour
         CancelPendingWrongChoiceVoice();
         WireButtonListeners(false);
         RestoreInspectionVisibility();
-        ResetBodyAttachTracking();
     }
 
     void Update()
@@ -425,7 +421,6 @@ public sealed class PPEActionPanelController : MonoBehaviour
                 itemNameLabel.text = itemDisplayName;
             ResetFeedback();
             RefreshInspectButtonVisibility();
-            ResetBodyAttachTracking();
 
             if (approveUseByBodyProximity)
             {
@@ -856,12 +851,6 @@ public sealed class PPEActionPanelController : MonoBehaviour
         }
     }
 
-    void ResetBodyAttachTracking()
-    {
-        bodyAttachHoldElapsed = 0f;
-        bodyAttachAttemptConsumed = false;
-    }
-
     bool WasSelectingActivatePressedThisFrame()
     {
         XRGrabInteractable grabInteractable = inspectionState.GrabInteractable;
@@ -1139,7 +1128,7 @@ public sealed class PPEActionPanelController : MonoBehaviour
             cachedHazmatEquip = voiceFlowDirector.HazmatEquipController;
 
         if (cachedHazmatEquip == null)
-            cachedHazmatEquip = FindFirstObjectByType<PPEHazmatEquipController>();
+            cachedHazmatEquip = FindAnyObjectByType<PPEHazmatEquipController>();
 
         return cachedHazmatEquip;
     }

@@ -161,3 +161,37 @@ logo2d > Canvas Renderer > Cull Transparent Mesh: Off
   오류가 났으며, 순차 재실행에서는 두 빌드 모두 통과했다.
 - Quest/OpenXR 양안에서 로고 외곽·얇은 영문선의 시간축 안정성과 전환 중 셀로판 잔상은 수동 비교가
   필요하다. Game View만으로 완료 판정하지 않는다.
+
+## 2026-09-02 후속: 파트너사 로고 시머링
+
+### 사용자 관찰과 최근 변경 대조
+
+- Quest 독립 실행에서 메인 타이틀 아래 파트너사 로고 3개가 계속 반짝이고 아지랑이처럼 보였다.
+- 2026-08-30 품질 변경은 `VrLogo_2d.png`만 비압축·mipmap·Trilinear 대상으로 삼았고,
+  `to21_logo.png`, `seoulit_logo.png`, `Immersa_Lineup_Logo_nuki.png`는 mipmap 비활성,
+  Bilinear, aniso 1, Android 기본 압축 품질 50으로 남아 있었다.
+- 따라서 이번 증상은 Quest Link 단절보다 최근 품질 패치에서 파트너 로고가 누락된 회귀 후보로
+  먼저 분류한다.
+
+### 변경 전 필수 질문
+
+1. `1_Title`의 파트너 로고 RectTransform, 앵커, 크기, 색, 페이드와 원본 PNG를 보존한다.
+2. 단일 기준은 각 파트너 PNG의 `TextureImporter`이며 상태 소유자는 기존 `TitleSplashController`다.
+3. 자동 전환 화면이므로 입력 경로는 없고 XR Interactor, Raycaster, EventSystem을 변경하지 않는다.
+4. 누락 참조를 런타임에서 자동 수리하지 않으며 Importer 누락은 회귀 하네스의 명확한 오류로 중단한다.
+5. 이번 단계의 소비자는 파트너 로고 3개뿐이다. 메인 로고, 컨트롤러 가이드, 거울, 진열장과 PPE 흐름은
+   변경하지 않는다.
+6. 변경 전 기준은 사용자의 Quest 관찰과 mipmap Off/Bilinear/aniso 1/압축 품질 50이다. 변경 후 같은
+   거리와 머리 움직임에서 외곽선 반짝임을 비교한다.
+7. 정적 Importer·회귀 하네스·Unity Import와 Quest/OpenXR 양안 검증을 서로 구분한다.
+
+### 적용 내용과 검증 상태
+
+- 세 파트너 로고에 mipmap, Trilinear, aniso 8을 적용했다.
+- 넓은 투명 경계와 작은 글자의 블록 압축 흔들림을 제거하도록 Android/Standalone을 메인 타이틀과 같은
+  `RGBA32 + Uncompressed`로 맞췄다. 소스 크기가 작아 메모리 증가는 제한적이다.
+- `PPELocomotionPpeRegressionValidationHarness`가 세 로고의 샘플링 및 양 플랫폼 비압축 설정을 검사하도록
+  확장했다.
+- 정적 설정 대조와 Runtime/Editor C# 빌드는 오류 0개로 통과했다.
+- Unity 배치 하네스는 `com.unity.editor.headless` 라이선스 부재로 Editor 초기화 전에 종료되어 실행하지
+  못했다. 일반 Unity Import·메뉴 하네스와 새 APK의 Quest 양안 비교는 아직 필요하다.

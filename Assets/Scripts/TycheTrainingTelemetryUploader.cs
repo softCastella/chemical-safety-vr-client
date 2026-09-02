@@ -64,6 +64,7 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
         public string scene;
         public string mode;
         public string workPlan;
+        public string modeSessionId;
         public string flowState;
         public string itemType;
         public string itemName;
@@ -87,6 +88,14 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
         public string hoveredPpeItems;
         public string attemptOutcome;
         public float attemptElapsedSec;
+        public string quizTopic;
+        public int quizQuestionIndex;
+        public int quizQuestionCount;
+        public int quizSelectedOptionIndex;
+        public bool quizCorrect;
+        public int quizCorrectCount;
+        public int ppeWrongCount;
+        public float modeElapsedSec;
     }
 
     [Serializable]
@@ -117,6 +126,7 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
         public string scene;
         public string mode;
         public string workPlan;
+        public string modeSessionId;
         public string flowState;
         public string itemType;
         public string itemName;
@@ -138,6 +148,14 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
         public string hoveredPpeItems;
         public string attemptOutcome;
         public float attemptElapsedSec;
+        public string quizTopic;
+        public int quizQuestionIndex;
+        public int quizQuestionCount;
+        public int quizSelectedOptionIndex;
+        public bool quizCorrect;
+        public int quizCorrectCount;
+        public int ppeWrongCount;
+        public float modeElapsedSec;
     }
 
     [Serializable]
@@ -180,10 +198,12 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
     }
 
     static TycheTrainingTelemetryUploader instance;
+#if UNITY_ANDROID && DEVELOPMENT_BUILD && !UNITY_EDITOR
     static bool developmentLanConfigurationChecked;
     static string cachedDevelopmentLanServerBaseUrl;
     static string cachedDevelopmentLanUploadToken;
     static string cachedDevelopmentLanFailure;
+#endif
     bool uploadFailedThisScan;
     string lastFailure;
     string clientInstanceId;
@@ -196,10 +216,12 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
     static void ResetStaticState()
     {
         instance = null;
+#if UNITY_ANDROID && DEVELOPMENT_BUILD && !UNITY_EDITOR
         developmentLanConfigurationChecked = false;
         cachedDevelopmentLanServerBaseUrl = null;
         cachedDevelopmentLanUploadToken = null;
         cachedDevelopmentLanFailure = null;
+#endif
     }
 
     void Awake()
@@ -860,6 +882,7 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
             scene = record.scene,
             mode = record.mode,
             workPlan = record.workPlan,
+            modeSessionId = record.modeSessionId,
             flowState = record.flowState,
             itemType = record.itemType,
             itemName = record.itemName,
@@ -881,6 +904,14 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
             hoveredPpeItems = record.hoveredPpeItems,
             attemptOutcome = record.attemptOutcome,
             attemptElapsedSec = record.attemptElapsedSec,
+            quizTopic = record.quizTopic,
+            quizQuestionIndex = record.quizQuestionIndex,
+            quizQuestionCount = record.quizQuestionCount,
+            quizSelectedOptionIndex = record.quizSelectedOptionIndex,
+            quizCorrect = record.quizCorrect,
+            quizCorrectCount = record.quizCorrectCount,
+            ppeWrongCount = record.ppeWrongCount,
+            modeElapsedSec = record.modeElapsedSec,
         };
     }
 

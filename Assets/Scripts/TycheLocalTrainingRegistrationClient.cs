@@ -59,7 +59,7 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
             return;
 
         MetaPlatformIdentityProbe identityProbe =
-            UnityEngine.Object.FindFirstObjectByType<MetaPlatformIdentityProbe>(
+            UnityEngine.Object.FindAnyObjectByType<MetaPlatformIdentityProbe>(
                 FindObjectsInactive.Include);
         if (identityProbe == null || !identityProbe.isActiveAndEnabled ||
             !identityProbe.UsesPlatformSdkForCurrentRun)
@@ -88,7 +88,7 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
         while (MetaPlatformIdentityProbe.CurrentAppScopedUserId == 0)
         {
             MetaPlatformIdentityProbe identityProbe =
-                FindFirstObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include);
+                FindAnyObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include);
             if (identityProbe == null || !identityProbe.UsesPlatformSdkForCurrentRun ||
                 identityProbe.State == MetaPlatformIdentityProbe.ProbeState.Failed ||
                 identityProbe.State == MetaPlatformIdentityProbe.ProbeState.SkippedForEditorTesting)
@@ -120,7 +120,7 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
             string.IsNullOrEmpty(PPETrainingTelemetryCapture.CurrentSessionId))
         {
             MetaPlatformIdentityProbe identityProbe =
-                FindFirstObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include);
+                FindAnyObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include);
             if (identityProbe == null || !identityProbe.UsesPlatformSdkForCurrentRun ||
                 identityProbe.State == MetaPlatformIdentityProbe.ProbeState.Failed ||
                 identityProbe.State == MetaPlatformIdentityProbe.ProbeState.SkippedForEditorTesting)

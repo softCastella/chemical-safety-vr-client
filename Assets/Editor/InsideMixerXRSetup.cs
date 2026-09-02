@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public static class InsideMixerXRSetup
 {
-    const string ScenePath = "Assets/Scenes/4_InsideMixer.unity";
+    const string ScenePath = "Assets/Scenes/6_InsideMixer.unity";
     const string RigPath = "Assets/Samples/XR Interaction Toolkit/3.4.1/Starter Assets/Prefabs/XR Origin (XR Rig).prefab";
     const string LeftHandPath = "Assets/Samples/XR Hands/1.7.3/HandVisualizer/Prefabs/Left Hand Tracking.prefab";
     const string RightHandPath = "Assets/Samples/XR Hands/1.7.3/HandVisualizer/Prefabs/Right Hand Tracking.prefab";

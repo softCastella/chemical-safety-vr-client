@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 
 public static class PPEScenarioQuizValidationHarness
 {
-    private const string ScenePath = "Assets/Scenes/3_PPE_Room_3mode_loco.unity";
+    private const string ScenePath = "Assets/Scenes/4_PPE_Room.unity";
 
     [MenuItem("Tools/PPE/Validate Scenario Quiz Pools")]
     public static void Validate()
@@ -19,12 +19,9 @@ public static class PPEScenarioQuizValidationHarness
         try
         {
             previewScene = EditorSceneManager.OpenPreviewScene(ScenePath);
-            PPEQuizController[] controllers =
-                UnityEngine.Object.FindObjectsByType<PPEQuizController>(FindObjectsInactive.Include);
             List<PPEQuizController> sceneControllers = new();
-            foreach (PPEQuizController controller in controllers)
-                if (controller.gameObject.scene == previewScene)
-                    sceneControllers.Add(controller);
+            foreach (GameObject root in previewScene.GetRootGameObjects())
+                sceneControllers.AddRange(root.GetComponentsInChildren<PPEQuizController>(true));
 
             if (sceneControllers.Count != 1)
             {

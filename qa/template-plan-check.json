@@ -1,0 +1,10 @@
+{
+  "status": "pass",
+  "checkedAt": "2026-09-01T08:26:06.433Z",
+  "workspace": ".",
+  "mapPath": ".codex-tmp/tyche-final-ppt-demo-scope/template-frame-map.json",
+  "inspectPath": ".codex-tmp/tyche-final-ppt-demo-scope/source-inspect/template-inspect.ndjson",
+  "sourceSlideCount": 6,
+  "issueCount": 0,
+  "issues": []
+}

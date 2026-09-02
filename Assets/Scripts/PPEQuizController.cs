@@ -191,6 +191,7 @@ public sealed class PPEQuizController : MonoBehaviour
 
             hasAnswered = true;
             SetButtonsInteractable(page, false);
+            RecordQuizAnswer(optionIndex, correct);
             if (correct)
                 correctAnswerCount++;
             SetActive(correctIconRoot, false);
@@ -205,6 +206,7 @@ public sealed class PPEQuizController : MonoBehaviour
                 return;
 
             hasAnswered = true;
+            RecordQuizAnswer(optionIndex, correct);
             correctAnswerCount++;
             SetButtonsInteractable(page, false);
             string correctMessage = activeMode == ScenarioDetailModal.PpeLearningMode.Training
@@ -224,6 +226,7 @@ public sealed class PPEQuizController : MonoBehaviour
         if (selectedButton == null || !selectedButton.interactable)
             return;
 
+        RecordQuizAnswer(optionIndex, correct);
         selectedButton.interactable = false;
         AudioManager.Instance?.PlaySfx(wrongSfxId);
     }
@@ -244,7 +247,27 @@ public sealed class PPEQuizController : MonoBehaviour
 
         isActive = false;
         SetActive(quizRoot, false);
-        voiceFlowDirector?.NotifyQuizCompleted(correctAnswerCount);
+        voiceFlowDirector?.NotifyQuizCompleted(correctAnswerCount, pages.Length);
+    }
+
+    void RecordQuizAnswer(int optionIndex, bool correct)
+    {
+        PPEQuizQuestion question = activeQuestions != null &&
+            currentPageIndex >= 0 &&
+            currentPageIndex < activeQuestions.Length
+            ? activeQuestions[currentPageIndex]
+            : null;
+        PPETrainingTelemetryCapture.RecordQuizAnswer(
+            voiceFlowDirector?.ActiveModeSessionId,
+            activeMode,
+            voiceFlowDirector != null
+                ? voiceFlowDirector.ActiveWorkPlan
+                : ScenarioDetailModal.PpeWorkPlan.None,
+            currentPageIndex + 1,
+            pages?.Length ?? 0,
+            question?.topic.ToString(),
+            optionIndex + 1,
+            correct);
     }
 
     void ShowPage(int pageIndex)

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class ControllerHandAnimatorClipInstaller
 {
-    const string TargetScenePath = "Assets/Scenes/5_MixerRoom_Unlit.unity";
+    const string TargetScenePath = "Assets/Scenes/5_MixerRoom.unity";
     const string LeftControllerPath = "Assets/HandPoses/HandAnimator_L.controller";
     const string RightControllerPath = "Assets/HandPoses/HandAnimator_R.controller";
 

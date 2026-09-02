@@ -10,8 +10,7 @@ using UnityEngine.SceneManagement;
 
 public static class MixerRoomUnlitSceneConverter
 {
-    const string SourceScenePath = "Assets/Scenes/5_MixerRoom.unity";
-    const string TargetScenePath = "Assets/Scenes/5_MixerRoom_Unlit.unity";
+    const string TargetScenePath = "Assets/Scenes/5_MixerRoom.unity";
     const string MaterialFolder = "Assets/Materials/MixerRoom/Unlit";
     const string UnlitShaderName = "Universal Render Pipeline/Unlit";
     const string DrumMaterialPath =
@@ -64,7 +63,7 @@ public static class MixerRoomUnlitSceneConverter
         ApplyRequestedOverrides(scene);
     }
 
-    [MenuItem("Tools/Mixer Room/Convert 5_MixerRoom_Unlit Props to URP Unlit")]
+    [MenuItem("Tools/Mixer Room/Convert 5_MixerRoom Props to URP Unlit")]
     public static void ConvertFromMenu()
     {
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
@@ -80,7 +79,7 @@ public static class MixerRoomUnlitSceneConverter
         Validate();
     }
 
-    [MenuItem("Tools/Mixer Room/Validate 5_MixerRoom_Unlit Material Scope")]
+    [MenuItem("Tools/Mixer Room/Validate 5_MixerRoom Material Scope")]
     public static void ValidateFromMenu()
     {
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
@@ -115,26 +114,6 @@ public static class MixerRoomUnlitSceneConverter
             coneMaterial.SetColor("_Color", new Color(1.2f, 1.2f, 1.2f, 1f));
         EditorUtility.SetDirty(coneMaterial);
 
-        EditorBuildSettingsScene[] buildScenes = EditorBuildSettings.scenes;
-        bool replacedSource = false;
-        for (int index = 0; index < buildScenes.Length; index++)
-        {
-            if (buildScenes[index].path != SourceScenePath)
-                continue;
-
-            buildScenes[index] = new EditorBuildSettingsScene(TargetScenePath, buildScenes[index].enabled);
-            replacedSource = true;
-        }
-
-        if (!replacedSource && !Array.Exists(
-                buildScenes,
-                buildScene => buildScene.path == TargetScenePath))
-        {
-            Array.Resize(ref buildScenes, buildScenes.Length + 1);
-            buildScenes[^1] = new EditorBuildSettingsScene(TargetScenePath, true);
-        }
-
-        EditorBuildSettings.scenes = buildScenes;
         EditorSceneManager.MarkSceneDirty(scene);
         if (!EditorSceneManager.SaveScene(scene))
             throw new InvalidOperationException($"Failed to save '{TargetScenePath}'.");
@@ -143,7 +122,7 @@ public static class MixerRoomUnlitSceneConverter
         Validate(scene);
         Debug.Log(
             "Applied Mixer Room Unlit prop overrides without changing authored transforms. " +
-            "Build scene 5 now routes to the Unlit scene.");
+            "The existing Build Settings state was preserved.");
     }
 
     static Material LoadRequiredMaterial(string path)
@@ -180,7 +159,6 @@ public static class MixerRoomUnlitSceneConverter
 
     static void Convert()
     {
-        RequireAsset(SourceScenePath);
         RequireAsset(TargetScenePath);
         EnsureFolder(MaterialFolder);
 
@@ -321,23 +299,18 @@ public static class MixerRoomUnlitSceneConverter
 
     static void ValidateBuildSceneRoute()
     {
-        bool targetEnabled = false;
-        bool sourceEnabled = false;
+        bool targetRegistered = false;
 
         foreach (EditorBuildSettingsScene buildScene in EditorBuildSettings.scenes)
         {
-            if (!buildScene.enabled)
-                continue;
-
-            targetEnabled |= buildScene.path == TargetScenePath;
-            sourceEnabled |= buildScene.path == SourceScenePath;
+            targetRegistered |= buildScene.path == TargetScenePath;
         }
 
-        if (!targetEnabled || sourceEnabled)
+        if (!targetRegistered)
         {
             throw new InvalidOperationException(
                 "Mixer Room Unlit play route is invalid. " +
-                $"Expected enabled='{TargetScenePath}' and disabled/absent='{SourceScenePath}'.");
+                $"Expected Build Settings to contain '{TargetScenePath}'.");
         }
     }
 

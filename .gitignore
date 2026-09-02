@@ -79,6 +79,9 @@ crashlytics-build.properties
 /Docs/Recovery/
 /Docs/Recovered_PPTX/
 
+# Codex presentation-generation scratch workspace
+/.codex-tmp/
+
 # Stray shell redirection output
 /delete
 /stop

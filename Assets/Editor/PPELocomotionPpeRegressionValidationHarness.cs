@@ -14,7 +14,7 @@ using TMPro;
 public static class PPELocomotionPpeRegressionValidationHarness
 {
     const string ScenePath =
-        "Assets/Scenes/3_PPE_Room_3mode_loco.unity";
+        "Assets/Scenes/4_PPE_Room.unity";
 
     const BindingFlags InstancePrivate = BindingFlags.Instance | BindingFlags.NonPublic;
 
@@ -491,6 +491,10 @@ public static class PPELocomotionPpeRegressionValidationHarness
         string[] antiShimmerTextures =
         {
             "Assets/UIs/Logo/VrLogo_2d.png",
+            "Assets/UIs/Logo/to21_logo.png",
+            "Assets/UIs/Logo/seoulit_logo.png",
+            "Assets/UIs/Logo/Immersa_Lineup_Logo_nuki.png",
+            "Assets/UIs/Guide/controller.png",
             "Assets/UIs/Guide/Controller_tri.png",
             "Assets/UIs/Guide/Controller_gri.png",
             "Assets/UIs/Guide/Controller_joy.png",
@@ -515,6 +519,7 @@ public static class PPELocomotionPpeRegressionValidationHarness
 
         string[] androidHighQualityTextures =
         {
+            "Assets/UIs/Guide/controller.png",
             "Assets/UIs/Guide/Controller_tri.png",
             "Assets/UIs/Guide/Controller_gri.png",
             "Assets/UIs/Guide/Controller_joy.png",
@@ -533,15 +538,23 @@ public static class PPELocomotionPpeRegressionValidationHarness
             }
         }
 
-        if (AssetImporter.GetAtPath(
-                "Assets/UIs/Logo/VrLogo_2d.png") is not TextureImporter titleLogo)
+        string[] uncompressedLogoTextures =
         {
-            failures.Add("Title logo texture importer is missing.");
-        }
-        else
+            "Assets/UIs/Logo/VrLogo_2d.png",
+            "Assets/UIs/Logo/to21_logo.png",
+            "Assets/UIs/Logo/seoulit_logo.png",
+            "Assets/UIs/Logo/Immersa_Lineup_Logo_nuki.png",
+        };
+        foreach (string path in uncompressedLogoTextures)
         {
-            ValidateUncompressedLogoPlatform(titleLogo, "Android", failures);
-            ValidateUncompressedLogoPlatform(titleLogo, "Standalone", failures);
+            if (AssetImporter.GetAtPath(path) is not TextureImporter logo)
+            {
+                failures.Add($"Title logo texture importer is missing: {path}");
+                continue;
+            }
+
+            ValidateUncompressedLogoPlatform(logo, path, "Android", failures);
+            ValidateUncompressedLogoPlatform(logo, path, "Standalone", failures);
         }
 
         if (AssetImporter.GetAtPath(
@@ -560,7 +573,7 @@ public static class PPELocomotionPpeRegressionValidationHarness
             "cbf5db553974ec84fb37aea653f5f1bf",
             failures);
         ValidateYamlSpritePreserveAspect(
-            "Assets/Scenes/6_LoadingScene_0.unity",
+            "Assets/Scenes/3_Loading.unity",
             "cbf5db553974ec84fb37aea653f5f1bf",
             failures);
         ValidateYamlSpritePreserveAspect(
@@ -621,6 +634,7 @@ public static class PPELocomotionPpeRegressionValidationHarness
 
     static void ValidateUncompressedLogoPlatform(
         TextureImporter importer,
+        string assetPath,
         string platformName,
         List<string> failures)
     {
@@ -631,7 +645,7 @@ public static class PPELocomotionPpeRegressionValidationHarness
             platform.textureCompression != TextureImporterCompression.Uncompressed)
         {
             failures.Add(
-                $"Title logo requires an uncompressed RGBA32 {platformName} override.");
+                $"Title logo requires an uncompressed RGBA32 {platformName} override: {assetPath}");
         }
     }
 
@@ -1391,10 +1405,24 @@ public static class PPELocomotionPpeRegressionValidationHarness
         ValidateAuthoredActive(marker, false, failures);
         ValidateAuthoredActive(exitMarker, true, failures);
 
-        ValidateGuideImage(triggerController, "Assets/UIs/Guide/Controller_tri.png", failures);
-        ValidateGuideImage(gripController, "Assets/UIs/Guide/Controller_gri.png", failures);
-        ValidateGuideImage(joystickController, "Assets/UIs/Guide/Controller_joy.png", failures);
-        ValidateControllerGuideArtworkUniformity(failures);
+        ValidateGuideImage(triggerController, "Assets/UIs/Guide/controller.png", failures);
+        ValidateGuideImage(gripController, "Assets/UIs/Guide/controller.png", failures);
+        ValidateGuideImage(joystickController, "Assets/UIs/Guide/controller.png", failures);
+        ValidateControllerButtonHighlights(
+            triggerController,
+            new Vector2(0.335f, 0.530f),
+            new Vector2(0.665f, 0.530f),
+            failures);
+        ValidateControllerButtonHighlights(
+            gripController,
+            new Vector2(0.207f, 0.462f),
+            new Vector2(0.793f, 0.462f),
+            failures);
+        ValidateControllerButtonHighlights(
+            joystickController,
+            new Vector2(0.2f, 0.602f),
+            new Vector2(0.8f, 0.602f),
+            failures);
         ValidateGuideChild(ray, "Card", true, "Assets/UIs/Guide/Ray.png", failures);
         ValidateGuideChild(ray, "Panel", false, null, failures);
         ValidateGuideChild(marker, "Item", true, "Assets/UIs/Guide/Marker_Item.png", failures);
@@ -1499,6 +1527,85 @@ public static class PPELocomotionPpeRegressionValidationHarness
                 "Assets/Audio/Voice/1_1_ContSimp/VO_PPE_CTRL_SIMP_005_GuideFollow.mp3",
             },
             failures);
+    }
+
+    static void ValidateControllerButtonHighlights(
+        Transform controllerVisual,
+        Vector2 expectedLeftAnchor,
+        Vector2 expectedRightAnchor,
+        List<string> failures)
+    {
+        const string leftName = "Button Highlight Left";
+        const string rightName = "Button Highlight Right";
+        ControllerGuideDashedRing[] rings = controllerVisual
+            .GetComponentsInChildren<ControllerGuideDashedRing>(true);
+        if (rings.Length != 2)
+        {
+            failures.Add(
+                $"'{controllerVisual.name}' requires two authored dashed button highlights, found {rings.Length}.");
+            return;
+        }
+
+        ControllerGuideDashedRing left = rings.SingleOrDefault(ring => ring.name == leftName);
+        ControllerGuideDashedRing right = rings.SingleOrDefault(ring => ring.name == rightName);
+        if (left == null || right == null)
+        {
+            failures.Add(
+                $"'{controllerVisual.name}' requires '{leftName}' and '{rightName}'.");
+            return;
+        }
+
+        ValidateControllerButtonHighlight(
+            controllerVisual, left, expectedLeftAnchor, failures);
+        ValidateControllerButtonHighlight(
+            controllerVisual, right, expectedRightAnchor, failures);
+    }
+
+    static void ValidateControllerButtonHighlight(
+        Transform controllerVisual,
+        ControllerGuideDashedRing ring,
+        Vector2 expectedAnchor,
+        List<string> failures)
+    {
+        if (ring.transform.parent != controllerVisual || !ring.gameObject.activeSelf)
+            failures.Add($"'{ring.name}' must be an active authored child of '{controllerVisual.name}'.");
+        if (ring.GetComponent<CanvasRenderer>() == null)
+            failures.Add($"'{controllerVisual.name}/{ring.name}' requires a CanvasRenderer.");
+        if (ring.raycastTarget)
+            failures.Add($"'{controllerVisual.name}/{ring.name}' must not intercept XR UI rays.");
+        SerializedObject serialized = new(ring);
+        if (serialized.FindProperty("m_Material")?.objectReferenceValue != null)
+            failures.Add($"'{controllerVisual.name}/{ring.name}' must use the standard UI material.");
+        if (ring.color.b <= ring.color.r || ring.color.a <= 0f)
+            failures.Add($"'{controllerVisual.name}/{ring.name}' must retain a visible blue authored color.");
+
+        if (ring.transform is not RectTransform rectTransform)
+        {
+            failures.Add($"'{controllerVisual.name}/{ring.name}' requires a RectTransform.");
+            return;
+        }
+
+        Vector2 anchor = rectTransform.anchorMin;
+        bool anchorIsPoint = Vector2.Distance(rectTransform.anchorMin, rectTransform.anchorMax) < 0.0001f;
+        if (!anchorIsPoint || Vector2.Distance(anchor, expectedAnchor) > 0.0001f ||
+            rectTransform.sizeDelta.x <= 0f || rectTransform.sizeDelta.y <= 0f)
+        {
+            failures.Add(
+                $"'{controllerVisual.name}/{ring.name}' must retain its authored button-center anchor " +
+                $"{expectedAnchor} and a positive size.");
+        }
+
+        int dashCount = serialized.FindProperty("m_DashCount")?.intValue ?? 0;
+        float thickness = serialized.FindProperty("m_Thickness")?.floatValue ?? 0f;
+        float pulsesPerSecond = serialized.FindProperty("m_PulsesPerSecond")?.floatValue ?? 0f;
+        float minimumAlpha = serialized.FindProperty("m_MinimumAlpha")?.floatValue ?? -1f;
+        float maximumAlpha = serialized.FindProperty("m_MaximumAlpha")?.floatValue ?? -1f;
+        if (dashCount < 8 || thickness <= 0f || pulsesPerSecond <= 0f ||
+            minimumAlpha < 0f || maximumAlpha <= minimumAlpha)
+        {
+            failures.Add(
+                $"'{controllerVisual.name}/{ring.name}' requires a readable dashed ring and a positive authored pulse range.");
+        }
     }
 
     static void ValidateTemporaryKeyboardBypass(
@@ -1948,7 +2055,8 @@ public static class PPELocomotionPpeRegressionValidationHarness
         if (image != null && !image.preserveAspect)
             failures.Add($"Controller guide '{transform.name}' must preserve the baked PNG aspect ratio.");
 
-        bool isControllerDiagram = expectedSpritePath == "Assets/UIs/Guide/Controller_tri.png" ||
+        bool isControllerDiagram = expectedSpritePath == "Assets/UIs/Guide/controller.png" ||
+            expectedSpritePath == "Assets/UIs/Guide/Controller_tri.png" ||
             expectedSpritePath == "Assets/UIs/Guide/Controller_gri.png" ||
             expectedSpritePath == "Assets/UIs/Guide/Controller_joy.png";
         if (isControllerDiagram && transform is RectTransform rectTransform && image?.sprite != null)

@@ -158,7 +158,7 @@ public static class PPEHelmetFbxUnlitSetup
         }
 
         importer.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
-        importer.materialLocation = ModelImporterMaterialLocation.External;
+        importer.materialLocation = ModelImporterMaterialLocation.InPrefab;
         for (int index = 0; index < remaps.Count; index++)
             importer.AddRemap(remaps[index], remapMaterials[index]);
 
@@ -258,8 +258,8 @@ public static class PPEHelmetFbxUnlitSetup
         }
         else
         {
-            if (importer.materialLocation != ModelImporterMaterialLocation.External)
-                failures.Add("Helmet FBX materialLocation is not External.");
+            if (importer.materialLocation != ModelImporterMaterialLocation.InPrefab)
+                failures.Add("Helmet FBX materialLocation is not InPrefab.");
         }
 
         Dictionary<string, Texture2D> texturesByPart = LoadPartTextures();

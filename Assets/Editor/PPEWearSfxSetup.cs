@@ -13,7 +13,7 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public static class PPEWearSfxSetup
 {
-    public const string ScenePath = "Assets/Scenes/3_PPE_Room_3mode_loco.unity";
+    public const string ScenePath = "Assets/Scenes/4_PPE_Room.unity";
 
     const string FaceWearId = "Wearing Mask Glass Shield";
     const string HelmetId = "Helmet";

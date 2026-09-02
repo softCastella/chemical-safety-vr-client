@@ -5,8 +5,8 @@ using UnityEngine;
 
 public static class MixerRoomFrontCapture
 {
-    const string ScenePath = "Assets/Scenes/5_MixerRoom_Unlit.unity";
-    const string OutputPath = "Captures/5_MixerRoom_Unlit_Front.png";
+    const string ScenePath = "Assets/Scenes/5_MixerRoom.unity";
+    const string OutputPath = "Captures/5_MixerRoom_Front.png";
 
     [MenuItem("Tools/Mixer Room/Capture Front Camera")]
     public static void CaptureFrontCamera()
@@ -15,7 +15,7 @@ public static class MixerRoomFrontCapture
         if (!scene.IsValid() || !scene.isLoaded)
             scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
 
-        Camera camera = Camera.main ?? Object.FindFirstObjectByType<Camera>();
+        Camera camera = Camera.main ?? Object.FindAnyObjectByType<Camera>();
         if (camera == null)
         {
             Debug.LogError("Mixer room front capture failed: no camera found.");

@@ -10,11 +10,11 @@ using UnityEngine.SceneManagement;
 
 public static class LoadingSceneBuilder
 {
-    const string ScenePath = "Assets/Scenes/6_LoadingScene_0.unity";
+    const string ScenePath = "Assets/Scenes/3_Loading.unity";
     const string ProgressRootName = "LoadingProgressRoot";
     const string PercentageName = "LoadingPercentText";
     const string BarName = "LoadingBar";
-    const string DefaultTargetSceneName = "3_PPE_Room_3mode_loco";
+    const string DefaultTargetSceneName = "4_PPE_Room";
     const int SegmentCount = 18;
 
     static readonly Color GradientStart = new(0.08f, 0.56f, 1f, 1f);
@@ -52,7 +52,7 @@ public static class LoadingSceneBuilder
 
         GameObject logo = FindSceneObject(scene, "TitleLogo2d");
         if (logo == null)
-            throw new InvalidOperationException("6_LoadingScene_0 is missing TitleLogo2d.");
+            throw new InvalidOperationException("3_Loading is missing TitleLogo2d.");
         CanvasGroup logoGroup = logo.GetComponent<CanvasGroup>();
         if (logoGroup == null)
             throw new InvalidOperationException("TitleLogo2d is missing its CanvasGroup.");
@@ -119,7 +119,7 @@ public static class LoadingSceneBuilder
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         ValidateScene(scene);
-        Debug.Log("6_LoadingScene_0 progress UI built: real async percentage and an authored 18-segment gradient bar are connected.");
+        Debug.Log("3_Loading progress UI built: real async percentage and an authored 18-segment gradient bar are connected.");
     }
 
     [MenuItem("Tools/Loading Scene/Validate Progress UI")]
@@ -148,7 +148,7 @@ public static class LoadingSceneBuilder
         if (controller == null || !controller.enabled)
             failures.Add("LoadingSceneController is missing or disabled.");
         if (splash != null)
-            failures.Add("TitleSplashController must not remain in 6_LoadingScene_0 because its Awake hides the logo.");
+            failures.Add("TitleSplashController must not remain in 3_Loading because its Awake hides the logo.");
         if (sceneCamera == null
             || sceneCamera.clearFlags != CameraClearFlags.SolidColor
             || sceneCamera.backgroundColor != Color.black)
@@ -207,12 +207,12 @@ public static class LoadingSceneBuilder
 
         if (failures.Count > 0)
         {
-            string message = "6_LoadingScene_0 progress UI validation failed:\n- " + string.Join("\n- ", failures);
+            string message = "3_Loading progress UI validation failed:\n- " + string.Join("\n- ", failures);
             Debug.LogError(message);
             throw new InvalidOperationException(message);
         }
 
-        Debug.Log("6_LoadingScene_0 progress UI validation passed: real loader, 0% text, 18 gradient segments, and build target are valid.");
+        Debug.Log("3_Loading progress UI validation passed: real loader, 0% text, 18 gradient segments, and build target are valid.");
     }
 
     static void ApplyPercentageDefaults(TextMeshProUGUI text)

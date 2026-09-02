@@ -133,7 +133,7 @@ public static class PPETapedFbxUnlitSetup
         }
 
         importer.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
-        importer.materialLocation = ModelImporterMaterialLocation.External;
+        importer.materialLocation = ModelImporterMaterialLocation.InPrefab;
         for (int index = 0; index < remaps.Count; index++)
             importer.AddRemap(remaps[index], remapMaterials[index]);
 

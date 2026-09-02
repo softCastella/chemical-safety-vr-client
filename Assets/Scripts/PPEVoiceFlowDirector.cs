@@ -318,6 +318,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     private bool m_ModeSelectionFailed;
     private float m_ModeSessionStartedAt;
     private float m_ModeSessionElapsed;
+    private string m_ModeSessionId;
     private int m_TestPpeWrongChoiceCount;
     private int m_TestQuizCorrectCount;
     private InputAction m_LeftTriggerSkipAction;
@@ -353,6 +354,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         m_State == FlowState.TestSelected;
     public ScenarioDetailModal.PpeLearningMode ActiveLearningMode { get; private set; } =
         ScenarioDetailModal.PpeLearningMode.Education;
+    public string ActiveModeSessionId => m_ModeSessionId;
     public bool AllowsPpeActionSfx =>
         ActiveLearningMode != ScenarioDetailModal.PpeLearningMode.Test &&
         !m_MidExitVoiceExclusive;
@@ -1063,8 +1065,8 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         if (mode == ScenarioDetailModal.PpeLearningMode.Education)
         {
             ActiveLearningMode = mode;
-            ResetModeSessionTracking();
             TransitionTo(FlowState.EducationSelected);
+            BeginModeSessionTracking();
             return;
         }
 
@@ -1076,12 +1078,11 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         CancelPendingPpeWrongChoiceVoices();
         m_TransitionVersion++;
         ActiveLearningMode = mode;
-        ResetModeSessionTracking();
-        m_ModeSessionStartedAt = Time.unscaledTime;
         m_ModeSelectionFailed = false;
         m_State = mode == ScenarioDetailModal.PpeLearningMode.Training
             ? FlowState.TrainingSelected
             : FlowState.TestSelected;
+        BeginModeSessionTracking();
         m_TeleportInputStarted = false;
         PPEControllerTeleportModeManager.SetVoiceMovementGate(false);
         ApplyPresentation(m_State);
@@ -1302,10 +1303,18 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         StartCoroutine(ShowQuizAfterVoice());
     }
 
-    public void NotifyQuizCompleted(int correctAnswerCount)
+    public void NotifyQuizCompleted(int correctAnswerCount, int questionCount)
     {
         m_TestQuizCorrectCount = correctAnswerCount;
         m_ModeSessionElapsed = Mathf.Max(0f, Time.unscaledTime - m_ModeSessionStartedAt);
+        PPETrainingTelemetryCapture.RecordModeSessionCompleted(
+            m_ModeSessionId,
+            ActiveLearningMode,
+            ActiveWorkPlan,
+            correctAnswerCount,
+            questionCount,
+            m_TestPpeWrongChoiceCount,
+            m_ModeSessionElapsed);
 
         if (ActiveLearningMode == ScenarioDetailModal.PpeLearningMode.Education)
             PlayPpeConditionalVoice(m_EduEndVoice);
@@ -1531,6 +1540,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     private void ResetModeSessionTracking()
     {
         m_MidExitVoiceExclusive = false;
+        m_ModeSessionId = null;
         m_ModeSessionStartedAt = Time.unscaledTime;
         m_ModeSessionElapsed = 0f;
         m_HazmatGrabVoicePlayed = false;
@@ -1540,6 +1550,20 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         m_TestPpeWrongChoiceCount = 0;
         m_TestQuizCorrectCount = 0;
         m_TestFirstPpeSelections.Clear();
+    }
+
+    private void BeginModeSessionTracking()
+    {
+        ResetModeSessionTracking();
+        m_ModeSessionId = PPETrainingTelemetryCapture.RecordModeSessionStarted(
+            ActiveLearningMode,
+            ActiveWorkPlan);
+        if (string.IsNullOrEmpty(m_ModeSessionId))
+        {
+            Debug.LogError(
+                $"[PPE Telemetry] {ActiveLearningMode}/{ActiveWorkPlan} 모드 실행 시작을 기록하지 못했습니다.",
+                this);
+        }
     }
 
     private bool HasRequiredModeConfiguration(ScenarioDetailModal.PpeLearningMode mode)
@@ -2121,8 +2145,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         }
 
         foreach (PPEActionPanelController panel in FindObjectsByType<PPEActionPanelController>(
-                     FindObjectsInactive.Include,
-                     FindObjectsSortMode.None))
+                     FindObjectsInactive.Include))
         {
             if (panel != null)
                 panels.Add(panel);

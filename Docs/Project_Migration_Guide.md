@@ -74,10 +74,10 @@ Migration/
 | 0 | `Assets/Scenes/0_App.unity` |
 | 1 | `Assets/Scenes/1_Title.unity` |
 | 2 | `Assets/Scenes/2_Intro.unity` |
-| 3 | `Assets/Scenes/3_PPE_Room.unity` |
-| 4 | `Assets/Scenes/4_InsideMixer.unity` |
+| 3 | `Assets/Scenes/3_Loading.unity` |
+| 4 | `Assets/Scenes/4_PPE_Room.unity` |
 | 5 | `Assets/Scenes/5_MixerRoom.unity` |
-| 6 | `Assets/Scenes/6_LoadingScene.unity` |
+| 6 | `Assets/Scenes/6_InsideMixer.unity` |
 
 `Assets/Scenes/Confined Space Scene_half.unity`는 현재 Build Settings에 비활성 상태로 등록되어 있다.
 
@@ -163,9 +163,9 @@ Scene_0_App.unitypackage
 Scene_1_Title.unitypackage
 Scene_2_Intro.unitypackage
 Scene_3_PPE_Room.unitypackage
-Scene_4_InsideMixer.unitypackage
+Scene_6_InsideMixer.unitypackage
 Scene_5_MixerRoom.unitypackage
-Scene_6_LoadingScene.unitypackage
+Scene_3_Loading.unitypackage
 ```
 
 Unity Project 창에서 씬 파일을 선택하고 다음 명령을 실행한다.
@@ -222,7 +222,7 @@ Assets/Editor/
 
 ```text
 Assets/Scenes/3_PPE_Room.unity
-Assets/Scenes/4_InsideMixer.unity
+Assets/Scenes/6_InsideMixer.unity
 Assets/Scenes/5_MixerRoom.unity
 Assets/Samples/XR Interaction Toolkit/3.4.1/Starter Assets/
 Assets/Samples/XR Hands/1.7.3/HandVisualizer/

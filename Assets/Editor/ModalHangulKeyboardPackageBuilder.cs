@@ -17,7 +17,7 @@ using UnityEngine.XR.Interaction.Toolkit.UI;
 /// </summary>
 public static class ModalHangulKeyboardPackageBuilder
 {
-    const string AuthoritativeScenePath = "Assets/Scenes/3_PPE_Room_3mode_loco.unity";
+    const string AuthoritativeScenePath = "Assets/Scenes/4_PPE_Room.unity";
     const string SourceRootName = "Modal  Keyboard Canvas";
     const string OutputRoot = "Assets/Prefabs/UI/Hangul Keyboard";
     const string ModalPrefabPath = OutputRoot + "/Modal Hangul Keyboard Canvas.prefab";

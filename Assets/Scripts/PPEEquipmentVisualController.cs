@@ -438,8 +438,7 @@ public sealed class PPEEquipmentVisualController : MonoBehaviour
             if (slotType.HasValue)
             {
                 foreach (PPEActionPanelController panel in FindObjectsByType<PPEActionPanelController>(
-                             FindObjectsInactive.Include,
-                             FindObjectsSortMode.None))
+                             FindObjectsInactive.Include))
                 {
                     if (GetPanelItemType(panel) == slotType.Value)
                         SubscribePanelToSlot(panel, slot);
@@ -632,7 +631,7 @@ public sealed class PPEEquipmentVisualController : MonoBehaviour
     void SubscribeHazmatHandRefresh()
     {
         UnsubscribeHazmatHandRefresh();
-        subscribedHazmat = FindFirstObjectByType<PPEHazmatEquipController>();
+        subscribedHazmat = FindAnyObjectByType<PPEHazmatEquipController>();
         if (subscribedHazmat != null)
             subscribedHazmat.EquipAnimationCompleted += RefreshWornHandModels;
     }

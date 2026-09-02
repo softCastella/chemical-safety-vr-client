@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 public static class PPEHazmatVoiceSetup
 {
-    public const string ScenePath = "Assets/Scenes/3_PPE_Room_3mode_loco.unity";
+    public const string ScenePath = "Assets/Scenes/4_PPE_Room.unity";
 
     const string UsePpeVoicePath =
         "Assets/Audio/Voice/4_PPE/4_VO_PPE_EDU_005_UsePPE.mp3";

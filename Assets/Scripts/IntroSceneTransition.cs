@@ -6,7 +6,7 @@ public sealed class IntroSceneTransition : MonoBehaviour
 {
     [SerializeField, Min(0f)] private float visibleDuration = 3f;
     [SerializeField, Min(0f)] private float fadeOutDuration = 0.8f;
-    [SerializeField] private string nextSceneName = "3_PPE_Room_3mode_loco";
+    [SerializeField] private string nextSceneName = "4_PPE_Room";
 
     private CanvasGroup canvasGroup;
 

@@ -24,8 +24,7 @@ public static class PPEHangSuitVariantMaterialSetup
 
         int configured = 0;
         foreach (Renderer renderer in Object.FindObjectsByType<Renderer>(
-                     FindObjectsInactive.Include,
-                     FindObjectsSortMode.None))
+                     FindObjectsInactive.Include))
         {
             if (renderer == null || !IsHangSuit(renderer.gameObject.name))
                 continue;

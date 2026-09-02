@@ -406,8 +406,7 @@ public sealed class PPEHazmatEquipController : MonoBehaviour
             TryAddHazmatPanel(actionPanelController);
 
         PPEActionPanelController[] panels = FindObjectsByType<PPEActionPanelController>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
         foreach (PPEActionPanelController panel in panels)
             TryAddHazmatPanel(panel);
     }
@@ -451,8 +450,7 @@ public sealed class PPEHazmatEquipController : MonoBehaviour
         }
 
         PPEItemPresentationBinding[] bindings = FindObjectsByType<PPEItemPresentationBinding>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
         foreach (PPEItemPresentationBinding binding in bindings)
         {
             if (binding != null &&
@@ -508,8 +506,7 @@ public sealed class PPEHazmatEquipController : MonoBehaviour
     static bool HasAnyHazmatPanel()
     {
         PPEActionPanelController[] panels = FindObjectsByType<PPEActionPanelController>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
         foreach (PPEActionPanelController panel in panels)
         {
             if (IsHazmatSuitPanel(panel))

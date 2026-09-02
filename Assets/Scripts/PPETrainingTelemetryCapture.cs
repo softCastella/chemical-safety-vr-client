@@ -42,6 +42,7 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         public string scene;
         public string mode;
         public string workPlan;
+        public string modeSessionId;
         public string flowState;
         public string itemType;
         public string itemName;
@@ -65,6 +66,14 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         public string hoveredPpeItems;
         public string attemptOutcome;
         public float attemptElapsedSec;
+        public string quizTopic;
+        public int quizQuestionIndex;
+        public int quizQuestionCount;
+        public int quizSelectedOptionIndex;
+        public bool quizCorrect;
+        public int quizCorrectCount;
+        public int ppeWrongCount;
+        public float modeElapsedSec;
     }
 
     sealed class PendingGrabAttempt
@@ -114,6 +123,71 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         instance = root.AddComponent<PPETrainingTelemetryCapture>();
     }
 
+    public static string RecordModeSessionStarted(
+        ScenarioDetailModal.PpeLearningMode mode,
+        ScenarioDetailModal.PpeWorkPlan workPlan)
+    {
+        if (instance == null)
+            return null;
+
+        string modeSessionId = Guid.NewGuid().ToString("N");
+        instance.Write(
+            "mode_session_started",
+            mode:mode.ToString(),
+            workPlan:workPlan.ToString(),
+            modeSessionId:modeSessionId);
+        return modeSessionId;
+    }
+
+    public static void RecordQuizAnswer(
+        string modeSessionId,
+        ScenarioDetailModal.PpeLearningMode mode,
+        ScenarioDetailModal.PpeWorkPlan workPlan,
+        int questionIndex,
+        int questionCount,
+        string quizTopic,
+        int selectedOptionIndex,
+        bool correct)
+    {
+        if (instance == null || string.IsNullOrEmpty(modeSessionId))
+            return;
+
+        instance.Write(
+            "quiz_answer_resolved",
+            mode:mode.ToString(),
+            workPlan:workPlan.ToString(),
+            modeSessionId:modeSessionId,
+            quizTopic:quizTopic,
+            quizQuestionIndex:questionIndex,
+            quizQuestionCount:questionCount,
+            quizSelectedOptionIndex:selectedOptionIndex,
+            quizCorrect:correct);
+    }
+
+    public static void RecordModeSessionCompleted(
+        string modeSessionId,
+        ScenarioDetailModal.PpeLearningMode mode,
+        ScenarioDetailModal.PpeWorkPlan workPlan,
+        int quizCorrectCount,
+        int quizQuestionCount,
+        int ppeWrongCount,
+        float modeElapsedSec)
+    {
+        if (instance == null || string.IsNullOrEmpty(modeSessionId))
+            return;
+
+        instance.Write(
+            "mode_session_completed",
+            mode:mode.ToString(),
+            workPlan:workPlan.ToString(),
+            modeSessionId:modeSessionId,
+            result:"completed",
+            quizCorrectCount:quizCorrectCount,
+            quizQuestionCount:quizQuestionCount,
+            ppeWrongCount:ppeWrongCount,
+            modeElapsedSec:modeElapsedSec);
+    }
+
     void Awake()
     {
         if (instance != null && instance != this)
@@ -160,7 +234,7 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         }
 
         MetaPlatformIdentityProbe probe =
-            FindFirstObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include);
+            FindAnyObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include);
         string metaState = probe == null ? "probe_missing" : probe.State.ToString();
         ulong metaUserId = MetaPlatformIdentityProbe.CurrentAppScopedUserId;
         if (metaState != lastMetaIdentityState || metaUserId != lastMetaAppScopedUserId)
@@ -202,10 +276,10 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
     void BindRuntimeObjects()
     {
         if (director == null)
-            director = FindFirstObjectByType<PPEVoiceFlowDirector>(FindObjectsInactive.Include);
+            director = FindAnyObjectByType<PPEVoiceFlowDirector>(FindObjectsInactive.Include);
 
         PPEActionPanelController[] currentPanels =
-            FindObjectsByType<PPEActionPanelController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            FindObjectsByType<PPEActionPanelController>(FindObjectsInactive.Include);
         foreach (PPEActionPanelController panel in currentPanels)
         {
             if (panel == null || !panels.Add(panel))
@@ -215,7 +289,7 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         }
 
         PPEInspectionState[] currentInspections =
-            FindObjectsByType<PPEInspectionState>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            FindObjectsByType<PPEInspectionState>(FindObjectsInactive.Include);
         foreach (PPEInspectionState inspection in currentInspections)
         {
             if (inspection == null || !inspections.Add(inspection))
@@ -511,6 +585,7 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         string flowState = null,
         string mode = null,
         string workPlan = null,
+        string modeSessionId = null,
         string requiredPpeCheck = null,
         string missingRequiredPpe = null,
         string audioClip = null,
@@ -522,7 +597,15 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         int hoveredPpeCount = 0,
         string hoveredPpeItems = null,
         string attemptOutcome = null,
-        float attemptElapsedSec = 0f)
+        float attemptElapsedSec = 0f,
+        string quizTopic = null,
+        int quizQuestionIndex = 0,
+        int quizQuestionCount = 0,
+        int quizSelectedOptionIndex = 0,
+        bool quizCorrect = false,
+        int quizCorrectCount = 0,
+        int ppeWrongCount = 0,
+        float modeElapsedSec = 0f)
     {
         if (string.IsNullOrEmpty(outputPath))
             return;
@@ -541,6 +624,8 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
             scene = SceneManager.GetActiveScene().path,
             mode = mode ?? director?.ActiveLearningMode.ToString(),
             workPlan = workPlan ?? director?.ActiveWorkPlan.ToString(),
+            modeSessionId = SanitizeTelemetryText(
+                modeSessionId ?? director?.ActiveModeSessionId),
             flowState = flowState ?? director?.CurrentState.ToString(),
             itemType = SanitizeTelemetryText(itemType),
             itemName = SanitizeTelemetryText(itemName),
@@ -548,7 +633,7 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
             choice = SanitizeTelemetryText(choice),
             result = SanitizeTelemetryText(result),
             note = SanitizeTelemetryText(note),
-            metaProbeState = FindFirstObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include)?.State.ToString() ?? "probe_missing",
+            metaProbeState = FindAnyObjectByType<MetaPlatformIdentityProbe>(FindObjectsInactive.Include)?.State.ToString() ?? "probe_missing",
             metaWelcomeState = MetaPlatformIdentityProbe.CurrentWelcomeState.ToString(),
             metaAppScopedUserId = MetaPlatformIdentityProbe.CurrentAppScopedUserId == 0
                 ? null
@@ -566,6 +651,14 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
             hoveredPpeItems = SanitizeTelemetryText(hoveredPpeItems),
             attemptOutcome = SanitizeTelemetryText(attemptOutcome),
             attemptElapsedSec = attemptElapsedSec,
+            quizTopic = SanitizeTelemetryText(quizTopic),
+            quizQuestionIndex = quizQuestionIndex,
+            quizQuestionCount = quizQuestionCount,
+            quizSelectedOptionIndex = quizSelectedOptionIndex,
+            quizCorrect = quizCorrect,
+            quizCorrectCount = quizCorrectCount,
+            ppeWrongCount = ppeWrongCount,
+            modeElapsedSec = modeElapsedSec,
         };
 
         File.AppendAllText(outputPath, JsonUtility.ToJson(record) + Environment.NewLine);

@@ -636,6 +636,7 @@ MonoBehaviour:
   preloadNextScene: 1
   playTitleBgmOnStart: 1
   titleBgmId: title
+  titleBgmFadeInDuration: 1
 --- !u!1 &823054475
 GameObject:
   m_ObjectHideFlags: 0

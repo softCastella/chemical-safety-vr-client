@@ -444,3 +444,49 @@ Unity의 기존 교육 흐름, PPE Grab, UI, 음성 재생 동작은 이번 회�
 3. 현재 씬과 런타임 코드에서 `mode_session_started`부터 공통 PPE·검사·음성 이벤트, `quiz_answer_resolved`, `mode_session_completed`까지 같은 `modeSessionId`가 유지되는지 확인한다.
 4. `ConfinedSpace`, `LeakResponse` 각각에서 Education·Training·Test를 음성 생략 없이 완료해 총 6개 조합의 새 JSONL 표본을 만든다. 각 조합은 첫 시도 정상 완료 기준 표본과 재시도 포함 표본을 섞지 않는다.
 5. 서버 상세 조회에서 이벤트 순서·누락·중복, `workPlan`, `mode`, `modeSessionId`, 문항 원본과 완료 집계를 대조한다. 이 실제 Play/Quest → JSONL → Express → DB 조회가 끝나기 전에는 통합 검증 완료나 기준시간 수치를 확정하지 않는다.
+
+## 2026-09-03 정상 완료 경계 정정
+
+### 이번 변경이 대응하는 사용자 요청
+
+- 모드 실행 시작은 사용자가 Education·Training·Test 중 하나를 선택해 실행이 확정된 시점으로 유지한다.
+- 정상 완료는 마지막 퀴즈 선택 시점이 아니라, 모드별 종료 음성과 복귀 전환이 끝나고 사용자가 다음 모드를 연속 선택할 수 있는 모드 선택 모달이 실제로 다시 표시된 시점으로 기록한다.
+- EXIT Point를 통한 중도 복귀는 모드 선택 모달로 돌아오더라도 `mode_session_completed`로 기록하지 않는다.
+
+### 변경 전 필수 판단
+
+1. **기존 Inspector/씬 작성값 보존:** 이번 정정은 런타임 완료 이벤트 호출 순서만 대상으로 하며 씬, 프리팹, UI 배치, 오디오 클립과 Inspector 직렬화 값은 변경하지 않는다.
+2. **단일 기준 오브젝트와 상태 소유자:** `PPEVoiceFlowDirector`가 `modeSessionId`와 계측 값을 소유하고, `PPEFinaleController`가 종료 음성 이후 복귀 순서를 소유한다.
+3. **전체 경로:** 모드 선택 → `BeginModeSessionTracking()` → PPE·퀴즈 수행 → `NotifyQuizCompleted()` → 모드별 종료 음성 대기 → Test 결과 확인 또는 Education·Training 자동 복귀 → 암전·시작 위치 복귀·페이드인 → `ShowPpeModeChoicesAfterCompletion()` → 같은 ID의 `mode_session_completed` 기록 → 다음 선택을 위한 세션 초기화 순서다. 중도 EXIT는 별도의 미완료 복귀 경로를 사용한다.
+4. **실패 처리:** 필수 모달 참조 또는 활성 모드 실행 ID가 없으면 완료를 자동 보정하거나 임의 생성하지 않고 명확한 오류를 남기며 완료 이벤트를 기록하지 않는다.
+5. **영향 소비자:** 모드별 전체 체류시간, 완료율, 연속 모드 실행 분리와 서버·대시보드 집계가 영향을 받는다. XR 입력, 텔레포트 허용 규칙, PPE Grab, 음성 재생 순서와 UI 표현은 변경하지 않는다.
+6. **변경 전후 비교 실행:** 변경 전에는 마지막 퀴즈 선택 직후 완료가 기록돼 종료 음성·결과 확인·복귀 시간이 빠졌다. 변경 후에는 모드 선택 모달 표시 이후 완료가 기록되고, 정상 완료 세 모드와 중도 EXIT를 각각 비교한다.
+7. **검증 범위:** C# 빌드와 `PPETrainingDataContractHarness`, `PPETrainTestModeValidationHarness`는 정적 순서 계약만 확인한다. Unity Editor 실행과 Quest/OpenXR의 실제 모달 표시, JSONL 이벤트 순서 및 서버 적재는 별도 수동 검증으로 구분한다.
+
+### 보존해야 하는 기존 동작
+
+- Education·Training의 종료 음성 후 자동 복귀, Test의 결과 화면과 확인 후 복귀, 암전·페이드인, 장비·체크리스트 초기화와 모드 연속 선택 동작을 유지한다.
+- 퀴즈 완료 시점에 계산하던 Test 결과 표시용 시간·정답 수·PPE 오답 수는 유지하되, 원본 완료 이벤트의 총 경과시간만 모달 복귀 시점에 다시 계산한다.
+- 기준 수정 뒤 새 빌드에서 만든 표본만 정상 기준 데이터로 사용한다. 기존 빌드의 완료 시간과 섞지 않는다.
+
+### 교차 저장소 상태
+
+- 변경 전 클라이언트 기준은 `release/2026-09-01-meta-horizon-submission@9355cb85e9b88fcdd0af3bd398785bcc1e860698`이다.
+- 확인한 서버 기준은 `main@238c7741d0f4f8c939bafdd9e4cc85dd6ea2bbcb`이다.
+- 이 문서는 공용 문서이므로 클라이언트 변경·검증이 확정된 뒤 서버 저장소의 같은 상대 경로에 미러링해야 한다. 미러링 전에는 서버 반영 또는 통합 검증 완료로 표시하지 않는다.
+
+### Train/Test 검증 하네스 씬 경로 정정
+
+- `PPETrainTestModeValidationHarness`의 기본 검사 대상이 삭제된 과거 씬 `Assets/Scenes/3_PPE_Room_Train_Test.unity`로 남아 있어 `ArgumentException: Scene file not found`가 발생했다.
+- `ProjectSettings/EditorBuildSettings.asset`의 현재 활성 PPE 씬과 동일한 `Assets/Scenes/4_PPE_Room.unity`로 기본 검사 경로를 정정했다.
+- 이 변경은 검사 도구의 읽기 대상만 바로잡으며 씬 내용, 직렬화 참조, 런타임 상태와 UI·음성·입력 동작을 수정하지 않는다.
+- 경로 정정 후 하네스는 상세 컨트롤러 안내의 과거 5개 연속 음원 번호를 기대해 현재 작성된 9개 피드백 구조의 정상 음원 `004_GripGrab_Release`, `006_Joystick`을 실패로 판정했다. 현재 씬과 음성 설계 문서의 `설명 → 입력 대기 → 003/005/007 오입력 → 008 정입력 → 009 완료` 구조에 맞춰 기본 설명 Clip 이름 기준만 정정했다.
+- 상세 Joystick은 입력 전 설명 Clip이 `006` 하나이므로 상세 시각 배열도 한 칸이고, 간단 안내는 `004_Joystick → 005_GuideFollow` 두 Clip이라 같은 조이스틱 시각을 두 칸에 재사용한다. 하네스가 두 배열의 전체 길이까지 같아야 한다고 잘못 판정하던 조건을 `상세 설명 Clip마다 대응 시각이 있고, 같은 순번의 간단 안내 작성 시각을 재사용함`으로 정정했다.
+
+### 2026-09-03 작업 종료 시 검증 상태
+
+- `Tools > PPE > Validate Training Data Contract`는 현재 `4_PPE_Room` 기준 PASS다.
+- 런타임과 Editor 보조 C# 빌드는 오류 0개였다.
+- `PPETrainTestModeValidationHarness`의 씬 경로·음원 번호·상세/간단 시각 배열 조건은 현재 작성 구조로 수정했지만 마지막 시각 배열 조건 수정 뒤 Unity에서 재실행한 PASS는 아직 없다.
+- `AndroidBundleVersionCode=4`는 설정됐지만 APK 빌드, Alpha 업로드와 Quest 설치는 아직 하지 않았다.
+- 다음 재개 시에는 Train/Test 하네스 PASS를 먼저 확인하고 code 4를 빌드한 뒤, 한 작업계획의 Test → Training → Education 정상 완료 3회를 모드 선택 모달 복귀까지 수행한다. 그 전의 code 3 회차는 새 완료 경계의 기준 데이터로 사용하지 않는다.

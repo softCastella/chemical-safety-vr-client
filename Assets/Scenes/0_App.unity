@@ -311,7 +311,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MetaPlatformIdentityProbe
   runOnStart: 1
-  useMetaPlatformSdkInEditor: 1
+  useMetaPlatformSdkInEditor: 0
   logAppScopedUserId: 1
 --- !u!114 &500000005
 MonoBehaviour:

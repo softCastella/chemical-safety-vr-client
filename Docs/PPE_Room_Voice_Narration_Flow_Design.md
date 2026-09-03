@@ -369,7 +369,7 @@ PPE 교육: OnIncompletePpeScenarioSelected
 
 - `Modal  Keyboard Canvas` 부모는 시작부터 활성화된 상태로 유지하되, 키보드 표시 루트는 `NameInput` 상태에서만 활성화하도록 확정했다. 따라서 Welcome 음성이 끝난 뒤 이름 입력 단계에서 키보드가 나타난다.
 - 키보드 클릭음용 `AudioSource`의 `m_GameObject` 참조를 `XR Origin (VR)`에서 실제 컴포넌트를 보유한 `UI Root`로 바로잡았다.
-- 실제 BGM 음원 `Safe-Horizons-_VR-Training-Theme_.ogg`와 타이틀 음원 `XR-Horizon-Interface.ogg`를 `Assets/Audio/BGM`으로 이동했다. `.meta` GUID는 유지했으며, `Resources/Audio/Scenes`의 씬별 볼륨 설정 파일은 그대로 두었다.
+- 타이틀 음원은 `Assets/Audio/BGM/XR Horizon Interface (Remastered).mp3`를 사용한다. 이 리마스터 음원은 기존 `XR-Horizon-Interface.ogg`의 `.meta` GUID와 Import 설정을 승계해 `Resources/Audio/Scenes` 및 씬의 작성 참조를 유지한다. 기존 PPE BGM `Safe-Horizons-_VR-Training-Theme_.ogg`는 교체 음원 확정 전 제거된 상태이므로 타이틀 음원 교체와 별도 상태로 관리한다.
 - `PPEVoiceFlowDirector`도 첫 렌더 프레임과 `1`초 대기 후 Welcome 나레이션을 시작하도록 조정했다. XR 화면이 표시된 뒤 음성이 시작되도록 하기 위한 설정이다.
 - `PPEVoiceFlowDirectorEditor`를 추가해 Inspector의 각 `Voice Step` 옆에서 `Play`와 `Stop`으로 연결된 음성을 편집 모드에서 미리 들을 수 있도록 했다. 한 Step에 여러 클립이 있으면 배열 순서대로 재생한다.
 - Unity 6000의 미리듣기 API가 `UnityEditor.AudioUtil`에 있는 것을 반영해 Editor 미리듣기 호출 경로를 수정했다.

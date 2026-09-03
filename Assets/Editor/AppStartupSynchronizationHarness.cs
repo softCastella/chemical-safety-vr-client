@@ -89,6 +89,15 @@ public static class AppStartupSynchronizationHarness
             "0_App AudioManager must persist into 1_Title.");
         Require(serializedAudio.FindProperty("m_StartupBgmId").stringValue == "title",
             "0_App title BGM library ID must remain 'title'.");
+        SerializedProperty bgmLibrary = serializedAudio.FindProperty("m_Bgm");
+        SerializedProperty titleBgm = FindBgm(bgmLibrary, "title");
+        Require(titleBgm != null, "0_App must contain the 'title' BGM library entry.");
+        AudioClip titleClip = titleBgm.FindPropertyRelative("clip").objectReferenceValue as AudioClip;
+        Require(titleClip != null, "0_App title BGM must reference an AudioClip.");
+        Require(
+            AssetDatabase.GetAssetPath(titleClip) ==
+                "Assets/Audio/BGM/XR Horizon Interface (Remastered).mp3",
+            "0_App title BGM must reference XR Horizon Interface (Remastered).mp3.");
 
         MetaPlatformIdentityProbe identityProbe = FindSingle<MetaPlatformIdentityProbe>(scene);
         SerializedObject serializedIdentity = new(identityProbe);
@@ -104,8 +113,22 @@ public static class AppStartupSynchronizationHarness
             "1_Title must start title BGM after its gated activation.");
         Require(serializedTitle.FindProperty("titleBgmId").stringValue == "title",
             "1_Title title BGM ID must be 'title'.");
+        Require(serializedTitle.FindProperty("titleBgmFadeInDuration").floatValue == 1f,
+            "1_Title title BGM fade-in duration must remain 1 second.");
         Require(serializedTitle.FindProperty("preloadNextScene").boolValue,
             "1_Title must preload 2_Intro before completing the title transition.");
+    }
+
+    private static SerializedProperty FindBgm(SerializedProperty library, string id)
+    {
+        for (int index = 0; index < library.arraySize; index++)
+        {
+            SerializedProperty entry = library.GetArrayElementAtIndex(index);
+            if (entry.FindPropertyRelative("id").stringValue == id)
+                return entry;
+        }
+
+        return null;
     }
 
     private static T FindSingle<T>(Scene scene) where T : Component

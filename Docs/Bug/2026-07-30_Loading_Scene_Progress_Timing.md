@@ -165,3 +165,53 @@ PPE 씬의 `XRInteractionManager`와 `NearFarInteractor`가 파괴된 Attach Gam
   모두 제거됐는지 정적으로 확인한다.
 - Unity 재실행 후 반복 `MissingReferenceException`이 없는지 먼저 확인해야 한다. 에메랄드 전체 화면은
   아직 미해결이며, 오류가 없는 기존 전환을 보존한 상태에서 후속 원인 분리를 진행한다.
+
+## 2026-09-03 후속: Meta Alpha Quest 2에서 로딩 UI가 보이지 않는 검정 화면
+
+### 재현과 최근 변경 대조
+
+- Meta Alpha 채널로 설치한 앱을 Quest 2에서 실행했을 때 `2_Intro`가 끝난 뒤 검정 화면이 이어지고,
+  로딩 로고·백분율·진행 막대가 보이지 않은 채 `4_PPE_Room`으로 전환됐다.
+- ADB로 확인한 최초 재현 설치본은 `versionCode=1`, `targetSdk=36`인 이전 APK였다. 업로드한
+  `versionCode=2`, `targetSdk=34` 설치 여부와 수정 후 실기 결과는 별도로 구분한다.
+- `LoadingSceneController`의 전환 경로와 `3_Loading`의 직렬화된 6초 진행시간에는 최근 변경이 없었다.
+- 직전 세션 방향 보정 커밋은 `1_Title`, `2_Intro`, `4_PPE_Room`에만
+  `XRSessionForwardAlignment`를 연결했고, 동일한 월드 공간 UI 구조를 사용하는 `3_Loading`은 누락했다.
+
+### 변경 전 필수 판단
+
+1. 기존 Inspector/씬 작성값을 보존한다. 로딩 Canvas의 위치·크기·색·참조, `Prewarm Frames=2`,
+   `Progress Fill Duration=6`을 변경하지 않는다.
+2. 세션 수평 방향의 단일 소유자는 `XRSessionForwardAlignment`의 정적 세션 정렬값이고,
+   로딩 진행과 씬 활성화의 단일 소유자는 `LoadingSceneController`다.
+3. 입력 경로는 이 결함과 무관하다. 표시 경로는
+   `XROrigin/Camera -> 월드 공간 Canvas(+Z) -> CanvasGroup 표시 -> LoadingSceneController 진행 갱신`이다.
+4. 참조 누락을 런타임 자동 수리하지 않는다. `LoadingSceneBuilder`의 명시적 Editor 메뉴로 컴포넌트를
+   씬에 추가하고 검증 실패로 누락을 알린다.
+5. 영향 소비자는 로딩 UI의 Quest 양안 표시와 Intro/PPE 사이의 시선 방향 연속성이다. PPE 상태,
+   XR 입력, 텔레포트, 오디오 규칙은 변경하지 않는다.
+6. 변경 전 기준은 Quest 2 Alpha 코드 1에서 검정 화면과 로딩 UI 누락이다. 변경 후에는 코드 3 APK로
+   같은 시작 경로를 실행해 약 6초 동안 로고·백분율·진행 막대가 양안 정면에 보이는지 비교한다.
+7. 정적 확인과 Unity Editor 하네스는 로컬에서 수행하고, Quest/OpenXR 확인은 새 APK 설치 후 별도 기록한다.
+
+### 근본 원인과 적용 방향
+
+`3_Loading`의 Canvas는 Screen Space Overlay가 아니라 월드 공간 Canvas이며, 씬 기준 `+Z` 방향의
+`(0, 0, 200)`에 배치돼 있다. 이전 씬에서 캡처한 HMD 수평 방향을 로딩 씬의 XROrigin에 다시 적용하지
+않으면 카메라가 이 Canvas를 바라보지 않을 수 있다. 이 경우 로딩 코루틴과 6초 진행 제한은 실행되지만
+사용자는 불투명 검정 카메라 배경만 보게 된다.
+
+`LoadingSceneBuilder`가 `3_Loading`의 유일한 XROrigin에 `XRSessionForwardAlignment`를 명시적으로
+연결하도록 보완하고, `LoadingSceneBuilder.Validate`와 `XRSessionForwardAlignmentValidationHarness`가
+이 연결 누락을 실패로 검출하도록 확장한다. Additive 씬 전환이나 런타임 UI 재배치는 다시 도입하지 않는다.
+
+### 검증 상태
+
+- 정적 근거: `3_Loading`의 월드 공간 Canvas, `+Z` 배치, 불투명 검정 카메라, 6초 진행시간,
+  방향 정렬 컴포넌트 누락을 확인했다.
+- Unity Editor 확인: `Tools > Loading Scene > Build Progress UI` 실행 후 로딩 UI 검증과
+  `Tools > XR > Validate Session Forward Alignment`이 모두 PASS했다.
+- Quest/OpenXR 확인: Quest 2에 코드 3 APK를 설치해 사용자가 로딩 UI 표시가 반영됐음을 확인했다.
+  기기 JSONL의 `scene_loaded` 시각은 `3_Loading` 진입 `07:11:01.647754Z`, `4_PPE_Room` 진입
+  `07:11:07.924301Z`로 기록돼 로딩 씬이 약 6.28초 유지된 사실도 확인했다. 양안을 각각 가린
+  분리 검사는 수행하지 않았으므로 별도 XR 양안 검증 항목은 유지한다.

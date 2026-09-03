@@ -110,6 +110,11 @@ public sealed class AudioManager : MonoBehaviour
 
     public void PlayBgm(string id)
     {
+        PlayBgm(id, 0f);
+    }
+
+    public void PlayBgm(string id, float fadeInDuration)
+    {
         BgmSound sound = FindBgm(id);
         if (sound == null)
             return;
@@ -120,8 +125,21 @@ public sealed class AudioManager : MonoBehaviour
             return;
         }
 
+        if (sound.clip == null)
+        {
+            Debug.LogError($"AudioManager: BGM '{id}' has no serialized AudioClip.", this);
+            return;
+        }
+
         StopBgmFade();
-        PlayLooping(sound.clip, sound.volume, m_BgmSource);
+        if (fadeInDuration <= 0f)
+        {
+            PlayLooping(sound.clip, sound.volume, m_BgmSource);
+            return;
+        }
+
+        m_BgmFadeRoutine = StartCoroutine(
+            FadeInBgmRoutine(sound.clip, sound.volume, fadeInDuration));
     }
 
     public void StopBgm()
@@ -274,6 +292,30 @@ public sealed class AudioManager : MonoBehaviour
 
         m_BgmSource.Stop();
         m_BgmSource.volume = startVolume;
+        m_BgmFadeRoutine = null;
+    }
+
+    private IEnumerator FadeInBgmRoutine(AudioClip clip, float targetVolume, float duration)
+    {
+        targetVolume = Mathf.Clamp01(targetVolume);
+        m_BgmSource.Stop();
+        m_BgmSource.loop = true;
+        m_BgmSource.clip = clip;
+        m_BgmSource.volume = 0f;
+        m_BgmSource.Play();
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            m_BgmSource.volume = Mathf.Lerp(
+                0f,
+                targetVolume,
+                Mathf.Clamp01(elapsed / duration));
+            yield return null;
+        }
+
+        m_BgmSource.volume = targetVolume;
         m_BgmFadeRoutine = null;
     }
 

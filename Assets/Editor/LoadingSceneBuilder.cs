@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TMPro;
+using Unity.XR.CoreUtils;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -34,6 +35,12 @@ public static class LoadingSceneBuilder
         Canvas canvas = FindSingle<Canvas>(scene);
         if (canvas == null)
             throw new InvalidOperationException($"'{ScenePath}' must contain exactly one Canvas.");
+
+        XROrigin xrOrigin = FindSingle<XROrigin>(scene);
+        if (xrOrigin == null)
+            throw new InvalidOperationException($"'{ScenePath}' must contain exactly one XROrigin.");
+
+        GetOrAdd<XRSessionForwardAlignment>(xrOrigin.gameObject, out _);
 
         LoadingSceneController controller = GetOrAdd<LoadingSceneController>(canvas.gameObject, out bool controllerWasAdded);
         CanvasGroup loadingContentGroup = GetOrAdd<CanvasGroup>(canvas.gameObject, out bool contentGroupWasAdded);
@@ -142,6 +149,7 @@ public static class LoadingSceneBuilder
         LoadingSceneController controller = FindSingle<LoadingSceneController>(scene);
         TitleSplashController splash = FindSingle<TitleSplashController>(scene);
         Camera sceneCamera = FindSingle<Camera>(scene);
+        XROrigin xrOrigin = FindSingle<XROrigin>(scene);
 
         if (canvas == null)
             failures.Add("Expected exactly one Canvas.");
@@ -149,6 +157,14 @@ public static class LoadingSceneBuilder
             failures.Add("LoadingSceneController is missing or disabled.");
         if (splash != null)
             failures.Add("TitleSplashController must not remain in 3_Loading because its Awake hides the logo.");
+        if (xrOrigin == null)
+        {
+            failures.Add("Expected exactly one XROrigin.");
+        }
+        else if (xrOrigin.GetComponents<XRSessionForwardAlignment>().Length != 1)
+        {
+            failures.Add("Loading XROrigin must have exactly one XRSessionForwardAlignment.");
+        }
         if (sceneCamera == null
             || sceneCamera.clearFlags != CameraClearFlags.SolidColor
             || sceneCamera.backgroundColor != Color.black)
@@ -212,7 +228,7 @@ public static class LoadingSceneBuilder
             throw new InvalidOperationException(message);
         }
 
-        Debug.Log("3_Loading progress UI validation passed: real loader, 0% text, 18 gradient segments, and build target are valid.");
+        Debug.Log("3_Loading progress UI validation passed: XR forward alignment, real loader, 0% text, 18 gradient segments, and build target are valid.");
     }
 
     static void ApplyPercentageDefaults(TextMeshProUGUI text)

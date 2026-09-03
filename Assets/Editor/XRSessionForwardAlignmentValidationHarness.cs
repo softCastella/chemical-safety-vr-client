@@ -14,6 +14,7 @@ public static class XRSessionForwardAlignmentValidationHarness
     {
         "Assets/Scenes/1_Title.unity",
         "Assets/Scenes/2_Intro.unity",
+        "Assets/Scenes/3_Loading.unity",
         "Assets/Scenes/4_PPE_Room.unity"
     };
 
@@ -34,7 +35,7 @@ public static class XRSessionForwardAlignmentValidationHarness
         }
 
         Debug.Log(
-            "[XR Session Forward Validation] PASS: Title, Intro, and PPE scenes share one authored +Z " +
+            "[XR Session Forward Validation] PASS: Title, Intro, Loading, and PPE scenes share one authored +Z " +
             "session-forward alignment contract. A standalone Quest launch is still required.");
     }
 

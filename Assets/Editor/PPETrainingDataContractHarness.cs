@@ -113,6 +113,7 @@ public static class PPETrainingDataContractHarness
             PPEFinaleController finaleController = FindSingleInScene<PPEFinaleController>(previewScene, failures);
             ValidateExitRouteContract(previewScene, finaleController, failures);
             ValidateGripTelemetryContract(previewScene, failures);
+            ValidateModeCompletionBoundary(failures);
 
             if (failures.Count > 0)
             {
@@ -588,6 +589,67 @@ public static class PPETrainingDataContractHarness
             binding.path.Contains("{GripButton}", StringComparison.Ordinal));
         if (!hasControllerGrip)
             failures.Add($"{mapName}/Select가 XRController GripButton에 연결되지 않았습니다.");
+    }
+
+    static void ValidateModeCompletionBoundary(List<string> failures)
+    {
+        string directorSource = File.ReadAllText(Path.GetFullPath(VoiceFlowDirectorSourcePath));
+        int quizCompletedStart = directorSource.IndexOf(
+            "public void NotifyQuizCompleted(int correctAnswerCount, int questionCount)",
+            StringComparison.Ordinal);
+        int quizCompletedEnd = directorSource.IndexOf(
+            "private IEnumerator ShowQuizAfterVoice()",
+            quizCompletedStart >= 0 ? quizCompletedStart : 0,
+            StringComparison.Ordinal);
+        if (quizCompletedStart < 0 || quizCompletedEnd <= quizCompletedStart)
+        {
+            failures.Add("퀴즈 완료 처리 메서드의 계측 경계를 검사할 수 없습니다.");
+        }
+        else if (directorSource.Substring(quizCompletedStart, quizCompletedEnd - quizCompletedStart)
+                 .Contains("RecordModeSessionCompleted(", StringComparison.Ordinal))
+        {
+            failures.Add("마지막 퀴즈 선택 시점에 모드 완료 이벤트를 너무 일찍 기록합니다.");
+        }
+
+        int returnStart = directorSource.IndexOf(
+            "public void ShowModeChoicesAfterCompletionReturn(bool completedModeSession)",
+            StringComparison.Ordinal);
+        int returnEnd = directorSource.IndexOf(
+            "private void RecordCompletedModeSessionAtReturn(",
+            returnStart >= 0 ? returnStart : 0,
+            StringComparison.Ordinal);
+        if (returnStart < 0 || returnEnd <= returnStart)
+        {
+            failures.Add("모드 선택 모달 복귀 처리 메서드의 완료 경계를 검사할 수 없습니다.");
+        }
+        else
+        {
+            string returnBody = directorSource.Substring(returnStart, returnEnd - returnStart);
+            int modalIndex = returnBody.IndexOf(
+                "m_ScenarioDetailModal.ShowPpeModeChoicesAfterCompletion();",
+                StringComparison.Ordinal);
+            int completionIndex = returnBody.IndexOf(
+                "RecordCompletedModeSessionAtReturn(",
+                StringComparison.Ordinal);
+            if (modalIndex < 0 || completionIndex <= modalIndex)
+            {
+                failures.Add("정상 완료 이벤트는 모드 선택 모달을 표시한 뒤 기록해야 합니다.");
+            }
+        }
+
+        string finaleSource = File.ReadAllText(Path.GetFullPath(FinaleSourcePath));
+        if (!finaleSource.Contains("yield return ReturnToModeChoices(true);", StringComparison.Ordinal))
+            failures.Add("Education·Training 정상 완료 복귀가 완료 계측 경로로 표시되지 않았습니다.");
+        if (!finaleSource.Contains("StartCoroutine(ReturnToModeChoices(true));", StringComparison.Ordinal))
+            failures.Add("Test 결과 확인 복귀가 완료 계측 경로로 표시되지 않았습니다.");
+        if (!finaleSource.Contains("yield return ReturnToModeChoices(false);", StringComparison.Ordinal))
+            failures.Add("EXIT Point 중도 복귀가 미완료 경로로 표시되지 않았습니다.");
+
+        ValidateSourceContains(
+            VoiceFlowDirectorSourcePath,
+            "PPETrainingTelemetryCapture.RecordModeSessionCompleted(",
+            "모드 선택 모달 복귀 뒤 정상 완료를 기록하는 호출이 없습니다.",
+            failures);
     }
 
     static void ValidateSourceContains(

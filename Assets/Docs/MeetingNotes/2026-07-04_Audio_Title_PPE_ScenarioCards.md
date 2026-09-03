@@ -73,6 +73,33 @@
 - [ ] 카드 그룹 활성/비활성 비교 및 손 직접 상호작용 확인
 - [ ] `ScenarioCard3_Group (1)`의 실제 반투명 표현 개선
 
+## 2026-09-03 타이틀 리마스터 음원 교체
+
+### 적용한 변경
+
+- 타이틀 음원을 `XR Horizon Interface (Remastered).mp3`로 교체하고 기존 타이틀 음원의 GUID와 Import 설정을 승계했다.
+- 기존 작성값인 볼륨 `1.0`, 반복 재생, `1`초 페이드 인과 타이틀 종료 `1.5`초 페이드 아웃을 유지했다.
+- `SceneAudioManagerSetup`의 타이틀 음원 경로와 시작 동기화 하네스의 참조·페이드 검증을 새 음원에 맞췄다.
+
+### 근본 원인
+
+- 기존 OGG와 `.meta`를 삭제하고 새 MP3를 추가하면서 새 GUID가 생성됐지만, `0_App`의 `AudioManager`와 `1_Title` 설정은 삭제된 기존 GUID를 계속 참조했다.
+- `PlayBgm("title")`은 등록 항목의 Clip이 비어 있어 실제 재생을 시작하지 못했다.
+
+### 영향 범위
+
+- `0_App → 1_Title`의 타이틀 BGM 재생과 페이드만 변경한다.
+- 타이틀 로고, 씬 전환, PPE 음성·SFX, 입력 및 XR 렌더링 동작은 변경하지 않는다.
+- 별도로 제거된 기존 PPE BGM은 이번 타이틀 음원 교체 범위에서 새 음원으로 자동 대체하지 않는다.
+
+### 검증
+
+- 정적 확인: 새 MP3가 기존 타이틀 음원의 GUID와 Import 설정을 승계하고, `0_App`의 `title` 참조와 `1_Title`의 `1`초 페이드 인 작성값이 연결된 것을 확인했다.
+- 컴파일 확인: `Assembly-CSharp.csproj`와 `Assembly-CSharp-Editor.csproj` 빌드에서 오류 0개를 확인했다.
+- Unity Editor 확인: 2026-09-03 Play Mode에서 새 타이틀 음원의 정상 재생을 사용자 확인했다. 시작 페이드 인과 타이틀 종료 페이드 아웃을 포함한다.
+- Editor 하네스 확인: `Tools > XR > Validate App Startup Synchronization` 실행이 필요하다.
+- Quest/OpenXR 확인: 양쪽 출력에서 타이틀 BGM의 시작, `1`초 페이드 인과 종료 `1.5`초 페이드 아웃 확인이 필요하다.
+
 ## 시나리오 상세 모달 및 Quest 입력 추가
 
 - `imgForCodex/시나리오상세 모달.png`를 기준으로 시나리오 카드 선택 후 표시되는 상세 설명 모달을 구성했다.

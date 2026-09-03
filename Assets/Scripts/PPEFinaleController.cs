@@ -261,7 +261,7 @@ public sealed class PPEFinaleController : MonoBehaviour
             yield break;
         }
 
-        yield return ReturnToModeChoices();
+        yield return ReturnToModeChoices(true);
     }
 
     /// <summary>
@@ -290,7 +290,7 @@ public sealed class PPEFinaleController : MonoBehaviour
         while (m_VoiceFlowDirector.IsVoicePlaying)
             yield return null;
 
-        yield return ReturnToModeChoices();
+        yield return ReturnToModeChoices(false);
     }
 
     public void NotifyCompletionBackRequested()
@@ -301,10 +301,10 @@ public sealed class PPEFinaleController : MonoBehaviour
             return;
         }
 
-        StartCoroutine(ReturnToModeChoices());
+        StartCoroutine(ReturnToModeChoices(true));
     }
 
-    private IEnumerator ReturnToModeChoices()
+    private IEnumerator ReturnToModeChoices(bool completedModeSession)
     {
         m_State = FinaleState.Finishing;
         yield return FadeTo(1f);
@@ -313,15 +313,14 @@ public sealed class PPEFinaleController : MonoBehaviour
         m_HazmatEquipController?.ResetForNewSession();
         m_EquipmentVisualController?.ResetWornVisualsForCompletionReturn();
         m_TabletChecklistController?.ResetForNewSession();
-        m_VoiceFlowDirector.ResetModeSessionForNextSelection();
-
         m_EquipmentVisualController?.ShowBareHandsForCardSelection();
         m_EquipmentVisualController?.SetHandModelsVisible(true);
         XRNearFarReticleVisual.SetFinaleRayVisualsVisible(true);
         yield return null;
 
         yield return FadeTo(0f);
-        m_VoiceFlowDirector.ShowModeChoicesAfterCompletionReturn();
+        m_VoiceFlowDirector.ShowModeChoicesAfterCompletionReturn(completedModeSession);
+        m_VoiceFlowDirector.ResetModeSessionForNextSelection();
         m_State = FinaleState.WaitingForEquipment;
         m_ReturnInProgress = false;
         ResetMirrorObservationArm();

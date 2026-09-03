@@ -11,7 +11,7 @@ using UnityEngine.XR.Interaction.Toolkit.Samples.SpatialKeyboard;
 
 public static class PPETrainTestModeValidationHarness
 {
-    private const string ScenePath = "Assets/Scenes/3_PPE_Room_Train_Test.unity";
+    private const string ScenePath = "Assets/Scenes/4_PPE_Room.unity";
     private const string GloveNarrationScenePath =
         "Assets/Scenes/3_PPE_Room_Train_Test_1.unity";
 
@@ -649,14 +649,19 @@ public static class PPETrainTestModeValidationHarness
         }
         if (!methodBody.Contains("ShowTestResultAfterVoice();"))
             failures.Add("Test completion does not open the authored Result Canvas.");
-        if (!methodBody.Contains("yield return ReturnToModeChoices();"))
+        if (!methodBody.Contains("yield return ReturnToModeChoices(true);"))
         {
             failures.Add(
                 "Education/Training completion does not automatically return to mode choices.");
         }
+        if (!methodBody.Contains("yield return ReturnToModeChoices(false);"))
+        {
+            failures.Add(
+                "The EXIT Point path is not explicitly separated from normal mode completion.");
+        }
 
         int returnMethodStart = source.IndexOf(
-            "private IEnumerator ReturnToModeChoices()",
+            "private IEnumerator ReturnToModeChoices(bool completedModeSession)",
             StringComparison.Ordinal);
         int returnMethodEnd = source.IndexOf(
             "private bool HasCompletionRequirements()",
@@ -682,13 +687,16 @@ public static class PPETrainTestModeValidationHarness
         int returnIndex = returnMethodBody.IndexOf("ReturnToStart();", StringComparison.Ordinal);
         int fadeInIndex = returnMethodBody.IndexOf("yield return FadeTo(0f);", StringComparison.Ordinal);
         int modalIndex = returnMethodBody.IndexOf(
-            "ShowModeChoicesAfterCompletionReturn();",
+            "ShowModeChoicesAfterCompletionReturn(completedModeSession);",
+            StringComparison.Ordinal);
+        int trackingResetIndex = returnMethodBody.IndexOf(
+            "ResetModeSessionForNextSelection();",
             StringComparison.Ordinal);
         if (fadeOutIndex < 0 || returnIndex <= fadeOutIndex || fadeInIndex <= returnIndex ||
-            modalIndex <= fadeInIndex)
+            modalIndex <= fadeInIndex || trackingResetIndex <= modalIndex)
         {
             failures.Add(
-                "Completion return order must be fade-out, dark return move, fade-in, then mode modal.");
+                "Completion return order must be fade-out, dark return move, fade-in, mode modal, then mode-session reset.");
         }
 
         const string directorPath = "Assets/Scripts/PPEVoiceFlowDirector.cs";
@@ -784,8 +792,8 @@ public static class PPETrainTestModeValidationHarness
         string[][] expectedClipNames =
         {
             new[] { "VO_PPE_CTRL_DETAIL_001_Start", "VO_PPE_CTRL_DETAIL_002_RayTrigger" },
-            new[] { "VO_PPE_CTRL_DETAIL_003_GripGrab_Release" },
-            new[] { "VO_PPE_CTRL_DETAIL_004_Joystick", "VO_PPE_CTRL_DETAIL_005_GuideFollow" },
+            new[] { "VO_PPE_CTRL_DETAIL_004_GripGrab_Release" },
+            new[] { "VO_PPE_CTRL_DETAIL_006_Joystick" },
         };
         SerializedProperty steps = serialized.FindProperty("m_ControllerEduVoiceSteps");
         SerializedProperty simpleSteps = serialized.FindProperty("m_ControllerSimpVoiceSteps");
@@ -832,15 +840,16 @@ public static class PPETrainTestModeValidationHarness
                 SerializedProperty detailedCompanion = detailedStep.FindPropertyRelative("controllerGuideCompanionVisual");
                 SerializedProperty simpleCompanion = simpleStep.FindPropertyRelative("controllerGuideCompanionVisual");
                 if (detailedVisuals == null || simpleVisuals == null ||
-                    detailedVisuals.arraySize != simpleVisuals.arraySize ||
+                    detailedVisuals.arraySize != expectedClipNames[stepIndex].Length ||
+                    simpleVisuals.arraySize < detailedVisuals.arraySize ||
                     detailedVisuals.arraySize == 0)
                 {
                     failures.Add(
-                        $"Detailed controller step {stepIndex} does not reuse the authored Simple guide visual array.");
+                        $"Detailed controller step {stepIndex} does not provide one reused Simple guide visual per explanation clip.");
                 }
                 else
                 {
-                    for (int visualIndex = 0; visualIndex < simpleVisuals.arraySize; visualIndex++)
+                    for (int visualIndex = 0; visualIndex < detailedVisuals.arraySize; visualIndex++)
                     {
                         if (detailedVisuals.GetArrayElementAtIndex(visualIndex).objectReferenceValue !=
                             simpleVisuals.GetArrayElementAtIndex(visualIndex).objectReferenceValue)

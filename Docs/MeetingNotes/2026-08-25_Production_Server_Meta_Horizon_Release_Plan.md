@@ -1322,3 +1322,54 @@ Meta Horizon Link의 Public Test Channel 전환은 Editor에서 SDK 205를 진�
 복구 뒤 Express는 `127.0.0.1:3000`, MariaDB는 `127.0.0.1:3306`에서 실행된다. health, 대시보드와 `/telemetry-ingest-test/`는 HTTP `200`, 무토큰 DB API는 `401`, 토큰을 사용한 세션·참여자 조회는 `200`으로 확인했다. migration 12개는 재실행 시 모두 적용 완료로 판정됐고 서버 자동 테스트 34개가 통과했다. Unity 로컬 JSONL 조회에는 13개 세션이 있지만 새 DB의 참여자·세션·이벤트 행은 모두 0개다. 따라서 2026-08-28 MySQL 행을 현재 DB에서 복구 또는 재검증한 것은 아니며, 새 `0_App` Play에서 실제 Unity 이벤트가 DB에 적재되는지는 별도 수동 검증으로 남는다. Meta PTC·앱 범위 사용자 ID 진단은 DB 재연동과 구분한다.
 
 병렬 작업 중 생성된 서버·클라이언트 고유 기록은 한쪽 파일로 덮어쓰지 않는다. 공용 문서 기준본을 통합할 때 각 절의 서버 코드·DB 근거와 클라이언트 코드·씬·Unity 근거를 각각 확인한 뒤 시간순으로 합친다.
+
+### 2026-09-03 Meta Alpha APK Manifest 사전 검사 보완
+
+Meta 업로드 검사가 첫 출시 서명 APK에서 Android Target SDK 36, 자동 회전 화면 방향, `preferExternal` 설치 위치를 거부했다. 조직 관리자의 개발자 배포 계약 서명은 사용자가 완료했으며, Quest 1 미지원 표시는 Quest 2 이상 대상 앱의 경고로 구분한다.
+
+이번 변경이 대응하는 사용자 요청은 Meta 업로드의 세 Manifest 오류 수정이다. 기존 Inspector·씬 작성값, UI·음성·입력·훈련 상태 전이, 텔레메트리 계약은 보존한다. 단일 기준은 `ProjectSettings/ProjectSettings.asset`의 Android Player Settings이고 입력 이벤트 경로는 변경하지 않는다. 잘못된 값은 런타임에서 자동 수리하지 않고 `MetaQuestAndroidBuildValidationHarness`가 빌드 전에 명확한 오류로 중단한다. 영향 소비자는 Android Manifest와 Meta Alpha 업로드 검사이며, Unity Editor·Standalone 흐름에는 영향을 주지 않는다.
+
+변경 전 기준 실행은 빌드 번호 1 APK에 대한 Meta 업로드 거부와 `aapt2`의 `targetSdkVersion='36'`, 비가로 방향, `install-location:'preferExternal'` 확인이다. 변경 후 Target SDK 34, Landscape, Automatic 설치 위치와 Android 빌드 번호 2를 적용했다. Unity Editor의 `Tools > XR > Validate Meta Quest Android Build` PASS를 확인했고, 재빌드한 `ChemicalSafetyVR_Alpha_0.1.0_2.apk`는 APK Signature Scheme v2 서명, `versionCode='2'`, `targetSdkVersion='34'`, `install-location:'auto'`, `screenOrientation='landscape'`, ARM64, 필수 VR 헤드트래킹과 Meta VR 카테고리를 확인했다. APK SHA-256은 `C04BF625CD0A0FFCBA8EE94CAB193E62963A61BF09FA13B580F31BC29E5F08E1`이다. 2026-09-03 Meta Developer Dashboard에서 해당 빌드가 Quest 2·Quest Pro·Quest 3 패밀리·향후 기기 대상으로 Alpha 채널에 업로드되고 채널 1개에 할당된 것을 확인했다. 정적 설정, 재빌드 APK 검사와 Alpha 업로드는 완료했으며 Quest 2 설치·독립 실행, 양안 화질과 운영 데이터 전송은 아직 완료로 기록하지 않는다.
+
+한국 거주 계정은 최초 Alpha 초대 URL에서 정책상 참여 불가로 표시됐다. Meta 대한민국 배포 정책에 따라 IARC를 다시 작성하되, 시나리오 선택·컨트롤러 과제·교육/훈련/테스트·퀴즈·완료 판정을 포함한 실제 인터랙티브 훈련 시뮬레이션을 `Game`으로 분류하고 현재 빌드에 없는 폭력·공포·성적 내용·도박·약물·사용자 공유·구매·정확한 위치 공유 등의 항목은 `No`로 답했다. 그 결과 GRAC `전체 이용가`가 발급됐고 Meta 앱 메타데이터에 IARC 인증서를 저장했다. 이후 같은 한국 계정에서 Alpha 초대 페이지가 정상 표시되고 릴리스 채널 참여 완료 상태를 확인했다. 남은 검증은 같은 계정의 Quest 2 라이브러리 설치와 Alpha APK 독립 실행이다.
+
+### 2026-09-03 집에서 재개할 작업 인수인계
+
+#### 현재까지 완료한 사실
+
+- 기존 BGM을 제거하고 Suno Pro 계정으로 리마스터한 `Assets/Audio/BGM/XR Horizon Interface (Remastered).mp3`를 타이틀 BGM으로 연결했다. 타이틀의 기존 1초 페이드인 동작을 복구했고 사용자가 실제 재생을 확인했다. Suno Pro 사용 근거는 사용자가 별도로 보관했으며 곡 ID와 생성일 메타데이터 위치는 아직 확인하지 않았다.
+- 출시 키스토어를 Android Player Settings에 연결했다. 비밀번호는 저장소에 기록하지 않는다.
+- Meta 업로드용 Target SDK 34, 가로 방향, Automatic 설치 위치를 적용했고 빌드 번호 2 APK가 Alpha 채널에 업로드됐다. IARC/GRAC 전체 이용가 저장과 한국 테스트 계정의 Alpha 참여도 완료했다.
+- 로딩 씬의 `XROrigin`에 다른 XR 씬과 같은 `XRSessionForwardAlignment`를 연결한 빌드 번호 3 APK를 Alpha에 업로드하고 Meta 배포본으로 Quest 2에 설치했다. 설치 패키지는 `versionCode=3`, `targetSdkVersion=34`, installer `com.oculus.ocms`로 확인했다.
+- 빌드 번호 3의 Quest JSONL에서 `3_Loading` 진입은 `07:11:01.647754Z`, `4_PPE_Room` 진입은 `07:11:07.924301Z`로 약 6.28초 간격이었고, 사용자는 로딩 화면 수정 반영을 시각적으로 확인했다.
+- 데이터 기준의 시작은 사용자가 Education·Training·Test 모드를 선택해 실행이 확정된 순간으로 유지했다. 완료는 마지막 퀴즈 선택 직후가 아니라 종료 음성, Test 결과 확인 또는 자동 복귀, 암전·페이드인 이후 모드 선택 모달이 다시 표시된 순간에 기록하도록 코드를 정정했다. EXIT Point 중도 복귀는 완료 이벤트를 기록하지 않는다.
+- 런타임과 Editor 보조 C# 빌드는 오류 0개로 통과했다. Unity의 `Tools > PPE > Validate Training Data Contract`는 `4_PPE_Room`의 25개 binding과 종료 경로를 PASS했다. 실수로 실행한 `PPE Marker Selection`도 PASS했으며 읽기 전용 검사라 씬을 변경하지 않았다.
+
+#### 현재 정확한 중단 지점
+
+- `ProjectSettings/ProjectSettings.asset`의 `AndroidBundleVersionCode`는 **4**로 올렸지만 code 4 APK는 아직 만들거나 업로드하지 않았다.
+- `Tools > PPE > Validate Train Test Modes`는 과거 씬 경로와 과거 상세 컨트롤러 음원 번호를 기대하던 하네스 오류를 순서대로 드러냈다. 기본 대상은 현재 `Assets/Scenes/4_PPE_Room.unity`로, 상세 설명은 `001·002 → 004 → 006`으로 정정했다.
+- 마지막 실행에서는 상세 Joystick 단계와 간단 안내 단계의 시각 배열 길이가 같아야 한다는 오래된 조건 때문에 FAIL했다. 실제 작성 상태는 상세 설명 Clip 1개에 시각 1개, 간단 안내 Clip 2개에 같은 시각 2개로 정상이다. 하네스를 `상세 설명 Clip마다 같은 순번의 간단 안내 시각을 재사용`하도록 수정했지만 **수정 후 Unity Refresh와 PASS 재실행은 아직 하지 않았다.**
+- code 4에는 완료 경계 수정이 들어가므로 code 3에서 정상 수행시간 데이터를 수집하지 않는다. 현재 Quest의 code 3 앱도 새 기준 표본용으로 실행하지 않는다.
+
+#### 집에서 재개하는 정확한 순서
+
+1. 저장소에서 `release/2026-09-01-meta-horizon-submission` 브랜치를 최신 상태로 pull하고 Unity `6000.4.8f1`로 연다.
+2. Unity에서 `Assets > Refresh`를 누르고 컴파일이 끝날 때까지 기다린다. Play Mode에는 들어가지 않는다.
+3. `Tools > PPE > Validate Train Test Modes`를 실행한다. PASS가 아니면 code 4 빌드를 진행하지 않고 오류 원문을 기록한다.
+4. `Tools > PPE > Validate Training Data Contract`와 `Tools > XR > Validate Meta Quest Android Build`를 다시 실행해 모두 PASS인지 확인한다. `Import Error Code:(4)` 수정 시간 경고가 다시 나타나면 OpenXR 설정의 디스크 값과 Unity AssetDB가 안정적으로 재임포트됐는지 확인한 뒤 빌드한다.
+5. Android Build Profiles의 활성 씬이 `0_App`, `1_Title`, `2_Intro`, `3_Loading`, `4_PPE_Room` 순서인지 확인한다. `5_MixerRoom`, `6_InsideMixer`와 삭제된 Confined Space 항목은 활성화하지 않는다.
+6. 기존 출시 키스토어와 alias를 유지하고 `Builds/MetaHorizonAlpha/ChemicalSafetyVR_Alpha_0.1.0_4.apk`로 빌드한다. 키스토어 비밀번호는 저장소가 아니라 Unity 보안 입력에서 제공한다.
+7. 생성 APK에서 서명, `versionCode=4`, Target SDK 34, landscape, install location auto, ARM64, `android.hardware.vr.headtracking`, `com.oculus.intent.category.VR`을 검사한다.
+8. Meta Horizon Developer Dashboard의 Alpha 채널에서 **새 빌드 업로드**로 code 4 APK를 올린다. 기존 code 3을 삭제할 필요는 없으며 code 4가 Alpha 현재 빌드가 됐는지 확인한다.
+9. Quest 2 라이브러리에서 업데이트를 설치한 뒤 `dumpsys package`로 `versionCode=4`와 installer `com.oculus.ocms`를 확인한다. sideload APK를 정상 Alpha 배포본으로 오해하지 않는다.
+10. 새 기준 데이터 시작 전에 code 3 진단 JSONL은 이미 백업됐는지 확인하고 code 4 앱 데이터만 비운다. 앱 데이터 삭제는 사용자 이름 입력과 로컬 JSONL도 함께 지우므로 백업 확인 뒤 한 번만 수행한다.
+11. 앱을 `0_App`부터 실행하고 한 작업계획에서 **Test → Training → Education**을 한 판씩 연속 수행한다. 각 판은 해당 모드의 설계 음성을 생략하지 않고 첫 시도 정상 진행하며, 종료 음성·복귀가 끝나 **모드 선택 모달이 다시 보인 순간**을 그 판의 종료로 본다. 세 판 사이에 로비나 앱까지 나갈 필요는 없다.
+12. 세 판 뒤 앱을 정상 종료하고 Quest JSONL을 별도 폴더로 pull한다. 서로 다른 `modeSessionId`의 `mode_session_started` 3건과 `mode_session_completed` 3건, mode/workPlan, 퀴즈 수량, Test 결과와 이벤트 순서를 대조한다.
+13. 중도 EXIT 미완료 검증은 정상 기준 표본과 섞지 않는다. 기준 JSONL을 먼저 백업한 뒤 별도 회차에서 한 모드를 시작하고 EXIT Point로 복귀해 같은 ID의 `mode_session_completed`가 없는지 확인한다.
+14. 현재 Alpha 출시 빌드는 로컬 JSONL을 생성하지만 Quest Player의 서버 자동 업로드는 아직 출시 인증 경계상 활성화하지 않았다. 따라서 JSONL 생성만으로 Express·MySQL·대시보드 반영 완료라고 기록하지 않는다.
+
+#### 보존 및 커밋 제외 대상
+
+- `.baseline-preservation/**`, `Backups/Quest2TelemetryBeforeCode3_2026-09-03/**`, `Backups/Quest2TelemetryCode3LoadingFix_2026-09-03/**`는 로컬 증거 백업이며 Git 커밋에 포함하지 않는다.
+- Unity의 `Library`, `Temp`, `Logs`, 사용자별 비밀번호와 토큰은 커밋하지 않는다.

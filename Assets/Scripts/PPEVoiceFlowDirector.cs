@@ -321,6 +321,8 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     private string m_ModeSessionId;
     private int m_TestPpeWrongChoiceCount;
     private int m_TestQuizCorrectCount;
+    private int m_TestQuizQuestionCount;
+    private bool m_ModeSessionCompletionRecorded;
     private InputAction m_LeftTriggerSkipAction;
     private InputAction m_RightTriggerSkipAction;
     private InputAction m_RightControllerEducationAction;
@@ -1306,15 +1308,8 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     public void NotifyQuizCompleted(int correctAnswerCount, int questionCount)
     {
         m_TestQuizCorrectCount = correctAnswerCount;
+        m_TestQuizQuestionCount = questionCount;
         m_ModeSessionElapsed = Mathf.Max(0f, Time.unscaledTime - m_ModeSessionStartedAt);
-        PPETrainingTelemetryCapture.RecordModeSessionCompleted(
-            m_ModeSessionId,
-            ActiveLearningMode,
-            ActiveWorkPlan,
-            correctAnswerCount,
-            questionCount,
-            m_TestPpeWrongChoiceCount,
-            m_ModeSessionElapsed);
 
         if (ActiveLearningMode == ScenarioDetailModal.PpeLearningMode.Education)
             PlayPpeConditionalVoice(m_EduEndVoice);
@@ -1490,6 +1485,15 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
 
     public void ShowModeChoicesAfterCompletionReturn()
     {
+        ShowModeChoicesAfterCompletionReturn(true);
+    }
+
+    public void ShowModeChoicesAfterCompletionReturn(bool completedModeSession)
+    {
+        string completedModeSessionId = m_ModeSessionId;
+        ScenarioDetailModal.PpeLearningMode completedMode = ActiveLearningMode;
+        ScenarioDetailModal.PpeWorkPlan completedWorkPlan = ActiveWorkPlan;
+
         StopModeSelectionRoutine();
         StopFlowPlayback();
         m_TransitionVersion++;
@@ -1502,8 +1506,52 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         SetActive(m_ScenarioSelectionRoot, false);
         PPEControllerTeleportModeManager.SetVoiceMovementGate(false);
         ApplyPresentation(m_State);
-        m_ScenarioDetailModal?.ShowPpeModeChoicesAfterCompletion();
+        if (m_ScenarioDetailModal == null)
+        {
+            Debug.LogError(
+                "PPEVoiceFlowDirector cannot present the authored mode choices because the scenario detail modal reference is missing.",
+                this);
+        }
+        else
+        {
+            m_ScenarioDetailModal.ShowPpeModeChoicesAfterCompletion();
+            if (completedModeSession)
+            {
+                RecordCompletedModeSessionAtReturn(
+                    completedModeSessionId,
+                    completedMode,
+                    completedWorkPlan);
+            }
+        }
         LogTransition(m_State);
+    }
+
+    private void RecordCompletedModeSessionAtReturn(
+        string completedModeSessionId,
+        ScenarioDetailModal.PpeLearningMode completedMode,
+        ScenarioDetailModal.PpeWorkPlan completedWorkPlan)
+    {
+        if (m_ModeSessionCompletionRecorded)
+            return;
+
+        if (string.IsNullOrEmpty(completedModeSessionId))
+        {
+            Debug.LogError(
+                "[PPE Telemetry] Cannot record normal mode completion because the active mode session ID is missing.",
+                this);
+            return;
+        }
+
+        m_ModeSessionElapsed = Mathf.Max(0f, Time.unscaledTime - m_ModeSessionStartedAt);
+        PPETrainingTelemetryCapture.RecordModeSessionCompleted(
+            completedModeSessionId,
+            completedMode,
+            completedWorkPlan,
+            m_TestQuizCorrectCount,
+            m_TestQuizQuestionCount,
+            m_TestPpeWrongChoiceCount,
+            m_ModeSessionElapsed);
+        m_ModeSessionCompletionRecorded = true;
     }
 
     public void ResetModeSessionForNextSelection()
@@ -1549,6 +1597,8 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         m_TapeGrabVoicePlayed = false;
         m_TestPpeWrongChoiceCount = 0;
         m_TestQuizCorrectCount = 0;
+        m_TestQuizQuestionCount = 0;
+        m_ModeSessionCompletionRecorded = false;
         m_TestFirstPpeSelections.Clear();
     }
 

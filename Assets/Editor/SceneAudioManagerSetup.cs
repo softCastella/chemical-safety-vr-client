@@ -10,7 +10,7 @@ public static class SceneAudioManagerSetup
     private const string AppScenePath = "Assets/Scenes/0_App.unity";
     private const string TitleScenePath = "Assets/Scenes/1_Title.unity";
     private const string LegacySettingsPath = "Assets/Resources/Audio/AudioManagerSettings.asset";
-    private const string TitleBgmPath = "Assets/Audio/BGM/XR-Horizon-Interface.ogg";
+    private const string TitleBgmPath = "Assets/Audio/BGM/XR Horizon Interface (Remastered).mp3";
     private const string PpeRoomBgmPath = "Assets/Audio/BGM/Safe-Horizons-_VR-Training-Theme_.ogg";
 
     [MenuItem("Tools/Audio/Setup HandTest Scale 0 Scene Audio Manager")]
@@ -352,11 +352,12 @@ public static class SceneAudioManagerSetup
     {
         AudioClip title = AssetDatabase.LoadAssetAtPath<AudioClip>(TitleBgmPath);
         AudioClip ppeRoom = AssetDatabase.LoadAssetAtPath<AudioClip>(PpeRoomBgmPath);
-        if (title == null || ppeRoom == null)
-            throw new System.InvalidOperationException("Required BGM clips could not be loaded.");
+        if (title == null)
+            throw new System.InvalidOperationException("The required title BGM clip could not be loaded.");
 
         AddBgmIfMissing(library, "title", title, 1f, true);
-        AddBgmIfMissing(library, "ppe_room", ppeRoom, 0.3f, true);
+        if (ppeRoom != null)
+            AddBgmIfMissing(library, "ppe_room", ppeRoom, 0.3f, true);
     }
 
     private static void ConfigureSoundLibrary(

@@ -39,6 +39,7 @@ public sealed class TitleSplashController : MonoBehaviour
     [Header("Title Audio")]
     [SerializeField] private bool playTitleBgmOnStart = true;
     [SerializeField] private string titleBgmId = "title";
+    [SerializeField, Min(0f)] private float titleBgmFadeInDuration = 1f;
 
     private CanvasGroup primaryGroup;
     private CanvasGroup versionGroup;
@@ -73,7 +74,7 @@ public sealed class TitleSplashController : MonoBehaviour
             }
             else
             {
-                AudioManager.Instance.PlayBgm(titleBgmId);
+                AudioManager.Instance.PlayBgm(titleBgmId, titleBgmFadeInDuration);
             }
         }
 

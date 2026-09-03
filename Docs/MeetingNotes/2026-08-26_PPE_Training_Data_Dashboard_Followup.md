@@ -490,3 +490,68 @@ Unity의 기존 교육 흐름, PPE Grab, UI, 음성 재생 동작은 이번 회�
 - `PPETrainTestModeValidationHarness`의 씬 경로·음원 번호·상세/간단 시각 배열 조건은 현재 작성 구조로 수정했지만 마지막 시각 배열 조건 수정 뒤 Unity에서 재실행한 PASS는 아직 없다.
 - `AndroidBundleVersionCode=4`는 설정됐지만 APK 빌드, Alpha 업로드와 Quest 설치는 아직 하지 않았다.
 - 다음 재개 시에는 Train/Test 하네스 PASS를 먼저 확인하고 code 4를 빌드한 뒤, 한 작업계획의 Test → Training → Education 정상 완료 3회를 모드 선택 모달 복귀까지 수행한다. 그 전의 code 3 회차는 새 완료 경계의 기준 데이터로 사용하지 않는다.
+
+## 2026-09-03 집 PC 재실행: Train/Test 하네스 회귀 판정
+
+### 재현 결과와 오류 원문
+
+- 집 PC에서 클라이언트 `main@4565b3fe241bdce5c40d01d267594d256d069ebe`를 pull하고 Unity
+  `6000.4.8f1`의 `Tools > PPE > Validate Train Test Modes`를 실행했다.
+- Console의 접힌 첫 항목에는 `1_Ray`의 `Card`·`Panel` 활성 조건만 보였지만 `Editor.log`에는 다음
+  5개 실패가 같은 실행에 기록됐다.
+  1. `The authored 1_Ray Card and Panel children must both remain active for detailed/simple guide reuse.`
+  2. `Detailed controller education must mark completion and return to keyboard input.`
+  3. `detailed Trigger lower image is not active after the simulated runtime presentation transition.`
+  4. `detailed Joystick right guide '3_Ray_T' is missing.`
+  5. `Simple Trigger lower image after return is not active after the simulated runtime presentation transition.`
+- 이 실행은 정적·Preview Scene 하네스 실패이며 Play Mode, Android 빌드 또는 Quest/OpenXR 실기 결과가
+  아니다. 집 PC에는 학원 PC의 APK와 HMD가 없으므로 설치된 실제 빌드 번호도 이번 재현으로 확정하지 않는다.
+
+### 최근 변경 대조와 회귀 판정
+
+- 현재 기본 씬 `Assets/Scenes/4_PPE_Room.unity`의 `1_Ray/Panel.activeSelf=false`,
+  `3_Ray_T` 없음, `3_Exit_Marker` 존재, `m_SkipKeyboardNameInput=true`는 최신 pull 전의
+  `506664f`, `518fca0`, `9355cb8` 직전 부모와 `1c3b24e`에서도 동일했다. 따라서 이 네 씬 작성값이
+  `49be0d3`에서 새로 회귀한 것은 아니다.
+- `49be0d3`은 `PPETrainTestModeValidationHarness`의 기본 검사 대상을 삭제된 과거 씬에서 현재
+  `4_PPE_Room`으로 정정했지만, Preview Scene 검사는 여전히 과거 `3_Ray_T` 이름과 키보드 활성 시절의
+  `Controller Edu → NameInput` 전이를 요구한다. 검사 대상만 현재 씬으로 바뀌고 내부 기대값이 끝까지
+  동기화되지 않아 최신 기준에서 필연적으로 FAIL하는 **검증 하네스 회귀**로 판정한다.
+- 현재 출시 흐름은 `m_SkipKeyboardNameInput=true`이므로 Welcome 뒤 `Simple`로 진입하고, Simple 중 A로
+  들어간 상세교육이 끝나면 비활성 키보드가 아니라 `CardIntro`로 진행하는 것이 최신 확정 동작이다.
+  런타임의 `ResolveControllerEducationNextState()`는 이 우회 규칙을 적용하고 있으므로 두 번째 오류를
+  해결하기 위해 런타임 상태 전이를 과거 `NameInput` 복귀로 되돌리지 않는다.
+- Joystick 오른쪽 가이드의 현재 씬 기준은 `3_Exit_Marker`다. 네 번째 오류를 없애기 위해 삭제된
+  `3_Ray_T` 오브젝트를 재생성하거나 현재 씬 오브젝트를 이름 변경하지 않는다. 하네스가 현재 직렬화 참조와
+  이름을 검사하도록 고쳐야 한다.
+- `1_Ray/Panel.activeSelf=false`는 최근 pull 회귀는 아니지만, 현재 상세·Simple Trigger 단계에서 하단
+  이미지가 보이지 않게 할 수 있는 실제 씬 불일치 후보다. 첫 번째·세 번째·다섯 번째 오류는 이 한 작성값에서
+  파생된다. 과거 문서의 동시 표시 요구와 현재 Inspector 작성값이 충돌하므로, 실제 Game View 기준 표시와
+  사용자 의도를 확인해 Inspector에서 활성 여부를 확정하기 전에는 자동 수정하지 않는다.
+
+### OpenXR Import Error Code 4 분리
+
+- 같은 Unity 세션에서 `Assets/XR/Settings/OpenXR Package Settings.asset`의 SourceAssetDB 시각과 디스크
+  수정 시각이 다르다는 `Import Error Code:(4)`가 한 번 기록됐다.
+- 확인 당시 해당 파일의 Git index와 디스크 SHA-1은 모두
+  `f167e4990ab0ef4a26201d3b6b866e261cfda848`이고 텍스트 diff도 없었다. pull 직후 병렬 Import 중 발생한
+  시각 불일치로 분류하며 Train/Test의 위 5개 계약 실패와 합치지 않는다.
+- Refresh 뒤 같은 오류가 반복되면 OpenXR AssetDB가 안정적으로 재임포트됐는지 먼저 확인한다. 반복 여부를
+  확인하지 않은 상태에서 OpenXR 설정을 재저장하거나 Android 빌드를 시작하지 않는다.
+
+### 영향 범위와 후속 검증
+
+- 이번 조사에서는 런타임 코드, 씬, Inspector 값과 OpenXR 설정 내용을 수정하지 않았다.
+- 후속 수정 범위는 `PPETrainTestModeValidationHarness`의 Joystick 오브젝트 기대값과 키보드 우회 전이
+  기대값이다. `1_Ray/Panel`은 UI 작성값이므로 사용자 확인 뒤 Unity Inspector에서만 결정한다.
+- 수정 후 `Tools > PPE > Validate Train Test Modes`를 다시 실행해 PASS를 확인하고, 같은 씬에서 상세와
+  Simple Trigger의 상단·하단 이미지 및 Joystick 가이드를 Game View로 비교한다.
+- Quest/OpenXR 양안 표시, 물리 A 재진입, `Simple → 상세교육 → CardIntro`, Android code 4 설치 상태와
+  JSONL 완료 경계는 학원 PC와 HMD에서 별도 검증한다. 이 검증 전에는 code 4 실기나 정상 기준 데이터 수집을
+  완료로 기록하지 않는다.
+
+### 교차 저장소 기록 상태
+
+- 조사 시점 서버 기준은 `main@d6b5963f7fef139588b6999731f6169cab4037ce`이며 작업 트리는 clean이었다.
+- 이 절은 공용 사실 인수인계를 위해 서버 저장소의 같은 상대 경로에 미러링한다. 서버 런타임·API·DB 코드는
+  변경하지 않았고, 문서 미러링을 서버 반영 또는 클라이언트·서버 통합 검증 완료로 해석하지 않는다.

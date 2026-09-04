@@ -35,3 +35,15 @@ Express 서버는 별도 비공개 저장소인 `softCastella/chemical-safety-vr
 Unity 프로젝트를 열 때는 저장소 루트를 선택합니다. `Library`, `Temp`, `Logs`, `obj`, `UserSettings`와 같은 Unity 생성 폴더는 버전 관리하지 않습니다.
 
 서버 연동을 확인하거나 최종 문서를 작성할 때는 서버 저장소의 대상 브랜치와 커밋 SHA를 함께 확인합니다. 서로 다른 Codex 대화의 기억이 아니라 양쪽 저장소의 코드, 문서 및 검증 결과를 작업 사실의 기준으로 사용합니다.
+
+## Codex 이전 세션 복구
+
+업데이트나 창 종료로 작업이 중단되면 저장소 루트에서 다음 하네스를 먼저 실행합니다.
+
+```bash
+node Tools/CodexSessionRecoveryHarness.mjs
+```
+
+하네스는 `$CODEX_HOME/sessions` 또는 기본 경로 `~/.codex/sessions`에서 현재 저장소와 작업 경로가 같은 세션만 찾습니다. Codex 안에서 실행하면 `CODEX_SESSION_ID`와 `CODEX_THREAD_ID`의 현재 세션을 자동 제외하므로 서버 저장소나 현재 대화를 잘못 선택하지 않습니다. 개인 대화 원문과 세션 ID는 저장소에 복사하지 않습니다.
+
+현재 터미널에서 최신 이전 세션을 이어가려면 `node Tools/CodexSessionRecoveryHarness.mjs --resume`, Windows 새 PowerShell 창으로 열려면 `node Tools/CodexSessionRecoveryHarness.mjs --open`을 실행합니다. 후보를 더 확인할 때는 `--limit 5`, 선택 규칙 자체를 검증할 때는 `--self-test`를 사용합니다.

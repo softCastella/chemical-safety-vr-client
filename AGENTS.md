@@ -157,6 +157,8 @@ For a reproducible project-owned regression, add a dated report under `Docs/Bug`
 
 At the beginning of a task, use this file as orientation, then inspect the files directly relevant to the request. Do not rescan `Library`, `Temp`, or the full imported asset collection unless necessary.
 
+업데이트나 창 종료 후 이전 Codex 세션 복구 요청을 받으면 답변이나 수동 탐색보다 먼저 `node Tools/CodexSessionRecoveryHarness.mjs`를 실행한다. 이 하네스가 실패하기 전에 세션이 없거나 찾을 수 없다고 보고하지 않는다. 현재 터미널 재개는 `node Tools/CodexSessionRecoveryHarness.mjs --resume`, Windows 새 창 재개는 `node Tools/CodexSessionRecoveryHarness.mjs --open`을 사용하며 개인 세션 ID나 대화 원문을 저장소에 기록하지 않는다.
+
 ## 오늘 작업에서 확인된 판단 실패와 재발 방지 규칙 (2026-08-05)
 
 오늘 PPE HandTest 작업의 문제는 단순 오타보다 요구사항을 상태·입력·렌더링·직렬화의 전체 흐름으로 분해하지 않고 바로 구현한 데서 발생했다. 다음 규칙을 이후 작업의 하네스 기준으로 사용한다.

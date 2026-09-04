@@ -962,3 +962,15 @@ Major coroutines must be managed by Flow/Step Controllers, not by individual obj
 
 Codex must evaluate Unity Play Mode behavior, scene object references, prefab side effects, inactive objects, coroutine timing, XR input conflicts, generated scene content, XR shader stereo compatibility, and route regressions before deciding that a change is correct.
 ```
+
+## 25. 중단된 Codex 세션 복구 하네스
+
+업데이트, 앱 종료 또는 창 종료 뒤 기존 작업 세션을 찾아야 하면 추측하거나 바로 `찾을 수 없음`으로 답하지 않는다. 저장소 루트에서 다음 순서로 확인한다.
+
+1. `node Tools/CodexSessionRecoveryHarness.mjs`를 실행한다.
+2. 하네스가 현재 `CODEX_SESSION_ID`와 `CODEX_THREAD_ID`를 제외하고, 현재 저장소와 `session_meta.payload.cwd`가 같은 최신 세션을 선택했는지 확인한다.
+3. 후보가 여러 개면 `node Tools/CodexSessionRecoveryHarness.mjs --limit 5`로 이름, 갱신 시각과 중단 상태를 비교한다.
+4. 현재 터미널 재개는 `--resume`, Windows 새 창 재개는 `--open`으로 실행한다.
+5. 하네스가 실패한 경우에만 `$CODEX_HOME`, 세션 디렉터리와 작업 경로 불일치를 조사한다.
+
+하네스 자체 회귀 검증은 `node Tools/CodexSessionRecoveryHarness.mjs --self-test`로 실행한다. 실제 사용자 세션 파일, 대화 원문, 고정 세션 ID는 저장소에 추가하지 않는다.

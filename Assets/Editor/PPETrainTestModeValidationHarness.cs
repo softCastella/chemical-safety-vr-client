@@ -971,10 +971,10 @@ public static class PPETrainTestModeValidationHarness
         {
             failures.Add("The authored 1_Ray guide group must contain Card and Panel children.");
         }
-        else if (!card.gameObject.activeSelf || !panel.gameObject.activeSelf)
+        else if (!card.gameObject.activeSelf || panel.gameObject.activeSelf)
         {
             failures.Add(
-                "The authored 1_Ray Card and Panel children must both remain active for detailed/simple guide reuse.");
+                "The authored 1_Ray Card must remain active while the removed Panel visual stays hidden.");
         }
     }
 
@@ -1059,12 +1059,12 @@ public static class PPETrainTestModeValidationHarness
                         PPEVoiceFlowDirector.FlowState.ControllerRayT,
                         PPEVoiceFlowDirector.FlowState.CardIntro,
                     });
-            if (detailedCompletionRoute != PPEVoiceFlowDirector.FlowState.NameInput ||
+            if (detailedCompletionRoute != PPEVoiceFlowDirector.FlowState.CardIntro ||
                 !(bool)completionField.GetValue(director) ||
                 (bool)returnField.GetValue(director))
             {
                 failures.Add(
-                    "Detailed controller education must mark completion and return to keyboard input.");
+                    "Detailed controller education must mark completion and bypass keyboard input to CardIntro.");
             }
 
             PPEVoiceFlowDirector.FlowState completedNameRoute =
@@ -1088,7 +1088,7 @@ public static class PPETrainTestModeValidationHarness
                 detailedSteps[0]);
             RequireVisibleGuideObject(previewScene, "1_Ray", "detailed Trigger right guide", failures);
             RequireVisibleGuideChild(previewScene, "1_Ray", "Card", "detailed Trigger upper image", failures);
-            RequireVisibleGuideChild(previewScene, "1_Ray", "Panel", "detailed Trigger lower image", failures);
+            RequireHiddenGuideChild(previewScene, "1_Ray", "Panel", "detailed Trigger removed Panel", failures);
             RequireVisibleGuideObject(previewScene, "1_Ctrl_Trigger", "detailed Trigger controller", failures);
 
             InvokePresentation(
@@ -1106,7 +1106,7 @@ public static class PPETrainTestModeValidationHarness
                 applyVisual,
                 PPEVoiceFlowDirector.FlowState.ControllerRayT,
                 detailedSteps[2]);
-            RequireVisibleGuideObject(previewScene, "3_Ray_T", "detailed Joystick right guide", failures);
+            RequireVisibleGuideObject(previewScene, "3_Exit_Marker", "detailed Joystick right guide", failures);
             RequireVisibleGuideObject(previewScene, "3_Ctrl_Joystick", "detailed Joystick controller", failures);
 
             narrationField.SetValue(
@@ -1124,7 +1124,7 @@ public static class PPETrainTestModeValidationHarness
                 simpleSteps[0]);
             RequireVisibleGuideObject(previewScene, "1_Ray", "Simple Trigger right guide after return", failures);
             RequireVisibleGuideChild(previewScene, "1_Ray", "Card", "Simple Trigger upper image after return", failures);
-            RequireVisibleGuideChild(previewScene, "1_Ray", "Panel", "Simple Trigger lower image after return", failures);
+            RequireHiddenGuideChild(previewScene, "1_Ray", "Panel", "Simple Trigger removed Panel after return", failures);
             RequireVisibleGuideObject(previewScene, "1_Ctrl_Trigger", "Simple Trigger controller after return", failures);
         }
         catch (TargetInvocationException exception)
@@ -1174,6 +1174,25 @@ public static class PPETrainTestModeValidationHarness
         }
 
         RequireVisibleGuideObject(child.gameObject, label, failures);
+    }
+
+    private static void RequireHiddenGuideChild(
+        Scene scene,
+        string parentName,
+        string childName,
+        string label,
+        List<string> failures)
+    {
+        GameObject parent = FindSceneObject(scene, parentName);
+        Transform child = parent != null ? FindTransform(parent.transform, childName) : null;
+        if (child == null)
+        {
+            failures.Add($"{label} is missing from the authored hierarchy.");
+            return;
+        }
+
+        if (child.gameObject.activeSelf || child.gameObject.activeInHierarchy)
+            failures.Add($"{label} must remain hidden after the simulated runtime presentation transition.");
     }
 
     private static void RequireVisibleGuideObject(

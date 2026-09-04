@@ -1373,3 +1373,95 @@ Meta 업로드 검사가 첫 출시 서명 APK에서 Android Target SDK 36, 자�
 
 - `.baseline-preservation/**`, `Backups/Quest2TelemetryBeforeCode3_2026-09-03/**`, `Backups/Quest2TelemetryCode3LoadingFix_2026-09-03/**`는 로컬 증거 백업이며 Git 커밋에 포함하지 않는다.
 - Unity의 `Library`, `Temp`, `Logs`, 사용자별 비밀번호와 토큰은 커밋하지 않는다.
+
+## 2026-09-04 code 4 Quest 실기 피드백과 code 5 후속 계획
+
+### 확인된 배포·실행 기준
+
+- 클라이언트 `main@389a37a27164c988c517b7e3377006668a2da20b`, 서버
+  `main@92b3f23bbd9c5f4e4f24f8db531d8279a141784d`를 기준으로 code 4를 만들었다.
+- `ChemicalSafetyVR_Alpha_0.1.0_4.apk`는 Unity 빌드 성공, `versionCode=4`, Target SDK 34,
+  `install-location=auto`, landscape, ARM64, Meta VR headtracking/category와 APK Signature Scheme v2를
+  확인했다. code 3과 인증서 SHA-256이 같으며 APK SHA-256은
+  `B52F5B7A394C0F5072F43C1B75400204E476D518CA1750FE90D4B4FCEF659EAB`이다.
+- Meta Alpha 채널에서 code 4 업로드 검사가 완료됐고 Quest 2에 `installerPackageName=com.oculus.ocms`,
+  `versionCode=4`로 설치된 것을 확인했다.
+- Quest code 4 원본 JSONL 3개는
+  `C:\Users\user\Documents\Backups\chemical-safety-vr-client\2026-09-04-code4-smoke`에 백업했다.
+  전체 파일의 JSON 파싱 오류, sequence 중복과 eventId 중복은 0개다. 가장 긴 세션은 Education·Training·Test와
+  두 작업계획의 6개 `mode_session_started`가 각각 같은 ID의 6개 `mode_session_completed`로 닫혔다.
+  나머지 두 세션은 모드 시작 없이 0_App부터 PPE Room까지 진입하고 `session_ended`로 끝난 스모크 실행이다.
+- Quest logcat에는 해당 실행 시간대의 `FATAL EXCEPTION`과 ANR이 없었다. 프로세스 종료 기록은 각 JSONL의
+  `session_ended` 뒤에 발생했다.
+
+### 선생님 화질 피드백과 사용자 수정 요청
+
+다음은 code 4 Quest 2 실기에서 관찰된 사실이다. 아직 코드·씬·Inspector의 근본 원인은 확정하지 않았으며,
+이번 기록 단계에서는 런타임·씬·프로젝트 설정을 수정하지 않는다.
+
+1. 전체 화질을 높일 필요가 있고 특히 텍스트가 뭉개져 보인다.
+2. 태블릿 문서는 얼굴 가까이 가져와야만 글자가 읽힌다.
+3. 진열장 가운데 가로 선반과 오른쪽 기둥 일부에 손이 관통한다.
+4. 거울의 플레이어 표시는 괜찮지만 방의 좌우가 기대와 반대로 보인다. 상하는 정상이다.
+5. 거울에 EXIT는 보이지만 위치 마커는 보이지 않는다.
+6. 복귀 위치에 도착했을 때 퀴즈 모달이 남아 보인다. 요청 동작은 복귀 전에 퀴즈 모달을 닫은 뒤 이동하는 것이다.
+7. 최초 Simple 컨트롤러 안내 이후 미니 컨트롤러 구역에서 오른손 A 버튼을 눌러도 상세 컨트롤러 가이드의
+   음원과 UI가 재생되지 않는다.
+8. 재진입 사용자는 `Welcome_Old` 뒤 Simple 컨트롤러 단계를 생략하고 다음 단계로 진행해야 한다.
+
+### 변경 전 필수 질문 답변
+
+1. **Inspector·씬 작성값 보존:** 태블릿 Canvas/TMP/Material, 진열장 Collider, 거울 Camera/Layer/Culling Mask와
+   퀴즈·가이드 참조는 씬 작성값을 기준으로 조사한다. 런타임 코드에서 위치·크기·색·폰트·해상도 값을 새로
+   하드코딩하지 않고 `Awake`, `OnEnable`, `Start`, 상태 전환과 생성기에서 덮어쓰는 경로를 함께 확인한다.
+2. **단일 기준과 상태 소유자:** 전역 Quest 화질은 Mobile URP/Quality 설정, 태블릿 가독성은 태블릿의 씬 작성
+   Canvas·TMP·Material, 충돌은 진열장 Collider, 반사는 거울 카메라와 반사 레이어, 퀴즈·복귀와 컨트롤러
+   안내 상태는 `PPEVoiceFlowDirector`·`PPEQuizController`·`PPEFinaleController`, 계정 상태는
+   `MetaPlatformIdentityProbe`를 우선 소유자 후보로 둔다. 실제 참조를 확인하기 전에는 소유자를 확정하지 않는다.
+3. **입력 전체 경로:** A 상세교육 경로는 `오른손 primaryButton/buttonSouth → Input System/XRI action →
+   PPEVoiceFlowDirector의 상태별 입력 판정 → 상세 ControllerRay/Marker/RayT 상태 → 씬 작성 UI와 음원 →
+   CardIntro 복귀`로 추적한다. 미니 컨트롤러 UI 자체에 새 Ray 클릭이나 별도 입력 소비자를 추가하지 않는다.
+4. **실패 처리:** 누락 Collider·참조·Layer를 런타임에서 자동 생성·자동 선택하지 않는다. 진단 하네스가 정확한
+   오브젝트 경로와 누락값으로 실패하게 하고 수리는 명시적 Editor 작업 또는 Inspector 작성값으로 한정한다.
+5. **영향 소비자:** Quest 프레임 예산·양안 텍스트, 태블릿 UI, 손·컨트롤러 충돌, 거울 반사와 마커,
+   퀴즈 완료·텔레포트 순서, A 입력·가이드 UI/음원, 신규·기존 사용자 진입이 서로 다른 소비자다. 한 패치에서
+   한 소비자만 변경하고 각 단계의 회귀 검증 뒤 다음 항목으로 이동한다.
+6. **변경 전후 비교:** 변경 전 기준은 Alpha code 4와 백업 JSONL·Quest 관찰이다. 변경 후에는 같은 Quest 2,
+   같은 거리·장면·IPD 조건에서 캡처하고, 태블릿 가독 거리, 72Hz 프레임 예산, Collider 관통, 거울 좌우·마커,
+   모달 종료 순서와 FirstVisit/Returning 입력 상태표를 항목별로 비교한다.
+7. **검증 범위:** 정적 YAML/코드와 C# 빌드, Unity Preview/하네스, Game View/Play Mode, Quest code 5 양안·입력·오디오,
+   Alpha 설치와 JSONL을 각각 구분한다. Game View 또는 하네스 PASS만으로 Quest 화질과 물리 A 입력을 완료 처리하지 않는다.
+
+### 결정한 수정 순서
+
+1. **현재 상태 보존:** Unity를 정상 종료한 뒤 새 터미널에서 브랜치와 작업 트리를 다시 확인한다. 현재 클라이언트는
+   `followup/2026-09-04-quest-quality-and-ppe-fixes`이며, code 4 빌드 뒤 `ProjectSettings/ProjectSettings.asset`에
+   `preloadedAssets` 2건이 미커밋으로 추가돼 있다. 이 값은 사용자 작업으로 보존하고, 생성 원인을 확인하기 전
+   커밋하거나 되돌리지 않는다.
+2. **화질과 태블릿을 분리 진단:** Mobile Render Scale `0.8`과 MSAA 4x의 code 4 기준 성능을 먼저 기록한다.
+   전체 화면이 흐린지 태블릿만 흐린지 분리하고 태블릿 Canvas 픽셀 밀도, TMP 폰트 atlas/material, 스케일과
+   런타임 덮어쓰기를 조사한다. 전역 Render Scale 상향은 72Hz GPU 예산을 확인한 뒤에만 후보로 적용한다.
+3. **진열장 충돌:** 문제 선반·오른쪽 기둥의 전체 계층과 Renderer Bounds, 기존 Collider Bounds 및 Layer를
+   진단한다. 시각 메시를 바꾸지 않고 씬 작성 Collider의 빈 구간만 보완하며 손과 컨트롤러 양쪽을 확인한다.
+4. **거울 반사:** 플레이어·방·EXIT·위치 마커의 Layer와 반사 카메라 Culling Mask를 대조한다. 좌우 문제는
+   반사 카메라 Transform·projection·출력 UV 중 하나만 변경해 비교하고, 마커는 EXIT와 같은 반사 정책인지
+   확인한 뒤 필요한 Layer만 포함한다. 상하와 플레이어 정합은 보존한다.
+5. **퀴즈 복귀 순서:** `퀴즈 종료 → 퀴즈 모달 비활성 → 종료 음성/결과 처리 → 암전 → 시작 위치 복귀 →
+   페이드인 → 모드 선택 표시 → 완료 이벤트` 상태표와 코드를 맞춘다. 텔레포트 뒤 모달을 숨기는 보정은 하지 않는다.
+6. **A 상세 가이드:** 현재 A 입력이 허용되는 FlowState와 미니 컨트롤러 구간의 상태를 로그로 확인한다. 요청된
+   구간을 명시적으로 허용하되 중복 실행, Simple 음원과의 동시 재생, 모달·텔레포트 입력 소비는 추가하지 않는다.
+7. **재진입 흐름:** 최신 요청 목표는 `Welcome_New → Simple → CardIntro`,
+   `Welcome_Old → Simple 생략 → CardIntro`다. Old 판정이 단순 Welcome 청취 이력인지 실제 완료 기록인지 먼저
+   확인하고, 기존 문서의 “시나리오 1개 이상 완료” 계약과 충돌하면 사용자 승인 없이 판정 기준을 바꾸지 않는다.
+   Returning 상태에서도 미니 컨트롤러 구역의 A 상세교육 재진입 가능 여부를 별도 상태표로 검증한다.
+8. **code 5 출시 게이트:** 관련 하네스를 항목별로 확장하고 C# 오류 0, Train/Test·데이터 계약·이동/PPE·Android
+   빌드 검증 PASS 뒤 code 5를 만든다. Quest 2에서 양안·72Hz·입력·오디오·두 사용자 경로·두 작업계획을 확인하고
+   새 JSONL을 별도 백업한 뒤에만 Alpha code 5와 선생님 재검토본으로 분류한다.
+
+### 다음 터미널 시작점
+
+- 이번 세션에서는 위 계획만 문서화하고 코드·씬·UI·Collider·Layer·Render Scale을 수정하지 않는다.
+- Unity가 열려 있으므로 정상 종료한 뒤 다음 터미널을 시작한다. 새 세션은 먼저 `git status -sb`, Unity 프로세스,
+  `ProjectSettings.asset`의 `preloadedAssets` diff와 현재 씬을 확인한다.
+- 8개 관찰 중 첫 구현 항목은 화질·태블릿이 아니라 **원인 분리를 위한 읽기 전용 기준 조사**다. 조사 결과를
+  항목별로 기록한 뒤 한 소비자씩 수정한다.

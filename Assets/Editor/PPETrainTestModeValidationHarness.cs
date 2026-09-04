@@ -676,6 +676,21 @@ public static class PPETrainTestModeValidationHarness
         string returnMethodBody = source.Substring(
             returnMethodStart,
             returnMethodEnd - returnMethodStart);
+        int hideQuizIndex = returnMethodBody.IndexOf(
+            "HideQuizUiBeforeReturn();",
+            StringComparison.Ordinal);
+        int preReturnFadeOutIndex = returnMethodBody.IndexOf(
+            "yield return FadeTo(1f);",
+            StringComparison.Ordinal);
+        int preReturnMoveIndex = returnMethodBody.IndexOf(
+            "ReturnToStart();",
+            StringComparison.Ordinal);
+        if (hideQuizIndex < 0 || preReturnFadeOutIndex < 0 || preReturnMoveIndex < 0 ||
+            hideQuizIndex > preReturnFadeOutIndex || hideQuizIndex > preReturnMoveIndex)
+        {
+            failures.Add(
+                "Quiz/result UI must close before completion fade-out and return movement.");
+        }
         if (!returnMethodBody.Contains("yield return FadeTo(1f);"))
             failures.Add("Completion return does not fade out before moving.");
         if (!returnMethodBody.Contains("yield return FadeTo(0f);"))
@@ -723,6 +738,75 @@ public static class PPETrainTestModeValidationHarness
         {
             failures.Add(
                 "A legacy normal-completion path can still reopen scenario cards instead of mode choices.");
+        }
+
+        const string identityPath = "Assets/Scripts/MetaPlatformIdentityProbe.cs";
+        string identitySource = File.ReadAllText(identityPath);
+        if (!identitySource.Contains("Tyche.MetaScenarioCompleted.") ||
+            !identitySource.Contains("BuildScenarioCompletedKey(AppScopedUserId)"))
+        {
+            failures.Add(
+                "Returning Meta users are not classified by a per-account completed-scenario record.");
+        }
+        if (identitySource.Contains("Tyche.MetaWelcomeSeen.") ||
+            identitySource.Contains("MarkWelcomePlayedForCurrentUser"))
+        {
+            failures.Add(
+                "Returning Meta user classification still depends on welcome-audio playback.");
+        }
+
+        int recordCompletionStart = directorSource.IndexOf(
+            "private void RecordCompletedModeSessionAtReturn(",
+            StringComparison.Ordinal);
+        int recordCompletionEnd = directorSource.IndexOf(
+            "public void ResetModeSessionForNextSelection()",
+            recordCompletionStart >= 0 ? recordCompletionStart : 0,
+            StringComparison.Ordinal);
+        if (recordCompletionStart < 0 || recordCompletionEnd <= recordCompletionStart)
+        {
+            failures.Add("Completed-mode persistence method could not be inspected.");
+        }
+        else
+        {
+            string recordCompletionBody = directorSource.Substring(
+                recordCompletionStart,
+                recordCompletionEnd - recordCompletionStart);
+            int telemetryIndex = recordCompletionBody.IndexOf(
+                "PPETrainingTelemetryCapture.RecordModeSessionCompleted(",
+                StringComparison.Ordinal);
+            int completionMarkIndex = recordCompletionBody.IndexOf(
+                "MetaPlatformIdentityProbe.MarkScenarioCompletedForCurrentUser();",
+                StringComparison.Ordinal);
+            if (telemetryIndex < 0 || completionMarkIndex <= telemetryIndex)
+            {
+                failures.Add(
+                    "Meta scenario completion must be persisted only after normal mode completion is recorded.");
+            }
+        }
+
+        int returningRouteStart = directorSource.IndexOf(
+            "private FlowState GetNameSubmissionNextState()",
+            StringComparison.Ordinal);
+        int returningRouteEnd = directorSource.IndexOf(
+            "private FlowState ResolveControllerEducationNextState(",
+            returningRouteStart >= 0 ? returningRouteStart : 0,
+            StringComparison.Ordinal);
+        if (returningRouteStart < 0 || returningRouteEnd <= returningRouteStart)
+        {
+            failures.Add("Returning-user controller education bypass could not be inspected.");
+        }
+        else
+        {
+            string returningRouteBody = directorSource.Substring(
+                returningRouteStart,
+                returningRouteEnd - returningRouteStart);
+            if (!returningRouteBody.Contains("AccountWelcomeState.Returning") ||
+                !returningRouteBody.Contains("m_ControllerEducationCompleted = true;") ||
+                !returningRouteBody.Contains("return FlowState.CardIntro;"))
+            {
+                failures.Add(
+                    "A completion-backed returning Meta user does not skip Simple controller education.");
+            }
         }
     }
 
@@ -1000,6 +1084,15 @@ public static class PPETrainTestModeValidationHarness
             FieldInfo completionField = directorType.GetField(
                 "m_ControllerEducationCompleted",
                 flags);
+            FieldInfo resumeStateField = directorType.GetField(
+                "m_ControllerEducationResumeState",
+                flags);
+            FieldInfo hasResumeStateField = directorType.GetField(
+                "m_HasControllerEducationResumeState",
+                flags);
+            FieldInfo silentResumeField = directorType.GetField(
+                "m_ControllerEducationSilentResumePending",
+                flags);
             FieldInfo autoHideSecondsField = directorType.GetField(
                 "m_WindowPresentationAutoHideSeconds",
                 flags);
@@ -1014,6 +1107,7 @@ public static class PPETrainTestModeValidationHarness
                 "ResolveControllerEducationNextState",
                 flags);
             if (narrationField == null || returnField == null || completionField == null ||
+                resumeStateField == null || hasResumeStateField == null || silentResumeField == null ||
                 autoHideSecondsField == null ||
                 detailedStepsField == null || simpleStepsField == null ||
                 applyPresentation == null || applyVisual == null ||
@@ -1066,6 +1160,27 @@ public static class PPETrainTestModeValidationHarness
                 failures.Add(
                     "Detailed controller education must mark completion and bypass keyboard input to CardIntro.");
             }
+
+            returnField.SetValue(director, true);
+            resumeStateField.SetValue(director, PPEVoiceFlowDirector.FlowState.PpeArea);
+            hasResumeStateField.SetValue(director, true);
+            silentResumeField.SetValue(director, false);
+            PPEVoiceFlowDirector.FlowState miniGuideCompletionRoute =
+                (PPEVoiceFlowDirector.FlowState)resolveControllerEducationNextState.Invoke(
+                    director,
+                    new object[]
+                    {
+                        PPEVoiceFlowDirector.FlowState.ControllerRayT,
+                        PPEVoiceFlowDirector.FlowState.CardIntro,
+                    });
+            if (miniGuideCompletionRoute != PPEVoiceFlowDirector.FlowState.PpeArea ||
+                (bool)hasResumeStateField.GetValue(director) ||
+                !(bool)silentResumeField.GetValue(director))
+            {
+                failures.Add(
+                    "Mini-guide detailed education must silently resume its authored PPE flow state.");
+            }
+            silentResumeField.SetValue(director, false);
 
             PPEVoiceFlowDirector.FlowState completedNameRoute =
                 (PPEVoiceFlowDirector.FlowState)getNameSubmissionNextState.Invoke(director, null);

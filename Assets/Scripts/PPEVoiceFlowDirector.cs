@@ -117,6 +117,8 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     [SerializeField] private VoiceStep[] m_ControllerEduVoiceSteps;
     [Tooltip("Short controller guide narration intended to run after keyboard name submission.")]
     [SerializeField] private VoiceStep[] m_ControllerSimpVoiceSteps;
+    [Tooltip("Assign the authored head-fixed ControllerGuide_mini. Right A may reopen detailed education only while this guide is visible in CardIntro or PpeArea.")]
+    [SerializeField] private GameObject m_ControllerGuideMini;
 
     [Header("Flow Options")]
     [Tooltip("Temporarily bypasses the authored NameInput keyboard while preserving its scene object and references.")]
@@ -336,6 +338,9 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     private VoiceStep m_ControllerGuideInputStep;
     private Coroutine m_ControllerGuideInputFeedbackRoutine;
     private int m_LastControllerEducationRequestFrame = -1;
+    private FlowState m_ControllerEducationResumeState;
+    private bool m_HasControllerEducationResumeState;
+    private bool m_ControllerEducationSilentResumePending;
     private readonly HashSet<string> m_WarnedMissingVoiceSteps = new();
     private bool m_HasLoggedMissingMetaWelcomeClip;
     private readonly Dictionary<PPEActionPanelController, bool> m_TestFirstPpeSelections = new();
@@ -399,6 +404,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     {
         m_ActiveControllerNarration = m_ControllerNarrationAfterName;
         m_ReturnToNameInputAfterControllerEducation = false;
+        ClearControllerEducationResumeRoute();
         m_ControllerEducationCompleted = false;
         m_LastControllerEducationRequestFrame = -1;
         PreloadHazmatVoiceClips();
@@ -484,6 +490,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         DisableAndDisposeControllerEducationAction();
         DisableAndDisposeControllerGuideInputActions();
         m_ReturnToNameInputAfterControllerEducation = false;
+        ClearControllerEducationResumeRoute();
         StopModeSelectionRoutine();
         StopFlowPlayback();
         HideAvailableControllerModelsOnDisable();
@@ -846,6 +853,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         m_WarnedMissingVoiceSteps.Clear();
         m_State = initialState;
         m_ReturnToNameInputAfterControllerEducation = false;
+        ClearControllerEducationResumeRoute();
         m_ControllerEducationCompleted = false;
         m_LastControllerEducationRequestFrame = -1;
         m_TeleportInputStarted = false;
@@ -890,6 +898,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         m_WarnedMissingVoiceSteps.Clear();
         m_State = FlowState.ModalDetail;
         m_ReturnToNameInputAfterControllerEducation = false;
+        ClearControllerEducationResumeRoute();
         m_ControllerEducationCompleted = false;
         m_TeleportInputStarted = false;
         m_TabletReleasedVoicePlayed = false;
@@ -920,6 +929,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         m_WarnedMissingVoiceSteps.Clear();
         m_State = FlowState.CardIntro;
         m_ReturnToNameInputAfterControllerEducation = false;
+        ClearControllerEducationResumeRoute();
         m_ControllerEducationCompleted = false;
         m_TeleportInputStarted = false;
         m_TabletReleasedVoicePlayed = false;
@@ -959,6 +969,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
 
         SubmittedName = submittedName;
         m_ReturnToNameInputAfterControllerEducation = false;
+        ClearControllerEducationResumeRoute();
         m_ActiveControllerNarration = m_ControllerNarrationAfterName;
         TransitionTo(GetNameSubmissionNextState());
     }
@@ -973,7 +984,8 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         bool isBypassedKeyboardControllerEntry = m_SkipKeyboardNameInput
             && IsControllerGuideState(m_State)
             && m_ActiveControllerNarration == ControllerGuideNarration.Simple;
-        if ((!isKeyboardEntry && !isBypassedKeyboardControllerEntry)
+        bool isVisibleMiniGuideEntry = IsVisibleMiniControllerEducationEntry();
+        if ((!isKeyboardEntry && !isBypassedKeyboardControllerEntry && !isVisibleMiniGuideEntry)
             || m_ReturnToNameInputAfterControllerEducation
             || m_LastControllerEducationRequestFrame == Time.frameCount)
         {
@@ -981,12 +993,37 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         }
 
         m_LastControllerEducationRequestFrame = Time.frameCount;
+        if (isVisibleMiniGuideEntry)
+        {
+            m_ControllerEducationResumeState = m_State;
+            m_HasControllerEducationResumeState = true;
+            SetActive(m_ControllerGuideMini, false);
+        }
+        else
+        {
+            ClearControllerEducationResumeRoute();
+        }
+
         m_ReturnToNameInputAfterControllerEducation = true;
         m_ActiveControllerNarration = ControllerGuideNarration.Education;
         if (isBypassedKeyboardControllerEntry)
             RestartControllerGuideAtRayStep();
         else
             TransitionTo(FlowState.ControllerRay);
+    }
+
+    private bool IsVisibleMiniControllerEducationEntry()
+    {
+        if (m_ControllerGuideMini == null || !m_ControllerGuideMini.activeInHierarchy)
+            return false;
+
+        return m_State == FlowState.CardIntro || m_State == FlowState.PpeArea;
+    }
+
+    private void ClearControllerEducationResumeRoute()
+    {
+        m_HasControllerEducationResumeState = false;
+        m_ControllerEducationSilentResumePending = false;
     }
 
     private void RestartControllerGuideAtRayStep()
@@ -1475,6 +1512,11 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
             m_TestPpeWrongChoiceCount);
     }
 
+    public void HideQuizUiBeforeReturn()
+    {
+        m_QuizController?.HideForCompletionReturn();
+    }
+
     public void NotifyCompletionBackRequested()
     {
         if (ActiveLearningMode != ScenarioDetailModal.PpeLearningMode.Test)
@@ -1551,6 +1593,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
             m_TestQuizQuestionCount,
             m_TestPpeWrongChoiceCount,
             m_ModeSessionElapsed);
+        MetaPlatformIdentityProbe.MarkScenarioCompletedForCurrentUser();
         m_ModeSessionCompletionRecorded = true;
     }
 
@@ -2211,13 +2254,17 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         if (m_State == nextState)
             return;
 
+        bool resumeWithoutNarration = m_ControllerEducationSilentResumePending
+            && nextState == m_ControllerEducationResumeState;
+        m_ControllerEducationSilentResumePending = false;
         StopFlowPlayback();
         m_TransitionVersion++;
         m_State = nextState;
         m_TeleportInputStarted = false;
         ApplyPresentation(m_State);
         LogTransition(m_State);
-        EnterState(m_State, showScenarioModal: showScenarioModal);
+        if (!resumeWithoutNarration)
+            EnterState(m_State, showScenarioModal: showScenarioModal);
     }
 
     private IEnumerator AutoTeleportThenEnableLocomotion(int version)
@@ -2342,11 +2389,10 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
             }
         }
 
-        bool markFirstMetaWelcomePlayed = false;
         AudioClip[] clipsToPlay = step.clips;
         if (step.state == FlowState.Welcome)
         {
-            AudioClip welcomeClip = ResolveMetaWelcomeClip(out markFirstMetaWelcomePlayed);
+            AudioClip welcomeClip = ResolveMetaWelcomeClip();
             clipsToPlay = welcomeClip == null ? Array.Empty<AudioClip>() : new[] { welcomeClip };
         }
 
@@ -2396,11 +2442,6 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
                     yield return null;
                 }
 
-                if (version == m_TransitionVersion && markFirstMetaWelcomePlayed)
-                {
-                    MetaPlatformIdentityProbe.MarkWelcomePlayedForCurrentUser();
-                    markFirstMetaWelcomePlayed = false;
-                }
             }
         }
 
@@ -2431,12 +2472,10 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         TransitionTo(ResolveControllerEducationNextState(step.state, step.nextState));
     }
 
-    private AudioClip ResolveMetaWelcomeClip(out bool markFirstVisitPlayed)
+    private AudioClip ResolveMetaWelcomeClip()
     {
         MetaPlatformIdentityProbe.AccountWelcomeState welcomeState =
             MetaPlatformIdentityProbe.CurrentWelcomeState;
-        markFirstVisitPlayed = welcomeState ==
-            MetaPlatformIdentityProbe.AccountWelcomeState.FirstVisit;
 
         AudioClip selected = welcomeState == MetaPlatformIdentityProbe.AccountWelcomeState.Returning
             ? m_ReturningMetaUserWelcomeClip
@@ -2455,7 +2494,6 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
             m_HasLoggedMissingMetaWelcomeClip = true;
         }
 
-        markFirstVisitPlayed = false;
         return null;
     }
 
@@ -2864,6 +2902,13 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
 
     private FlowState GetNameSubmissionNextState()
     {
+        if (MetaPlatformIdentityProbe.CurrentWelcomeState ==
+            MetaPlatformIdentityProbe.AccountWelcomeState.Returning)
+        {
+            m_ControllerEducationCompleted = true;
+            return FlowState.CardIntro;
+        }
+
         return m_ControllerEducationCompleted
             ? FlowState.CardIntro
             : FlowState.ControllerRay;
@@ -2883,6 +2928,13 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
         m_ReturnToNameInputAfterControllerEducation = false;
         m_ControllerEducationCompleted = true;
         m_ActiveControllerNarration = m_ControllerNarrationAfterName;
+        if (m_HasControllerEducationResumeState)
+        {
+            m_HasControllerEducationResumeState = false;
+            m_ControllerEducationSilentResumePending = true;
+            return m_ControllerEducationResumeState;
+        }
+
         return ResolveKeyboardNameInputBypass(FlowState.NameInput);
     }
 
@@ -2892,9 +2944,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
             return state;
 
         m_ActiveControllerNarration = m_ControllerNarrationAfterName;
-        return m_ControllerEducationCompleted
-            ? FlowState.CardIntro
-            : FlowState.ControllerRay;
+        return GetNameSubmissionNextState();
     }
 
     private void HandleMissingStep(FlowState state)

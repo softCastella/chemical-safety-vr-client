@@ -395,3 +395,33 @@
 - Unity Editor에서 Furniture 정렬, PPE Marker 반경, 메탈 셸브 접근 검증이 모두 PASS했고 씬은
   `dirty=false`였다. 씬 diff는 차단체 Transform 9개와 Wooden Crate 02 크기 1개만 포함한다.
 - Quest/OpenXR의 실제 통과 차단·체감 정지 위치와 PPE 손 도달은 수동 검증이 남아 있다.
+
+## 2026-09-04 수정: 가운데 가로판과 오른쪽 긴 기둥 관통
+
+### 근본 원인
+
+- code 4 Quest 2 실기에서 가운데 가로 선반과 오른쪽 기둥 일부에 손이 관통했다.
+- Unity 읽기 전용 Bounds 진단에서 가운데 `tripo_part_7`은 기존 `tripo_part_15` BoxCollider가
+  Renderer AABB 체적의 `18.7%`만 덮었고, 오른쪽 긴 기둥 `tripo_part_3`은 기존 Collider가
+  `5.6%`만 덮었다.
+- 기존 하네스는 `tripo_part_3`에 Collider가 없어야 한다고 오히려 강제했고, 가운데
+  `tripo_part_7`을 검증 대상에 포함하지 않아 이 빈 구간을 놓쳤다.
+
+### 적용한 변경
+
+- `tripo_part_3`에는 해당 Mesh Bounds와 일치하는 얇은 BoxCollider를 Unity Editor가 생성했다.
+- `tripo_part_7` 전체 AABB BoxCollider는 장갑·마스크·테이프 선택 마커 영역을 깊게 막아 첫 검증에서
+  즉시 폐기했다. 대신 시각 Mesh 자체를 공유하는 정적 비볼록 MeshCollider를 작성해 실제 선반 형상만
+  충돌하게 했다.
+- 두 오브젝트는 Layer 2를 사용해 PPE Grab Ray 선택 대상이 되지 않는다. Transform, Renderer,
+  Mesh, Material, PPE와 Marker 작성 위치는 변경하지 않았다.
+- `PPERoomEnvironmentCollisionSetup`의 명시적 code 5 적용 명령과 읽기 전용 Bounds 진단을 추가하고,
+  가운데 MeshCollider·오른쪽 BoxCollider·Rigidbody 부재·레이어·Mesh/Bounds 일치를 회귀 검사한다.
+
+### 검증
+
+- `PPE Room Collision` Unity 배치 하네스 PASS: 기존 바닥·가로판·헬멧 쪽 기둥과 함께 새 가운데 판,
+  오른쪽 기둥, Wall Hanger 제거, Front Wall 차단 및 입력 레이어 분리를 확인했다.
+- 씬에는 Unity가 생성한 두 Collider FileID와 두 Layer 변경만 남겼고, Unity 저장 중 생긴 무관한
+  `m_Name` 공백 정규화 diff는 기준 씬 복구 후 선별 재적용해 제거했다.
+- Quest/OpenXR의 실제 손·컨트롤러 관통 차단과 PPE 잡기 편의는 code 5 기기 확인이 남아 있다.

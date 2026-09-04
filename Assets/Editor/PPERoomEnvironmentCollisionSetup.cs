@@ -24,6 +24,10 @@ public static class PPERoomEnvironmentCollisionSetup
     public const string InteractiveShelfPath = "interiorObjects/Bg/PPE_B_MetalShelving";
     public const float InteractiveShelfBaseStopHeight = 0.12f;
     public const float InteractiveShelfBaseStopDepth = 0.3f;
+    public const string InteractiveShelfCenterBoardPath =
+        InteractiveShelfPath + "/tripo_part_7";
+    public const string InteractiveShelfRightPostPath =
+        InteractiveShelfPath + "/tripo_part_3";
     internal static readonly string[] InteractiveShelfBoardPaths =
     {
         InteractiveShelfPath + "/tripo_part_15",
@@ -42,7 +46,6 @@ public static class PPERoomEnvironmentCollisionSetup
     {
         InteractiveShelfPath + "/tripo_part_0",
         InteractiveShelfPath + "/tripo_part_2",
-        InteractiveShelfPath + "/tripo_part_3",
     };
 
     public const float CharacterRadius = 0.1f;
@@ -281,6 +284,21 @@ public static class PPERoomEnvironmentCollisionSetup
             "The active scene was not saved; review existing unsaved changes before saving.");
     }
 
+    public static void ApplyCode5ShelfGapCollidersBatch()
+    {
+        Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+        ConfigureInteractiveShelfCenterBoardCollider(scene);
+        ConfigureInteractiveShelfPartCollider(
+            scene,
+            InteractiveShelfRightPostPath,
+            "right shelf post");
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        PPERoomEnvironmentCollisionValidationHarness.ValidateInteractiveShelfAccess();
+        Debug.Log(
+            "[PPE Room Collision] Applied the code 5 center-board and right-post Colliders from their authored Mesh bounds.");
+    }
+
     internal static SphereCollider[] FindPrimaryPpeSelectionMarkers(Scene scene)
     {
         return scene.GetRootGameObjects()
@@ -499,46 +517,97 @@ public static class PPERoomEnvironmentCollisionSetup
         EditorUtility.SetDirty(collider);
 
         ConfigureInteractiveShelfBoardColliders(scene);
+        ConfigureInteractiveShelfCenterBoardCollider(scene);
+        ConfigureInteractiveShelfRightPostCollider(scene);
         ConfigureInteractiveShelfHelmetOuterPostCollider(scene);
     }
 
     private static void ConfigureInteractiveShelfBoardColliders(Scene scene)
     {
         foreach (string boardPath in InteractiveShelfBoardPaths)
+            ConfigureInteractiveShelfPartCollider(scene, boardPath, "shelf board");
+    }
+
+    private static void ConfigureInteractiveShelfRightPostCollider(Scene scene)
+    {
+        ConfigureInteractiveShelfPartCollider(scene, InteractiveShelfRightPostPath, "right shelf post");
+    }
+
+    private static void ConfigureInteractiveShelfCenterBoardCollider(Scene scene)
+    {
+        GameObject board = FindByPath(scene, InteractiveShelfCenterBoardPath);
+        if (board == null)
+            throw new InvalidOperationException(
+                $"Interactive center shelf board is missing: {InteractiveShelfCenterBoardPath}");
+
+        MeshFilter meshFilter = board.GetComponent<MeshFilter>();
+        if (meshFilter == null || meshFilter.sharedMesh == null)
+            throw new InvalidOperationException(
+                $"Interactive center shelf board mesh is missing: {InteractiveShelfCenterBoardPath}");
+
+        BoxCollider[] obsoleteBoxes = board.GetComponents<BoxCollider>();
+        if (obsoleteBoxes.Length > 0)
         {
-            GameObject board = FindByPath(scene, boardPath);
-            if (board == null)
-                throw new InvalidOperationException($"Interactive shelf board is missing: {boardPath}");
-
-            MeshFilter meshFilter = board.GetComponent<MeshFilter>();
-            if (meshFilter == null || meshFilter.sharedMesh == null)
-                throw new InvalidOperationException($"Interactive shelf board mesh is missing: {boardPath}");
-
-            BoxCollider[] colliders = board.GetComponents<BoxCollider>();
-            if (colliders.Length > 1)
-                throw new InvalidOperationException($"Interactive shelf board has multiple BoxColliders: {boardPath}");
-
-            Undo.RecordObject(board, "Configure interactive shelf board collision layer");
-            board.layer = CollisionLayer;
-
-            BoxCollider boardCollider;
-            if (colliders.Length == 0)
-            {
-                boardCollider = Undo.AddComponent<BoxCollider>(board);
-                boardCollider.center = meshFilter.sharedMesh.bounds.center;
-                boardCollider.size = meshFilter.sharedMesh.bounds.size;
-            }
-            else
-            {
-                boardCollider = colliders[0];
-                Undo.RecordObject(boardCollider, "Configure interactive shelf board BoxCollider");
-            }
-
-            boardCollider.enabled = true;
-            boardCollider.isTrigger = false;
-            EditorUtility.SetDirty(board);
-            EditorUtility.SetDirty(boardCollider);
+            throw new InvalidOperationException(
+                "Center shelf board must not have a BoxCollider because its AABB blocks authored PPE markers.");
         }
+
+        MeshCollider[] colliders = board.GetComponents<MeshCollider>();
+        if (colliders.Length > 1)
+            throw new InvalidOperationException("Center shelf board has multiple MeshColliders.");
+
+        Undo.RecordObject(board, "Configure center shelf board collision layer");
+        board.layer = CollisionLayer;
+        MeshCollider collider = colliders.Length == 0
+            ? Undo.AddComponent<MeshCollider>(board)
+            : colliders[0];
+        if (colliders.Length > 0)
+            Undo.RecordObject(collider, "Configure center shelf board MeshCollider");
+        collider.sharedMesh = meshFilter.sharedMesh;
+        collider.convex = false;
+        collider.enabled = true;
+        collider.isTrigger = false;
+        EditorUtility.SetDirty(board);
+        EditorUtility.SetDirty(collider);
+    }
+
+    private static void ConfigureInteractiveShelfPartCollider(
+        Scene scene,
+        string partPath,
+        string label)
+    {
+        GameObject part = FindByPath(scene, partPath);
+        if (part == null)
+            throw new InvalidOperationException($"Interactive {label} is missing: {partPath}");
+
+        MeshFilter meshFilter = part.GetComponent<MeshFilter>();
+        if (meshFilter == null || meshFilter.sharedMesh == null)
+            throw new InvalidOperationException($"Interactive {label} mesh is missing: {partPath}");
+
+        BoxCollider[] colliders = part.GetComponents<BoxCollider>();
+        if (colliders.Length > 1)
+            throw new InvalidOperationException($"Interactive {label} has multiple BoxColliders: {partPath}");
+
+        Undo.RecordObject(part, $"Configure interactive {label} collision layer");
+        part.layer = CollisionLayer;
+
+        BoxCollider partCollider;
+        if (colliders.Length == 0)
+        {
+            partCollider = Undo.AddComponent<BoxCollider>(part);
+            partCollider.center = meshFilter.sharedMesh.bounds.center;
+            partCollider.size = meshFilter.sharedMesh.bounds.size;
+        }
+        else
+        {
+            partCollider = colliders[0];
+            Undo.RecordObject(partCollider, $"Configure interactive {label} BoxCollider");
+        }
+
+        partCollider.enabled = true;
+        partCollider.isTrigger = false;
+        EditorUtility.SetDirty(part);
+        EditorUtility.SetDirty(partCollider);
     }
 
     private static void ConfigureInteractiveShelfHelmetOuterPostCollider(Scene scene)
@@ -710,6 +779,91 @@ public static class PPERoomEnvironmentCollisionValidationHarness
 {
     private const float BoundsTolerance = 0.02f;
 
+    public static void ValidateInteractiveShelfAccessBatch()
+    {
+        EditorSceneManager.OpenScene(
+            PPERoomEnvironmentCollisionSetup.ScenePath,
+            OpenSceneMode.Single);
+        ValidateInteractiveShelfAccess();
+    }
+
+    public static void DiagnoseInteractiveShelfCoverageBatch()
+    {
+        Scene scene = EditorSceneManager.OpenScene(
+            PPERoomEnvironmentCollisionSetup.ScenePath,
+            OpenSceneMode.Single);
+        GameObject shelf = PPERoomEnvironmentCollisionSetup.FindByPath(
+            scene,
+            PPERoomEnvironmentCollisionSetup.InteractiveShelfPath);
+        if (shelf == null)
+            throw new InvalidOperationException("PPE_B_MetalShelving is missing.");
+
+        Collider[] solids = shelf.GetComponentsInChildren<Collider>(true)
+            .Where(collider => collider.enabled && !collider.isTrigger)
+            .ToArray();
+        Renderer[] renderers = shelf.GetComponentsInChildren<Renderer>(true)
+            .Where(renderer => renderer.enabled && renderer.gameObject.activeInHierarchy)
+            .OrderBy(renderer => renderer.gameObject.name, StringComparer.Ordinal)
+            .ToArray();
+
+        foreach (Renderer renderer in renderers)
+        {
+            float bestCoverage = 0f;
+            Collider bestCollider = null;
+            foreach (Collider solid in solids)
+            {
+                float coverage = CalculateBoundsCoverage(renderer.bounds, solid.bounds);
+                if (coverage <= bestCoverage)
+                    continue;
+
+                bestCoverage = coverage;
+                bestCollider = solid;
+            }
+
+            Debug.Log(
+                $"[PPE Shelf Coverage] renderer={GetPath(renderer.transform)}, " +
+                $"center={renderer.bounds.center:F4}, size={renderer.bounds.size:F4}, " +
+                $"bestCoverage={bestCoverage:P1}, " +
+                $"collider={(bestCollider != null ? GetPath(bestCollider.transform) : "<none>")}");
+        }
+
+        GameObject centerBoard = PPERoomEnvironmentCollisionSetup.FindByPath(
+            scene,
+            PPERoomEnvironmentCollisionSetup.InteractiveShelfCenterBoardPath);
+        Renderer centerBoardRenderer = centerBoard != null ? centerBoard.GetComponent<Renderer>() : null;
+        if (centerBoardRenderer != null)
+        {
+            Collider[] markers = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<Collider>(true))
+                .Where(collider =>
+                    collider.gameObject.name == PPERoomEnvironmentCollisionSetup.PpeMarkerName &&
+                    centerBoardRenderer.bounds.Intersects(collider.bounds))
+                .ToArray();
+            foreach (Collider marker in markers)
+            {
+                Debug.Log(
+                    $"[PPE Shelf Marker] path={GetPath(marker.transform)}, " +
+                    $"center={marker.bounds.center:F4}, size={marker.bounds.size:F4}, " +
+                    $"boardMin={centerBoardRenderer.bounds.min:F4}, boardMax={centerBoardRenderer.bounds.max:F4}");
+            }
+        }
+
+        Debug.Log(
+            $"[PPE Shelf Coverage] COMPLETE renderers={renderers.Length}, solids={solids.Length}. " +
+            "This diagnostic does not modify the scene.");
+    }
+
+    private static float CalculateBoundsCoverage(Bounds target, Bounds cover)
+    {
+        Vector3 overlap = new(
+            Mathf.Max(0f, Mathf.Min(target.max.x, cover.max.x) - Mathf.Max(target.min.x, cover.min.x)),
+            Mathf.Max(0f, Mathf.Min(target.max.y, cover.max.y) - Mathf.Max(target.min.y, cover.min.y)),
+            Mathf.Max(0f, Mathf.Min(target.max.z, cover.max.z) - Mathf.Max(target.min.z, cover.min.z)));
+        Vector3 targetSize = target.size;
+        float targetVolume = Mathf.Max(0.000000001f, targetSize.x * targetSize.y * targetSize.z);
+        return Mathf.Clamp01(overlap.x * overlap.y * overlap.z / targetVolume);
+    }
+
     [MenuItem("Tools/PPE/Validate Furniture Collider Alignment")]
     public static void ValidateFurnitureColliderAlignment()
     {
@@ -754,6 +908,8 @@ public static class PPERoomEnvironmentCollisionValidationHarness
         {
             ValidateInteractiveShelfCollider(scene);
             ValidateInteractiveShelfBoardColliders(scene);
+            ValidateInteractiveShelfCenterBoardCollider(scene);
+            ValidateInteractiveShelfRightPostCollider(scene);
             ValidateInteractiveShelfHelmetOuterPostCollider(scene);
         }
         catch (Exception exception)
@@ -803,7 +959,8 @@ public static class PPERoomEnvironmentCollisionValidationHarness
 
         Debug.Log(
             $"[PPE Furniture Collision] PASS: {validatedFurniture} furniture blockers, " +
-            "the metal shelf base, three boards, and the helmet-side outer post match current authored geometry.");
+            "the metal shelf base, three BoxCollider boards, center MeshCollider board, right post, " +
+            "and helmet-side outer post match current authored geometry.");
     }
 
     [MenuItem("Tools/PPE/Validate Primary PPE Marker Selection Radius")]
@@ -844,6 +1001,8 @@ public static class PPERoomEnvironmentCollisionValidationHarness
         BoxCollider shelfCollider = ValidateInteractiveShelfCollider(scene);
         Require(shelfCollider != null, "Interactive metal shelving base Collider is missing.");
         ValidateInteractiveShelfBoardColliders(scene);
+        ValidateInteractiveShelfCenterBoardCollider(scene);
+        ValidateInteractiveShelfRightPostCollider(scene);
         ValidateInteractiveShelfHelmetOuterPostCollider(scene);
         ValidateWoodenCrate02Blocker(scene, root.transform);
 
@@ -856,7 +1015,7 @@ public static class PPERoomEnvironmentCollisionValidationHarness
             "Wall - Front must remain a solid boundary after removing the overlapping Wall Hanger blocker.");
 
         Debug.Log(
-            "[PPE Room Collision] PASS: the interactive shelf owns horizontal board Colliders outside the grab layer, " +
+            "[PPE Room Collision] PASS: the interactive shelf owns board and right-post Colliders outside the grab layer, " +
             "the overlapping Wall Hanger blocker is absent, and Wall - Front remains solid.");
     }
 
@@ -932,6 +1091,8 @@ public static class PPERoomEnvironmentCollisionValidationHarness
 
         BoxCollider shelfCollider = ValidateInteractiveShelfCollider(scene);
         ValidateInteractiveShelfBoardColliders(scene);
+        ValidateInteractiveShelfCenterBoardCollider(scene);
+        ValidateInteractiveShelfRightPostCollider(scene);
         ValidateInteractiveShelfHelmetOuterPostCollider(scene);
         GameObject shelf = PPERoomEnvironmentCollisionSetup.FindByPath(
             scene, PPERoomEnvironmentCollisionSetup.InteractiveShelfPath);
@@ -1036,6 +1197,79 @@ public static class PPERoomEnvironmentCollisionValidationHarness
         }
     }
 
+    private static void ValidateInteractiveShelfCenterBoardCollider(Scene scene)
+    {
+        string boardPath = PPERoomEnvironmentCollisionSetup.InteractiveShelfCenterBoardPath;
+        GameObject board = PPERoomEnvironmentCollisionSetup.FindByPath(scene, boardPath);
+        Require(board != null, $"Interactive center shelf board is missing: {boardPath}");
+        if (board == null)
+            return;
+
+        Require(board.layer == PPERoomEnvironmentCollisionSetup.CollisionLayer,
+            "Interactive center shelf board must use the collision-only layer.");
+        MeshFilter meshFilter = board.GetComponent<MeshFilter>();
+        MeshCollider[] colliders = board.GetComponents<MeshCollider>();
+        Require(meshFilter != null && meshFilter.sharedMesh != null,
+            "Interactive center shelf board MeshFilter is missing.");
+        Require(colliders.Length == 1,
+            $"Interactive center shelf board must own one MeshCollider, found {colliders.Length}.");
+        Require(board.GetComponents<BoxCollider>().Length == 0,
+            "Interactive center shelf board must not retain the oversized BoxCollider.");
+        if (meshFilter == null || meshFilter.sharedMesh == null || colliders.Length == 0)
+            return;
+
+        MeshCollider collider = colliders[0];
+        Require(collider.enabled && !collider.isTrigger && !collider.convex,
+            "Interactive center shelf board must use an enabled solid non-convex MeshCollider.");
+        Require(collider.sharedMesh == meshFilter.sharedMesh,
+            "Interactive center shelf board MeshCollider must reuse the authored visual Mesh.");
+        Require(board.GetComponentInParent<Rigidbody>() == null,
+            "The static center shelf board must not have a Rigidbody.");
+    }
+
+    private static void ValidateInteractiveShelfRightPostCollider(Scene scene)
+    {
+        string postPath = PPERoomEnvironmentCollisionSetup.InteractiveShelfRightPostPath;
+        GameObject post = PPERoomEnvironmentCollisionSetup.FindByPath(scene, postPath);
+        Require(post != null, $"Interactive right shelf post is missing: {postPath}");
+        if (post == null)
+            return;
+
+        Require(post.layer == PPERoomEnvironmentCollisionSetup.CollisionLayer,
+            "Interactive right shelf post must use the collision-only layer.");
+        Renderer renderer = post.GetComponent<Renderer>();
+        BoxCollider[] colliders = post.GetComponents<BoxCollider>();
+        Require(renderer != null, "Interactive right shelf post Renderer is missing.");
+        Require(colliders.Length == 1,
+            $"Interactive right shelf post must own one BoxCollider, found {colliders.Length}.");
+        if (renderer == null || colliders.Length == 0)
+            return;
+
+        BoxCollider collider = colliders[0];
+        Require(collider.enabled && !collider.isTrigger,
+            "Interactive right shelf post Collider must be solid.");
+        Require(Vector3.Distance(collider.bounds.center, renderer.bounds.center) <= BoundsTolerance,
+            "Interactive right shelf post Collider center does not match its Renderer.");
+        Require(Vector3.Distance(collider.bounds.size, renderer.bounds.size) <= BoundsTolerance,
+            "Interactive right shelf post Collider size does not match its Renderer.");
+        Require(collider.bounds.size.x <= 0.08f && collider.bounds.size.z <= 0.08f,
+            "Interactive right shelf post Collider is wider or deeper than its thin visible column.");
+        Require(collider.bounds.size.y >= 2f,
+            "Interactive right shelf post Collider does not cover the visible column height.");
+        Require(post.GetComponentInParent<Rigidbody>() == null,
+            "The static right shelf post must not have a Rigidbody.");
+
+        Collider[] markerColliders = scene.GetRootGameObjects()
+            .SelectMany(root => root.GetComponentsInChildren<Collider>(true))
+            .Where(candidate => candidate.gameObject.name == PPERoomEnvironmentCollisionSetup.PpeMarkerName)
+            .ToArray();
+        foreach (Collider marker in markerColliders)
+        {
+            Require(!collider.bounds.Intersects(marker.bounds),
+                $"Interactive right shelf post overlaps PPE grab marker: {GetPath(marker.transform)}");
+        }
+    }
+
     private static void ValidateInteractiveShelfHelmetOuterPostCollider(Scene scene)
     {
         GameObject owner = PPERoomEnvironmentCollisionSetup.FindByPath(
@@ -1086,7 +1320,7 @@ public static class PPERoomEnvironmentCollisionValidationHarness
             if (otherPart != null)
             {
                 Require(otherPart.GetComponents<BoxCollider>().Length == 0,
-                    $"Only the helmet-side outer post may receive a new vertical BoxCollider: {path}");
+                    $"Unapproved shelf geometry must not receive a vertical BoxCollider: {path}");
             }
         }
     }

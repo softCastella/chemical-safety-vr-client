@@ -91,6 +91,7 @@ public static class PPELocomotionPpeRegressionValidationHarness
             ValidateTabletSurfaceSampling(failures);
             ValidatePosterSampling(failures);
             ValidateQuestRenderQuality(failures);
+            ValidateMirrorReflectedLayers(previewScene, failures);
         }
         finally
         {
@@ -116,7 +117,7 @@ public static class PPELocomotionPpeRegressionValidationHarness
             "leak harness rejection routing, Meta-account Welcome voices, PPE-area voices, authored controller-guide mapping " +
             "and detailed input feedback, " +
             "body-collider proximity, " +
-            "Quest render scale/MSAA, " +
+            "Quest render scale/MSAA, mirror location-marker layer visibility, " +
             "tablet/signature anti-shimmer sampling, " +
             "seven-step tablet checklists, Game View tablet marker selection and Editor-only simulator isolation, " +
             "high-resolution PPE poster sampling, neutral modal hover colors, " +
@@ -499,6 +500,8 @@ public static class PPELocomotionPpeRegressionValidationHarness
             "Assets/UIs/Guide/Controller_gri.png",
             "Assets/UIs/Guide/Controller_joy.png",
             "Assets/Materials/PPE/Tablet/work_confirm_tablet_readable.png",
+            "Assets/UIs/Things/Docs/WorkPlan.png",
+            "Assets/UIs/Things/Docs/WorkPlan_Leak.png",
             "Assets/UIs/sign_stamp/sign_player_rm.png",
         };
         foreach (string path in antiShimmerTextures)
@@ -523,6 +526,8 @@ public static class PPELocomotionPpeRegressionValidationHarness
             "Assets/UIs/Guide/Controller_tri.png",
             "Assets/UIs/Guide/Controller_gri.png",
             "Assets/UIs/Guide/Controller_joy.png",
+            "Assets/UIs/Things/Docs/WorkPlan.png",
+            "Assets/UIs/Things/Docs/WorkPlan_Leak.png",
             "Assets/UIs/sign_stamp/sign_player_rm.png",
         };
         foreach (string path in androidHighQualityTextures)
@@ -1379,8 +1384,11 @@ public static class PPELocomotionPpeRegressionValidationHarness
         Transform ray = context?.Find("1_Ray");
         Transform marker = context?.Find("2_Marker");
         Transform exitMarker = context?.Find("3_Exit_Marker");
+        Transform miniGuide = FindAll<Transform>(scene)
+            .SingleOrDefault(transform => transform.name == "ControllerGuide_mini");
         if (context == null || triggerController == null || gripController == null ||
-            joystickController == null || ray == null || marker == null || exitMarker == null)
+            joystickController == null || ray == null || marker == null || exitMarker == null ||
+            miniGuide == null)
         {
             failures.Add(
                 "ControllerGuide/Context must contain the authored controller images and " +
@@ -1436,6 +1444,7 @@ public static class PPELocomotionPpeRegressionValidationHarness
         ValidateReference(serialized, "m_ControllerMarkerStep", marker.gameObject, failures);
         ValidateReference(serialized, "m_ControllerRayTStep", exitMarker.gameObject, failures);
         ValidateReference(serialized, "m_ControllerPanelStep", null, failures);
+        ValidateReference(serialized, "m_ControllerGuideMini", miniGuide.gameObject, failures);
 
         SerializedProperty educationSteps = serialized.FindProperty("m_ControllerEduVoiceSteps");
         SerializedProperty simpleSteps = serialized.FindProperty("m_ControllerSimpVoiceSteps");
@@ -1527,6 +1536,27 @@ public static class PPELocomotionPpeRegressionValidationHarness
                 "Assets/Audio/Voice/1_1_ContSimp/VO_PPE_CTRL_SIMP_005_GuideFollow.mp3",
             },
             failures);
+    }
+
+    static void ValidateMirrorReflectedLayers(Scene scene, List<string> failures)
+    {
+        PlanarMirrorRenderer mirror = FindSingle<PlanarMirrorRenderer>(scene, failures);
+        if (mirror == null)
+            return;
+
+        int teleportTargetLayer = LayerMask.NameToLayer("Teleport Target");
+        if (teleportTargetLayer < 0)
+        {
+            failures.Add("Project layers require the authored 'Teleport Target' layer.");
+            return;
+        }
+
+        int teleportTargetMask = 1 << teleportTargetLayer;
+        if ((mirror.ReflectedLayers.value & teleportTargetMask) == 0)
+        {
+            failures.Add(
+                "PPE room mirror must include the Teleport Target layer so authored location markers are reflected.");
+        }
     }
 
     static void ValidateControllerButtonHighlights(

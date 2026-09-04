@@ -1354,7 +1354,7 @@ Meta 업로드 검사가 첫 출시 서명 APK에서 Android Target SDK 36, 자�
 
 #### 집에서 재개하는 정확한 순서
 
-1. 저장소에서 `release/2026-09-01-meta-horizon-submission` 브랜치를 최신 상태로 pull하고 Unity `6000.4.8f1`로 연다.
+1. `release/2026-09-01-meta-horizon-submission`은 이미 `main`에 병합됐으므로 저장소의 최신 `main`을 pull하고, `main`에서 별도 후속작업 브랜치를 만든 뒤 Unity `6000.4.8f1`로 연다. 과거 release 브랜치로 다시 전환하지 않는다.
 2. Unity에서 `Assets > Refresh`를 누르고 컴파일이 끝날 때까지 기다린다. Play Mode에는 들어가지 않는다.
 3. `Tools > PPE > Validate Train Test Modes`를 실행한다. PASS가 아니면 code 4 빌드를 진행하지 않고 오류 원문을 기록한다.
 4. `Tools > PPE > Validate Training Data Contract`와 `Tools > XR > Validate Meta Quest Android Build`를 다시 실행해 모두 PASS인지 확인한다. `Import Error Code:(4)` 수정 시간 경고가 다시 나타나면 OpenXR 설정의 디스크 값과 Unity AssetDB가 안정적으로 재임포트됐는지 확인한 뒤 빌드한다.

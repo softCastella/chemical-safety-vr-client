@@ -555,3 +555,115 @@ Unity의 기존 교육 흐름, PPE Grab, UI, 음성 재생 동작은 이번 회�
 - 조사 시점 서버 기준은 `main@d6b5963f7fef139588b6999731f6169cab4037ce`이며 작업 트리는 clean이었다.
 - 이 절은 공용 사실 인수인계를 위해 서버 저장소의 같은 상대 경로에 미러링한다. 서버 런타임·API·DB 코드는
   변경하지 않았고, 문서 미러링을 서버 반영 또는 클라이언트·서버 통합 검증 완료로 해석하지 않는다.
+
+## 2026-09-04 `main` 전환 후 과거 상태 오인 원인 확정
+
+### 조사 요청과 보존 범위
+
+- 사용자가 클라이언트·서버 최신 `main`을 pull한 뒤 Train/Test 후속작업을 확인하는 과정에서, 현재 씬과
+  다른 과거 하네스 기대값이 발견된 이유와 브랜치 전환에 의한 롤백 여부를 확인하도록 요청했다.
+- 이번 조사는 Git 이력, 현재 씬 YAML, 런타임 상태 전이와 하네스 코드를 대조하는 진단만 수행했다.
+  런타임 코드, 씬, Inspector 작성값, 입력·UI·음성 동작과 서버 코드는 변경하지 않는다.
+
+### Git 이력 대조 결과
+
+- 조사 기준은 클라이언트 `main@cdde25c1d71cd7c7be81b5f722e89fa19c102b28`, 서버
+  `main@72e82a16334136753d152704765f395e61819fcd`이며 양쪽 작업 트리와 현재 `origin/main` 추적점은
+  일치했다.
+- 제출 브랜치 `release/2026-09-01-meta-horizon-submission@49be0d36bc41a9e251c459395af0073667b2eba8`은
+  `main`에 정상 병합돼 있다. 해당 브랜치와 조사 시점 `main` 사이에서
+  `PPETrainTestModeValidationHarness.cs`, `PPEVoiceFlowDirector.cs`, `4_PPE_Room.unity`와
+  `ProjectSettings.asset`의 차이는 없고, 차이는 본 후속 회의록의 추가 기록뿐이었다.
+- 로컬 reflog에는 2026-09-04 브랜치 이동이 `checkout`으로만 기록돼 있고 `reset`, `revert` 또는 과거
+  커밋으로의 강제 이동은 없다. 따라서 `main` 전환으로 클라이언트 코드나 씬이 과거 상태로 돌아간 것은 아니다.
+
+### 근본 원인
+
+- 불일치는 새 클라이언트 저장소 최초 스냅샷
+  `45f662735eca25df5122d761b2466c13a7d12cfa`부터 존재했다. 당시 실제 PPE 씬은 이미
+  `m_SkipKeyboardNameInput=1`, `3_Exit_Marker`, 비활성 `1_Ray/Panel`을 포함했지만, 같은 스냅샷의
+  하네스는 상세교육 완료 후 `NameInput` 복귀, `3_Ray_T` 존재와 `1_Ray/Card`·`Panel` 동시 활성을
+  요구했다.
+- 2026-09-03 이전 하네스의 기본 대상은 삭제된 과거 씬
+  `Assets/Scenes/3_PPE_Room_Train_Test.unity`였다. 검사가 씬 누락에서 먼저 중단돼 뒤쪽의 오래된
+  `NameInput`, `3_Ray_T`, `Panel` 조건이 실제 현재 씬을 상대로 실행되지 않았다.
+- `49be0d3`에서 기본 대상을 `Assets/Scenes/4_PPE_Room.unity`로 변경하고 음원 번호와 시각 배열 조건은
+  현재 구조에 맞췄지만, 위 세 과거 기대값은 함께 정정하지 못했다. 검사 대상 복구로 가려졌던 조건이 처음
+  노출되면서 롤백처럼 보인 것이며, 실제 분류는 **검증 하네스 동기화 누락**이다.
+
+### 영향 범위와 수정 경계
+
+- `m_SkipKeyboardNameInput=1`일 때 상세교육 완료 후 `CardIntro`로 진행하는 현재 런타임 규칙과
+  `3_Exit_Marker` 씬 작성값을 과거 하네스에 맞춰 되돌리지 않는다.
+- 후속 코드 수정 범위는 `PPETrainTestModeValidationHarness`의 키보드 우회 완료 상태와 Joystick 오른쪽
+  가이드 이름 기대값으로 제한한다.
+- `1_Ray/Panel.activeSelf=false` 역시 최초 스냅샷부터 존재한 씬 작성값이다. 이 값은 단순 하네스 이름
+  정정과 달리 실제 상세·Simple Trigger 하단 이미지 표시를 바꿀 수 있으므로, Game View에서 사용자 의도를
+  확인한 뒤 Unity Inspector에서 결정한다. 하네스 통과를 위해 씬 또는 런타임에서 자동 활성화하지 않는다.
+
+### 완료한 정적 검증과 남은 검증
+
+- 클라이언트 런타임 C# 프로젝트는 NuGet 복원 후 오류 0개로 빌드했고, Editor C# 프로젝트도 오류 0개로
+  빌드했다. 서버 `npm test`는 74개 테스트가 모두 통과했다.
+- 정적 빌드는 Unity Preview Scene 하네스, Play Mode 상태 전이, Game View 시각, Quest/OpenXR 양안과
+  code 4 APK 동작을 증명하지 않는다.
+- 하네스 기대값을 현재 작성 상태에 맞춰 제한적으로 수정한 뒤 `Tools > PPE > Validate Train Test Modes`를
+  재실행해야 한다. 이어서 상세·Simple Trigger 이미지와 Joystick 가이드를 Game View에서 비교하고,
+  code 4 APK 빌드·Alpha 설치·Quest 실기와 새 완료 경계 JSONL 검증을 별도로 수행한다.
+
+### 2026-09-04 하네스 수정 전 필수 질문 답변
+
+1. **기존 Inspector/씬 작성값 보존:** `4_PPE_Room.unity`, 프리팹과 Inspector 값은 수정하지 않는다.
+   하네스가 현재 직렬화·런타임 계약을 읽어 검증하도록 기대값만 정정한다.
+2. **단일 기준 오브젝트와 상태 소유자:** 상태 전이는 `PPEVoiceFlowDirector`가 소유하며, Joystick 오른쪽
+   가이드의 작성 기준은 `4_PPE_Room.unity`에 직렬화된 `3_Exit_Marker`다. 하네스는 소유자가 아니라
+   이 두 기준을 검사하는 소비자다.
+3. **입력·상태 전체 경로:** Simple 안내 중 물리 A 입력 → 상세교육 `ControllerRay` →
+   `ControllerMarker` → `ControllerRayT` → `ResolveControllerEducationNextState()` →
+   `ResolveKeyboardNameInputBypass(NameInput)` → `m_SkipKeyboardNameInput=1`이고 교육 완료이므로
+   `CardIntro`로 진행한다. Joystick 시각은 상세 단계의 직렬화된 companion visual과
+   `3_Exit_Marker` 활성 여부를 Preview Scene에서 검사한다.
+4. **실패 처리:** 누락된 메서드·필드·씬 오브젝트를 하네스가 생성하거나 자동 수정하지 않는다. 현재 이름이나
+   상태와 다르면 구체적인 오류로 실패한다.
+5. **영향 소비자:** Editor의 Train/Test Preview Scene 검증만 영향을 받는다. 런타임 상태, XR 입력,
+   텔레포트, PPE Grab, UI·음성 재생과 서버 계약은 변경하지 않는다.
+6. **변경 전후 비교 실행:** 변경 전 Unity 배치 하네스에서 5개 실패를 재현했다. 변경 후에는 확정된
+   `NameInput`·`3_Ray_T` 두 실패가 제거되는지 먼저 확인하며, `1_Ray/Panel`에서 파생된 3개 실패는
+   시각 의도 확인 전까지 별도 미해결 상태로 유지한다.
+7. **실제 검증 범위:** 이번 단계는 C# 정적 빌드와 Unity Editor 배치 하네스까지 수행한다. Game View 표시,
+   Play Mode의 물리 A 재진입, Quest/OpenXR 양안과 code 4 APK는 후속 수동 검증으로 구분한다.
+
+### Panel 표시 의도 추가 대조와 판정
+
+- 확정된 `CardIntro`와 `3_Exit_Marker` 기대값을 먼저 수정한 뒤 Unity 배치 하네스를 재실행했다. 기존
+  5개 실패 중 두 오류는 사라졌고 `1_Ray/Panel` 활성 요구에서 파생된 3개만 남아 수정 범위가 분리됐다.
+- 현재 출시 체크리스트는 Simple Trigger에서 `1_Ray`와 컨트롤러 이미지를 표시하되 삭제된 `Panel`,
+  `3_Ray_T`, `Ray_T_B/R`은 다시 보이면 안 된다고 명시한다. 현재
+  `PPELocomotionPpeRegressionValidationHarness`도 `1_Ray/Card.activeSelf=true`,
+  `1_Ray/Panel.activeSelf=false`, `m_ControllerRayTStep=3_Exit_Marker`, `m_ControllerPanelStep=null`을
+  검사한다.
+- 따라서 `Panel`의 현재 비활성 작성값은 미확정 UI 결함이 아니라 최신 출시 기준이다. Train/Test 하네스가
+  과거 동시 표시 구조를 계속 요구한 것이 남은 세 실패의 원인이다.
+- 씬이나 런타임에서 `Panel`을 다시 활성화하지 않는다. 하네스는 `Card`가 표시되고 `Panel`은 상세·Simple
+  Trigger 전환 뒤에도 숨김 상태를 유지하는지 적극적으로 검사하도록 정정한다.
+
+### 2026-09-04 입점 준비 검증 결과
+
+- 변경 전 `PPETrainTestModeValidationHarness.ValidateBatch` 기준 실행에서 예상한 5개 실패를 재현했다. `CardIntro`와
+  `3_Exit_Marker` 계약을 반영한 중간 실행에서는 `Panel` 관련 3개 실패만 남아 원인이 분리됐다.
+- 최신 출시 체크리스트와 `PPELocomotionPpeRegressionValidationHarness`를 대조해 `1_Ray/Card`는 활성,
+  삭제 대상인 `1_Ray/Panel`은 비활성이 현재 출시 계약임을 확인했다. 씬이나 런타임 UI를 바꾸지 않고
+  `PPETrainTestModeValidationHarness`의 낡은 기대값만 현재 계약에 맞췄다.
+- `dotnet build Assembly-CSharp-Editor.csproj`는 오류 0개로 완료됐다. 경고 68개는 기존 런타임 의존성과
+  임포트 샘플 및 DTO 필드에 있으며 이번 변경에서 새 컴파일 오류는 발생하지 않았다.
+- Unity `6000.4.8f1` batch mode에서 다음 검증을 실제 실행했다.
+  1. `PPETrainTestModeValidationHarness.ValidateBatch`: PASS
+  2. `PPETrainingDataContractHarness.ValidateBatch`: PASS
+  3. `PPELocomotionPpeRegressionValidationHarness.ValidateBatch`: PASS
+  4. `MetaQuestAndroidBuildValidationHarness.Validate`: PASS
+- Android 정적 계약은 Target SDK 34, 가로 방향, 자동 설치 위치, Android OpenXR의 Meta Quest Support 활성까지
+  확인했다. 아직 새 APK의 manifest에 `android.hardware.vr.headtracking`과 `com.oculus.intent.category.VR`가
+  실제 포함되는지는 확인하지 않았다.
+- **남은 수동 검증:** code 4 APK/AAB 빌드, 생성물 manifest 검사, Meta Quest 단독 설치·실행, 양안 렌더링,
+  XR Trigger와 오디오, Education·Training·Test 정상 완료 후 모드 선택 모달 복귀, 최신 JSONL 및 서버 적재 확인은
+  별도 증거가 필요하다. 이 항목들은 정적 하네스 PASS만으로 완료 처리하지 않는다.

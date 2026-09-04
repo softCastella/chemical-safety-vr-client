@@ -52,7 +52,7 @@ public sealed class MetaPlatformIdentityProbe : MonoBehaviour
     public static bool IsIdentityRequestInFlight =>
         s_Instance != null && s_Instance._requestInFlight;
 
-    private const string WelcomeSeenKeyPrefix = "Tyche.MetaWelcomeSeen.";
+    private const string ScenarioCompletedKeyPrefix = "Tyche.MetaScenarioCompleted.";
     private static MetaPlatformIdentityProbe s_Instance;
     private bool _requestInFlight;
     private bool _acceptCallbacks;
@@ -230,7 +230,7 @@ public sealed class MetaPlatformIdentityProbe : MonoBehaviour
 
         AppScopedUserId = message.Data.ID;
         CurrentAppScopedUserId = AppScopedUserId;
-        CurrentWelcomeState = PlayerPrefs.GetInt(BuildWelcomeSeenKey(AppScopedUserId), 0) == 1
+        CurrentWelcomeState = PlayerPrefs.GetInt(BuildScenarioCompletedKey(AppScopedUserId), 0) == 1
             ? AccountWelcomeState.Returning
             : AccountWelcomeState.FirstVisit;
         string userIdResult = logAppScopedUserId ? AppScopedUserId.ToString() : "<redacted>";
@@ -295,23 +295,25 @@ public sealed class MetaPlatformIdentityProbe : MonoBehaviour
         return this != null && isActiveAndEnabled && _acceptCallbacks;
     }
 
-    public static bool MarkWelcomePlayedForCurrentUser()
+    public static bool MarkScenarioCompletedForCurrentUser()
     {
         if (CurrentAppScopedUserId == 0 || CurrentWelcomeState == AccountWelcomeState.Unknown)
             return false;
 
-        PlayerPrefs.SetInt(BuildWelcomeSeenKey(CurrentAppScopedUserId), 1);
+        PlayerPrefs.SetInt(BuildScenarioCompletedKey(CurrentAppScopedUserId), 1);
         PlayerPrefs.Save();
         CurrentWelcomeState = AccountWelcomeState.Returning;
         return true;
     }
 
-    private static string BuildWelcomeSeenKey(ulong appScopedUserId)
+    private static string BuildScenarioCompletedKey(ulong appScopedUserId)
     {
         byte[] source = Encoding.UTF8.GetBytes(appScopedUserId.ToString());
         using SHA256 sha256 = SHA256.Create();
         byte[] hash = sha256.ComputeHash(source);
-        StringBuilder key = new StringBuilder(WelcomeSeenKeyPrefix, WelcomeSeenKeyPrefix.Length + 64);
+        StringBuilder key = new StringBuilder(
+            ScenarioCompletedKeyPrefix,
+            ScenarioCompletedKeyPrefix.Length + 64);
         foreach (byte value in hash)
             key.Append(value.ToString("x2"));
         return key.ToString();

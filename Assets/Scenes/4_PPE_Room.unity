@@ -36053,6 +36053,7 @@ MonoBehaviour:
     repeatDelay: 6
     waitForSignal: 0
     nextState: 6
+  m_ControllerGuideMini: {fileID: 74310649}
   m_SkipKeyboardNameInput: 1
   m_SkipUnassignedClips: 1
   m_LogTransitions: 1
@@ -71355,7 +71356,7 @@ MonoBehaviour:
   targetTexture: {fileID: 8400000, guid: 4f0dda3bba3aacb46bba19d110c6a5ef, type: 2}
   reflectedLayers:
     serializedVersion: 2
-    m_Bits: 1073741875
+    m_Bits: 3221225523
   surfaceClipOffset: 0.04
   reflectedDepth: 20
   clearColor: {r: 0.58, g: 0.68, b: 0.72, a: 1}
@@ -192515,13 +192516,35 @@ GameObject:
   - component: {fileID: 1928750557110160352}
   - component: {fileID: 1028145739939382228}
   - component: {fileID: 2312471713917424023}
-  m_Layer: 0
+  - component: {fileID: 2439481007961410659}
+  m_Layer: 2
   m_Name: tripo_part_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!65 &2439481007961410659
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2439481007961410658}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.033211708, y: 0.029471882, z: 0.46144104}
+  m_Center: {x: -0.008162916, y: 0.0074521936, z: 0.014610738}
 --- !u!4 &2447927379910035296
 Transform:
   m_ObjectHideFlags: 0
@@ -201801,7 +201824,8 @@ GameObject:
   - component: {fileID: 6168034675133422776}
   - component: {fileID: 5015164930113679163}
   - component: {fileID: 2248801137209008156}
-  m_Layer: 0
+  - component: {fileID: 6168034675133422777}
+  m_Layer: 2
   m_Name: tripo_part_7
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -224586,6 +224610,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6466164252249718520}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!64 &6168034675133422777
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3538745493430071927}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -3488966222827643449, guid: f62f096ede7f4f0438815bc7c647cf24, type: 3}
 --- !u!1 &6172018043919711523
 GameObject:
   m_ObjectHideFlags: 0

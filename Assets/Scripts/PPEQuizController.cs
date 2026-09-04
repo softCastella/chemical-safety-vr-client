@@ -358,8 +358,7 @@ public sealed class PPEQuizController : MonoBehaviour
         usingCatalogQuestions = false;
         correctAnswerCount = 0;
         currentPageIndex = 0;
-        SetActive(quizRoot, false);
-        SetActive(resultRoot, false);
+        HideForCompletionReturn();
         SetActive(correctIconRoot, false);
         SetActive(wrongIconRoot, false);
         if (feedbackLabel != null)
@@ -367,6 +366,12 @@ public sealed class PPEQuizController : MonoBehaviour
             feedbackLabel.gameObject.SetActive(true);
             feedbackLabel.text = string.Empty;
         }
+    }
+
+    public void HideForCompletionReturn()
+    {
+        SetActive(quizRoot, false);
+        SetActive(resultRoot, false);
     }
 
     void ResetQuizProgress()

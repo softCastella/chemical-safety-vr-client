@@ -306,6 +306,7 @@ public sealed class PPEFinaleController : MonoBehaviour
 
     private IEnumerator ReturnToModeChoices(bool completedModeSession)
     {
+        m_VoiceFlowDirector.HideQuizUiBeforeReturn();
         m_State = FinaleState.Finishing;
         yield return FadeTo(1f);
         ReturnToStart();

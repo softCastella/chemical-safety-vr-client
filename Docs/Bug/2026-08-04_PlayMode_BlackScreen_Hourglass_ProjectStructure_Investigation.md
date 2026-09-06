@@ -634,3 +634,35 @@ XR 카메라와 함께 동작하면 한 프레임에 추가 카메라 렌더링�
 - Meta 테스트 계정으로 `Use Meta Platform SDK In Editor`를 켠 뒤 실제 앱 범위 사용자 ID 획득과
   `/api/training-registrations` 서버 저장을 확인해야 한다.
 - Quest/OpenXR 기기에서 entitlement, 계정 식별, 양안 렌더링과 빌드의 물리 HMD 준비 게이트를 확인해야 한다.
+
+## 2026-09-06 추가: Link/HMD 단독 원인 판단 금지와 Game View 동반 검정화면
+
+### 배경
+
+- 이전 Link 장애 문서는 `DisplayLost`, `XR_ERROR_SESSION_LOST`, Meta Runtime IPC 또는 RIPC 실패처럼
+  런타임 로그가 먼저 무너진 사례를 기준으로 작성됐다.
+- 그러나 최신 사용자 확인에서는 HMD 주변 시야 깨짐뿐 아니라 Unity Game View도 Play 지속 중 검정화면으로
+  진행되며, 증상이 환경 관통 순간에만 묶이지 않는다고 보고됐다.
+- 이 경우 기존 Link/HMD 장애 문서를 참고할 수는 있지만, 같은 로그가 확인되기 전에는 원인을 Quest Link
+  또는 HMD 전송 문제로 단정하지 않는다.
+
+### 현재 우선 판단
+
+- Game View까지 검정화면이면 Unity 앱 렌더링 출력 자체, 활성 Camera, RenderTexture, 추가 반사 Camera,
+  Play Mode 일시정지, Console Error Pause, OpenXR 세션 상태, GPU/VRAM 부하를 먼저 분리한다.
+- HMD 화면만 검정이고 Game View가 정상인 경우에만 Quest Link 영상 전송, HMD 착용 감지, Meta Runtime
+  compositor 문제의 우선순위를 높인다.
+- HMD와 Game View가 함께 검정화면이 되는 경우에는 `Link 문제`, `HMD 착용 문제`, `씬 렌더링 문제`,
+  `OpenXR 세션 문제`를 하나로 합쳐 쓰지 않고 각 증거를 따로 기록한다.
+- 환경 관통은 별도 결함이다. 관통 중 근접 표면이나 near clip 문제가 렌더링 증상을 악화할 수는 있지만,
+  관통하지 않아도 Game View가 검정화면이 되면 렌더링 안정성 결함을 독립 재현으로 다룬다.
+
+### 재현 기록 기준
+
+1. Play 시작 시각과 Game View 검정화면 전환 시각을 초 단위로 기록한다.
+2. HMD 화면, Game View, Scene View, Unity Editor 응답성, Console Error Pause 상태를 같은 타임라인에 놓는다.
+3. 해당 시점의 `Editor.log`, Meta/OpenXR 로그, Console Error/Exception, Profiler CPU/GPU frame time을 보관한다.
+4. Link/HMD 원인으로 분류하려면 Meta Runtime 로그에서 세션 손실 또는 영상 전송 실패가 Game View 검정화면보다
+   먼저 발생했다는 시간 근거가 필요하다.
+5. 씬 렌더링 원인으로 분류하려면 활성 Camera 출력, mirror/RenderTexture, PPE 장비 렌더러, shader/import
+   상태 중 하나가 Game View 검정화면과 같은 시점에 변했다는 근거가 필요하다.

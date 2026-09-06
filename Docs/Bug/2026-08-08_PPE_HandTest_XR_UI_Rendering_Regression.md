@@ -523,3 +523,35 @@
   수정하지 않았다.
 - 후속 구현은 HMD·손 관통 대응 패치와 파란 주변 시야 깨짐 대응 패치를 섞지 않는다.
 - Quest/OpenXR 실기 검증 전에는 렌더링 안정화 완료로 보고하지 않는다.
+
+## 2026-09-06 추가 정정: Game View 검정화면 동반 기준 재분류
+
+### 추가 사용자 확인
+
+- 사용자는 미러링 영상의 파란 주변 시야 깨짐이 관통 상황에서만 발생하는 것이 아니며, Play Mode를 계속
+  유지하면 Unity Game View도 대체로 검정화면이 된다고 추가 확인했다.
+- 따라서 위 `2026-09-06 후속` 섹션의 “Game View에도 동일하게 보였는지 영상만으로 확인 불가” 항목은
+  영상 분석 당시의 한계로 유지하되, 최신 사용자 재현 정보 기준으로는 Game View 검정화면 동반 증상을
+  별도 사실로 추가 기록한다.
+
+### 재분류
+
+- HMD 주변 시야 계단 깨짐과 장시간 검정화면은 Quest Link 또는 HMD 전송 문제만으로 단정하지 않는다.
+- Game View도 함께 검정화면이 되면 Unity가 제출하는 앱 렌더 프레임, Play Mode 상태, 카메라 출력,
+  렌더링 부하, RenderTexture·추가 Camera, OpenXR 세션 상태가 함께 무너지는 경로를 우선 조사한다.
+- 과거 문서에 기록된 Quest Link·Meta Runtime IPC 실패 사례는 실제 로그가 동반된 별도 실패 모드다.
+  동일 로그가 없는 최신 재현에 그대로 원인으로 적용하지 않는다.
+- 관통 재현 위치에서 증상이 더 잘 보일 수는 있지만, 관통이 없는 대기 또는 일반 플레이 상태에서도
+  Game View가 검정화면으로 진행된다면 환경 관통 대응과 렌더링 안정성 대응은 다른 결함으로 추적한다.
+
+### 다음 읽기 전용 조사 항목
+
+1. Play 시작 후 검정화면까지의 경과 시간을 관통 동작 없음, 관통 위치 접근, PPE 착용·거울 표시 조건으로
+   나누어 기록한다.
+2. Game View가 검정화면이 되는 정확한 시점의 Unity Console, Editor.log, Meta/OpenXR 로그를 수집한다.
+3. 검정화면 직전 활성 Camera 목록, Main Camera enabled 상태, targetTexture, cullingMask, clearFlags,
+   near/far clip, XR DisplaySubsystem running 상태를 읽기 전용으로 기록한다.
+4. Planar Mirror와 반사 RenderTexture, 추가 Camera 렌더링은 원인으로 확정하기 전에 Off/On 단일 변수로
+   비교한다.
+5. Quest Link 로그가 `DisplayLost`, `XR_ERROR_SESSION_LOST`, RIPC 실패를 실제로 기록한 경우에만
+   Link/HMD 런타임 장애로 분류한다.

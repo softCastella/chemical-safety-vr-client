@@ -613,3 +613,47 @@
   Material, Asset은 수정하지 않았다.
 - 정적 문서 확인과 영상 프레임 판정은 수행했지만, Unity Editor Play Mode와 Quest/OpenXR 후속 구현 검증은
   아직 수행하지 않았다.
+
+## 2026-09-06 터미널 에이전트 읽기 전용 조사 인수인계
+
+### 조사 결과
+
+- 터미널 에이전트는 관련 구조 조사를 진행했지만, 현재 터미널에서 바로 패치하는 것은 위험하다고 판단해
+  수정하지 않았다.
+- 활성 기준은 `XR Origin (VR)`로 확인됐다.
+- 손 모델은 좌·우 `SkinnedMeshRenderer`로 존재한다.
+- 별도 `XR Origin (Hand Tracking)`과 손 모델 계층도 함께 존재한다.
+- 환경 차단 Collider는 Layer 2에 있다.
+- 기존 HMD·손 관통 보호 컴포넌트는 확인되지 않았다.
+- 파란 주변 시야 깨짐은 HMD·손 관통과 별도 XR 렌더링 문제일 가능성이 있다.
+
+### 패치 보류 이유
+
+- 런타임 자동 연결로 억지로 수정하면 컨트롤러 손, 손 추적 손, PPE Grab 중 하나를 잘못 건드릴 수 있다.
+- 손 모델 관통 대응은 PPE를 잡을 수 있어야 하는 불변조건과 직접 충돌할 수 있으므로, 손 추적 Pose,
+  표시용 손 모델, Near/Far Interactor, Grab Collider, Marker 경로를 분리해 확인해야 한다.
+- Unity Editor에서 실제 활성 계층을 확인한 뒤, 씬 또는 Prefab의 직렬화 참조를 명시적으로 연결하는 작업이
+  필요하다.
+- 현재 변경 사항은 없으며, GitHub 최신 기준점은 `7290a29`다.
+- 작업 폴더는 변경 없음 상태로 전달됐다.
+
+### 데스크톱 원격 작업 순서
+
+1. 현재 GitHub 최신 커밋 `7290a29`를 기준으로 작업한다.
+2. PPE Room의 활성 `XR Origin (VR)`, Main Camera, 좌·우 컨트롤러 손 모델,
+   `XR Origin (Hand Tracking)`의 활성 상태를 먼저 확인한다.
+3. HMD Camera나 손 모델에 Rigidbody 또는 Collider를 직접 추가하지 않는다.
+4. 환경 Layer 2의 Collider와 현재 Renderer/Collider Bounds를 읽기 전용으로 대조한다.
+5. HMD 관통 대응과 손 모델 관통 대응을 별도 컴포넌트·별도 검증으로 설계한다.
+6. PPE Near/Far Interactor와 PPE Grab 경로는 변경하지 않는다.
+7. 파란 주변 시야 깨짐은 관통 문제와 별도 XR 렌더링 문제로 분리한다.
+8. Unity Editor에서 활성 계층과 실제 재현 위치를 확인한 뒤, 그 결과에 맞는 최소 수정만 적용한다.
+9. 수정 후 Unity 정적·Editor 검증을 수행하고, Quest/OpenXR 검증 전에는 완료로 보고하지 않는다.
+
+### 보존해야 하는 동작
+
+- 몸통 보행 Collider가 듣는 현재 동작은 보존한다.
+- 진열장 PPE의 Hover, Select, Grab 경로는 보존한다.
+- 손 모델 관통 대응은 PPE 접근을 막는 넓은 차단체나 손 입력 소비 방식으로 해결하지 않는다.
+- 컨트롤러 손과 손 추적 손이 공존하는 구조를 전제로 하며, 실제 활성 경로를 확인하기 전에는 한쪽 계층에
+  런타임 fallback 또는 자동 연결을 추가하지 않는다.

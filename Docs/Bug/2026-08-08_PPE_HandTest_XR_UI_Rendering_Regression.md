@@ -459,3 +459,67 @@
   공통 바탕 이미지가 표시되며, 해당 설명의 좌우 버튼 점선 한 쌍만 부모 활성 상태를 따라 표시된다.
 - 공통 Sprite 참조를 기준으로 `PPELocomotionPpeRegressionValidationHarness.Validate()`를 다시 실행해 PASS했다.
   실제 Quest/OpenXR에서 확대된 글자의 가독성과 점선 위치를 비교한 뒤 유지 또는 원복을 결정한다.
+
+## 2026-09-06 후속: 미러링 영상의 파란 주변 시야 계단 깨짐과 정지감
+
+### 영상 정보
+
+- 분석 파일은 `C:\Users\lanoc\Downloads\oculus_cast_video_09_06_2026_10_13_03.mp4`다.
+  사용자가 전달한 `oculus\_cast\_video\_09\_06\_2026\_10\_13\_03` 표기는 Markdown escape가 포함된
+  축약 표기이며, 실제 MP4 파일명은 `_`를 그대로 포함한다.
+- 원본 MP4는 수정하거나 삭제하지 않았다. 프레임 확인은 임시 폴더
+  `C:\Users\lanoc\AppData\Local\Temp\codex_video_analysis_20260906_101303`에 추출한 이미지로만 수행했다.
+- 영상 메타데이터는 재생 시간 `195.52초`, 해상도 `2336x1312`, FPS `29.99`, 비디오 코덱 `HEVC`,
+  오디오 코덱 `AAC`다.
+
+### 증상
+
+- 사용자는 약 `2:41`부터 HMD 주변 시야가 계단식으로 깨지면서 거의 멈추는 현상을 보고했다.
+- 영상 프레임 기준으로는 최소 `2:10-2:42` 구간에서 이미 화면 대부분이 검은 배경과 파란 곡선 격자로
+  유지되며, 움직임이 매우 작다.
+- `2:41-2:42` 대표 프레임에서는 검은 화면 위에 파란 격자선이 크게 보이고, 오른쪽 가장자리에는 노란
+  오브젝트 경계가 계단식 또는 톱니형으로 잘려 보인다.
+- `2:45`에는 여전히 검은 격자 화면이지만 시야 방향 변화가 조금 커진다.
+- `2:46-2:47`에는 노란 방호복 또는 노란 PPE 표면이 화면 가까이 들어오며, 검은 격자 영역과 노란 오브젝트가
+  함께 보인다.
+
+### 영상 분석
+
+- 1초 간격 저해상도 프레임 변화량을 비교하면 `2:10-2:42`는 평균 변화가 낮고, `2:45` 이후부터 변화량이
+  커진다. 따라서 영상만으로는 앱이 완전히 정지했다고 확정하기보다, 검은 격자·계단형 주변 화면이 오래
+  유지되고 HMD 시야 변화가 매우 작았다고 기록한다.
+- 검은 배경과 파란 곡선 격자는 Unity PPE Room의 일반 룸 화면과 다르게 보인다. 다만 이것이 Quest Link,
+  Guardian/경계, Meta 런타임 오버레이, Unity 내부 fade/clip, 카메라 near clip, 또는 성능 저하로 인한
+  compositor 현상인지는 영상만으로 확인할 수 없다.
+- 계단식 깨짐은 오른쪽 또는 대각선 가장자리의 노란 오브젝트 경계에서 특히 뚜렷하다. 이는 HMD가 노란
+  방호복·진열장·근접 오브젝트 내부 또는 표면에 과도하게 가까워진 상태와 동시에 관찰된다.
+- 이 증상은 같은 날 기록한 HMD·손 환경 관통과 시간·위치상 관련될 수 있지만, 관통 대응과 동일 원인으로
+  확정하지 않는다. 파란 주변 시야 깨짐은 별도 XR 렌더링·런타임·성능 문제로 분리해 조사한다.
+
+### 확인할 수 없는 사항
+
+- 실제 HMD 양안에서 어느 눈에 먼저 발생했는지, Game View에도 동일하게 보였는지, Quest Link 대기 화면인지,
+  Guardian 표시인지, Unity 렌더링 결과인지, Meta compositor 재투영 또는 프레임 드랍인지는 영상만으로
+  확인 불가다.
+- Unity 로그, Meta/OpenXR 로그, Profiler CPU/GPU frame time, RenderTexture 상태, 반사 카메라 렌더링 여부,
+  카메라 near/far clip 설정, FFR/Dynamic Resolution/MSAA 설정은 영상만으로 확인 불가다.
+
+### 후속 읽기 전용 조사 항목
+
+1. 같은 재현 위치에서 Game View, Quest 왼쪽 눈, Quest 오른쪽 눈의 증상 유무를 분리해 기록한다.
+2. 증상 직전 10초와 직후 10초의 Unity Console, Editor.log, Meta/OpenXR 런타임 로그를 수집한다.
+3. Quest Profiler 또는 OVR Metrics Tool로 `CPU/GPU frame time`, dropped frame, app/compositor frame rate,
+   thermal/throttling 상태를 확인한다.
+4. HMD Camera의 near/far clip, URP Render Scale, MSAA, Dynamic Resolution, FFR, Vulkan/OpenXR 관련 설정을
+   변경 없이 기록한다.
+5. Planar Mirror, 반사 RenderTexture, 추가 Camera 렌더링이 켜진 상태인지 확인하되, 거울을 원인으로
+   확정하기 전에는 런타임 Off/On 단일 변수 비교를 수행한다.
+6. 관통 재현 위치의 노란 방호복·진열장·프레임 Renderer/Collider Bounds와 HMD Camera 위치를 대조하되,
+   파란 주변 시야 깨짐은 관통 문제와 별도 결함으로 추적한다.
+
+### 수정 경계
+
+- 이번 기록 단계에서는 Unity 씬, Collider, 렌더링 설정, 코드, ProjectSettings, Prefab, Material, Asset을
+  수정하지 않았다.
+- 후속 구현은 HMD·손 관통 대응 패치와 파란 주변 시야 깨짐 대응 패치를 섞지 않는다.
+- Quest/OpenXR 실기 검증 전에는 렌더링 안정화 완료로 보고하지 않는다.

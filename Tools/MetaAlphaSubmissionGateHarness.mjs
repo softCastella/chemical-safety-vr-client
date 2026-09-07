@@ -127,6 +127,8 @@ if (!fs.existsSync(releasePlanPath)) {
     failures.push("PPE Room 위치별 5분 비교 절차가 출시 문서에 없습니다.");
   if (!releasePlan.includes("Development APK는 Git에 포함되지 않는다"))
     failures.push("다른 PC의 Development APK 전달·재빌드 규칙이 출시 문서에 없습니다.");
+  if (!releasePlan.includes("아침 검증은 **다른 Quest 기기**에서 수행"))
+    failures.push("아침 검증 대상이 다른 Quest라는 인수인계 조건이 출시 문서에 없습니다.");
 }
 
 if (!fs.existsSync(serverReleasePlanPath)) {

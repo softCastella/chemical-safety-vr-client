@@ -1951,6 +1951,8 @@ Meta 업로드 검사가 첫 출시 서명 APK에서 Android Target SDK 36, 자�
 - Development APK는 Quest 2에 ADB sideload로 설치됐다. 설치본은 package
   `com.tycheworks.immersa.safetyvr`, `versionCode=5`, `versionName=0.1.0`, ARM64, Target SDK 34,
   APK Signing v2, `DEBUGGABLE`, installer `com.android.shell`이다.
+- 위 설치 상태는 집 Quest 2에만 해당한다. 아침 검증은 **다른 Quest 기기**에서 수행할 예정이므로 집 기기의
+  설치·미실행 상태와 내부 LAN 설정이 전달됐다고 가정하지 않는다.
 - 2026-09-08 중단 직전 `dumpsys package`의 사용자 상태는 `stopped=true`, `notLaunched=true`였다.
   사용자의 확인과 함께 앱·HMD 안정성 검사는 아직 시작하지 않은 것으로 기록한다.
 - 집 PC의 Development LAN 설정은 중지된 앱 내부에 일회성 파일로 주입됐지만 집 사설 LAN 주소를 향한다.
@@ -1971,8 +1973,10 @@ Meta 업로드 검사가 첫 출시 서명 APK에서 Android Target SDK 36, 자�
    health, `/telemetry-ingest-test/`, 인증 sessions 조회 HTTP 200을 확인한다.
 4. Development APK는 Git에 포함되지 않는다. 다른 PC에 위 SHA-256과 일치하는 APK를 별도로 옮기거나,
    클라이언트 기준 커밋에서 Unity `Development Build`를 켜고 같은 파일명으로 **Build만** 다시 생성한다.
-5. 같은 Quest를 USB로 연결해 설치본의 package/version/debuggable 상태를 확인한다. 설치본이 없거나 해시가
-   다른 경우에만 정확한 Development APK를 `adb install -r`로 설치한다. Quest Link는 시작하지 않는다.
+5. 다른 Quest를 USB로 연결하고 개발자 모드·USB 디버깅 승인을 확인한다. Development APK를 새로 빌드했다면
+   package `com.tycheworks.immersa.safetyvr`, `versionCode=5`, `DEBUGGABLE`, ARM64와 v2 서명을 검사하고 새
+   SHA-256을 기록한 뒤 ADB로 설치한다. 설치 후 `dumpsys package`로 실제 기기 상태를 다시 확인하며 Quest Link는
+   시작하지 않는다.
 6. 앱을 중지한 상태에서 다른 PC의 `TYCHE_QUEST_LAN_SERVER_BASE_URL`과
    `TYCHE_TELEMETRY_UPLOAD_TOKEN`으로 일회성 Development LAN 설정을 다시 주입한다. 주소·token 원문은
    로그·문서·Git에 남기지 않는다.

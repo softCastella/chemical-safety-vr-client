@@ -1741,3 +1741,199 @@ Meta 업로드 검사가 첫 출시 서명 APK에서 Android Target SDK 36, 자�
 - 본 인수인계 작성 시점에는 클라이언트와 서버 모두 커밋·푸시하지 않았다.
 - 공용 회의록은 양쪽 저장소에 같은 내용으로 미러링하되, 사용자 씬과 서버의 별도 변경은 각각 소유자의
   작업으로 분리해 보존한다.
+
+## 2026-09-07 code 5 Alpha 당일 제출 단일 실행 게이트
+
+### 현재 체크포인트
+
+- 클라이언트 기준은 `main@428c0d5bd458719b53c11ae95899f250c4d7bc4e`, 서버 기준은
+  `main@9a7da209ec166b7fd5c646c04b4bcdfff3aadee8`이다.
+- code 5 Release APK `Builds/MetaHorizonAlpha/ChemicalSafetyVR_Alpha_0_1_0_5.apk`는 빌드, v2 서명,
+  `versionCode=5`, Target SDK 34, landscape, install location auto, ARM64, Meta VR headtracking/category,
+  `DEBUGGABLE` 비활성과 cleartext 차단을 확인했다.
+- code 5 Development APK, `tyche_training_baseline` DB 연결·migration, 6개 조합 실플레이, 원본·DB·백업
+  대조 및 Meta Alpha 배포본 최종 실기는 아직 완료되지 않았다.
+- 2026-09-07 현재 `tyche_training_baseline` 전용 로컬 계정과 DB를 만들고 서버 현재 HEAD의 migration 16개를
+  적용했다. 초기 수집량은 session 0건, event 0건이며 MariaDB TCP 3306을 확인했다.
+- 기준 DB를 사용하는 Express를 시작했고 `/api/health`, `/telemetry-ingest-test/`, Bearer 인증
+  `/api/training-telemetry/sessions?limit=1`이 모두 HTTP 200임을 확인했다.
+- DB 비밀번호와 업로드 token은 Git에서 제외된 서버 로컬 `.env`에만 유지한다. 기존 root와 일반 앱 계정,
+  기존 `tyche_training` DB는 변경하거나 초기화하지 않았다.
+- 따라서 1·2단계는 준비됐고 현재 단일 다음 작업은 3단계 code 5 Development APK를 **Build만** 생성하는
+  것이다. 설치, LAN 주입, 앱 실행과 실플레이는 APK 생성 후 Codex의 검사를 거쳐 진행한다.
+- Release Player는 개발용 LAN 업로드를 활성화하지 않는다. Release APK의 JSONL 생성과 Development APK의
+  Express·MySQL 전송 검증을 한 결과로 합치지 않는다.
+- 집 환경에서 반복되는 HMD 주변 시야 깨짐은 제출 차단 결함이다. 룸스케일 헤드·손 관통 Known Issue와
+  합치지 않으며, 미러링·logcat·기기 성능 수집을 시작하기 전에는 기준 실플레이를 요청하지 않는다.
+- 기준 DB 확인 전 Development 앱을 실행하지 않는다. 일반 `tyche_training` DB로 받은 실행은 기준본으로
+  승인하지 않는다.
+- 당일 상태 확인은 `node Tools/MetaAlphaSubmissionGateHarness.mjs`를 단일 진입점으로 사용한다. 하네스
+  `WAIT`는 실패가 아니라 출력된 첫 미완료 게이트부터 진행하라는 뜻이다.
+
+### 1단계 — code 5 정적·Release 아티팩트 고정
+
+1. **Codex:** Git 기준과 미커밋 diff를 확인하고 사용자 씬·Inspector 값을 보존한다.
+2. **Codex:** Scene Dependency, Train/Test, Training Data Contract, Locomotion/PPE, Room Collision,
+   Meta Quest Android, Meta Quest 72 Hz 하네스 결과와 Unity 컴파일 오류를 구분해 확인한다.
+3. **Codex:** Release APK의 서명·Manifest·ABI·버전과 SHA-256을 검사한다.
+4. **사용자:** Meta Dashboard Alpha 채널에 정확한 code 5 Release APK 업로드를 시작한다. 업로드 처리는
+   2~6단계와 병행할 수 있지만, 채널 설치와 최종 제출 완료 판정은 7~8단계에서만 한다.
+
+### 2단계 — 기준 DB 격리 준비
+
+1. **Codex:** 서버를 시작하기 전에 `.env`의 `DB_NAME=tyche_training_baseline`, 전용 DB 사용자·비밀번호,
+   `ENABLE_TRAINING_TELEMETRY_INGEST=true`와 업로드 token 존재를 비밀값 출력 없이 확인한다.
+2. **Codex:** `tyche_training_baseline` 존재, 서버 현재 SHA의 `db/migrations/*.sql` 전체 적용,
+   telemetry 세션·이벤트 초기 건수와 자동 purge 미적용을 읽기 전용으로 확인한다.
+3. **Codex:** 기준 DB를 향하도록 Express를 시작하고 PC loopback·Quest 사설 LAN health, 인증된 텔레메트리
+   조회와 `/telemetry-ingest-test/` 응답을 확인한다.
+4. 이 단계가 PASS하기 전에는 Development APK를 Quest에서 실행하거나 기준 플레이를 시작하지 않는다.
+
+### 3단계 — Development APK 빌드·설치·일회성 LAN 주입
+
+1. **사용자:** Unity Android Build Profile에서 `Development Build`를 켜고 **Build만** 실행한다.
+   `Build And Run`은 사용하지 않는다. 출력은
+   `Builds/MetaHorizonAlpha/ChemicalSafetyVR_TelemetryDev_0_1_0_5.apk`로 고정한다.
+2. **Codex:** APK의 package identifier가 Release와 같고 `versionCode=5`, `DEBUGGABLE` 활성,
+   Development 전용 cleartext 설정인지 확인한 뒤 ADB로 설치한다.
+3. **Codex:** 설치된 앱을 중지한 상태에서
+   `Tools > PPE > Inject Quest Development LAN Configuration`과 같은 경로로 사설 LAN 주소와 token을
+   한 번만 주입한다. 주소·token 원문은 로그·문서·Git에 남기지 않는다.
+4. **Codex:** 주입 성공과 앱 중지 상태를 확인한 뒤에만 사용자에게 첫 플레이 시작을 요청한다.
+5. 집 환경 검증은 Quest Link Play Mode가 아니라 Quest에 설치한 Development APK의 **독립 실행**으로 한다.
+   USB는 ADB 로그·설정 주입에만 사용하고 Quest Link를 시작하지 않는다.
+
+### 4단계 — 첫 기준 회차 게이트
+
+1. **Codex·사용자:** 문서화된 약 `2:41` 이후 시야 깨짐보다 긴 **5분 독립 실행 안정성 스모크**를 먼저 한다.
+   `0_App → PPE Room`까지만 진입하고 모드는 시작하지 않는다. Codex는 Quest 미러링 또는 녹화, ADB logcat과
+   필요한 성능 관찰을 먼저 시작한다.
+2. HMD 주변 시야 깨짐, 검은 화면 또는 정지감이 생기면 기준 수집을 시작하지 않는다. 스모크 JSONL과 로그는
+   비기준 진단 증거로 보존하고 원인을 좁힌다. 안정하면 정상 종료하고 JSONL을 분리한 뒤 Development LAN
+   일회성 설정을 다시 주입한다.
+3. **사용자:** 테스트 Meta 계정과 같은 Quest 2에서 `0_App`부터 시작해 **ConfinedSpace/Test 한 판만**
+   진행한다. 음성 생략, pause, HMD 이탈, 강제 종료, 네트워크 단절과 잘못된 PPE·퀴즈 선택 없이 첫 시도
+   정상 완료하고 모드 선택 모달이 다시 보일 때 멈춘다.
+4. **Codex:** 같은 `sessionId`와 `modeSessionId`로 Quest JSONL, 서버
+   `training_telemetry_sessions/events`, event count, 마지막 sequence, `mode_session_started`,
+   문제별 `quiz_answer_resolved`, `mode_session_completed`와 서버 checkpoint를 대조한다.
+5. 누락·중복·ID 불일치·미완료가 하나라도 있으면 해당 회차는 비기준 후보로 보존하고 다음 조합으로 가지 않는다.
+
+### 5단계 — 6개 조합 실플레이 기준본 수집
+
+첫 회차 PASS 뒤 같은 앱 버전·HMD·조작자·네트워크와 정상 진행 조건을 유지해 아래 순서로 조합별 1회씩
+수집한다.
+
+`ConfinedSpace/Test → ConfinedSpace/Training → ConfinedSpace/Education → LeakResponse/Test → LeakResponse/Training → LeakResponse/Education`
+
+- **사용자:** HMD와 앱 상태가 안정하면 6개 조합을 모두 진행한다. Codex가 직전 조합의 DB 대조 PASS를
+  알린 뒤 다음 조합으로 넘어간다.
+- **Codex:** 각 조합 직후 mode/workPlan, 앱 버전, `sessionId`, 고유 `modeSessionId`, 시작·완료 시각,
+  퀴즈 문항·정답 수, PPE 오선택 수, `modeElapsedSec`, event count와 마지막 sequence를 확인한다.
+- FirstVisit은 첫 정상 완료 전 `Welcome_New → Simple → CardIntro`, Returning은 정상 완료 후 앱 재실행에서
+  `Welcome_Old → CardIntro`임을 별도 확인한다. 이 계정 경로 증거를 6개 모드 완료와 섞어 추정하지 않는다.
+- 중도 EXIT, pause/resume, 오류 재현은 6개 정상 기준본과 같은 회차에 넣지 않는다.
+
+#### HMD 불안정 시 이어서 수집하는 규칙
+
+1. 시야 깨짐·검은 화면·정지감이 나타나면 현재 진행 중인 모드를 즉시 중단하고 다음 조합을 시작하지 않는다.
+2. 증상 전에 `mode_session_completed`가 기록되고 Quest JSONL·DB 대조까지 PASS한 조합은 승인 후보로 보존한다.
+   완료된 기준 회차를 처음부터 다시 수행하지 않는다.
+3. 증상 발생 중 진행 중이던 조합과 완료·대조가 끝나지 않은 조합만 비기준 후보로 분리한다. 원본 이벤트는
+   삭제하지 않는다.
+4. 앱을 정상화한 뒤 독립 실행 안정성 스모크, Development LAN 재주입과 서버 checkpoint 확인을 다시 통과하면
+   **아직 승인되지 않은 다음 조합부터** 수집을 재개한다.
+5. 독립 실행 Development 또는 Meta Alpha Release에서도 시야 깨짐이 반복되면 데이터 수집을 강행하지 않고
+   제출 차단 결함으로 처리한다. Quest Link에서만 재현된 결과를 독립 실행 APK 실패로 합치지 않는다.
+
+### 6단계 — 원본·DB·백업 승인
+
+1. **Codex:** 6개 `mode_session_started`와 같은 ID의 6개 `mode_session_completed`, sequence·eventId
+   누락/중복 0, Quest JSONL과 DB event count·마지막 sequence 일치를 확인한다.
+2. **Codex:** Quest 원본 JSONL, 서버 상세 조회 내보내기, 기준 DB 백업을 서로 다른 보관 단위로 저장하고
+   SHA-256과 비식별 보존 목록을 기록한다. Meta ID·token 원문은 Git과 제출 문서에 넣지 않는다.
+3. 위 조건을 모두 만족한 조합만 승인 기준본으로 표시한다. 비기준 후보를 삭제하거나 승인 데이터에 합치지 않는다.
+
+### 7단계 — Meta Alpha Release 재설치·최종 실기
+
+1. **사용자:** Quest Meta 라이브러리에서 Alpha code 5를 설치한다. Development sideload를 계속 실행하지 않는다.
+2. **Codex:** `versionCode=5`, installer `com.oculus.ocms`, `DEBUGGABLE` 비활성, 개발 LAN 비밀값 미포함을
+   확인한다.
+3. **사용자:** Release 앱에서 `0_App → PPE Room` 진입, 양안, 72 Hz, 입력·오디오, 두 작업계획, 상세 A 가이드,
+   퀴즈 모달 선행 종료, 위치 마커와 핵심 PPE Grab을 확인한다. HMD 주변 시야 깨짐·검은 화면·정지감은
+   0건이어야 한다.
+4. **Codex:** logcat의 FATAL EXCEPTION·ANR과 새 Release JSONL을 확인한다. Release에서 로컬 LAN 서버 업로드가
+   없다는 사실을 전송 실패로 판정하지 않는다.
+
+### 8단계 — Alpha 제출 완료 판정
+
+다음 네 조건을 모두 만족할 때만 오늘 Alpha 제출 준비 완료로 판정한다.
+
+1. Meta Alpha 채널에 code 5가 할당되고 Quest 설치본의 installer가 `com.oculus.ocms`다.
+2. Development code 5의 6개 정상 기준본이 Quest JSONL·기준 DB·백업과 일치한다.
+3. Release code 5의 양안·입력·오디오·핵심 흐름에서 제출 차단 결함이 없다.
+4. 정적, Editor, Development 전송, 기준 데이터, Release 실기 증거를 공용 문서와 Git 상태에 구분해 기록했다.
+
+## 2026-09-07 학원 PC·Workbench 환경 인수인계
+
+### 인수인계 목적과 기준본
+
+- 이 절은 집 PC에서 준비한 code 5 Alpha 데이터 수집 환경을 학원 PC에서 이어갈 때 Codex가 비밀번호 복구나 DB 초기화를 추측으로 반복하지 않도록 하는 실행 기준이다.
+- 문서 기준본은 클라이언트 저장소의 이 파일이며, 서버 저장소의 같은 상대 경로 파일은 완전히 동일하게 미러링한다.
+- Git은 서버 코드, `db/migrations/*.sql`, 검증 하네스와 이 문서만 전달한다. 각 PC의 `.env`, Workbench 연결 프로필, MariaDB 계정, DB 내용, 업로드 토큰과 Quest JSONL은 Git으로 전달되지 않는다.
+- 학원 PC에 이미 유효한 서버 `.env`와 Workbench 연결이 있으면 그것을 우선 보존한다. 집 PC에서 만든 `tyche_baseline` 계정이나 비밀번호를 학원 PC에 복제할 필요가 없다.
+- 비밀번호·토큰 원문을 문서, 콘솔 출력, 로그, 커밋 또는 채팅에 기록하지 않는다.
+
+### 학원 Codex가 먼저 확인할 순서
+
+1. 클라이언트에서 `node Tools/AgentHandoffHarness.mjs`를 실행하고 `Docs/ValidationHarnessGuide.md`를 읽는다.
+2. 클라이언트와 서버 저장소에서 `git status -sb`, 현재 브랜치와 HEAD SHA를 각각 기록한다. 기존 미커밋 파일과 학원 로컬 `.env`를 덮어쓰거나 정리하지 않는다.
+3. 두 저장소를 사용자가 지정한 기준 브랜치로 갱신한 뒤, 서버 `.env`가 Git에 추적되지 않는 로컬 파일임을 확인한다.
+4. Workbench에서 기존 연결이 성공하면 그 연결을 관리자 암호 분실 문제로 재분류하지 않는다. 먼저 `.env`의 `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_NAME`이 학원 MariaDB 인스턴스를 가리키는지 값은 노출하지 않고 이름별로 확인한다.
+5. Alpha 기준본을 새로 수집할 때는 일반 개발 DB와 섞지 않고 `DB_NAME=tyche_training_baseline`을 사용한다. 동일 이름 DB가 이미 있으면 자동 삭제·초기화하지 않고 session/event 수와 기존 백업 여부부터 확인한다.
+6. `ENABLE_TRAINING_TELEMETRY_INGEST=true`와 `TRAINING_TELEMETRY_UPLOAD_TOKEN` 존재를 확인한다. 로컬 기준 수집에 불필요하고 설정이 완성되지 않은 기능은 켜지 않는다. 현재 기준은 `ENABLE_CONTACT_FORM=false`, `ENABLE_LOCAL_TELEMETRY_READ=false`이다.
+7. 서버 저장소에서 `npm run db:migrate`를 실행한다. 새 DB면 현재 `db/migrations/*.sql` 전체가 적용되어야 하고, 기존 DB면 적용 목록이 현재 서버 HEAD와 정확히 일치해야 한다.
+8. 기준 DB를 사용하는 Express 서버를 시작한 뒤 `/api/health`, `/telemetry-ingest-test/`, Bearer 인증을 포함한 `/api/training-telemetry/sessions?limit=1`이 모두 HTTP 200인지 확인한다.
+9. 클라이언트에서 `node Tools/MetaAlphaSubmissionGateHarness.mjs`를 실행한다. `WAIT`이면 출력된 첫 대기 항목만 해결하고, `NEXT`가 지시하는 단계보다 앞서 APK를 실행하거나 실플레이를 시작하지 않는다.
+
+### 환경별 값의 소유권
+
+| 항목 | Git으로 전달 | 학원 PC에서 사용할 기준 |
+| --- | --- | --- |
+| 서버 소스·migration | 예 | pull한 서버 HEAD |
+| `.env` | 아니요 | 학원 PC의 기존 로컬 파일 보존 |
+| `DB_USER`·`DB_PASSWORD` | 아니요 | 학원 MariaDB에 실제 존재하는 전용 계정 |
+| `tyche_training_baseline` 내용 | 아니요 | 학원에서 새로 만들거나 승인된 백업만 복원 |
+| `TRAINING_TELEMETRY_UPLOAD_TOKEN` | 아니요 | 서버 `.env`와 Unity 실행 사용자 환경의 `TYCHE_TELEMETRY_UPLOAD_TOKEN`이 동일해야 함 |
+| Workbench 연결·저장 암호 | 아니요 | 학원 Windows 사용자 프로필의 기존 연결 |
+| Quest JSONL | 아니요 | ADB로 별도 회수하고 해시와 회차 ID로 관리 |
+| Release·Development APK | 기본적으로 아니요 | 문서의 정확한 경로와 code 5 속성을 다시 검증 |
+
+### 연결 실패 시 분기
+
+1. **Workbench 연결 성공 + 서버 연결 성공:** 계정 생성, 암호 변경, grant 복구를 하지 않는다. migration과 HTTP 게이트로 바로 진행한다.
+2. **`Access denied`:** 먼저 `.env`의 host/user가 Workbench 연결 대상과 같은지 확인한다. 기존 root나 앱 계정 암호를 변경하지 않는다. 학원에서 권한을 가진 관리자 연결이 확인된 경우에만 `tyche_training_baseline` 전용 계정을 만들거나 권한을 부여한다.
+3. **`Unknown database`:** 기존 일반 DB를 이름 변경하거나 삭제하지 않는다. `tyche_training_baseline`만 새로 만들고 `npm run db:migrate`를 실행한다.
+4. **migration 불일치:** 테이블을 수동 수정하거나 DB를 purge하지 않는다. 서버 HEAD와 `schema_migrations` 차이를 기록하고 정상 migration 명령으로만 보완한다.
+5. **TCP 3306 실패:** `.env`를 바꾸기 전에 학원 MariaDB 서비스, 실제 포트와 Workbench 연결 인스턴스를 확인한다.
+6. **TCP 3000 또는 health 실패:** DB 암호를 다시 만들지 않는다. 서버 프로세스의 stderr와 `.env`의 선택 기능 설정 오류를 먼저 확인한다.
+7. **HTTP 401:** DB 문제가 아니라 토큰 불일치로 분류한다. 서버의 `TRAINING_TELEMETRY_UPLOAD_TOKEN`과 Unity 사용자의 `TYCHE_TELEMETRY_UPLOAD_TOKEN`을 원문 출력 없이 맞춘 뒤 Development LAN 설정을 다시 한 번 주입한다.
+8. **HTTP 200이지만 DB event가 증가하지 않음:** Quest의 실행 APK가 Development code 5인지, 일회성 LAN 주입이 재설치 뒤에도 유효한지, `modeSessionId`와 업로드 응답을 순서대로 확인한다. 기존 DB를 초기화하지 않는다.
+
+### 집 PC 데이터와 학원 PC 데이터의 연속성
+
+- 집에서 수집한 DB와 JSONL은 Git pull만으로 학원에 나타나지 않는다.
+- 집의 완료 회차를 학원에서 이어서 사용할 때는 먼저 Quest JSONL, 기준 DB 백업, session/event 조회 결과와 SHA-256 목록을 만든다. 그 승인된 백업만 학원 기준 DB에 복원한다.
+- 학원에서 빈 DB로 새 수집을 시작하면 집의 기준본과 별개의 수집 세트로 기록한다. 같은 `modeSessionId`인지 확인하지 않은 채 두 DB의 건수만 합치지 않는다.
+- HMD 이상 전에 `mode_session_completed`와 JSONL·DB 대조가 PASS한 회차는 유효하다. PC를 옮겼다는 이유로 완료 회차를 자동 재실행하지 않는다.
+
+### 학원 환경 준비 완료 판정
+
+다음 조건을 모두 만족해야 학원 Codex가 Development APK 설치·LAN 주입 단계로 진행한다.
+
+1. 학원 `.env`를 보존한 상태에서 `tyche_training_baseline` 연결이 성공한다.
+2. 서버 HEAD의 migration 전체가 적용되어 있다.
+3. 기준 DB의 시작 session/event 수를 기록했다.
+4. health, 테스트 페이지, 인증 sessions 조회가 모두 HTTP 200이다.
+5. `node Tools/MetaAlphaSubmissionGateHarness.mjs`가 DB·서버 관련 대기 항목 없이 Development APK 또는 그 이후 단계만 `NEXT`로 지시한다.
+6. 이 조건이 충족되지 않으면 비밀번호 초기화, 기존 DB 삭제, 실플레이 시작으로 우회하지 않는다.

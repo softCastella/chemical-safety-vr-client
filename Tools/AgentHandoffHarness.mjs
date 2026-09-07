@@ -12,6 +12,7 @@ const requiredFiles = [
   "CLAUDE.md",
   "Docs/ValidationHarnessGuide.md",
   "Tools/KoreanCommitMessageHarness.mjs",
+  "Tools/MetaAlphaSubmissionGateHarness.mjs",
   "Assets/Editor/DocumentationPolicyHarness.cs",
   "Assets/Editor/SceneDependencyValidationHarness.cs",
   "Assets/Editor/PPELocomotionPpeRegressionValidationHarness.cs",
@@ -74,6 +75,7 @@ if (failures.length === 0) {
     "PPETrainingDataContractHarness.Validate",
     "XRNearFarReticleSafetyHarness.Validate",
     "XRSessionForwardAlignmentValidationHarness.Validate",
+    "MetaAlphaSubmissionGateHarness.mjs",
   ]) {
     if (!routingGuide.includes(requiredHarness))
       failures.push(`하네스 라우팅 참조가 없습니다: ${requiredHarness}`);

@@ -54,6 +54,7 @@
 | XR 세션 시작 방향 | `Tools > XR > Validate Session Forward Alignment` | `XRSessionForwardAlignmentValidationHarness.Validate`; Quest 시작 방향 별도 확인 |
 | Meta Quest Android 설정 | `Tools > XR > Validate Meta Quest Android Build` | 생성 APK Manifest와 기기 실행 별도 확인 |
 | Quest 72Hz 설정 | `Tools > XR > Validate Meta Quest 72 Hz` | 실제 런타임 refresh rate와 성능 확인 |
+| Meta Alpha 당일 제출 전체 게이트 | `node Tools/MetaAlphaSubmissionGateHarness.mjs` | Release/Development, 기준 DB, 6개 실플레이, Meta 채널 설치 증거를 순서대로 분리; `WAIT`의 첫 미완료 게이트부터 진행 |
 | 텔레메트리·CSV·대시보드·보고자료 | `Tools > PPE > Validate Training Data Contract` | `PPETrainingDataContractHarness.Validate`; 최신 JSONL, 서버 적재와 조회를 각각 확인 |
 | 로컬 텔레메트리 업로드 | `Tools > PPE > Validate Local Telemetry DB Upload` | 서버 브랜치·SHA·응답 로그 확인 |
 | 한글 키보드 | `Tools > XR > Hangul Keyboard > Validate Composer`, `Validate Submit Safety` | 컨트롤러와 양손 Poke 실기 확인 |

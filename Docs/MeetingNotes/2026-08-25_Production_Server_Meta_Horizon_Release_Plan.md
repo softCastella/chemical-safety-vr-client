@@ -1937,3 +1937,61 @@ Meta 업로드 검사가 첫 출시 서명 APK에서 Android Target SDK 36, 자�
 4. health, 테스트 페이지, 인증 sessions 조회가 모두 HTTP 200이다.
 5. `node Tools/MetaAlphaSubmissionGateHarness.mjs`가 DB·서버 관련 대기 항목 없이 Development APK 또는 그 이후 단계만 `NEXT`로 지시한다.
 6. 이 조건이 충족되지 않으면 비밀번호 초기화, 기존 DB 삭제, 실플레이 시작으로 우회하지 않는다.
+
+## 2026-09-08 다른 PC 아침 재개 체크포인트
+
+### 중단 시점의 확정 상태
+
+- Git 기준은 클라이언트 `main@5a408edb6eb11ab286cfc982d37e634ccdd4d65b`, 서버
+  `main@2aa295de135d84af8ab12f8973e334729d4de45a`이며 두 커밋 모두 `origin/main`에 푸시됐다.
+- Release code 5 APK는 앞 절의 서명·Manifest·ABI 검사를 통과한 제출 후보로 그대로 보존한다.
+- Development APK는
+  `Builds/MetaHorizonAlpha/ChemicalSafetyVR_TelemetryDev_0_1_0_5.apk`이며 크기 277,675,159 bytes,
+  SHA-256 `B4149F82B75BD41DFD67598C45EFE5D6B15C205851E07008CD20B0F4E15313E1`이다.
+- Development APK는 Quest 2에 ADB sideload로 설치됐다. 설치본은 package
+  `com.tycheworks.immersa.safetyvr`, `versionCode=5`, `versionName=0.1.0`, ARM64, Target SDK 34,
+  APK Signing v2, `DEBUGGABLE`, installer `com.android.shell`이다.
+- 2026-09-08 중단 직전 `dumpsys package`의 사용자 상태는 `stopped=true`, `notLaunched=true`였다.
+  사용자의 확인과 함께 앱·HMD 안정성 검사는 아직 시작하지 않은 것으로 기록한다.
+- 집 PC의 Development LAN 설정은 중지된 앱 내부에 일회성 파일로 주입됐지만 집 사설 LAN 주소를 향한다.
+  다른 PC·학원에서는 이 값을 재사용하지 않고 그 PC의 사설 LAN 주소와 기존 로컬 token으로 다시 주입한다.
+- 집 PC 기준 DB는 migration 16개, 초기 session 0건/event 0건이고 health, 테스트 페이지, 인증 sessions 조회가
+  모두 HTTP 200이었다. 이 DB·`.env`·실행 프로세스는 Git으로 다른 PC에 전달되지 않는다.
+- 실제 HMD 영상은 수집되지 않았다. 화면 비활성 상태의 `screenrecord` 시도는 Quest에 0 byte 파일만 만들었고
+  기준 증거가 아니다. `.baseline-preservation`의 ADB 로그와 진단 파일은 로컬·Git 제외 상태이며 다른 PC에서
+  자동으로 이어지지 않는다.
+
+### 다른 PC에서 재개하는 순서
+
+1. 클라이언트와 서버의 `main`을 pull하고 위 기준 SHA가 포함됐는지 확인한다. 각 PC의 기존 `.env`, Workbench
+   연결과 사용자 미커밋 파일은 보존한다.
+2. 클라이언트에서 `node Tools/AgentHandoffHarness.mjs`를 실행하고 `Docs/ValidationHarnessGuide.md`와 이 절을
+   읽는다. 서버에서는 학원 `.env`의 대상 DB가 `tyche_training_baseline`인지 확인한다.
+3. 서버에서 `npm run db:migrate`를 실행하고 기준 DB의 시작 session/event 수를 기록한다. Express를 시작해
+   health, `/telemetry-ingest-test/`, 인증 sessions 조회 HTTP 200을 확인한다.
+4. Development APK는 Git에 포함되지 않는다. 다른 PC에 위 SHA-256과 일치하는 APK를 별도로 옮기거나,
+   클라이언트 기준 커밋에서 Unity `Development Build`를 켜고 같은 파일명으로 **Build만** 다시 생성한다.
+5. 같은 Quest를 USB로 연결해 설치본의 package/version/debuggable 상태를 확인한다. 설치본이 없거나 해시가
+   다른 경우에만 정확한 Development APK를 `adb install -r`로 설치한다. Quest Link는 시작하지 않는다.
+6. 앱을 중지한 상태에서 다른 PC의 `TYCHE_QUEST_LAN_SERVER_BASE_URL`과
+   `TYCHE_TELEMETRY_UPLOAD_TOKEN`으로 일회성 Development LAN 설정을 다시 주입한다. 주소·token 원문은
+   로그·문서·Git에 남기지 않는다.
+7. 먼저 화면 녹화 없이 ADB logcat만 수집한다. HMD 화면 녹화는 성능·재현 조건에 영향을 줄 수 있으므로
+   사용자가 명시적으로 선택하거나 결함 재현 후 증거가 필요할 때 별도 비교 실행으로 수행한다.
+8. Quest 앱 라이브러리의 **알 수 없는 출처(Unknown Sources)**에서 Development
+   `Chemical Safety Training VR`을 실행한다. Meta Alpha Release 설치본과 혼동하지 않는다.
+9. 같은 앱 실행을 유지한 채 `PPE Room 진입 위치에서 5분 → PPE 진열장 앞으로 이동 → 진열장 위치에서 5분`
+   순서로 검사한다. 두 구간 모두 PPE 선택, 작업계획 선택과 모드 시작은 하지 않고 머리·손 움직임 조건을
+   가능한 한 같게 유지한다. 중간에 앱, HMD 또는 세션을 끄거나 재시작하지 않는다.
+10. 시야 깨짐이 발생하면 즉시 진행을 멈추고 `입구/진열장`, 해당 구간 경과시간, 왼눈/오른눈/양안,
+    직전 이동·고개 방향을 기록한다. 첫 구간에서 발생하면 진열장으로 이동하지 않는다.
+11. 두 구간이 모두 정상일 때만 비기준 스모크를 정상 종료하고 JSONL을 기준 데이터와 분리한다. Development
+    LAN 설정을 다시 주입한 뒤 4단계의 `ConfinedSpace/Test` 첫 기준 회차 하나로 진행한다.
+12. 첫 회차의 Quest JSONL·기준 DB 대조가 PASS하기 전에는 나머지 5개 조합을 시작하지 않는다.
+
+### 역할과 다음 보고 형식
+
+- **사용자:** 동일 세션의 입구 5분과 진열장 5분을 수행하고 `입구 정상/실패`, `진열장 정상/실패`, 실패 시
+  경과시간과 눈을 보고한다.
+- **Codex:** 실행 전 APK·DB·LAN·로그 준비를 확인하고, 사용자 보고 직후 logcat·JSONL·DB를 대조해 다음 한 단계만
+  지시한다. 사용자가 실행하지 않았다고 말한 단계를 완료로 추정하지 않는다.

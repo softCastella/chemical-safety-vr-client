@@ -117,6 +117,16 @@ if (!fs.existsSync(releasePlanPath)) {
     failures.push("학원 DB 연결 실패 시 기존 계정 보호 규칙이 출시 문서에 없습니다.");
   if (!releasePlan.includes("TYCHE_TELEMETRY_UPLOAD_TOKEN"))
     failures.push("학원 Unity·서버 토큰 대응 규칙이 출시 문서에 없습니다.");
+  if (!releasePlan.includes("## 2026-09-08 다른 PC 아침 재개 체크포인트"))
+    failures.push("다른 PC 아침 재개 체크포인트가 출시 문서에 없습니다.");
+  if (
+    !releasePlan.includes(
+      "PPE Room 진입 위치에서 5분 → PPE 진열장 앞으로 이동 → 진열장 위치에서 5분",
+    )
+  )
+    failures.push("PPE Room 위치별 5분 비교 절차가 출시 문서에 없습니다.");
+  if (!releasePlan.includes("Development APK는 Git에 포함되지 않는다"))
+    failures.push("다른 PC의 Development APK 전달·재빌드 규칙이 출시 문서에 없습니다.");
 }
 
 if (!fs.existsSync(serverReleasePlanPath)) {

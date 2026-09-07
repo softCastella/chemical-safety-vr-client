@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>팀티케 - 화학물질 안전훈련 VR 기획 개요서</title>
+    <title>팀티케 - 화학물질 안전훈련 VR 상세기획서 v0.10 Alpha</title>
     <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
     <style>
       :root {
@@ -831,6 +831,10 @@
         font-size: 7.2pt;
         line-height: 1.3;
       }
+      .cover-page .experience-screen-ui strong {
+        color: #d7ffe8;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.72);
+      }
       .cover-page .experience-screen-ui.is-top {
         top: 10px;
         left: 50%;
@@ -879,7 +883,7 @@
       }
 
       .hero {
-        width: min(940px, 100%);    
+        width: min(940px, 100%);
         margin: 35px auto 20px;
         border: 0;
         border-radius: 30px;
@@ -4954,19 +4958,19 @@
       <div class="header-inner">
         <div class="hero-head">
           <div class="title-wrap">
-            <h1><img class="header-logo" src="./img/vr_favicon.png" alt="로고">화학물질 안전훈련 VR 기획서</h1>
+            <h1><img class="header-logo" src="./img/vr_favicon.png" alt="로고">화학물질 안전훈련 VR 상세기획서</h1>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>팀명</b>: <b style="color:#679179">1인팀 Tyche(티케) · 최진영</b></p>
           </div>
           <div aria-label="프로젝트 메타" class="header-meta">
             <div class="badge-row">
-              <span class="badge">Platform: AOS</span>
+              <span class="badge">Platform: Meta Horizon OS / Android</span>
               <span class="badge">Device: Meta Quest 2 Standalone</span>
               <span class="badge">Engine: Unity VR/XR</span>
               <span class="badge">Play: 교육 · 훈련 · 테스트</span>
             </div>
-            <p class="header-meta-line"><b>개정일</b>: 2026.08.17&nbsp;&nbsp;|&nbsp;&nbsp;<b>버전</b>: v0.9</p>
+            <p class="header-meta-line"><b>개정일</b>: 2026.09.08&nbsp;&nbsp;|&nbsp;&nbsp;<b>버전</b>: v0.10 Alpha</p>
           </div>
-          
+
         </div>
       </div>
       <div class="part-nav-wrap">
@@ -4987,19 +4991,19 @@
         <div class="part-divider part-divider-start">PART 0 표지</div>
         <section class="cover-page" data-part="part0" id="cover">
           <div class="cover">
-            <span class="eyebrow">VR 최종 프로젝트 · 사전 기획서</span>
+            <span class="eyebrow">VR 최종 프로젝트 · 상세기획서 · Alpha 테스트 중</span>
             <h2>화학물질 안전훈련<br />VR 교육 콘텐츠</h2>
-            <p class="lead">PPE 착용 시나리오의 교육·훈련·테스트 3모드를 구현하고, 모드별 안내·평가 수준을 분리한 체험형 안전교육</p>
-            <p class="sub">Meta Quest 2 Standalone · Unity VR/XR · Single Player</p>
+            <p class="lead">두 작업계획 시나리오에서 교육·훈련·테스트 3모드를 제공하고, 모드별 안내·평가 수준을 분리한 체험형 안전교육</p>
+            <p class="sub">Meta Quest 2 Standalone · Unity/OpenXR · Single Player · Meta Horizon Alpha</p>
           </div>
 
           <div class="docinfo">
             <div><span class="k">프로젝트명</span>화학물질 안전훈련 VR</div>
-            <div><span class="k">문서 성격</span>사전 기획서</div>
+            <div><span class="k">문서 성격</span>상세기획서 · Alpha 기준본</div>
             <div><span class="k">팀</span>1인팀 Tyche(티케) · 최진영</div>
-            <div><span class="k">개정일</span>2026-08-17</div>
+            <div><span class="k">개정일</span>2026-09-08</div>
             <div><span class="k">프로젝트 유형</span>체험형 VR 안전교육</div>
-            <div><span class="k">버전</span>v0.9</div>
+            <div><span class="k">버전</span>v0.10 Alpha</div>
           </div>
 
           <div class="version-history" role="region" aria-labelledby="version-history-title">
@@ -5013,6 +5017,12 @@
               </thead>
               <tbody>
                 <tr class="version-current">
+                  <td><span class="version-badge">v0.10</span></td>
+                  <td>2026-09-08</td>
+                  <td>문서 성격을 사전기획서에서 상세기획서로 전환하고 Meta Horizon Alpha 테스트 기준선을 반영했다. 현재 빌드 장면 5개, PPE 작업계획 2종 × 교육·훈련·테스트 3모드, 이름 입력 임시 생략, 로컬 텔레메트리와 Development 전용 서버 업로드 경계를 명시했다. 기능명세·R&amp;D·시스템 연동 문구를 코드·씬·검증 문서 기준으로 정정하고, 변경 항목마다 v0.9 대비 현재 기준과 변경 이유를 남겼다. Meta Horizon 입점 준비는 런타임 기능과 비코드 제출 업무를 분리해 관리한다.</td>
+                  <td>최진영</td>
+                </tr>
+                <tr>
                   <td><span class="version-badge">v0.9</span></td>
                   <td>2026-08-17</td>
                   <td>현재 프로젝트 기준 실행 흐름과 프로토타입·후속 개발 범위 반영, PPE 착용 교육 시나리오·전용 컨트롤러 조작법·장비별 착용 및 교육 완료 조건 보완, PPE 단계별 VOICE·SFX 재생 조건과 전이 조건 표 추가, 교육·훈련·테스트 3모드 구현 완료 및 모드별 안내·오류·결과 차이 현행화, 풀장착 모델의 몸 추적·장비 결합·거울 표시 로직 상세화, ElevenLabs 박현미 TTS 정책 및 VOICE 자산 네이밍 표준·현행 예외 목록 추가, 기능명세·R&amp;D를 실제 구현 기준으로 현행화하고 로딩·이름 입력·마커 Grab·검증 안전장치 항목 추가, 장비 명칭을 안전대(등지게)로 통일</td>
@@ -5070,9 +5080,29 @@
             </table>
           </div>
 
+          <div class="version-history" role="region" aria-labelledby="alpha-change-title">
+            <div class="version-history-head">
+              <h3 id="alpha-change-title">v0.9 → v0.10 Alpha 핵심 변경 대조</h3>
+              <p>바뀐 결론만 덮어쓰지 않고 이전 기준·현재 기준·변경 이유를 함께 기록합니다.</p>
+            </div>
+            <table aria-label="v0.9와 v0.10 Alpha 핵심 변경 대조">
+              <thead>
+                <tr><th style="width:150px;">구분</th><th>v0.9 이전 기준</th><th>v0.10 Alpha 현재 기준</th><th>변경 이유·근거</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>문서 상태</strong></td><td>사전기획서, PPE 3모드 구현 완료 중심</td><td>상세기획서, Meta Horizon Alpha 테스트 중</td><td>현재 단계는 출시 완료가 아니라 코드 5 빌드의 실기기·회귀·제출 게이트를 통과시키는 단계다.</td></tr>
+                <tr><td><strong>콘텐츠 범위</strong></td><td>PPE 착용 시나리오 3모드와 밀폐공간·사고 체험 후속 범위</td><td><code>ConfinedSpace</code>·<code>LeakResponse</code> 작업계획 2종 × 교육·훈련·테스트 3모드의 6개 조합</td><td>현재 PPE Room의 실제 선택 구조와 검증 단위를 문서 기준으로 승격했다. 혼합기동·혼합기 내부는 계속 후속 범위다.</td></tr>
+                <tr><td><strong>실행 경로</strong></td><td><code>6_LoadingScene_0</code>, <code>3_PPE_Room_HandTest_scale_0</code> 중심의 개발 장면 경로</td><td><code>0_App → 1_Title → 2_Intro → 3_Loading → 4_PPE_Room</code></td><td><code>ProjectSettings/EditorBuildSettings.asset</code>의 현재 활성 빌드 장면을 기준으로 정정했다.</td></tr>
+                <tr><td><strong>사용자 식별</strong></td><td>Welcome 뒤 한글 키보드 이름 입력 필수</td><td>Alpha에서는 이름 입력을 임시 생략하고 카드 흐름으로 전이</td><td><code>4_PPE_Room.unity</code>의 <code>m_SkipKeyboardNameInput: 1</code>을 반영했다. 키보드 구현은 삭제하지 않고 비활성 경로로 보존한다.</td></tr>
+                <tr><td><strong>기록·서버</strong></td><td>서버 미연동 또는 향후 연동으로 단순 구분</td><td>Release Alpha는 로컬 JSONL, Editor/Development는 명시적 테스트 업로드, 운영 수집·관리자 조회는 미완료로 분리</td><td>클라이언트 빌드 조건과 서버 API·대시보드의 실제 활성 상태가 서로 다르므로 검증 단계를 구분했다.</td></tr>
+                <tr><td><strong>Meta Horizon</strong></td><td>Quest 독립 실행형 기술 목표 중심</td><td>런타임 적합성 검증과 스토어 메타데이터·등급·DUC·이미지·배포 채널 업무를 별도 관리</td><td>입점 준비의 대부분은 코드 기능이 아니므로 기능명세·R&amp;D에 억지로 편입하지 않는다.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
           <p class="cover-note">
-            본 문서는 <strong>화학물질 도메인의 PPE 착용 및 밀폐공간 진입 전 안전교육</strong>을 위한
-            VR 콘텐츠의 사전 기획서입니다. 현재 구현된 PPE 교육·훈련·테스트 3모드와 모드별 지원·평가 정책을 기준으로 교육 목표·정보 구조·기능·시나리오·개발 계획을 정리했습니다.
+            본 문서는 <strong>화학물질 도메인의 PPE 점검·착용 안전교육</strong>을 위한 VR 콘텐츠의 상세기획서입니다.
+            현재 Alpha의 두 작업계획 시나리오와 교육·훈련·테스트 3모드, 모드별 지원·평가 정책, 기능명세, R&amp;D, 검증 상태와 Meta Horizon 제출 준비 범위를 함께 관리합니다.
           </p>
 
           <nav class="proposal-toc" aria-label="표지 제안서 목차">
@@ -5097,17 +5127,17 @@
           <div class="cover-details">
           <h2 class="proposal-heading" id="cover-s1"><span class="num">1</span>프로젝트 개요</h2>
           <div class="proposal-lead">
-            화학물질 취급 현장에 진입하기 전 교육생이 <strong>PPE 적합성 점검·착용</strong>과
-            <strong>밀폐공간 진입 전 필수 안전절차</strong>를 올바른 순서로 수행하며 익히는
+            화학물질 취급 현장에 진입하기 전 교육생이 <strong>밀폐공간·누출대응 작업계획</strong>을 확인하고
+            상황에 맞는 <strong>PPE 적합성 점검·착용</strong>을 직접 수행하며 익히는
             <strong>1인용 체험형 VR 안전교육 콘텐츠</strong>입니다.
           </div>
           <table>
             <tbody>
               <tr><th style="width:150px;">프로젝트명</th><td>화학물질 안전훈련 VR</td></tr>
               <tr><th>콘텐츠 유형</th><td>체험형·절차 수행형 화학물질 안전교육</td></tr>
-              <tr><th>교육 주제</th><td>PPE 점검·판정·착용 / 밀폐공간 진입 전 안전절차</td></tr>
-              <tr><th>플랫폼</th><td>AOS · Meta Quest 2 Standalone</td></tr>
-              <tr><th>개발 환경</th><td>Unity VR/XR</td></tr>
+              <tr><th>교육 주제</th><td>밀폐공간·누출대응 작업계획별 PPE 점검·판정·착용. 혼합기동 전체 진입 전 절차는 후속</td></tr>
+              <tr><th>플랫폼</th><td>Meta Horizon OS / Android · Meta Quest 2 Standalone</td></tr>
+              <tr><th>개발 환경</th><td>Unity 6000.4.8f1 · OpenXR · URP</td></tr>
               <tr><th>플레이 방식</th><td>Single Player</td></tr>
               <tr><th>플레이 모드</th><td>교육모드(상세 튜토리얼) · 훈련모드(기본 지시) · 테스트모드(수행 중 지원 없음)</td></tr>
               <tr><th>핵심 학습</th><td>현장 진입 전에 필요한 안전수칙을 순서대로 직접 수행하고 결과를 확인</td></tr>
@@ -5151,7 +5181,7 @@
               <tr><td>PPE 적합성 판단</td><td>작업 정보와 위험요인을 확인하고 필요한 보호구 선택</td><td>부적합 보호구 선택 감소</td></tr>
               <tr><td>PPE 상태 점검</td><td>오염·파손·유효기간·밀착 상태를 항목별 확인</td><td>착용 전 점검 습관 형성</td></tr>
               <tr><td>올바른 착용 수행</td><td>보호구를 정해진 순서와 방식으로 착용</td><td>착용 오류와 누락 예방</td></tr>
-              <tr><td>밀폐공간 진입 전 판단</td><td>작업허가, 가스측정, 환기, 감시인 배치 등을 순차 확인</td><td>무단·성급한 진입 방지</td></tr>
+              <tr><td>밀폐공간 진입 전 판단 <small>후속</small></td><td>작업허가, 가스측정, 환기, 감시인 배치 등을 순차 확인</td><td>무단·성급한 진입 방지</td></tr>
               <tr><td>결과 기반 복습</td><td>완료 결과와 퀴즈를 통해 취약 항목 재확인</td><td>교육 이력과 반복학습 기반 마련</td></tr>
             </tbody>
           </table>
@@ -5182,24 +5212,24 @@
             </div>
           </div>
           <div class="proposal-note scope">
-            독립형 VR 헤드셋(Meta Quest 2) 한 대로 운영 가능한 1인 체험을 기본으로 하며, 관리자는 교육 시작·종료와 결과 확인을 지원합니다.
+            독립형 VR 헤드셋(Meta Quest 2) 한 대로 운영 가능한 1인 체험을 기본으로 합니다. Alpha의 운영 훈련 대시보드는 미완료이므로 현장 운영자는 HMD 착용·앱 시작·종료를 지원하고 결과는 우선 기기 내 기록으로 확인합니다.
           </div>
 
           <h2 class="proposal-heading" id="cover-s5"><span class="num">5</span>콘텐츠 시나리오 요약</h2>
           <table>
-            <thead><tr><th>구분</th><th>PPE 점검·착용 교육</th><th>밀폐공간 진입 전 교육</th><th>불완전 착용·절차 누락 사고 체험<br /><small>후속 확장</small></th></tr></thead>
+            <thead><tr><th>구분</th><th>현재 Alpha · 작업계획별 PPE 점검·착용</th><th>밀폐공간 진입 전 전체 절차<br /><small>후속 확장</small></th><th>불완전 착용·절차 누락 사고 체험<br /><small>후속 확장</small></th></tr></thead>
             <tbody>
-              <tr><th>교육 목적</th><td>위험요인에 적합한 PPE를 선택하고 상태를 점검한 뒤 올바르게 착용</td><td>진입 전에 요구되는 허가·측정·환기·감시 체계를 확인</td><td>PPE 불완전 착용과 진입 전 절차 누락이 사고로 이어지는 인과관계를 체감</td></tr>
+              <tr><th>교육 목적</th><td><code>ConfinedSpace</code>·<code>LeakResponse</code>의 위험요인에 적합한 PPE를 선택하고 상태를 점검한 뒤 올바르게 착용</td><td>진입 전에 요구되는 허가·측정·환기·감시 체계를 확인</td><td>PPE 불완전 착용과 진입 전 절차 누락이 사고로 이어지는 인과관계를 체감</td></tr>
               <tr><th>주요 공간</th><td>안전교육장 / PPE 준비 구역</td><td>밀폐공간 작업구역 입구</td><td>혼합기 내부 사고 체험 구역</td></tr>
               <tr><th>핵심 행동</th><td>작업정보 확인 → 보호구 선택 → 외관 점검 → 착용 → 착용상태 확인</td><td>작업허가 확인 → 위험성 확인 → 산소·유해가스 측정 → 환기·감시인 확인 → 진입 가능 판정</td><td>불완전 PPE 상태 적용 → 혼합기 진입 → 청소도구 Grab → 제한적 세척·브러싱 → 사고 케이스 공유</td></tr>
               <tr><th>오류 처리</th><td>부적합 선택, 점검 누락, 착용 순서 오류 재안내</td><td>측정 누락, 기준 미충족, 안전조치 미완료 시 진입 차단</td><td>오류 교정이 아니라 미착용·절차 누락 상태에 따른 증상과 사고 결과를 연출</td></tr>
-              <tr><th>종료</th><td>수행 결과 및 5문항 퀴즈</td><td>진입 전 최종 체크 및 5문항 퀴즈</td><td>사고 케이스 공유 및 5문항 퀴즈</td></tr>
+              <tr><th>종료</th><td>모드별 5문항 퀴즈, 테스트 결과와 로컬 세션 기록</td><td>진입 전 최종 체크 및 5문항 퀴즈</td><td>사고 케이스 공유 및 5문항 퀴즈</td></tr>
             </tbody>
           </table>
 
           <h2 class="proposal-heading" id="cover-s6"><span class="num">6</span>핵심 체험 흐름</h2>
           <div class="proposal-note">
-            <strong>프로토타입 구현 원칙:</strong> PPE 점검·착용 교육과 밀폐공간 진입 전 교육의 두 핵심 시나리오를 필수 범위로 구현합니다. 사고 체험은 프로토타입 완료 기준에서 제외한 후속 범위이며, 두 핵심 시나리오의 구현·QA가 조기 완료되어 일정 여유가 생길 때만 제한형 확장 항목으로 추가합니다.
+            <strong>v0.10 Alpha 구현 원칙:</strong> 현재 필수 범위는 작업계획 2종 × PPE 교육·훈련·테스트 3모드입니다. v0.9에서 핵심 범위로 표현한 혼합기동의 전체 밀폐공간 진입 전 절차와 사고 체험은 현재 비활성 후속 장면으로 분리합니다. Alpha 6개 조합의 Quest 회귀와 안정성 검증을 우선하며 후속 장면을 현재 제출 범위에 합치지 않습니다.
           </div>
           <h3 class="proposal-subheading">전체 사용자 흐름</h3>
           <div class="proposal-flow">
@@ -5262,8 +5292,8 @@
                 <p>교육생의 컨트롤러 입력부터 시나리오 판정·피드백·결과 저장까지의 연결 구조</p>
               </div>
               <div class="proposal-system-legend" aria-label="구현 범위 범례">
-                <span class="is-in">MVP 포함</span>
-                <span class="is-out">MVP 미연동·향후 확장</span>
+                <span class="is-in">Alpha 앱 포함</span>
+                <span class="is-out">개발 검증·운영 후속</span>
               </div>
             </div>
 
@@ -5309,32 +5339,32 @@
                 <small>조회·저장</small>
               </div>
               <article class="proposal-system-node is-data">
-                <span class="proposal-system-kicker">04 · LOCAL DATA</span>
-                <h4>콘텐츠·세션 데이터</h4>
+                <span class="proposal-system-kicker">04 · RELEASE ALPHA</span>
+                <h4>로컬 콘텐츠·훈련 기록</h4>
                 <ul>
                   <li>ScriptableObject·JSON</li>
                   <li>선택 모드·진행 상태·점수·오답</li>
-                  <li>기기 내 세션 단위 저장</li>
+                  <li>기기 내 JSONL 세션 기록</li>
                 </ul>
               </article>
             </div>
 
             <div class="proposal-system-external">
               <div class="proposal-system-boundary">
-                <strong>확장 연동 경계</strong>
-                Unity 앱과 외부 시스템 간 네트워크 연동은 MVP에서 제외
+                <strong>검증·운영 연동 경계</strong>
+                Editor/Development 테스트와 운영 서비스 상태를 분리
               </div>
               <div class="proposal-system-connector" aria-hidden="true">
                 <strong class="proposal-system-arrow-desktop">⇢</strong><strong class="proposal-system-arrow-mobile">↓</strong>
-                <small>향후 연동</small>
+                <small>빌드 조건별 연동</small>
               </div>
               <article class="proposal-system-node is-external">
-                <span class="proposal-system-kicker">EXTERNAL · OUT OF SCOPE</span>
-                <h4>외부 서버·LMS</h4>
+                <span class="proposal-system-kicker">EXTERNAL · PARTIAL</span>
+                <h4>Express 서버·운영 화면</h4>
                 <ul>
-                  <li>관리자 대시보드</li>
-                  <li>교육 이력 중앙 저장</li>
-                  <li>LMS 자동 연동</li>
+                  <li>Editor/Development 테스트 업로드 경로</li>
+                  <li>운영 수집·훈련 대시보드 미활성</li>
+                  <li>LMS 자동 연동 후속</li>
                 </ul>
               </article>
             </div>
@@ -5343,7 +5373,7 @@
               <div><b>1</b>교육생이 HMD를 쓰고 컨트롤러로 이동·선택·잡기·사용 행동을 입력한다.</div>
               <div><b>2</b>Quest 2가 시선·Ray·버튼·Grab 입력을 Unity VR 앱으로 전달한다.</div>
               <div><b>3</b>앱이 현재 단계와 완료 조건을 판정하고 선택한 ModeProfile에 따라 상세 안내·기본 지시·무안내 중 하나를 적용한다.</div>
-              <div><b>4</b>선택 모드, 진행 상태, 오류·소요시간과 퀴즈 결과는 로컬 세션에 저장하며 서버 전송은 수행하지 않는다.</div>
+              <div><b>4</b>Release Alpha는 결과를 로컬 JSONL로 기록한다. 서버 전송은 Editor/Development 검증 빌드에서 명시적으로 시험하며 운영 수집 완료로 간주하지 않는다.</div>
             </div>
           </div>
 
@@ -5441,15 +5471,14 @@
           <h2 class="proposal-heading" id="cover-s10"><span class="num">10</span>개발 범위 · 산출물</h2>
           <div class="proposal-grid">
             <div class="proposal-card">
-              <div class="proposal-card-title">개발 범위 (MVP)</div>
+              <div class="proposal-card-title">현재 제출 범위 (Alpha)</div>
               <ul>
                 <li>독립형 VR 앱 기본 실행과 씬 전환</li>
                 <li>공통 이동·그랩·UI 조작</li>
-                <li>PPE 점검·판정·착용 시나리오</li>
-                <li>밀폐공간 진입 전 안전절차 시나리오</li>
+                <li>밀폐공간·누출대응 작업계획별 PPE 점검·판정·착용</li>
                 <li>안내 보이스·자막·HUD</li>
                 <li>완료·오류·재안내 판정</li>
-                <li>두 핵심 시나리오의 종료 퀴즈·점수·정오답 결과 화면</li>
+                <li>작업계획 2종의 모드별 종료 퀴즈·테스트 결과 화면·로컬 기록</li>
                 <li>교육·훈련·테스트모드를 위한 ModeProfile 데이터 구조</li>
               </ul>
             </div>
@@ -5461,12 +5490,12 @@
                 <li>시나리오·보이스·UI 문구 정의</li>
                 <li>콘텐츠 데이터와 결과 판정 구조</li>
                 <li>테스트 체크리스트 및 QA 결과</li>
-                <li>사전 기획서와 시연 자료</li>
+                <li>상세기획서와 Alpha 시연·제출 자료</li>
               </ul>
             </div>
           </div>
           <div class="proposal-note scope">
-            <strong>단계별 범위:</strong> 현재 PPE 착용 시나리오는 교육·훈련·테스트 3모드와 공통 PPE 수행 코어, 모드별 VOICE·피드백·퀴즈·결과 흐름까지 구현되어 있습니다. 현재 단계는 세 모드 회귀·Quest 실기기 검증과 발표 안정화입니다. 밀폐공간 진입 전 교육과 사고 체험은 별도 후속 범위이며, 자유로운 전체 내부 청소, 사실적 유체·슬러지 물리, 다중 사용자, 서버, 전신 트래킹, 실제 센서 연동은 공통 제외 범위입니다.
+            <strong>단계별 범위:</strong> 현재 Alpha에는 <code>ConfinedSpace</code>·<code>LeakResponse</code> 작업계획 2종과 교육·훈련·테스트 3모드의 공통 PPE 수행 코어가 들어 있습니다. 런타임 구현 존재와 검증 완료는 같지 않으며, 현재 단계는 6개 조합 회귀·Quest 실기기 검증·Meta Horizon Alpha 제출 안정화입니다. 혼합기동의 전체 밀폐공간 절차와 혼합기 내부 사고 체험은 별도 후속 범위이고, 자유 청소, 사실적 유체·슬러지 물리, 다중 사용자, LMS, 전신 트래킹, 실제 센서 연동은 제외합니다.
           </div>
 
           <h2 class="proposal-heading" id="cover-s11"><span class="num">11</span>개발 일정 (요약)</h2>
@@ -5498,7 +5527,7 @@
             </tbody>
           </table>
           <div class="proposal-note scope">
-            <strong>현재 프로토타입 범위:</strong> PPE 6종의 점검·판정·착용·거울 확인과 교육·훈련·테스트 3모드, 모드별 퀴즈·결과·복귀 흐름을 구현했다. 밀폐공간 진입 전 교육, 사고 체험과 관리자 교육 이력 기능은 후속 범위로 분리한다.
+            <strong>현재 Alpha 범위:</strong> 작업계획 2종에서 PPE 6종의 점검·판정·착용·거울 확인과 교육·훈련·테스트 3모드, 모드별 퀴즈·결과·복귀 경로가 구현돼 있다. 6개 조합의 Quest 검증은 진행 중이며, 혼합기동의 전체 밀폐공간 진입 전 교육, 사고 체험과 운영 관리자 교육 이력 기능은 후속 범위로 분리한다.
           </div>
           <div class="proposal-note">
             <strong>첨부 일정에서 추가된 병행 목표:</strong>
@@ -5518,18 +5547,18 @@
 
           <h2 class="proposal-heading" id="cover-s13"><span class="num">13</span>향후 확장 · 연계 (제안)</h2>
           <ul>
-            <li><strong>현재 구현:</strong> PPE 착용 시나리오의 상세 튜토리얼형 교육모드, 기본 지시형 훈련모드, 무지원 평가형 테스트모드</li>
-            <li><strong>현재 안정화:</strong> 세 모드의 안내 수준 분리, VOICE, 오류 처리, 퀴즈, 테스트 결과 집계, 초기화·복귀 회귀 검증</li>
+            <li><strong>현재 구현:</strong> 작업계획 2종에서 상세 튜토리얼형 교육모드, 기본 지시형 훈련모드, 무지원 평가형 테스트모드의 런타임 경로</li>
+            <li><strong>현재 안정화:</strong> 6개 조합의 안내 수준 분리, VOICE, 오류 처리, 퀴즈, 테스트 결과 집계, 초기화·복귀와 HMD 안정성 회귀 검증</li>
             <li><strong>다음 구현:</strong> 밀폐공간 진입 전 안전절차 교육과 관리자 결과·교육 이력 기능</li>
             <li><strong>후속 확장:</strong> 불완전 착용·절차 누락 사고 체험, 고객사별 PPE·MSDS·작업허가서 교체, 관리자 결과, 다국어, 다른 설비·사고 대응 시나리오 연계</li>
           </ul>
           <div class="proposal-note">
-            PPE 3모드 구현은 완료되었으며, 이후 변경은 세 모드 전체의 회귀 검증과 Quest 2 실기기 확인을 함께 통과해야 합니다.
+            v0.9에서는 PPE 3모드를 구현 완료로 표현했으나, v0.10 Alpha에서는 런타임 경로 존재와 검증 완료를 구분합니다. 현재 완료 판단은 작업계획 2종 × 3모드의 회귀와 Quest 2 실기기 확인을 모두 통과한 뒤에만 내립니다.
           </div>
           </div>
 
           <div class="proposal-footer">
-            화학물질 안전훈련 VR · 사전 기획서 · 1인팀 Tyche(티케)
+            화학물질 안전훈련 VR · 상세기획서 · v0.10 Alpha · 1인팀 Tyche(티케)
           </div>
         </section>
         <div class="part-divider part-divider-end">
@@ -5571,7 +5600,7 @@
             </tr>
             <!-- <tr>
               <th>문서 성격</th>
-              <td>TO21 검토용 기획 개요서 + Unity XR 구현 기준 요약</td>
+              <td>TO21 검토용 상세기획서 + Unity XR Alpha 구현·검증 기준 요약</td>
             </tr> -->
             <tr>
               <th>장르</th>
@@ -5603,14 +5632,14 @@
             <tr>
               <th>교육 범위</th>
               <td>
-                • <b>PPE 교육</b>: 작업문서 확인, PPE 착용 전 육안 점검과 장비
+                • <b>현재 Alpha · PPE 교육</b>: 밀폐공간·누출대응 작업문서 확인, PPE 착용 전 육안 점검과 장비
                 착용 프로세스<br />
-                • <b>밀폐공간 진입 전 안전 교육</b>:<br />
+                • <b>후속 · 밀폐공간 진입 전 전체 안전 교육</b>:<br />
                 &nbsp;&nbsp;안전문서 확인, 전원 차단·LOTO, 가스측정, 강제환기,
                 재측정, 무전 테스트, 작업허가 승인<br />
                 • <b>사고 체험(후속 확장)</b>: 불완전 PPE 상태, 절차 누락 상태, 혼합기 진입,
                 청소도구를 이용한 2~3개 제한 인터랙션, 신체 이상·의식 상실 연출, 사고 케이스 공유<br />
-                • <b>평가</b>: 프로토타입의 두 핵심 시나리오는 종료 전 퀴즈와 점수·정오답 결과를 제공하고, 후속 사고 체험은 구현 시 별도 복습·평가 흐름을 연결
+                • <b>평가</b>: 현재 작업계획 2종은 모드별 퀴즈와 테스트 결과를 제공하고, 전체 밀폐공간 절차·사고 체험은 구현 시 별도 복습·평가 흐름을 연결
               </td>
             </tr>
             <tr>
@@ -5622,7 +5651,7 @@
             </tr>
             <tr>
               <th>운영 플랫폼</th>
-              <td>AOS 기반 Meta Quest 2 Standalone VR</td>
+              <td>Meta Horizon OS / Android 기반 Meta Quest 2 Standalone VR</td>
             </tr>
             <tr>
               <th>엔진·개발환경</th>
@@ -5653,7 +5682,7 @@
             <tr>
               <th>1차 산출물</th>
               <td>
-                유니티 프로젝트 폴더, 기획 개요서, 기능별 R&amp;D 문서, 시연
+                유니티 프로젝트 폴더, 상세기획서, 기능별 R&amp;D 문서, Alpha 시연
                 자료
               </td>
             </tr>
@@ -5671,19 +5700,19 @@
             <div class="card-small" style="margin: 14px 0">
               <strong>개발 목표</strong>
               <p>
-                • 프로토타입 완료 범위: PPE 착용 교육·훈련·테스트 3모드 한 사이클 완주<br />
-                • 현재 안정화: 모드별 VOICE·피드백·퀴즈·테스트 결과·복귀 회귀 검증<br />
+                • 현재 Alpha 범위: 작업계획 2종 × PPE 교육·훈련·테스트 3모드 런타임 경로<br />
+                • 현재 안정화: 6개 조합의 VOICE·피드백·퀴즈·테스트 결과·복귀·HMD 회귀 검증<br />
                 • 후속 본 개발: 관리자 결과·교육 이력 기능 구현<br />
                 • 별도 시나리오 계획: 밀폐공간 진입 전 안전절차 교육은 PPE 시나리오와 분리해 설계·개발<br />
                 • 후속 확장: PPE·밀폐공간 상태를 재사용한 사고 체험과 고객사별 콘텐츠 확장<br />
-                • 공통: 현재 빌드는 PPE 3모드의 시작·수행·퀴즈·결과·카드 복귀를 안정적으로 완주하는 것을 우선한다.
+                • 공통: 현재 코드 5 빌드는 6개 조합의 시작·수행·퀴즈·결과·카드 복귀와 로컬 기록을 안정적으로 완주하는 것을 우선한다.
               </p>
             </div>
             <div class="card-small" style="margin: 14px 0">
               <strong>평가 목표</strong>
               <p>
                 • 시나리오 내 미션은 순차별 수행으로 별도의 평가가 없다.<BR/>
-                • 프로토타입의 두 핵심 시나리오 종료 퀴즈는 각 5문항·각 20점·총 100점으로 이해도를 확인한다.<br />
+                • 현재 작업계획 2종의 테스트 퀴즈는 각 5문항·문항당 20점·총 100점으로 이해도를 확인한다.<br />
                 • 후속 사고 체험을 구현한 경우에만 사고 케이스 공유 화면과 전용 복습·평가 흐름을 연결한다.
               </p>
             </div>
@@ -5699,7 +5728,7 @@
           </div>
         </section>
 
-        
+
         <section data-part="part1" id="market">
           <div class="section-kicker">PART 1 · 02</div>
           <h2>시장·도입 환경</h2>
@@ -5984,9 +6013,9 @@
             <tr>
               <th>교육 구조</th>
               <td>
-                PPE 정상 교육과 밀폐공간 진입 전 교육을 두 핵심 교육으로 구성하고,
-                두 시스템을 재사용한 불완전 착용·절차 누락 사고 체험은 프로토타입 이후의 후속 실행 루트로 구성한다.
-                프로토타입에서는 두 핵심 시나리오의 퀴즈와 점수·정오답 결과를 제공하며, 사고 체험은 일정 여유가 있을 때만 제한형으로 추가한다.
+                현재 Alpha는 밀폐공간·누출대응 작업계획 2종의 PPE 정상 교육을 핵심으로 구성한다.
+                혼합기동의 전체 밀폐공간 진입 전 교육과 이를 재사용한 불완전 착용·절차 누락 사고 체험은 후속 실행 루트다.
+                Alpha에서는 작업계획 2종 × 3모드의 퀴즈와 결과를 검증하며 후속 장면을 제출 범위에 합치지 않는다.
               </td>
             </tr>
             <tr>
@@ -5999,9 +6028,9 @@
             <tr>
               <th>완료 원칙</th>
               <td>
-                미션에 Pass·Fail은 없으며 올바른 행동을 완료할 때까지
-                재안내한다. 프로토타입의 두 핵심 시나리오는 수행 종료 후 퀴즈와 결과 확인을 마친 뒤
-                완료 메시지를 표시한다.
+                교육·훈련은 올바른 행동을 완료할 때까지 모드 정책에 따라 재안내한다.
+                테스트는 수행 중 정오답을 안내하지 않고 첫 선택과 오류·시간을 기록하며, 현재 작업계획 2종은
+                수행 종료 후 퀴즈와 결과 확인을 마친 뒤 완료 메시지를 표시한다.
               </td>
             </tr>
           </table>
@@ -6103,13 +6132,14 @@
         </section>
         <section data-part="part1" id="differentiation">
           <div class="section-kicker">PART 1 · 05</div>
-          <h2>콘텐츠 차별점과 MVP 범위</h2>
+          <h2>콘텐츠 차별점과 Alpha 범위</h2>
           <div class="grid-2">
             <div class="card-small">
-              <strong>PPE 3모드 프로토타입과 분리된 후속 확장</strong>
+              <strong>작업계획 2종·PPE 3모드 Alpha와 분리된 후속 확장</strong>
               <p>
-                현재 프로토타입은 PPE 점검·착용의 교육·훈련·테스트 3모드를 각각 완주하는 흐름을 구현했다.
-                이후 관리자 기능을 구현하고, 밀폐공간 진입 전 안전절차 교육은 별도 시나리오·개발계획으로 확장한다.
+                현재 Alpha에는 두 작업계획에서 PPE 점검·착용의 교육·훈련·테스트 3모드를 수행하는 런타임 경로가 있다.
+                6개 조합의 Quest 완주·안정성 검증이 끝나기 전에는 구현 완료와 검증 완료를 합쳐 쓰지 않는다.
+                운영 관리자 기능과 혼합기동의 전체 밀폐공간 안전절차 교육은 별도 시나리오·개발계획으로 확장한다.
                 두 교육의 상태와 오브젝트를 재사용하는 사고 체험은 필수 완료 범위가 아니다.
               </p>
             </div>
@@ -6130,29 +6160,29 @@
             <div class="card-small">
               <strong>퀴즈형 평가</strong>
               <p>
-                두 핵심 교육에서 제공한 설명을 각 5문항으로 확인해 수행훈련 후 지식의 체득 여부와 리마인드를 제공한다.
+                현재 작업계획 2종에서 제공한 설명을 각 5문항으로 확인해 수행훈련 후 지식의 체득 여부와 리마인드를 제공한다.
                 후속 사고 체험을 구현한 경우에는 점수보다 원인과 누락 절차 복습을 중심으로 수행훈련과 지식 확인의 역할을 구분한다.
               </p>
             </div>
           </div>
-          <h3>MVP 개발 범위</h3>
+          <h3>현재 Alpha 개발 범위</h3>
           <div class="grid-2">
             <div class="card-small">
-              <strong>MVP 포함</strong>
+              <strong>Alpha 포함</strong>
               <p>
-                App·타이틀·인트로·비동기 로딩, Welcome·이름 입력, PPE 카드·모드 선택,
+                App·타이틀·인트로·비동기 로딩, Welcome·이름 입력 Alpha 우회, 작업계획 카드·3모드 선택,
                 PPE 교육모드의 태블릿 확인, 보호구 점검·사용·폐기·착용, 풀장착 모델·거울 확인,
                 5페이지·3지선다 퀴즈, 완료 VOICE·페이드·카드 복귀
               </p>
             </div>
             <div class="card-small">
-              <strong>MVP 제외</strong>
+              <strong>Alpha 제외</strong>
               <p>
                 불완전 착용·절차 누락 사고 체험, 제한적 청소 인터랙션과 사고 케이스 공유,
                 자유로운 전체 혼합기 내부 청소, 오염 제거율 판정, 사실적 유체·슬러지 물리,
                 밀폐공간 진입 전 교육, 사고 체험, 화재·누출 대응,
-                다중 분기, 다인 협업, 관리자 대시보드·교육 이력 저장, 음성인식, 사실적 호스·덕트 물리.
-                PPE 3모드는 구현 완료 범위이며, 관리자 기능과 후속 시나리오는 본 개발 일정에서 확장한다.
+                다중 분기, 다인 협업, 운영 훈련 대시보드·중앙 교육 이력 서비스, 음성인식, 사실적 호스·덕트 물리.
+                PPE 3모드의 런타임 경로는 Alpha 포함 범위지만, 6개 조합의 실기기 검증은 진행 중이다.
               </p>
             </div>
           </div>
@@ -6203,9 +6233,8 @@
             <tr>
               <th>평가 단순화</th>
               <td>
-                문항 데이터와 점수만 로컬 세션에 저장하고 서버·학습이력
-                대시보드는 제외.<br/>
-                개발 구현 속도에 따른 대시보드 및 서버 연동 가능성이 있습니다.
+                Release Alpha는 문항·점수·오류·시간을 로컬 JSONL 세션으로 기록한다.
+                Editor/Development의 서버 업로드는 통합 시험용이며 운영 훈련 대시보드 완료를 의미하지 않는다.
               </td>
             </tr>
           </table>
@@ -6228,20 +6257,20 @@
             <div class="card-small">
               <strong>확장 기반</strong>
               <p>
-                현재 세 실행 루트의 공통 데이터 구조와 재사용 가능한 XR 인터랙션을
+                현재 6개 작업계획·모드 조합의 공통 데이터 구조와 재사용 가능한 XR 인터랙션을
                 기준으로 후속 교육을 단계적으로 추가
               </p>
             </div>
           </div>
           <table>
             <tr>
-              <th>현재 완료</th>
+              <th>런타임 구현</th>
               <td>
                 PPE 교육모드 코어를 재사용해 현재 목표와 기본 지시만 제공하는 훈련모드 구현
               </td>
             </tr>
             <tr>
-              <th>현재 완료</th>
+              <th>런타임 구현</th>
               <td>
                 수행 중 지시·힌트·정오답 피드백을 제거하고 소요시간·퀴즈 점수·PPE 오선택 결과를 제공하는 테스트모드 구현
               </td>
@@ -6255,7 +6284,7 @@
             <tr>
               <th>확장 원칙</th>
               <td>
-                PPE 3모드의 공통 완료 조건을 유지하고, 변경 시 세 모드 회귀와 Quest 2 실기기 검증을 함께 수행
+                작업계획 2종 × PPE 3모드의 공통 완료 조건을 유지하고, 변경 시 6개 조합 회귀와 Quest 2 실기기 검증을 함께 수행
               </td>
             </tr>
           </table>
@@ -6276,12 +6305,12 @@
             UI·피드백의 <strong>정보 포함 관계</strong>를 나타낸다. 세부 수행 순서는
             다음 Scene Flow에서 정의한다.
           </p>
-        
+
           <h3>상세 IA 구조</h3>
           <div class="ia-detail-map" aria-label="화학물질 안전훈련 VR 상세 정보 구조">
             <div class="ia-detail-root">
               <strong>화학물질 안전훈련 VR</strong>
-              <span>두 핵심 시나리오 × 3모드 + 후속 사고 체험</span>
+              <span>현재 작업계획 2종 × 3모드 + 후속 밀폐공간·사고 체험</span>
             </div>
             <div class="ia-detail-down" aria-hidden="true"></div>
 
@@ -6587,8 +6616,8 @@
                   <ul>
                     <li>컨트롤러 안내</li>
                     <li>PPE 점검·착용 교육</li>
-                    <li>밀폐공간 진입 전 교육</li>
-                    <li>불완전 착용·절차 누락 사고 체험</li>
+                    <li>밀폐공간 진입 전 교육 <small>후속</small></li>
+                    <li>불완전 착용·절차 누락 사고 체험 <small>후속</small></li>
                     <li>교육 목표 확인</li>
                     <li>시작 버튼</li>
                   </ul>
@@ -6618,7 +6647,7 @@
                 <div class="ia-branch">
                   <div class="ia-node ia-branch-head">
                     <span class="ia-card-label">SCENARIO B</span>
-                    <h4>밀폐공간 진입 전 교육</h4>
+                    <h4>[후속] 밀폐공간 진입 전 교육</h4>
                     <p>문서·전원·LOTO·측정·환기·승인 절차를 확인한다.</p>
                   </div>
                   <ol class="ia-route-list">
@@ -6971,7 +7000,7 @@
           <div class="erd-note-grid">
             <div class="card-small">
               <strong>Scenario 중심</strong>
-              <p>두 핵심 교육과 사고 체험 루트가 단계·선택형 평가·세션 결과를 연결하는 기준 엔티티가 된다.</p>
+              <p>현재 Alpha의 작업계획 2종과 후속 밀폐공간·사고 체험 루트가 단계·선택형 평가·세션 결과를 연결하는 기준 엔티티가 된다. 현재와 후속 상태는 별도 필드로 구분한다.</p>
             </div>
             <div class="card-small">
               <strong>Step 기반 재시도</strong>
@@ -6979,7 +7008,7 @@
             </div>
             <div class="card-small">
               <strong>로컬 결과 기록</strong>
-              <p>선택 모드, 점수, 오답, 절차 오류와 소요시간은 서버 저장 없이 세션 단위 결과로 남긴다.</p>
+              <p>선택 시나리오·모드, 점수, 오답, 절차 오류와 소요시간은 Release Alpha에서 기기 내 JSONL 세션 기록으로 남긴다.</p>
             </div>
             <div class="card-small">
               <strong>ModeProfile 분리</strong>
@@ -6992,8 +7021,8 @@
           <h2>시스템 구성과 데이터 흐름</h2>
           <p>
             Meta Quest 2의 사용자 입력이 Unity 시나리오 판정과 피드백을 거쳐
-            로컬 세션 결과로 저장되는 범위를 정의한다. 관리자 대시보드와 LMS 연동은
-            MVP에서 제외하고 확장 경계로 분리한다.
+            로컬 세션 결과로 저장되는 범위를 정의한다. Release Alpha, Editor/Development 검증,
+            운영 서버·대시보드의 상태를 같은 연동 완료로 합쳐 쓰지 않는다.
           </p>
           <div class="cover-page system-architecture-host">
             <div class="proposal-system" aria-label="화학물질 안전훈련 VR 시스템 구성도">
@@ -7003,8 +7032,8 @@
                   <p>교육생의 컨트롤러 입력부터 시나리오 판정·피드백·결과 저장까지의 연결 구조</p>
                 </div>
                 <div class="proposal-system-legend" aria-label="구현 범위 범례">
-                  <span class="is-in">MVP 포함</span>
-                  <span class="is-out">MVP 미연동·향후 확장</span>
+                  <span class="is-in">Alpha 앱 포함</span>
+                  <span class="is-out">개발 검증·운영 후속</span>
                 </div>
               </div>
               <div class="proposal-system-flow">
@@ -7033,29 +7062,33 @@
                   <strong class="proposal-system-arrow-desktop">⇄</strong><strong class="proposal-system-arrow-mobile">⇅</strong><small>조회·저장</small>
                 </div>
                 <article class="proposal-system-node is-data">
-                  <span class="proposal-system-kicker">04 · LOCAL DATA</span>
-                  <h4>콘텐츠·세션 데이터</h4>
-                  <ul><li>ScriptableObject·JSON</li><li>모드·진행·점수·오류·시간</li><li>기기 내 세션 단위 저장</li></ul>
+                  <span class="proposal-system-kicker">04 · RELEASE ALPHA</span>
+                  <h4>로컬 콘텐츠·훈련 기록</h4>
+                  <ul><li>ScriptableObject·JSON</li><li>시나리오·모드·진행·점수·오류·시간</li><li>기기 내 JSONL 세션 기록</li></ul>
                 </article>
               </div>
               <div class="proposal-system-external">
-                <div class="proposal-system-boundary"><strong>확장 연동 경계</strong>Unity 앱과 외부 시스템 간 네트워크 연동은 MVP에서 제외</div>
+                <div class="proposal-system-boundary"><strong>검증·운영 연동 경계</strong>Editor/Development 테스트와 운영 서비스 상태를 분리</div>
                 <div class="proposal-system-connector" aria-hidden="true">
-                  <strong class="proposal-system-arrow-desktop">⇢</strong><strong class="proposal-system-arrow-mobile">↓</strong><small>향후 연동</small>
+                  <strong class="proposal-system-arrow-desktop">⇢</strong><strong class="proposal-system-arrow-mobile">↓</strong><small>빌드 조건별 연동</small>
                 </div>
                 <article class="proposal-system-node is-external">
-                  <span class="proposal-system-kicker">EXTERNAL · OUT OF SCOPE</span>
-                  <h4>외부 서버·LMS</h4>
-                  <ul><li>관리자 대시보드</li><li>교육 이력 중앙 저장</li><li>LMS 자동 연동</li></ul>
+                  <span class="proposal-system-kicker">EXTERNAL · PARTIAL</span>
+                  <h4>Express 서버·운영 화면</h4>
+                  <ul><li>Editor/Development 테스트 업로드 경로</li><li>운영 수집·훈련 대시보드 미활성</li><li>LMS 자동 연동 후속</li></ul>
                 </article>
               </div>
               <div class="proposal-system-operation" aria-label="사용자 조작과 시스템 반응 순서">
                 <div><b>1</b>교육생이 HMD를 쓰고 컨트롤러로 이동·선택·잡기·사용 행동을 입력한다.</div>
                 <div><b>2</b>Quest 2가 시선·Ray·버튼·Grab 입력을 Unity VR 앱으로 전달한다.</div>
                 <div><b>3</b>앱이 현재 단계와 완료 조건을 판정하고 선택 ModeProfile에 따라 상세 안내·기본 지시·무안내 정책을 적용한다.</div>
-                <div><b>4</b>선택 모드, 진행 상태, 오류·소요시간과 퀴즈 결과는 로컬 세션에 저장하며 서버 전송은 수행하지 않는다.</div>
+                <div><b>4</b>Release Alpha는 결과를 로컬 JSONL로 기록한다. 서버 전송은 Editor/Development 검증 빌드에서 명시적으로 시험하며 운영 수집 완료로 간주하지 않는다.</div>
               </div>
             </div>
+          </div>
+          <div class="note-strong">
+            <strong>v0.9 대비 시스템 연동 변경 이유</strong>
+            <p><strong>이전:</strong> 서버는 모두 미연동·향후 범위로 표현했다. <strong>현재:</strong> 클라이언트의 로컬 기록, Development 전용 업로드, 서버의 테스트 API, 운영 비활성 상태를 나눠 기록한다. 서버 코드가 존재한다는 사실만으로 Release Alpha의 운영 수집이나 관리자 조회가 완료됐다고 판단할 수 없기 때문이다.</p>
           </div>
         </section>
         <section data-part="part2" id="controls">
@@ -7077,7 +7110,7 @@
               컨트롤러의 물리 입력 이름은 공통으로 사용하되, 같은 버튼의 실제 기능은
               시나리오와 현재 단계에 따라 달라질 수 있다. 따라서 이 절은 입력 용어만 정의하고,
               실제 기능·활성 조건·충돌 우선순위는 각 교육 시나리오의 전용 컨트롤러 절에서 관리한다.
-              현재 프로토타입의 기준 조작은
+              현재 Alpha의 PPE 기준 조작은
               <a href="#ppe-controller-controls"><b>PPE 착용 시나리오 전용 컨트롤러 조작법</b></a>이다.
             </p>
           </div>
@@ -7621,7 +7654,7 @@
               외부 감시인과 작업허가·측정·환기·연락 체계를 갖춘 상태에서만 진입할 수 있다.
             </p>
           </div>
-         
+
         </section>
 
         <section data-part="part3" id="product-profile">
@@ -7713,7 +7746,7 @@
           <div class="section-kicker">PART 3 · 04</div>
           <h2>대표 유저 시나리오</h2>
           <p>
-            대표 작업자 김도윤이 콘텐츠를 실행한 뒤 두 핵심 교육 또는 사고 체험과 플레이 모드를 선택하고,
+            대표 작업자 김도윤이 현재 Alpha의 작업계획과 플레이 모드를 선택하거나 후속 시나리오를 검토하고,
             <strong>선택한 실행 루트를 해당 지원 수준으로 수행·복습한 후 허브로 복귀하는 과정</strong>을
             상황·필요 정보·사용자 행동·시스템 지원 관점으로 정리한다.
           </p>
@@ -8315,7 +8348,7 @@
             <tr>
               <th>진행 순서</th>
               <td>
-                App → Title → Intro → Loading → PPE Room → Welcome·이름 입력
+                App → Title → Intro → Loading → PPE Room → Welcome·이름 입력 우회
                 → 간단 컨트롤러 안내 → 카드 선택 → PPE 착용교육 선택 → 교육모드 선택
                 → PPE 구역 텔레포트 → 태블릿 확인 → PPE 점검·판정·착용
                 → 거울 5초 확인 → PPE 퀴즈 5페이지 → 카드 위치 복귀
@@ -8368,7 +8401,7 @@
           <div class="callout info">
             <strong>적용 범위</strong>
             <p>
-              이 조작법은 현재 프로토타입에서 실제 사용하는 PPE 착용 교육 전용 기준이다.
+              이 조작법은 현재 Alpha에서 실제 사용하는 작업계획별 PPE 착용 교육 전용 기준이다.
               밀폐공간 진입 전 교육의 LOTO·가스측정·환기·무전 조작에는 자동으로 적용하지 않는다.
               PPE 교육에서는 한 입력이 동시에 여러 기능을 실행하지 않도록
               현재 단계·잡은 오브젝트·Ray 대상·VOICE 재생 상태를 함께 확인한다.
@@ -8409,7 +8442,7 @@
               <td><strong>A 버튼</strong></td>
               <td>이름 입력 화면에서 PPE 전용 상세 컨트롤러 교육으로 들어가는 보조 진입 입력으로 사용한다.</td>
               <td>키보드 Enter 옆의 ‘A · 컨트롤러 교육’ 안내와 상세 컨트롤러 교육 진입</td>
-              <td><b>목표 사양.</b> 현재 프로토타입에는 시각 표시만 있고 입력 이벤트는 연결되지 않았다. A 입력 연결, 상세 교육 종료 후 원래 흐름 복귀, 중복 진입 방지를 완료한 뒤 구현 상태로 전환한다.</td>
+              <td><b>목표 사양.</b> 현재 Alpha에는 시각 표시만 있고 입력 이벤트는 연결되지 않았다. A 입력 연결, 상세 교육 종료 후 원래 흐름 복귀, 중복 진입 방지를 완료한 뒤 구현 상태로 전환한다.</td>
             </tr>
           </table>
           <div class="card-small" style="margin-top: 14px">
@@ -8608,14 +8641,14 @@
             <tr>
               <td>1</td>
               <td>앱 시작·자동 전환</td>
-              <td><code>0_App</code>에서 시작해 <code>1_Title</code>과 <code>2_Intro</code>를 자동 재생하고 <code>6_LoadingScene_0</code>을 거쳐 <code>3_PPE_Room_HandTest_scale_0</code>에 진입한다.</td>
+              <td><code>0_App</code>에서 시작해 <code>1_Title</code>과 <code>2_Intro</code>를 자동 재생하고 <code>3_Loading</code>을 거쳐 <code>4_PPE_Room</code>에 진입한다.</td>
               <td>별도 시작 버튼 없이 PPE Room 로드 완료</td>
             </tr>
             <tr>
               <td>2</td>
-              <td>Welcome·이름 입력</td>
-              <td>Welcome 보이스를 들은 뒤 한글 공간 키보드로 이름을 입력하고 Enter를 선택한다.</td>
-              <td>이름 제출 이벤트 수신 후 컨트롤러 안내로 전이</td>
+              <td>Welcome·이름 입력 Alpha 우회</td>
+              <td>Welcome 보이스 뒤 Alpha 설정에 따라 한글 공간 키보드를 열지 않고 다음 안내로 전이한다. 키보드 경로는 비활성 상태로 보존한다.</td>
+              <td>이름 제출 대기 없이 컨트롤러 안내가 한 번만 시작됨</td>
             </tr>
             <tr>
               <td>3</td>
@@ -8741,7 +8774,7 @@
             <tr><th>구간</th><th>프로젝트 기준 로직</th><th>사용자에게 보이는 결과</th></tr>
             <tr>
               <td><strong>모델 구조</strong></td>
-              <td><code>PPE Body Anchor</code> 아래의 <code>PPE_A_SuitWear</code>를 방호복 본체이자 장비 시각물의 공통 루트로 사용한다. 마스크·안전대(등지게)·안전모·좌우 장갑·좌우 장화·테이핑 시각물은 이 루트 아래에 미리 작성된 자식 오브젝트다.</td>
+              <td><code>PPE Body Anchor</code> 아래의 <code>hazmat_suit_on_10</code>을 방호복 본체이자 장비 시각물의 공통 루트로 사용한다. 마스크·안전대(등지게)·안전모·좌우 장갑·좌우 장화·테이핑 시각물은 이 루트 아래에 미리 작성된 자식 오브젝트다.</td>
               <td>별도의 완성 아바타로 한 번에 교체하지 않고, 방호복 본체에 정상 사용 처리된 장비를 순차적으로 결합해 풀장착 외형을 완성한다.</td>
             </tr>
             <tr>
@@ -8841,7 +8874,11 @@
         </section>
         <section data-part="part3" id="confined-scenario">
           <div class="section-kicker">PART 3 · 09</div>
-          <h2>밀폐공간 진입 전 안전절차 교육</h2>
+          <h2>[후속 확장] 밀폐공간 진입 전 안전절차 교육</h2>
+          <div class="callout info">
+            <strong>Alpha 범위 구분</strong>
+            <p>아래 내용은 <code>5_MixerRoom</code>과 <code>6_InsideMixer</code>의 후속 상세 설계다. 현재 Alpha의 <code>ConfinedSpace</code> 작업계획 PPE 선택과 혼동하지 않으며, 활성 Build Settings·6개 조합 완료 조건에는 포함하지 않는다.</p>
+          </div>
           <h3>밀폐공간 작업 상황</h3>
           <div class="note-strong">
             <strong>제품 생산 전환에 따른 소형 혼합기 내부 청소 예정</strong>
@@ -9175,7 +9212,7 @@
             </tr>
             <tr>
               <th>현재 판정</th>
-              <td>교육·훈련은 5페이지 진행·완료 상태를 관리하고, 테스트는 문항당 20점으로 계산한 점수·정답 수와 PPE 오선택 횟수·소요시간을 세션 결과로 표시한다. 사용자별 누적 이력 저장과 관리자 조회는 후속 범위다.</td>
+              <td>교육·훈련은 5페이지 진행·완료 상태를 관리하고, 테스트는 문항당 20점으로 계산한 점수·정답 수와 PPE 오선택 횟수·소요시간을 화면과 로컬 세션 기록에 남긴다. Development 빌드의 서버 업로드 경로는 별도 검증 대상이며, 운영 사용자별 누적 이력과 훈련 대시보드는 아직 완료되지 않았다.</td>
             </tr>
             <tr>
               <th>교육모드 피드백</th>
@@ -9444,6 +9481,62 @@
 
         <!-- PART 4 -->
         <div class="part-divider part-divider-start">PART 4 개발 계획</div>
+        <section data-part="part4" id="alpha-status">
+          <div class="section-kicker">PART 4 · 00</div>
+          <h2>v0.10 Alpha 기준선과 제출 준비</h2>
+          <p>
+            이 절은 2026-09-08의 코드·씬·빌드·서버 확인 결과를 고정한 상태표다.
+            <strong>코드 존재, 씬 연결, 실행 로그 수집, 서버 조회, Meta Horizon 제출</strong>을 서로 다른 완료 단계로 관리한다.
+          </p>
+          <table>
+            <tr><th style="width:190px;">항목</th><th>현재 기준</th><th>근거·판정</th></tr>
+            <tr><td><strong>제품 상태</strong></td><td>Meta Horizon Alpha 테스트 중</td><td>출시 완료나 Production Ready가 아니다. v1.0은 Alpha 종료 게이트 통과 뒤 부여한다.</td></tr>
+            <tr><td><strong>클라이언트 기준</strong></td><td><code>main / 5a408edb6eb11ab286cfc982d37e634ccdd4d65b</code></td><td>Unity 6000.4.8f1, URP 17.4.0, OpenXR, Quest/Android·PC OpenXR 대상</td></tr>
+            <tr><td><strong>서버 기준</strong></td><td><code>main / 2aa295de135d84af8ab12f8973e334729d4de45a</code></td><td>별도 저장소 <code>softCastella/chemical-safety-vr-server</code>. 클라이언트 저장소에 서버 소스를 복제하지 않는다.</td></tr>
+            <tr><td><strong>앱 식별</strong></td><td><code>com.tycheworks.immersa.safetyvr</code> · <code>0.1.0</code> · Android build code <code>5</code></td><td><code>ProjectSettings/ProjectSettings.asset</code> 기준</td></tr>
+            <tr><td><strong>활성 빌드 장면</strong></td><td><code>0_App → 1_Title → 2_Intro → 3_Loading → 4_PPE_Room</code></td><td><code>ProjectSettings/EditorBuildSettings.asset</code> 기준. <code>5_MixerRoom</code>·<code>6_InsideMixer</code>는 비활성 후속 장면이다.</td></tr>
+            <tr><td><strong>Alpha APK</strong></td><td>코드 5 Release <code>ChemicalSafetyVR_Alpha_0_1_0_5.apk</code>와 Development <code>ChemicalSafetyVR_TelemetryDev_0_1_0_5.apk</code> 산출물 존재</td><td><code>MetaAlphaSubmissionGateHarness</code> 정적 준비 상태는 READY다. 산출물 존재는 설치·6개 조합 완주·HMD 안정성·텔레메트리 통합 검증 완료를 뜻하지 않는다.</td></tr>
+          </table>
+
+          <h3>현재 Alpha 콘텐츠와 검증 상태</h3>
+          <table>
+            <tr><th>영역</th><th>코드·씬 현재 상태</th><th>Alpha 판정</th><th>남은 확인</th></tr>
+            <tr><td><strong>콘텐츠</strong></td><td><code>ConfinedSpace</code>·<code>LeakResponse</code> 작업계획 2종과 교육·훈련·테스트 3모드</td><td>6개 조합 런타임 경로 존재</td><td>각 조합의 처음부터 끝까지 Quest 완주 로그·화면·결과를 같은 빌드로 대조</td></tr>
+            <tr><td><strong>사용자 진입</strong></td><td>Welcome 뒤 이름 입력 생략 설정, 카드·모달·모드 선택으로 전이</td><td>씬 설정 반영</td><td>카드 Trigger, 모달 중 이동 차단, 선택 뒤 이동 복구를 실기기에서 확인</td></tr>
+            <tr><td><strong>입력·이동</strong></td><td>Touch Controller, Ray/Trigger, Grip, 이동·텔레포트 경로</td><td>구현 존재·실기기 회귀 필요</td><td>Game View 결과와 분리해 Quest 양손 입력, 벽·설비 관통, 모달·완료 전환 중 입력 차단 확인</td></tr>
+            <tr><td><strong>PPE·문서</strong></td><td>마커 Direct Grab, Action Panel, 결함 판정, 착용 시각, 거울·퀴즈</td><td>통합 Alpha 검증 중</td><td>누수 작업계획서 가독성, 미니가이드 가림, 거울 5초 게이트와 양안·성능 확인</td></tr>
+            <tr><td><strong>훈련 기록</strong></td><td>기기 내 JSONL 기록. Editor/Development 조건에서 테스트 서버 업로드 코드와 코드 5 Development APK 존재</td><td>Release 로컬 / 개발 검증 분리</td><td>Development APK 설치·LAN 설정, 6개 조합 업로드 비교, 로컬 경로 설정 일치, 운영 인증·보존·삭제 정책 확정</td></tr>
+            <tr><td><strong>서버·대시보드</strong></td><td>서버 테스트 통과와 일부 API 구현은 확인됐으나 공개 운영의 훈련 수집 API·훈련 대시보드는 비활성</td><td>운영 통합 미완료</td><td>서버 반영, 클라이언트 반영, 통합 검증을 각각 완료하고 근거 로그를 남김</td></tr>
+          </table>
+
+          <h3>Alpha 차단 이슈와 종료 게이트</h3>
+          <table>
+            <tr><th style="width:150px;">우선순위</th><th>현재 이슈</th><th>통과 조건</th></tr>
+            <tr><td><strong>P0 · HMD 안정성</strong></td><td>일정 시간 플레이 뒤 주변 시야 왜곡·검은 화면·정지 증상이 재현된 기록이 있다.</td><td>최근 변경 후보를 먼저 격리하고, 동일 코드 5 빌드의 Quest 반복 실행에서 재현되지 않거나 원인·회피 조건이 문서화되어야 한다.</td></tr>
+            <tr><td><strong>P0 · 완주 회귀</strong></td><td>작업계획 2종 × 3모드의 동일 빌드 비교 증거가 아직 완결되지 않았다.</td><td>6개 조합 모두 앱 시작→선택→PPE 수행→퀴즈·결과→종료를 완주하고 차단 오류가 없어야 한다.</td></tr>
+            <tr><td><strong>P1 · 공간·입력</strong></td><td>룸스케일 머리·손의 벽/가구 관통, 카드·모달·이동 게이트의 실기기 확인이 남아 있다.</td><td>사용자 공간 경계와 입력 상태표가 실제 Quest 동작과 일치해야 한다.</td></tr>
+            <tr><td><strong>P1 · 가독성·거울</strong></td><td>누수 작업계획서, 상세/미니가이드 가림, 거울의 바닥 접지·양안·성능 확인이 남아 있다.</td><td>Game View와 Quest 양안에서 읽기 거리, 가림, 본체/거울 일치와 성능 비교가 기록되어야 한다.</td></tr>
+            <tr><td><strong>P1 · 제출 빌드</strong></td><td>코드 5 Release·Development APK와 정적 제출 게이트는 준비됐으나 기준 DB 수집량은 session 0 / event 0이며 설치·실행 비교가 남아 있다.</td><td>두 APK를 설치해 Release 로컬 기록과 Development 진단·업로드 로그를 비교하고 6개 조합의 근거를 확보해야 한다.</td></tr>
+          </table>
+
+          <h3>Meta Horizon 비코드 제출 체크리스트</h3>
+          <p>
+            아래 항목은 대부분 Unity 기능명세나 기술 R&amp;D가 아니라 스토어 운영·정책·콘텐츠 제작 업무다.
+            런타임 변경이 필요한 항목만 FS/R 항목에 연결한다.
+          </p>
+          <table>
+            <tr><th>카테고리</th><th>준비 항목</th><th>현재 처리 원칙</th></tr>
+            <tr><td><strong>앱 정보</strong></td><td>이름, 짧은/긴 설명, 키워드, 카테고리, 지원 기기·플레이 공간</td><td>실제 Alpha 기능·이동 방식·지원 범위와 일치시킨다. 후속 장면이나 운영 연동을 현재 기능처럼 쓰지 않는다. <code>META-03</code></td></tr>
+            <tr><td><strong>정책·심의</strong></td><td>웹사이트, 개인정보처리방침, 지원 연락처, IARC/GRAC, Data Use Checkup</td><td>Meta app-scoped ID·연령대·훈련 기록의 실제 수집/사용/전송 경계를 코드와 대조한다. <code>META-05</code></td></tr>
+            <tr><td><strong>스토어 자산</strong></td><td>Hero, Cover, Icon, 스크린샷 5장, 필요 시 트레일러</td><td>현재 인앱 장면만 사용하고 요구 해상도·비율·텍스트 잘림·5번째 스크린샷을 제출 전에 확인한다. <code>META-04</code></td></tr>
+            <tr><td><strong>유통 설정</strong></td><td>Alpha 채널, 테스터, 가격, 국가, 릴리스 노트</td><td>코드 변경과 별도 체크리스트로 관리하되 제출한 APK의 버전·build code·설명과 맞춘다. <code>META-02</code></td></tr>
+            <tr><td><strong>런타임 연결</strong></td><td>Entitlement, app-scoped ID, 연령대, 앱 pause/focus, 개인정보 로그</td><td>코드·씬 연결·실행 로그를 각각 확인한다. 연령대 조회는 콘텐츠 자동 조정 기능이 아니며, Release 후보에서는 원시 식별자 진단 로그를 재검토한다. <code>META-01</code>·<code>META-05</code></td></tr>
+          </table>
+          <div class="note-strong">
+            <strong>v0.9 대비 추가 이유</strong>
+            <p>이전 문서는 구현 목록과 향후 확장을 중심으로 구성돼 Alpha 제출의 실제 남은 일을 찾기 어려웠다. 현재 버전은 코드·씬 상태와 비코드 입점 업무를 분리하고, 확인하지 못한 항목은 완료가 아닌 검증 대기로 남긴다.</p>
+          </div>
+        </section>
         <section data-part="part4" id="feature-spec">
           <div class="section-kicker">PART 4 · 01</div>
           <h2>기능 명세</h2>
@@ -9456,7 +9549,7 @@
           <table class="table-scene-spec">
             <tr><th>씬</th><th>환경 구성</th><th>필요 요소</th></tr>
             <tr><td>App·타이틀·인트로·로딩</td><td>앱 초기화, 로고·버전, 기획 배경·주의사항을 순차 노출하고 PPE 교육 장면을 비동기 로드한다.</td><td>타이틀 BGM, 로고 UI, 주의 심볼, 로딩 바·백분율, 장면 전환 페이드</td></tr>
-            <tr><td>PPE룸</td><td>Welcome·한글 이름 입력, PPE 카드·모달·모드 선택, VOICE 안내, 태블릿, Action Panel, 풀장착 모델, 거울을 배치한다.</td><td>PPE룸 모델, 한글 키보드, 카드·모달, 태블릿, PPE Body Anchor, 평면 거울</td></tr>
+            <tr><td>PPE룸</td><td>Welcome, 작업계획 카드·모달·3모드 선택, VOICE 안내, 태블릿, Action Panel, 풀장착 모델, 거울을 배치한다. Alpha에서는 한글 이름 입력을 생략한다.</td><td>PPE룸 모델, 카드·모달, 태블릿, PPE Body Anchor, 평면 거울. 한글 키보드는 비활성 경로로 보존</td></tr>
             <tr><td>PPE 단스</td><td>정상·오염 보호구, 선택 패널, 고스트핸드, 착용 확인용 거울 반사를 준비한다.</td><td>PPE 6종(방호복, 장갑, 장화, 호흡보호구, 안전모, 안전대(등지게)), 보조자재 테이프, 오염 셰이더</td></tr>
             <tr><td>혼합기동</td><td>밀폐공간 진입 전 절차를 수행할 수 있도록 혼합기, 문서, 감시인, 제어반, LOTO, 환기팬, 덕트, 측정기를 배치한다.</td><td>작업계획서, MSDS, 허가서, LOTO세트, 이동식 환기팬, 덕트, 가스측정기</td></tr>
             <tr><td>혼합기 내부</td><td>PPE·진입 절차 누락 상태에서 세척기 건 또는 브러시로 안내된 청소 행동 2~3회를 수행한 뒤 사고 결과를 체감하도록 연출한다.</td><td>내부 공간, 세척기 건, 브러시, 고정형 슬러지 표현, 상해 아이콘, 화면 상해 VFX</td></tr>
@@ -9465,7 +9558,7 @@
           <table class="table-scene-spec">
             <tr><th>씬</th><th>입력·트리거</th><th>유저 액션</th><th>실행 조건·반응</th></tr>
             <tr><td>PPE룸</td><td>Ray + Trigger</td><td>카드·모달·모드·Action Panel·퀴즈 UI 선택</td><td>현재 활성 UI 한 곳만 입력을 소비하고 선택음·하이라이트·안내창으로 반응</td></tr>
-            <tr><td>PPE룸</td><td>Joystick</td><td>텔레포트 Ray를 활성화하고 유효 위치마커로 이동</td><td>교육 시작 후에만 허용하며 모달·완료 전환 중에는 이동 인터랙터를 차단</td></tr>
+            <tr><td>PPE룸</td><td>Joystick</td><td>작성된 이동 프로필에 따라 연속 이동 또는 위치마커 텔레포트 경로를 사용</td><td>교육 시작 후에만 허용하며 모달·완료 전환 중에는 모든 이동 소비자를 차단. 좌·우 입력과 실제 동작은 Quest 기준으로 검증</td></tr>
             <tr><td>PPE룸·PPE 단스</td><td>Grip / Grip 재입력</td><td>태블릿과 마커 대상 보호구를 직접 잡고 놓기·취소</td><td>아이템마커와 직접 Grab 경로만 사용하고 원거리 UI Ray의 PPE 선택은 차단</td></tr>
             <tr><td>PPE 단스</td><td>Grip + Ray + Trigger</td><td>잡은 보호구를 사용·폐기 판정하고, 불량 보호구는 정상 상태로 다시 검사</td><td>공용 Action Panel에서 판정하며 사용 시 풀장착 자식을 표시하고, 폐기 시 동일 검사 오브젝트를 정상 상태·작성 포즈로 복원</td></tr>
             <tr><td>혼합기동</td><td>Ray + Trigger</td><td>감시인 대화, 작업문서 전체 확인, 허가서 서명·승인 항목 선택</td><td>전체 확인 Trigger 1회로 필수 항목 일괄 체크, 서명란 Trigger 1회로 사인 표시. 미완료 항목이 있으면 진입 제한</td></tr>
@@ -9476,9 +9569,16 @@
             <tr><td>혼합기 내부</td><td>Grip + Trigger</td><td>세척기 건 또는 브러시를 잡고 지정된 오염 부위에서 짧은 청소 행동 수행</td><td>사고 루트의 지정 행동 2~3회만 판정한다. 세척기 건 물줄기는 사고 연출용으로 표현하고, 슬러지는 적당한 덩어리 형태로 구현한다.</td></tr>
           </table>
           <div class="note-strong">
-            <strong>v0.9 기능명세 현행화 구분</strong>
-            <p><strong>1. 새로 생긴 부분:</strong> FS-19 Welcome·한글 이름 입력, FS-20 비동기 로딩·장면 활성화, FS-21 PPE VOICE 상태 흐름·조건부 안내, FS-22 앱 종료를 현재 프로젝트 구현 기준으로 추가했다.</p>
-            <p><strong>2. 기존 수정부분:</strong> FS-00~03, FS-05~06, FS-13~14, FS-16, FS-18의 모드 지원 범위, 실제 장면 경로, 입력 우선순위, 태블릿 단일 시퀀스, PPE 판정·착용, 3지선다 퀴즈, 완료 복귀, 풀장착·거울, 마커·텔레포트 조건을 현행 구현에 맞게 수정했다.</p>
+            <strong>v0.9 → v0.10 Alpha 기능명세 변경 대조</strong>
+            <table aria-label="기능명세 변경 대조">
+              <tr><th>대상</th><th>v0.9 이전 기준</th><th>v0.10 Alpha 현재 기준</th><th>변경 이유</th></tr>
+              <tr><td>FS-00~02</td><td>PPE 시나리오 3모드와 Welcome 이름 입력 뒤 진입</td><td>작업계획 2종 × 3모드, 이름 입력 생략 뒤 카드·모달 진입</td><td>현재 PPE Room의 선택 데이터와 씬 직렬화 설정 반영</td></tr>
+              <tr><td>FS-01·20</td><td>개발용 Loading/PPE variant 장면 경로</td><td>현재 Build Settings의 5개 활성 장면 경로</td><td>실제 Alpha APK 진입 경로와 문서를 일치시킴</td></tr>
+              <tr><td>FS-03·18</td><td>Joystick을 텔레포트 Ray 용도로만 설명</td><td>연속 이동·마커 텔레포트 소비자와 상태별 이동 차단을 함께 검증</td><td>현재 이동 공급자와 텔레포트 경로를 한 기능으로 오해하지 않도록 분리</td></tr>
+              <tr><td>FS-13·14</td><td>교육 퀴즈·카드 복귀 중심, 점수 결과 미구현 표기</td><td>교육·훈련 재시도와 테스트 첫 선택 채점·결과 화면을 모드별로 구분</td><td>현재 테스트모드 결과 집계 동작 반영</td></tr>
+              <tr><td>FS-19</td><td>한글 이름 입력을 현재 필수 기능으로 설명</td><td>Alpha에서는 자동 우회, 키보드는 비활성 보존 기능</td><td><code>m_SkipKeyboardNameInput: 1</code> 반영</td></tr>
+              <tr><td>FS-21·22</td><td>VOICE·앱 종료의 구현 기준만 기술</td><td>이름 입력 우회 상태와 로컬 기록 종료 순서를 포함해 회귀 검증</td><td>Alpha 실제 진입·종료 경계와 기록 유실 여부 확인 필요</td></tr>
+            </table>
           </div>
           <div class="checklist-sync" id="checklist-sync">
             <div class="checklist-sync-head">
@@ -9525,35 +9625,35 @@
             </tr>
 <tr>
               <td>FS-00</td>
-              <td><strong>3모드 선택·현재 지원 범위</strong></td>
-              <td>PPE 모드 선택 화면에서 오른손 Ray로 교육·훈련·테스트 카드를 가리키고 Trigger를 누른다.</td>
-              <td>현재 프로토타입은 PPE 착용 시나리오의 교육·훈련·테스트 카드와 각 모드 전용 VOICE·퀴즈·결과 참조가 준비된 상태여야 한다.</td>
-              <td>세 모드 모두 선택 확인·이동 VOICE 뒤 같은 PPE 수행 코어로 진입한다. 교육은 상세 안내, 훈련은 기본 안내·짧은 재시도, 테스트는 무지원 수행·결과 집계를 적용한다.</td>
-              <td>선택한 모드가 끝까지 유지되고 다른 모드의 안내·피드백이 노출되지 않아야 한다. 테스트 완료 시 소요시간·점수·정답 수·PPE 오선택 횟수가 결과 화면에 표시되어야 한다.</td>
+              <td><strong>작업계획 2종·3모드 선택</strong></td>
+              <td>PPE 카드·상세 모달에서 <code>ConfinedSpace</code> 또는 <code>LeakResponse</code> 작업계획과 교육·훈련·테스트 모드를 Ray + Trigger로 선택한다.</td>
+              <td>작업계획 2종과 각 모드 전용 VOICE·퀴즈·결과 참조가 준비되고, 직전 선택 상태가 새 세션에 누출되지 않아야 한다.</td>
+              <td>선택한 작업계획과 모드를 세션 기준으로 저장하고 같은 PPE 수행 코어로 진입한다. 교육은 상세 안내, 훈련은 기본 안내·짧은 재시도, 테스트는 무지원 수행·결과 집계를 적용한다.</td>
+              <td>6개 조합에서 선택값이 끝까지 유지되고 다른 작업계획·모드의 안내나 결과가 노출되지 않아야 한다. 테스트 완료 시 소요시간·점수·정답 수·PPE 오선택 횟수가 결과 화면과 로컬 기록에서 같은 세션으로 식별되어야 한다.</td>
               <td>모드 카드 호버·선택음</td>
               <td>호버·선택 카드 강조</td>
-              <td>교육·훈련·테스트 설명과 현재 지원 범위</td>
+              <td>작업계획 2종, 교육·훈련·테스트 설명과 Alpha 지원 범위</td>
               <td>R-00, R-32</td>
             </tr>
 <tr>
               <td>FS-01</td>
               <td><strong>앱 오프닝·PPE 교육 진입</strong></td>
               <td>사용자가 앱을 실행하고 타이틀·인트로 안내를 확인한다.</td>
-              <td>빌드 장면이 <code>0_App → 1_Title → 2_Intro → 6_LoadingScene_0 → 3_PPE_Room_HandTest_scale_0</code> 순서로 연결되어 있어야 한다.</td>
-              <td>앱 초기화, 타이틀, 인트로를 순서대로 재생한 뒤 비동기 로딩을 거쳐 PPE 교육 장면으로 전환한다. PPE 장면에서는 Welcome과 이름 입력을 완료한 뒤 교육 선택 흐름을 연다.</td>
-              <td>각 장면이 중복 로드되지 않고 지정 순서로 한 번씩 전환되며, 마지막에 PPE 교육의 Welcome·이름 입력 화면이 정상 표시되면 완료다.</td>
+              <td>빌드 장면이 <code>0_App → 1_Title → 2_Intro → 3_Loading → 4_PPE_Room</code> 순서로 연결되어 있어야 한다.</td>
+              <td>앱 초기화, 타이틀, 인트로를 순서대로 재생한 뒤 비동기 로딩을 거쳐 PPE Room으로 전환한다. Alpha 설정에서는 Welcome 뒤 이름 입력을 우회하고 카드 선택 흐름을 연다.</td>
+              <td>각 장면이 중복 로드되지 않고 지정 순서로 한 번씩 전환되며, 마지막에 PPE 카드 선택 화면이 정상 표시되면 완료다. Meta entitlement·사용자 조회 실패가 핵심 교육 흐름을 비정상 정지시키지 않는지도 별도로 기록한다.</td>
               <td>타이틀·인트로 전환음, 로딩 완료음</td>
               <td>장면 전환 페이드, 로딩 진행 표시</td>
-              <td>앱 초기화, 타이틀, 인트로, 로딩, PPE Welcome·이름 입력</td>
+              <td>앱 초기화, 타이틀, 인트로, 로딩, PPE Welcome·이름 입력 우회·카드 선택</td>
               <td>R-01, R-51</td>
             </tr>
 <tr>
               <td>FS-02</td>
               <td><strong>PPE 카드 선택·교육 시작</strong></td>
-              <td>Welcome과 이름 입력 후 오른손 Ray + Trigger로 PPE 교육 카드를 선택하고 모달의 시작 버튼을 누른다.</td>
-              <td>이름 제출이 끝나고 카드 입력이 활성화되어야 하며, 모달 처리 중 중복 선택을 받지 않아야 한다.</td>
+              <td>Welcome 종료와 이름 입력 자동 우회 후 오른손 Ray + Trigger로 작업계획 카드를 선택하고 모달의 시작 버튼을 누른다.</td>
+              <td>Alpha 진입 우회가 끝나 카드 입력이 활성화되어야 하며, 모달 처리 중 중복 선택을 받지 않아야 한다.</td>
               <td>카드 선택 시 PPE 교육 개요 모달을 열고 텔레포트 입력을 차단한다. 시작 확정 후 모달을 닫고 PPE 교육모드와 이동을 활성화한다.</td>
-              <td>카드 Trigger만 모달을 열고, 모달 중에는 텔레포트가 실행되지 않으며, 시작 확정 뒤 PPE 교육 공간에서 이동 가능 상태가 되면 완료다. 현재 전체 시나리오 초기화는 구현 범위가 아니다.</td>
+              <td>카드 Trigger만 모달을 열고, 모달 중에는 모든 이동 경로가 실행되지 않으며, 시작 확정 뒤 PPE 교육 공간에서 이동 가능 상태가 되면 완료다. 세션 종료·복귀 초기화는 FS-14가 소유한다.</td>
               <td>카드 호버음, 선택음, 시작 확정음</td>
               <td>카드 호버·선택 강조, 모달 표시</td>
               <td>PPE 교육 개요, 시작 확인, 현재 모드</td>
@@ -9562,9 +9662,9 @@
 <tr>
               <td>FS-03</td>
               <td><strong>PPE 단계 진행·컨트롤러 입력 우선순위</strong></td>
-              <td>Ray는 UI 지시, Trigger는 UI 선택·태블릿 확인·VOICE 건너뛰기, Grip은 PPE·태블릿 잡기, Joystick은 텔레포트 Ray에 사용한다. A 버튼은 후속 기능 입력으로 예약한다.</td>
+              <td>Ray는 UI 지시, Trigger는 UI 선택·태블릿 확인·VOICE 건너뛰기, Grip은 PPE·태블릿 잡기에 사용한다. Joystick의 연속 이동·텔레포트 경로는 작성된 입력 프로필과 현재 상태 게이트를 따른다. A 버튼은 후속 기능 입력으로 예약한다.</td>
               <td>현재 활성 UI, 잡고 있는 태블릿, 재생 중인 VOICE, 이동 허용 상태를 기준으로 동일 Trigger의 소비 대상을 한 개로 결정해야 한다.</td>
-              <td>Trigger 입력은 <code>UI 선택 → 태블릿 확인 → VOICE 건너뛰기</code> 우선순위로 한 번만 소비한다. 텔레포트는 Joystick 기반 이동 인터랙터와 별도 게이트로 제어한다.</td>
+              <td>Trigger 입력은 <code>UI 선택 → 태블릿 확인 → VOICE 건너뛰기</code> 우선순위로 한 번만 소비한다. 연속 이동과 텔레포트는 서로의 활성 조건과 모달·완료 전환 게이트를 명시적으로 따른다.</td>
               <td>한 번의 입력으로 둘 이상의 기능이 동시에 실행되지 않고, 현재 안내된 기능만 수행되어야 한다. 모달·완료 전환 중에는 이동이나 PPE 선택이 새로 시작되지 않아야 한다.</td>
               <td>입력 확인음, 단계 완료음, 오류음</td>
               <td>Ray 호버, 선택 피드백, 현재 대상 강조</td>
@@ -9674,11 +9774,11 @@
             </tr>
 <tr>
               <td>FS-13</td>
-              <td><strong>PPE 확인 퀴즈</strong></td>
-              <td>거울 최종 확인 후 표시되는 5개 문제에서 세 개 보기 중 하나를 Ray + Trigger로 선택한다.</td>
-              <td>PPE 필수 착용·테이프 조건과 거울 확인이 완료되어야 하며, 현재 문제의 보기만 선택할 수 있어야 한다.</td>
-              <td>오답은 경고 후 같은 문제에서 다시 선택하게 하고, 정답은 완료 피드백 뒤 다음 문제로 자동 이동한다. 다섯 문제를 모두 맞히면 교육 완료 흐름을 호출한다.</td>
-              <td>각 문제에 보기 3개가 표시되고 오답 후 재도전할 수 있으며, 정답 시 다음 문제로 한 번만 넘어가야 한다. 현재 점수 산정·결과 점수 저장은 구현하지 않는다.</td>
+              <td><strong>모드별 PPE 확인 퀴즈</strong></td>
+              <td>거울 최종 확인 후 선택한 작업계획·모드의 5개 문제에서 세 개 보기 중 하나를 Ray + Trigger로 선택한다.</td>
+              <td>PPE 필수 착용·테이프 조건과 거울 확인이 완료되어야 하며, 현재 세션과 문제의 보기만 선택할 수 있어야 한다.</td>
+              <td>교육·훈련은 오답 뒤 같은 문제에서 재시도하고 정답이면 다음 문제로 이동한다. 테스트는 문항별 첫 선택만 채점하고 수행 중 정오답·힌트·해설을 표시하지 않는다.</td>
+              <td>각 문제에 보기 3개가 표시되고 한 입력이 한 번만 처리되어야 한다. 테스트에서는 5문항 점수·정답 수가 결과 집계와 로컬 세션 기록에 일치해야 하며, 교육·훈련의 재시도 기록이 테스트 채점 규칙에 섞이지 않아야 한다.</td>
               <td>보기 선택음, 정답음, 오답음, 전체 정답 완료음</td>
               <td>선택 보기 강조, 정답·오답 피드백, 문제 전환</td>
               <td>문제 번호, 질문, 보기 3개, 정오답 안내</td>
@@ -9686,14 +9786,14 @@
             </tr>
 <tr>
               <td>FS-14</td>
-              <td><strong>PPE 교육 완료·카드 복귀</strong></td>
-              <td>다섯 번째 퀴즈 정답 처리로 완료 흐름이 자동 시작된다.</td>
+              <td><strong>PPE 모드 완료·결과·카드 복귀</strong></td>
+              <td>교육·훈련은 다섯 번째 퀴즈 정답 처리, 테스트는 마지막 문항 첫 선택 처리로 완료 흐름이 자동 시작된다.</td>
               <td>중복 완료 호출이 차단되고 VOICE·손·Ray·페이드·카드 상태를 전환할 참조가 준비되어야 한다.</td>
-              <td>완료 VOICE를 재생하고 손과 Ray를 숨긴 뒤 화면을 페이드한다. PPE 카드 위치로 복귀시킨 후 화면·손·Ray와 카드 선택 상태를 복원한다.</td>
-              <td>완료 흐름이 한 번만 재생되고 PPE 카드 선택 화면으로 안전하게 돌아오면 완료다. 현재 별도 점수 결과 화면과 전체 교육 상태 초기화는 구현 범위가 아니다.</td>
+              <td>교육·훈련은 완료 안내 뒤 카드 복귀 전환을 실행한다. 테스트는 소요시간·점수·정답 수·PPE 오선택 횟수를 결과 화면에 표시하고, 결과 확인 뒤 카드 복귀와 새 세션 상태 복원을 실행한다.</td>
+              <td>완료 흐름과 기록 종료가 한 번만 실행되고 결과 화면의 값과 로컬 세션 값이 일치해야 한다. 카드로 돌아온 뒤 직전 작업계획·모드·문항·PPE 상태가 새 선택에 누출되지 않으면 완료다.</td>
               <td>교육 완료 VOICE·효과음, 복귀음</td>
               <td>손·Ray 숨김, 화면 페이드, 카드 복귀 전환</td>
-              <td>완료 안내 후 PPE 카드 선택 화면</td>
+              <td>교육·훈련 완료 안내, 테스트 결과 화면, PPE 카드 선택 화면</td>
               <td>R-15, R-52</td>
             </tr>
             <tr>
@@ -9711,7 +9811,7 @@
               <td>FS-16</td>
               <td><strong>풀장착 모델·거울 최종 확인</strong></td>
               <td>필수 PPE 착용 완료 후 거울 앞으로 이동해 약 1.2m 이내에서 거울 방향을 바라본다.</td>
-              <td><code>PPE Body Anchor → PPE_A_SuitWear</code>가 단일 풀장착 기준이어야 하며, 착용 완료 자식만 활성화되어야 한다. 방호복 루트는 HMD의 X/Z와 완화된 Yaw를 추종하고 씬에서 작성한 Y 높이는 유지한다.</td>
+              <td><code>PPE Body Anchor → hazmat_suit_on_10</code>이 단일 풀장착 기준이어야 하며, 착용 완료 자식만 활성화되어야 한다. 방호복 루트는 HMD의 X/Z와 완화된 Yaw를 추종하고 씬에서 작성한 Y 높이는 유지한다.</td>
               <td>각 PPE는 풀장착 모델의 대응 자식으로 표시한다. 호흡보호구와 안전모는 본체 카메라 시야 방해를 막기 위해 Mirror Only 레이어로 렌더링한다. 평면 반사 카메라와 640×1472 RenderTexture로 동일 모델을 거울에 표시한다.</td>
               <td>본체와 거울의 방향·회전·높이·바닥 접지가 일치하고, 거리·시선 조건을 만족한 상태로 5초 확인하면 퀴즈가 열려야 한다. 현 구현은 조건 진입 뒤 5초 동안 거리·시선을 계속 재검사하지 않으므로 보완 대상에 포함한다.</td>
               <td>거울 확인 시작음, 5초 진행음, 확인 완료음</td>
@@ -9732,11 +9832,11 @@
             </tr>
 <tr>
               <td>FS-18</td>
-              <td><strong>위치·아이템 마커와 텔레포트</strong></td>
-              <td>Joystick으로 텔레포트 Ray를 활성화하고 위치 마커를 선택한다. PPE는 아이템 마커가 표시된 대상을 손으로 직접 잡는다.</td>
+              <td><strong>이동·위치 마커·PPE 아이템 마커</strong></td>
+              <td>작성된 입력 프로필에 따라 Joystick 이동 또는 텔레포트 Ray·위치 마커를 사용한다. PPE는 아이템 마커가 표시된 대상을 손으로 직접 잡는다.</td>
               <td>PPE 교육 시작 후 이동 허용 상태여야 하며, 모달·완료 전환 중에는 텔레포트가 차단되어야 한다. 위치 마커와 PPE 마커는 서로 다른 입력·레이어 경로를 사용해야 한다.</td>
-              <td>Joystick 입력에 따라 이동 인터랙터와 일반 UI Ray의 활성 상태를 전환하고, 유효 위치 마커에만 텔레포트한다. 아이템 마커는 PPE의 활성·Grab·판정·완료 상태에 따라 표시를 갱신한다.</td>
-              <td>유효 마커에 정확히 착지하고 벽·설비 안으로 이동하지 않아야 한다. UI Ray가 PPE를 원거리 선택하지 않고, PPE는 마커를 손으로 잡을 때만 선택되어야 한다. 현재 텔레포트 자체에는 별도 화면 페이드가 없다.</td>
+              <td>연속 이동·텔레포트 인터랙터와 일반 UI Ray의 활성 상태를 각각 제어하고, 유효 위치 마커에만 텔레포트한다. 아이템 마커는 PPE의 활성·Grab·판정·완료 상태에 따라 표시를 갱신한다.</td>
+              <td>연속 이동과 텔레포트 모두 벽·설비 안으로 사용자를 이동시키지 않아야 한다. UI Ray가 PPE를 원거리 선택하지 않고, PPE는 마커를 손으로 잡을 때만 선택되어야 한다. 모달·완료 전환 중에는 두 이동 경로가 모두 차단되어야 한다.</td>
               <td>텔레포트 선택·착지음, 아이템 Grab·완료음</td>
               <td>텔레포트 Ray·유효 위치 표시, PPE 아이템 마커 표시·해제</td>
               <td>이동 가능 상태, 현재 PPE 대상, 모달 중 이동 차단 안내</td>
@@ -9744,21 +9844,21 @@
             </tr>
             <tr>
               <td>FS-19</td>
-              <td><strong>Welcome·한글 이름 입력</strong></td>
-              <td>PPE 장면 진입 후 가상 키보드로 이름을 입력하고 제출 버튼을 선택한다.</td>
-              <td>Welcome 상태가 끝나 이름 입력 패널과 한글 키보드 릴레이가 활성화되어야 한다.</td>
-              <td>키 입력을 조합해 이름 필드에 반영하고 제출 시 <code>TextSubmitted</code> 이벤트와 <code>SubmittedName</code> 값을 전달해 다음 단계로 전환한다.</td>
-              <td>한글 입력·삭제·제출이 정상 동작하고 제출 이벤트가 한 번만 전달되어야 한다. 현재 빈 이름도 제출될 수 있으므로 필수 입력 정책은 후속 확정이 필요하다.</td>
-              <td>키 입력음, 제출 완료음</td>
-              <td>키 눌림, 입력 필드 포커스, 제출 전환</td>
-              <td>Welcome 문구, 이름 입력 필드, 한글 키보드, 제출 버튼</td>
+              <td><strong>Welcome·이름 입력 Alpha 우회</strong></td>
+              <td>PPE 장면 진입 후 Welcome 흐름이 끝나면 Alpha 설정이 이름 입력을 자동 우회한다.</td>
+              <td><code>4_PPE_Room.unity</code>의 <code>m_SkipKeyboardNameInput</code>이 활성화되어야 한다. 기존 이름 패널과 키보드 참조는 삭제하지 않는다.</td>
+              <td>이름 입력 UI를 열거나 제출 이벤트를 기다리지 않고 카드 선택 단계로 한 번만 전환한다. 추후 설정을 해제하면 기존 한글 키보드·<code>TextSubmitted</code>·<code>SubmittedName</code> 경로를 다시 검증한다.</td>
+              <td>Alpha에서는 키보드가 진행을 막지 않고 카드 선택 화면이 중복 없이 열려야 한다. 비활성 경로를 다시 켰을 때의 한글 입력 완전성은 현재 Alpha 완료 조건이 아니라 별도 회귀 항목이다.</td>
+              <td>Welcome 완료음, 우회 전환음. 키 입력·제출음은 비활성 경로에서만 사용</td>
+              <td>Welcome 전환. 키 눌림·입력 필드 포커스는 비활성 경로 보존</td>
+              <td>Welcome 문구, Alpha 우회 상태, 비활성 이름 입력 필드·한글 키보드</td>
               <td>R-52, R-57</td>
             </tr>
             <tr>
               <td>FS-20</td>
               <td><strong>비동기 로딩·장면 활성화</strong></td>
               <td>인트로 완료 후 로딩 장면이 자동 시작된다.</td>
-              <td>대상 장면 <code>3_PPE_Room_HandTest_scale_0</code>가 빌드 설정에 포함되고 비동기 로드가 가능해야 한다.</td>
+              <td>로딩 장면 <code>3_Loading</code>과 대상 장면 <code>4_PPE_Room</code>이 빌드 설정에 포함되고 비동기 로드가 가능해야 한다.</td>
               <td>비동기 진행률을 사용자 표시용 0~100%로 환산하고 최소 표시 시간과 완료 유지 시간을 적용한 뒤 장면 활성화를 허용한다.</td>
               <td>진행률이 역행하지 않고 100% 표시 후 PPE 장면으로 한 번만 전환되며, 로딩 중 입력으로 중복 전환되지 않으면 완료다.</td>
               <td>로딩 시작·완료음</td>
@@ -9770,7 +9870,7 @@
               <td>FS-21</td>
               <td><strong>PPE VOICE 상태 흐름·조건부 안내</strong></td>
               <td>단계 진입 이벤트로 안내를 재생하고, 다른 상위 입력 대상이 없을 때 Trigger로 현재 안내를 건너뛴다.</td>
-              <td>Welcome, 이름 입력, 카드·모달, 모드 선택, 태블릿, PPE 판정, 거울, 퀴즈, 완료 상태가 VOICE 상태와 일치해야 한다.</td>
+              <td>Welcome, Alpha 이름 입력 우회, 카드·모달, 작업계획·모드 선택, 태블릿, PPE 판정, 거울, 퀴즈, 완료 상태가 VOICE 상태와 일치해야 한다.</td>
               <td>ElevenLabs 박현미 모델로 제작한 클립을 상태별로 한 번씩 재생한다. 조건 미충족·오답·선행 작업 누락 시 해당 보충 안내를 호출하고, 새 상태 진입 시 이전 안내의 중복 재생을 정리한다.</td>
               <td>동일 클립이 겹쳐 재생되지 않고 현재 단계의 안내만 들려야 한다. UI 또는 태블릿이 Trigger를 소비한 경우 VOICE 건너뛰기가 동시에 발생하지 않아야 한다.</td>
               <td>박현미 TTS 본문, 단계별 강조·완료 효과음</td>
@@ -9783,8 +9883,8 @@
               <td><strong>앱 종료</strong></td>
               <td>종료 버튼을 Ray + Trigger로 선택한다.</td>
               <td>종료 확인 UI가 활성 상태이고 중복 클릭을 처리하지 않아야 한다.</td>
-              <td>빌드에서는 <code>Application.Quit()</code>을 호출하고 Unity Editor에서는 Play Mode를 종료한다.</td>
-              <td>종료 입력이 한 번만 처리되고 빌드 앱 또는 Editor 실행이 정상 종료되면 완료다.</td>
+              <td>진행 중 로컬 세션 기록을 끝낸 뒤 빌드에서는 <code>Application.Quit()</code>을 호출하고 Unity Editor에서는 Play Mode를 종료한다.</td>
+              <td>종료 입력과 세션 종료 기록이 한 번만 처리되고 빌드 앱 또는 Editor 실행이 정상 종료되어야 한다. <code>application_quitting</code>만으로 충돌·전원 종료·사용자 의도를 단정하지 않는다.</td>
               <td>종료 선택음</td>
               <td>버튼 선택 피드백, 종료 페이드</td>
               <td>종료 버튼과 필요 시 확인 안내</td>
@@ -9798,7 +9898,7 @@
             </div>
             <div class="card-small">
               <strong>우선순위</strong>
-              <p>PPE 착용 교육·훈련·테스트 3모드 한 사이클은 구현 완료 상태다. 이후 일정은 세 모드 회귀·Quest 실기기 검증과 관리자 기능 구현에 사용하며, 밀폐공간 진입 전 교육과 사고 체험은 분리된 후속 시나리오로 관리한다.</p>
+              <p>작업계획 2종 × 교육·훈련·테스트 3모드의 런타임 경로는 존재하지만 Alpha 검증 완료 상태는 아니다. 우선순위는 동일 코드 5 빌드의 6개 조합 Quest 회귀, HMD 안정성, 입력·가독성·거울 검증, Release/Development 기록 대조다. 혼합기동·혼합기 내부 시나리오는 분리된 후속 범위로 관리한다.</p>
             </div>
           </div>
         </section>
@@ -9806,22 +9906,21 @@
           <div class="section-kicker">PART 4 · 02</div>
           <h2>기능별 R&amp;D 항목</h2>
           <p>
-            현재 프로토타입의 실제 구현 범위는 <strong>PPE 점검·착용 교육·훈련·테스트 3모드</strong>다.
+            현재 Alpha의 실제 구현 범위는 <strong>작업계획 2종 × PPE 점검·착용 교육·훈련·테스트 3모드</strong>다.
             세 모드는 같은 PPE 수행 코어를 사용하면서 안내·오류 피드백·퀴즈·결과 노출을 다르게 적용한다.
-            테스트모드는 소요시간·퀴즈 점수·정답 수·PPE 오선택 횟수를 세션 결과로 표시하며, 사용자별 누적 이력 저장과 관리자 조회, 밀폐공간 진입 전 교육은 후속 개발계획으로 분리한다.
+            테스트모드는 소요시간·퀴즈 점수·정답 수·PPE 오선택 횟수를 화면과 로컬 세션 기록에 남긴다. Development 서버 업로드는 검증 경로이고, 운영 사용자별 누적 이력·훈련 대시보드와 혼합기동의 전체 밀폐공간 절차는 후속으로 분리한다.
             항목은 <strong>환경 조성</strong>, <strong>유저 액션</strong>, <strong>시스템</strong> 세 영역으로 구분한다.
           </p>
           <div class="card-small" style="margin-bottom: 14px">
-            <strong>v0.9 R&amp;D 현행화 구분</strong>
-            <p>
-              <strong>1. 새로 생긴 부분:</strong> R-51 비동기 로딩, R-52 PPE VOICE 상태 전이,
-              R-53 마커 전용 Grab·작성 포즈 복원, R-54 공용 Action Panel, R-55 실물 HMD·Game View 입력 분리,
-              R-56 씬 작성값 보존, R-57 한글 키보드·이름 제출을 추가했다.
-            </p>
-            <p>
-              <strong>2. 기존 수정부분:</strong> R-01, R-03, R-04, R-06, R-14, R-15, R-20,
-              R-38, R-39, R-40, R-50을 실제 PPE 교육 구현과 검증 기준으로 수정했다.
-            </p>
+            <strong>v0.9 → v0.10 Alpha R&amp;D 변경 대조</strong>
+            <table aria-label="R&D 변경 대조">
+              <tr><th>대상</th><th>v0.9 이전 기준</th><th>v0.10 Alpha 현재 기준</th><th>변경 이유</th></tr>
+              <tr><td>R-01·R-51</td><td>개발 variant 장면의 실행·로딩 검증</td><td>현재 활성 Build Settings 5개 장면과 코드 5 APK 반복 실행</td><td>실제 제출 빌드 경로를 검증 기준으로 사용</td></tr>
+              <tr><td>R-16</td><td>세 실행 루트와 후속 사고 VFX까지 포함한 성능 목표</td><td>현재 6개 PPE 조합, 72Hz 목표, 10분 이상 HMD 안정성 시험</td><td>현재 Alpha 범위와 주변 시야 왜곡·정지 이슈를 우선 검증</td></tr>
+              <tr><td>R-20·R-28</td><td><code>PPE_A_SuitWear</code> 루트 기준, 거울·문서 가독성을 완료 항목으로 표시</td><td><code>PPE Body Anchor → hazmat_suit_on_10</code>을 단일 기준으로 사용하고 Quest 양안·성능 및 누수 문서 실제 읽기 거리 증거 확보 전 미완료</td><td>현재 씬의 풀장착 기준을 반영하고 씬/정적 확인을 실기기 시각 검증 완료로 확장하지 않음</td></tr>
+              <tr><td>R-55·R-56</td><td>입력 경로 분리와 씬 작성값 보존 원칙</td><td>6개 조합에서 Quest 이벤트·Play Mode 전후 직렬화 비교를 Alpha 게이트로 적용</td><td>Game View hover와 XR Trigger, 런타임 보정과 작성값을 구분</td></tr>
+              <tr><td>R-57</td><td>한글 키보드·이름 제출을 현재 흐름으로 검증</td><td>Alpha 우회가 기본이며 키보드 재활성 시에만 회귀 검증</td><td>현재 씬의 우회 설정 반영</td></tr>
+            </table>
           </div>
           <div class="card-small" style="margin-bottom: 14px">
             <strong>현재 시연 프로젝트 Unity 기준</strong>
@@ -9855,7 +9954,7 @@
                 Android/Quest와 PC OpenXR에서 앱 시작, 장면 전환, 양손·컨트롤러 입력, PPE 교육 완주,
                 종료를 각각 검증한다.
               </td>
-              <td>Unity Console 컴파일 오류가 없고 <code>0_App → 1_Title → 2_Intro → 6_LoadingScene_0 → 3_PPE_Room_HandTest_scale_0</code> 경로가 유지되어야 한다. 동일 빌드를 Quest에서 3회 재실행해 Trigger·Grip·Joystick, 양안 렌더링, 오디오와 PPE 교육 완주가 모두 정상일 때 완료다.</td>
+              <td>Unity Console 컴파일 오류가 없고 <code>0_App → 1_Title → 2_Intro → 3_Loading → 4_PPE_Room</code> 경로가 유지되어야 한다. 동일 코드 5 빌드를 Quest에서 3회 재실행하고 6개 작업계획·모드 조합을 완주해 Trigger·Grip·Joystick, 양안 렌더링, 오디오, 로컬 기록과 종료가 모두 정상일 때 완료다.</td>
               <td>패키지 충돌 시 현재 동작 버전을 우선 고정하고 신규 API 적용을 별도 브랜치에서 검증한다. 입력 문제가 지속되면 XRI 기본 입력맵과 프로젝트 입력맵을 장치별로 비교한다.</td>
             </tr>
             <tr>
@@ -9976,32 +10075,32 @@
                 오답 선택은 같은 문제에서 재시도하고 정답 선택은 다음 문제로 자동 이동하도록 하며,
                 빠른 연속 입력, 동일 보기 반복, 문제 전환 중 입력을 시험한다.
               </td>
-              <td>오답이 완료로 집계되지 않고 재선택이 가능해야 하며, 정답은 한 번만 처리되어 다음 페이지로 이동해야 한다. 다섯 문제 정답 후 완료 흐름이 한 번 호출되면 통과다. 현재 점수·등급·정오답 결과 저장은 적용하지 않는다.</td>
-              <td>문제 데이터 연결이 불안정하면 PPE 교육 전용 문제·보기·정답을 고정 배열로 분리한다. 점수화가 필요해질 경우 현재 정답 진행 상태와 별도 결과 데이터로 추가한다.</td>
+              <td>교육·훈련은 오답이 완료로 집계되지 않고 재선택할 수 있어야 하며, 테스트는 문항별 첫 선택만 채점해야 한다. 마지막 문항 뒤 완료 흐름이 한 번 호출되고 테스트 점수·정답 수가 화면과 로컬 세션 기록에서 일치하면 통과다.</td>
+              <td>문제 데이터 연결이 불안정하면 작업계획·모드별 문제·보기·정답을 검수된 고정 데이터로 분리하고, 채점 상태와 화면 진행 상태를 별도 소유자로 나눈다.</td>
             </tr>
 <tr>
               <td>R-15</td>
               <td><strong>PPE 완료 전환·카드 복귀</strong></td>
               <td>
-                마지막 퀴즈 정답 뒤 완료 VOICE, 손·Ray 숨김, 화면 페이드, PPE 카드 위치 복귀,
-                화면·손·Ray와 카드 상태 복원의 순서를 검증한다. 완료 호출 중 입력 재진입과 중복 코루틴도 확인한다.
+                교육·훈련의 마지막 정답 또는 테스트 마지막 문항 처리 뒤 완료 VOICE, 테스트 결과, 로컬 세션 종료,
+                손·Ray 숨김, 화면 페이드, PPE 카드 위치 복귀와 상태 복원의 순서를 검증한다. 완료 호출 중 입력 재진입과 중복 코루틴도 확인한다.
               </td>
-              <td>전체 전환이 한 번만 실행되고 사용자가 안전하게 PPE 카드 선택 상태로 돌아와야 한다. 현재 별도 점수 결과 화면과 PPE 오브젝트 전체 초기화는 완료 조건에 포함하지 않는다.</td>
-              <td>상태 복원 누락이 반복되면 완료 전환을 단일 상태 머신으로 묶는다. 반복 체험을 위한 전체 초기화가 필요해질 경우 PPE 장면 재로드 또는 명시적 Reset 기능을 후속 구현한다.</td>
+              <td>전체 전환과 세션 종료가 한 번만 실행되고 테스트 결과가 실제 수행·로컬 기록과 일치해야 한다. 카드 복귀 뒤 PPE·문항·오류·시간과 작업계획·모드 상태가 새 세션에 남지 않으면 완료다.</td>
+              <td>상태 복원 누락이 반복되면 완료·기록·복귀를 단일 상태 머신으로 묶고, 개별 런타임 자동 수리 대신 명시적 Reset 또는 PPE 장면 재로드 전략을 검증한다.</td>
             </tr>
             <tr>
               <td>R-16</td>
               <td><strong>Quest 2 성능</strong></td>
               <td>
-                실제 Quest 2에서 세 실행 루트를 처음부터 끝까지 실행하며 자동
-                손·호스·덕트, 사고 VFX, World Space UI, 다중 오디오, 투명재질과 그림자가
-                동시에 보이는 구간의 프레임과 입력 반응을 집중 측정한다.
+                실제 Quest 2에서 작업계획 2종 × 3모드의 여섯 실행 조합을 처음부터 끝까지 수행하며
+                손·PPE, World Space UI, 다중 오디오, 투명재질·거울과 그림자가 동시에 보이는 구간의
+                프레임, 입력 반응과 HMD 주변 시야 안정성을 집중 측정한다.
               </td>
               <td>
                 모듈 소요 시간과 별개의 연속 안정성 시험으로 10분 이상 실행하고,
                 목표 72Hz를 기준으로 체험을 방해하는
-                지속적인 프레임 저하, 버튼 입력 지연, 오디오 끊김, 앱 종료가
-                없어야 한다. 일시적 저하가 생긴 구간은 원인과 조치 내용을
+                지속적인 프레임 저하, 버튼 입력 지연, 오디오 끊김, 주변 시야 왜곡·검은 화면·정지나 앱 종료가
+                없어야 한다. 일시적 저하 또는 재현 이슈가 생긴 구간은 최근 변경 비교, 원인과 조치 내용을
                 기록하면 완료다.
               </td>
               <td>성능이 기준에 미치지 못하면 자동 손을 생략하고, 투명재질·실시간 그림자·고해상도 효과를 줄이며, 반복 오브젝트와 오디오는 풀링 또는 단순화한다.</td>
@@ -10039,11 +10138,11 @@
               <td>혼합기 내부 진입 시 스케일과 깊이감이 자연스럽고 오염·청소 대상이 명확하며, 카메라 클리핑·메시 관통·과도한 어두움 없이 사고 연출을 끝까지 확인할 수 있으면 완료다.</td>
               <td>내부 구조가 복잡해 시야와 성능 문제가 생기면 교반 구조와 배관을 단순 메시로 교체하고 오염 부위는 고정 데칼과 조명으로 강조한다.</td>
             </tr>
-<tr data-default-complete="true">
+<tr>
               <td>R-20</td>
               <td><strong>PPE 풀장착 모델·평면 거울</strong></td>
               <td>
-                <code>PPE Body Anchor → PPE_A_SuitWear</code>를 본체와 거울 표시의 단일 기준으로 사용한다.
+                <code>PPE Body Anchor → hazmat_suit_on_10</code>을 본체와 거울 표시의 단일 기준으로 사용한다.
                 방호복 루트가 HMD의 X/Z와 완화된 Yaw를 추종하면서 씬 작성 Y를 유지하는지,
                 착용 완료 자식만 활성화되는지, 호흡보호구·안전모의 Mirror Only 레이어와
                 평면 반사 카메라·640×1472 RenderTexture가 양안에서 정상인지 확인한다.
@@ -10182,7 +10281,7 @@
               <td>1차·2차 측정값, 단위, PASS/FAIL 판정이 같은 액정 안에서 구분되고, 숫자가 번지거나 깨지지 않으며 측정 완료 상태와 표시값이 일치하면 완료다.</td>
               <td>실시간 세그먼트 구현이 무겁거나 가독성이 낮으면 검수된 결과 이미지 또는 TextMeshPro 고정 숫자 표시로 단순화한다.</td>
             </tr>
-            <tr data-default-complete="true">
+<tr>
               <td>R-28</td>
               <td><strong>텍스트·문서 해상도 향상</strong></td>
               <td>
@@ -10190,7 +10289,7 @@
                 TextMeshPro 폰트 에셋과 압축 설정을 조정한다. Quest 2에서 실제 사용 거리별로
                 제목·본문·표·작은 안전기호의 선명도를 비교한다.
               </td>
-              <td>기본 시야 거리에서 확대 조작 없이 핵심 문구와 체크 항목을 읽을 수 있고, 문서 가장자리와 글자가 뭉개지지 않으며 해상도 상승으로 체험을 방해하는 메모리·프레임 문제가 없으면 완료다.</td>
+              <td><code>ConfinedSpace</code>와 <code>LeakResponse</code> 문서를 각각 기본 시야 거리에서 확대 없이 읽을 수 있어야 한다. 특히 현재 가독성이 낮은 누수 작업계획서의 핵심 문구·체크 항목·안전기호가 Quest 양안에서 선명하고, 해상도 상승으로 메모리·프레임 문제가 없으면 완료다.</td>
               <td>고해상도 텍스처 사용량이 커지면 문서를 페이지별 Atlas로 분리하고 Mip Map·압축을 용도별로 조정하며, 핵심 본문은 이미지 대신 TextMeshPro로 표시한다.</td>
             </tr>
             <tr data-default-complete="true">
@@ -10264,7 +10363,7 @@
               <td>
                 현재 프로젝트에는 물리적 몸 슬롯이 없으므로 슬롯 접근·Snap 판정을 사용하지 않는다.
                 ‘사용’ 확정 시 약 1.8초의 착용 연출을 실행한 뒤 검사 오브젝트를 처리하고,
-                <code>PPE Body Anchor → PPE_A_SuitWear</code> 아래의 해당 장비 자식을 활성화한다.
+                <code>PPE Body Anchor → hazmat_suit_on_10</code> 아래의 해당 장비 자식을 활성화한다.
                 테이프는 PPE 수량에서 제외한 보조 완료 상태로 관리한다.
               </td>
               <td>착용 연출과 Action Panel 완료 상태, 검사 오브젝트 비활성화, 풀장착 자식 활성화가 같은 판정에서 한 번만 갱신되어야 한다. 방호복·호흡보호구·안전모·안전대(등지게)·좌우 장갑·좌우 장화가 서로 잘못 연결되지 않으면 완료다.</td>
@@ -10381,14 +10480,14 @@
                 Unity의 0~0.9 로드 진행값을 0~100% 표시로 환산하고 최소 표시 시간, 100% 유지 시간,
                 <code>allowSceneActivation</code> 시점, 중복 전환 방지를 검증한다.
               </td>
-              <td>진행률이 역행하지 않고 100% 표시 후 <code>3_PPE_Room_HandTest_scale_0</code>가 한 번만 활성화되어야 한다. PC OpenXR와 Quest에서 XR Origin·오디오·입력이 장면 전환 뒤 정상 복구되면 완료다.</td>
+              <td>진행률이 역행하지 않고 100% 표시 후 <code>4_PPE_Room</code>이 한 번만 활성화되어야 한다. PC OpenXR와 Quest에서 XR Origin·오디오·입력이 장면 전환 뒤 정상 복구되면 완료다.</td>
               <td>비동기 활성화 시 XR 초기화가 불안정하면 App 장면의 영속 관리자와 실제 교육 장면의 수명 범위를 분리하고, 로딩 장면에서는 UI 진행 표시만 담당한다.</td>
             </tr>
             <tr>
               <td>R-52</td>
               <td><strong>PPE VOICE 상태 전이·조건부 안내</strong></td>
               <td>
-                Welcome, 이름 입력, 카드·모달, 모드 선택, 태블릿, PPE 판정, 거울, 퀴즈, 완료를 하나의 VOICE 상태 흐름으로 연결한다.
+                Welcome, Alpha 이름 입력 우회, 카드·모달, 작업계획·모드 선택, 태블릿, PPE 판정, 거울, 퀴즈, 완료를 하나의 VOICE 상태 흐름으로 연결한다.
                 ElevenLabs 박현미 TTS 클립의 상태별 1회 재생, 조건 미충족·오답 보충 안내,
                 Trigger 건너뛰기 우선순위와 클립 중첩 방지를 확인한다.
               </td>
@@ -10423,7 +10522,7 @@
                 Quest/OpenXR의 실제 HMD·컨트롤러 입력과 Unity Game View의 시뮬레이터·마우스 입력을 별도 검증 경로로 관리한다.
                 마우스 hover·click 성공을 XR Trigger 성공으로 해석하지 않고 등록 Interactor, UI Press/Select Action, EventSystem 이벤트를 각각 기록한다.
               </td>
-              <td>Game View 보조 입력을 켜거나 꺼도 Quest 입력 소비자가 바뀌지 않아야 한다. 실제 장치에서 PointerDown·Up·Click 또는 SelectEntered가 기대 순서로 발생한 로그와 양손 입력 결과가 확보되면 완료다.</td>
+              <td>Game View 보조 입력을 켜거나 꺼도 Quest 입력 소비자가 바뀌지 않아야 한다. 여섯 작업계획·모드 조합의 실제 장치에서 PointerDown·Up·Click 또는 SelectEntered가 기대 순서로 발생한 로그와 양손 입력 결과가 확보되면 완료다.</td>
               <td>동일 씬의 보조 입력이 회귀를 만들면 Editor 전용 시뮬레이터 오브젝트와 빌드용 XR 입력 오브젝트를 빌드 조건 또는 명시적 프로필로 분리한다.</td>
             </tr>
             <tr>
@@ -10438,13 +10537,13 @@
             </tr>
             <tr>
               <td>R-57</td>
-              <td><strong>한글 키보드·이름 제출</strong></td>
+              <td><strong>한글 키보드·이름 제출 비활성 경로</strong></td>
               <td>
-                PPE Welcome 이후 한글 자모 조합, 공백, 삭제, 연속 입력, 제출 이벤트를 시험한다.
+                Alpha 기본 설정에서는 이름 입력 우회가 한 번만 실행되는지 먼저 확인한다. 키보드 경로를 재활성화할 때 PPE Welcome 이후 한글 자모 조합, 공백, 삭제, 연속 입력, 제출 이벤트를 시험한다.
                 키보드 릴레이가 이름 필드와 <code>TextSubmitted</code>, <code>SubmittedName</code>에 값을 한 번만 전달하고
                 VOICE·다음 UI 상태와 충돌하지 않는지 확인한다.
               </td>
-              <td>한글 이름 입력·수정·제출이 정상이고 제출 후 다음 단계가 한 번만 열려야 한다. 빈 이름 허용 여부와 최대 길이·금칙문자 정책을 확정해 UI 검증과 실제 전환 조건이 일치하면 완료다.</td>
+              <td>Alpha에서는 이름 UI 없이 다음 단계가 한 번만 열리면 통과다. 키보드 재활성 시에는 한글 이름 입력·수정·제출과 빈 이름·최대 길이·금칙문자 정책을 다시 검증해야 하며, 그 전에는 키보드 기능 자체를 완료로 표시하지 않는다.</td>
               <td>런타임 한글 조합이 불안정하면 완성형 글자 키보드 또는 영문·숫자 식별자 입력으로 범위를 줄이고 사용자 표시 이름 정책을 별도로 둔다.</td>
             </tr>
           </table>
@@ -10561,7 +10660,7 @@
           </table>
           <div class="note-strong">
             <strong>8월 13일 프로토타입 완료 기준</strong>
-            <p>초기 완료 기준은 교육모드 공통 구조와 대표 인터랙션 연결이었으나, 현재는 PPE 6종 전체 콘텐츠와 교육·훈련·테스트 3모드, 퀴즈·결과·초기화 흐름까지 구현 범위가 확장되었다. 남은 완료 판단은 세 모드 회귀와 Quest 2 실기기 입력·양안·오디오 검증 결과로 구분한다. 밀폐공간 진입 전 교육과 사고 체험은 후속 범위다.</p>
+            <p>초기 완료 기준은 교육모드 공통 구조와 대표 인터랙션 연결이었으나, 현재는 작업계획 2종의 PPE 6종 콘텐츠와 교육·훈련·테스트 3모드, 퀴즈·결과·초기화 흐름까지 구현 범위가 확장되었다. 남은 완료 판단은 6개 조합 회귀와 Quest 2 실기기 입력·양안·오디오·HMD 안정성 검증 결과로 구분한다. 혼합기동의 전체 밀폐공간 진입 전 교육과 사고 체험은 후속 범위다.</p>
           </div>
           <h3>첨부 일정 기준 병행 마일스톤</h3>
           <table class="table-schedule">
@@ -10578,7 +10677,7 @@
           <table>
             <tr>
               <th>구현 게이트</th>
-              <td>PPE 교육·훈련·테스트 3모드는 구현·활성화 완료. 이후 변경은 세 모드 정적 확인 → Unity Editor 완주 → Quest 2 입력·양안·오디오 회귀 순서로 검증</td>
+              <td>작업계획 2종 × PPE 교육·훈련·테스트 3모드의 런타임 경로가 활성화돼 있다. 검증 완료는 6개 조합의 정적 확인 → Unity Editor 완주 → Quest 2 입력·양안·오디오·HMD 안정성 회귀 순서로 판정</td>
             </tr>
             <tr>
               <th>교육모드</th>
@@ -10586,7 +10685,7 @@
             </tr>
             <tr>
               <th>훈련모드</th>
-              <td>현재 목표와 기본 지시 외 상세 설명·정답 유도·대상 하이라이트가 0건이며 두 핵심 시나리오 각 2회 완주. 후속 사고 체험은 구현된 경우에만 추가 검증</td>
+              <td>현재 목표와 기본 지시 외 상세 설명·정답 유도·대상 하이라이트가 0건이며 두 작업계획을 각각 반복 완주. 후속 밀폐공간·사고 체험은 구현된 경우에만 추가 검증</td>
             </tr>
             <tr>
               <th>테스트모드</th>
@@ -10660,7 +10759,7 @@
             <tr>
               <th>퀴즈</th>
               <td>
-                두 핵심 시나리오별 5문항, 문항당 20점, 첫 선택만 채점, 총점 0~100점.
+                현재 작업계획 2종별 5문항, 문항당 20점, 테스트는 첫 선택만 채점해 총점 0~100점.
                 후속 사고 체험 퀴즈는 해당 루트가 실제 구현된 경우에만 추가한다.
                 교육은 즉시 해설, 훈련·테스트는 종료 후 결과 노출 정책이 정상
               </td>
@@ -10668,15 +10767,15 @@
             <tr>
               <th>완료</th>
               <td>
-                현재 PPE 교육은 5문제 정답 완료 후 VOICE·페이드로 카드 위치에 복귀한다.
-                점수 결과 화면과 전체 시나리오 초기화는 후속 구현 항목으로 별도 검증한다.
+                교육·훈련은 5문제 완료 후 VOICE·페이드로 카드 위치에 복귀한다.
+                테스트는 첫 선택 채점 뒤 점수·정답 수·PPE 오선택·소요시간 결과를 표시하며, 카드 복귀 후 세션 초기화는 6개 조합에서 별도 검증한다.
               </td>
             </tr>
             <tr>
               <th>모듈 소요 시간</th>
               <td>
-                현재 프로토타입은 App 시작부터 PPE 교육 완료·카드 복귀까지 약 5분을 목표로 한다.
-                인트로, 이름 입력, 태블릿, PPE 점검·착용, 거울 확인, 퀴즈를 포함하며 오조작 재안내·재시도 시간은 별도로 측정한다.
+                현재 Alpha는 App 시작부터 PPE 모드 완료·카드 복귀까지 약 5분을 목표로 한다.
+                인트로, 이름 입력 우회, 태블릿, PPE 점검·착용, 거울 확인, 퀴즈를 포함하며 오조작 재안내·재시도 시간은 별도로 측정한다.
               </td>
             </tr>
             <tr>
@@ -10724,7 +10823,7 @@
             <tr><td>가스측정</td><td>O₂·LEL·H₂S·CO 상·중·하부 측정과 1차·2차 결과 구분, 표시값은 TMP</td><td>법령·안전 가이드·측정기 매뉴얼</td><td>고객사 기준값 확정 후 교체</td></tr>
             <tr><td>환기·재측정</td><td>1차 측정 → 강제환기 → 2차 측정의 순서 완료 여부</td><td>법령·공공기관 안전 가이드</td><td>EHS 절차 검수</td></tr>
             <tr><td>후속 사고 체험</td><td>프로토타입 필수 범위에서 제외. 구현 시 청소 행동 2~3회 후 증상·의식 상실을 연출하며 오염 제거율은 판정하지 않음</td><td>MSDS 위험정보·공식 사고 자료·후속 구현 범위</td><td>구현 시 안전·연출 검수</td></tr>
-            <tr><td>교육 평가</td><td>두 핵심 시나리오는 각 5문항·문항당 20점·총 100점. 후속 사고 체험은 구현 시 사고 케이스 공유 후 별도 퀴즈 진행</td><td>프로젝트 평가 정책</td><td>교육 기획 검수</td></tr>
+            <tr><td>교육 평가</td><td>현재 작업계획 2종의 테스트는 각 5문항·문항당 20점·총 100점. 후속 밀폐공간·사고 체험은 구현 시 별도 퀴즈 진행</td><td>프로젝트 평가 정책</td><td>교육 기획 검수</td></tr>
           </table>
           <div class="note-strong">
             <strong>적용 원칙</strong>
@@ -11039,6 +11138,31 @@
               </td>
               <td>고객사별 화학안전 교육 콘텐츠와 산업 현장 운영 사례의 사업 연계 가능성 확인</td>
             </tr>
+            <tr>
+              <td>META-01</td>
+              <td><a class="ref-link" href="https://developers.meta.com/horizon/resources/publish-quest-req/" rel="noreferrer" target="_blank">Meta Horizon · Virtual Reality Check</a></td>
+              <td>Quest 앱 실행·입력·안정성·패키징·개인정보 관련 Alpha 제출 전 기술 기준 확인</td>
+            </tr>
+            <tr>
+              <td>META-02</td>
+              <td><a class="ref-link" href="https://developers.meta.com/horizon/resources/publish-submit/" rel="noreferrer" target="_blank">Meta Horizon · Submit Your App</a></td>
+              <td>릴리스 채널·제출·검토 절차와 일정 확인</td>
+            </tr>
+            <tr>
+              <td>META-03</td>
+              <td><a class="ref-link" href="https://developers.meta.com/horizon/resources/publish-app-metadata/" rel="noreferrer" target="_blank">Meta Horizon · App Metadata</a></td>
+              <td>앱 이름·설명·카테고리·지원 정보 등 비코드 스토어 정보 기준 확인</td>
+            </tr>
+            <tr>
+              <td>META-04</td>
+              <td><a class="ref-link" href="https://developers.meta.com/horizon/resources/asset-guidelines/" rel="noreferrer" target="_blank">Meta Horizon · Asset Guidelines</a></td>
+              <td>Hero·Cover·Icon·스크린샷·트레일러의 제출 형식과 품질 기준 확인</td>
+            </tr>
+            <tr>
+              <td>META-05</td>
+              <td><a class="ref-link" href="https://developers.meta.com/horizon/policy/age-groups/" rel="noreferrer" target="_blank">Meta Horizon · Age Group APIs</a></td>
+              <td>연령대 조회·사용·공개와 개인정보 고지의 정책 경계 확인</td>
+            </tr>
           </table>
 
           <h3>리서치 레퍼런스</h3>
@@ -11080,7 +11204,6 @@
       </aside>
     </div>
     <a aria-label="맨 위로" class="top-btn" href="#top">↑</a>
-    <script src="./체크리스트/연결설정.js"></script>
     <script>
       const navData = {
         part0: {
@@ -11109,7 +11232,7 @@
             { id: "market", label: "02. 시장·도입 환경" },
             { id: "vr-necessity", label: "03. VR 교육 필요성" },
             { id: "planning-background", label: "04. 기획 배경 및 문제 정의" },
-            { id: "differentiation", label: "05. 콘텐츠 차별점과 MVP 범위" },
+            { id: "differentiation", label: "05. 콘텐츠 차별점과 Alpha 범위" },
             { id: "expansion", label: "06. 도입 기대효과와 확장 방향" },
           ],
         },
@@ -11137,7 +11260,7 @@
             { id: "core-experience-flow", label: "06. 핵심 체험 흐름", group: "체험 구조" },
             { id: "scenario-shared-setting", label: "07. 공통 설정관과 관계" },
             { id: "ppe-scenario", label: "08. PPE 착용 교육", group: "교육 시나리오" },
-            { id: "confined-scenario", label: "09. 밀폐공간 진입 전 교육" },
+            { id: "confined-scenario", label: "09. [후속] 밀폐공간 진입 전 교육" },
             { id: "accident-scenario", label: "10. [후속] PPE 불완전 착용·절차 누락 사고 체험" },
             { id: "quiz-scenario", label: "11. 시나리오 종료 퀴즈·결과" },
           ],
@@ -11145,6 +11268,7 @@
         part4: {
           title: "개발 계획",
           items: [
+            { id: "alpha-status", label: "00. v0.10 Alpha 기준선·제출 준비" },
             { id: "feature-spec", label: "01. 기능 명세" },
             { id: "rnd", label: "02. 기능별 R&D 항목" },
             { id: "ai-usage", label: "03. AI 활용 기록과 제작 책임" },
@@ -11661,7 +11785,7 @@
         "R-13": "제한적 청소와 사고 연출을 어떤 도구 입력, 행동 횟수, 도구 작동 애니메이션 효과, 노출 VFX, 사고 결과 순서로 구성할지 연구해 결정한다.",
         "R-14": "PPE 5페이지·3지선다 퀴즈에서 오답 재시도, 정답 자동 전환, 연속 입력 방지를 어떤 상태 구조로 구현할지 연구해 결정한다.",
         "R-15": "PPE 완료 VOICE, 손·Ray 숨김, 페이드, 카드 위치 복귀와 상태 복원 순서를 어떤 단일 전환 흐름으로 처리할지 연구해 결정한다.",
-        "R-16": "Quest 2 성능 기준을 어떤 프레임 목표, 측정 구간, 최적화 우선순위, 대체 연출 기준으로 잡을지 연구해 결정한다.",
+        "R-16": "Quest 2 코드 5 빌드의 6개 조합에서 72Hz 목표, 10분 이상 안정성, 주변 시야 왜곡·검은 화면·정지 재현 여부와 최적화 우선순위를 연구해 결정한다.",
         "R-17": "PPE룸과 PPE 전용공간을 구체적으로 어떤 공간 구성, 이미지·레퍼런스, 동선, 보호구 배치, 조명 기준으로 구현할지 연구해 결정한다.",
         "R-18": "혼합기동 배경을 구체적으로 어떤 설비 밀도, 배관·제어반·안전표지 구성, 이동 동선, 오브젝트 배치 기준으로 구현할지 연구해 결정한다.",
         "R-19": "혼합기 내부 환경을 구체적으로 어떤 내부 구조, 오염 표현, 조명, 위험요소 배치, 사고 체험 시야 기준으로 구현할지 연구해 결정한다.",
@@ -11673,7 +11797,7 @@
         "R-25": "아이템 마커를 어떤 대상 우선순위, 표시 타이밍, 완료 후 해제 애니메이션 효과, 겹침 방지 기준으로 구현할지 연구해 결정한다.",
         "R-26": "Grab 오브젝트 고스트 핸드를 어떤 손 포즈, 표시·해제 애니메이션 효과, 좌우 손 기준, 대체 아이콘 기준으로 구현할지 연구해 결정한다.",
         "R-27": "문서의 전체 확인 Trigger 1회로 여러 체크 표시를 묶어 재생하는 방식과 별도 Trigger 1회의 서명 애니메이션 적용 기준을 연구해 결정한다.",
-        "R-28": "텍스트와 문서 해상도를 어떤 원본 이미지 크기, Canvas 설정, 폰트 에셋, 압축 기준으로 올릴지 연구해 결정한다.",
+        "R-28": "두 작업계획 문서, 특히 누수 작업계획서의 Quest 실제 읽기 거리를 기준으로 원본 이미지, Canvas, 폰트 에셋과 압축 기준을 연구해 결정한다.",
         "R-29": "기본 XR 손 모델 기반 FBX를 어떤 스케일, 피벗, 본 구조, 좌우 방향, 파일 명명 규칙으로 제작할지 연구해 결정한다.",
         "R-30": "상황별 4종 핸드 디자인 FBX를 어떤 외형 차이, 공통 스켈레톤, 머티리얼, 좌우 파일 구성으로 제작할지 연구해 결정한다.",
         "R-31": "무전·감시인 승인 도장을 어떤 문서 위치, 음성 타이밍, 도장 이미지, 눌림·잉크 애니메이션 효과로 표현할지 연구해 결정한다.",
@@ -11702,7 +11826,7 @@
         "R-54": "하나의 공용 Action Panel을 현재 Grab PPE 한 개가 소유하도록 하고 연속 Grab과 버튼 리스너 중복을 막는 방법을 연구해 결정한다.",
         "R-55": "실물 HMD·Quest 입력과 Game View 시뮬레이터 입력을 분리해 XR Trigger 성공을 어떤 런타임 증거로 검증할지 연구해 결정한다.",
         "R-56": "씬·Prefab·Inspector의 Transform과 월드 UI 작성값을 런타임 초기화·생성기·애니메이션이 덮어쓰지 않게 하는 기준을 연구해 결정한다.",
-        "R-57": "한글 자모 조합, 수정, 이름 제출 이벤트와 빈 이름·길이 정책을 PPE Welcome 상태 전환에 어떻게 연결할지 연구해 결정한다.",
+        "R-57": "Alpha 이름 입력 우회가 중복 없이 동작하는지 확인하고, 재활성 시 한글 자모 조합·수정·제출·빈 이름·길이 정책을 PPE Welcome 전환에 어떻게 연결할지 연구해 결정한다.",
       };
 
       const getRndReviewPrompt = (row, id) => {
@@ -11774,7 +11898,7 @@
         "R-54": "공용 Action Panel 소유권",
         "R-55": "실물 HMD·Game View 입력 경로 분리",
         "R-56": "씬 작성 Transform·월드 UI 보존",
-        "R-57": "한글 키보드·이름 제출",
+        "R-57": "한글 키보드·이름 제출 비활성 경로",
       };
 
       const fsRndLinks = {

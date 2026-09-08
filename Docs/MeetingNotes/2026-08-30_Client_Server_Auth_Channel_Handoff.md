@@ -866,3 +866,61 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
    `LeakResponse/Test → Training → Education` 순서로 정상 기준 시간을 측정한다.
 3. 각 실행의 Quest JSONL, 서버 이벤트 수·sequence·`modeSessionId`, DB 백업과 SHA-256을 대조해 승인된
    기준본만 별도 목록에 확정한다.
+
+## 2026-09-08 Unity Editor + Quest Link 6개 조합 기준 데이터 채택
+
+### 수집 조건과 판정 범위
+
+- Unity `6000.4.8f1`의 `Assets/Scenes/4_PPE_Room.unity`를 Quest 2 USB3 Link로 실행했고, 촬영과 Play
+  시작·종료는 사용자가 직접 수행했다. 이 결과는 Quest APK 단독 실행 기준이 아니라
+  **Unity Editor + Quest Link 사용자 수행 기준 데이터**다.
+- 측정 시작은 카드 선택이 런타임에 반영된 `flow_state_changed / PpeEducationSelected`, 모드 시작은
+  `mode_session_started`, 종료는 같은 `modeSessionId`의 `mode_session_completed`를 사용했다. 현재 원본에는
+  실제 XR PointerClick 순간의 전용 이벤트가 없으므로 `카드 선택 반영 → 완료` 시간은 클릭 시각과 소폭
+  차이가 날 수 있다.
+- `B20260908-01` 원본에만 앱 시작부터 Title·Intro·Loading·PPE Room 진입과 컨트롤러 안내 구간이 함께
+  들어 있다. 이 선행 구간과 `session_started → session_ended` 전체 시간은 기준시간에서 제외하며, 다른
+  회차와 동일하게 `PpeEducationSelected → mode_session_completed` 및 `modeElapsedSec`만 비교에 사용한다.
+- 아래 6개 채택 원본은 모두 `session_started`, `mode_session_started`, `mode_session_completed`,
+  `session_ended / application_quitting`을 포함하며 sequence 누락·중복이 0이다. 사용자가 재시작하거나
+  스킵한 7개 이벤트 세션 2개와 15개 이벤트 세션 1개는 중단 회차로 분리해 기준 목록에서 제외했다.
+- 수집 시점의 클라이언트 Git 기준은 `main@54a3169f0dd5bd2ec7e8d6e3a7ad896fedb0db6a`이지만 렌더 스케일과
+  로고 Importer 등 미커밋 변경이 있는 Editor 상태였다. 서버 저장소 기준은
+  `main@d3c67d424507ab04eb842eac2b897c5120abdce5`이며 서버 작업 트리에도 별도 미커밋 변경이 있었다.
+  따라서 이 데이터의 실행 기준은 clean commit이나 Release APK로 확대 해석하지 않는다.
+
+### 채택한 6개 회차
+
+| 내부 참조 | 시나리오 | 모드 | 카드 선택 반영→완료 | 순수 모드 시간 | 최종 퀴즈 | 오답 시도 | PPE 오선택 | 빈 공간 Grab | 이벤트 |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `B20260908-01` | `ConfinedSpace` | `Test` | 103.63초 | 96.33초 | 2/5 | 3 | 0 | 2 | 155 |
+| `B20260908-02` | `ConfinedSpace` | `Training` | 104.56초 | 96.11초 | 5/5 | 1 | 0 | 2 | 158 |
+| `B20260908-03` | `LeakResponse` | `Test` | 105.25초 | 97.86초 | 2/5 | 3 | 1 | 3 | 153 |
+| `B20260908-04` | `LeakResponse` | `Training` | 94.09초 | 88.59초 | 5/5 | 0 | 0 | 4 | 155 |
+| `B20260908-05` | `ConfinedSpace` | `Education` | 237.56초 | 231.19초 | 5/5 | 3 | 0 | 2 | 200 |
+| `B20260908-06` | `LeakResponse` | `Education` | 243.91초 | 235.22초 | 5/5 | 1 | 0 | 3 | 198 |
+
+### 사용자 승인 편차와 사용 제한
+
+- 사용자는 두 `Education` 회차에서 장화와 헬멧을 최초 Grab했을 때 음원이 재생되지 않았다고 확인했다.
+  이 관찰을 알려진 편차로 명시한 상태에서 두 회차를 기준 데이터로 채택한다.
+- 두 교육 회차의 시간·행동 순서·퀴즈·PPE 선택 데이터는 기준 비교에 사용한다. 다만 이 회차를 장화·헬멧
+  최초 Grab 음원 재생 성공이나 정상 음성 길이의 증거로 사용하지 않는다. 누락 음원이 정상 재생되는 향후
+  실행과 시간을 비교할 때는 음원 길이 차이를 별도로 표시한다.
+- Test의 2/5 정답, `LeakResponse/Test`의 PPE 오선택 1회와 각 회차의 빈 공간 Grab은 삭제하거나 정상값으로
+  바꾸지 않는다. 이상적 무오류 수행 기준이 아니라 실제 사용자 수행 기준의 원본값으로 유지한다.
+
+### 원본 보존과 서버 반영 상태
+
+- 식별정보가 들어 있는 원본은 Git에서 제외되는
+  `.baseline-preservation/editor-link-20260908/`에 내부 참조 파일명으로 복사했다. 복사본 크기와 SHA-256은
+  수집 원본과 일치한다.
+- `B20260908-01`: `98B8E9CB944FE8453C8D3947F2278657E201197420A0859CD36A42887816227D`
+- `B20260908-02`: `5CA9973EB8BCE548A3D297A967573E713B610FE5AE2EB371B794177A5A55ACFD`
+- `B20260908-03`: `FA4DF806205729A8559906C86028B4A8D723E9FC0AA66E0CC80A31E360F5FEF8`
+- `B20260908-04`: `5D96D206C1BEE605E5218D884569027682F42B816252258FA7B79844D143A175`
+- `B20260908-05`: `98DB04E21ECAE8796D09932B771F67E7C2016E79914BB2E1E28DE5F056FCC562`
+- `B20260908-06`: `836C8D5365C9D37B0EF6BFEC5E9FC3B587A55808243EA59FB7C6A31B9C8EE449`
+- `ConfinedSpace/Test`의 일반 로컬 DB 전송은 종료 이벤트 전 sequence까지만 반영되어 서버 상태가 아직
+  `open`이고, 나머지 PPE Room 직접 시작 회차는 자동 업로드되지 않았다. 따라서 현재 채택은 로컬 JSONL과
+  보존 복사본 기준이며, 기준 DB 반영·상세 조회 대조·DB 백업은 아직 완료되지 않았다.

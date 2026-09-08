@@ -1999,3 +1999,112 @@ Meta 업로드 검사가 첫 출시 서명 APK에서 Android Target SDK 36, 자�
   경과시간과 눈을 보고한다.
 - **Codex:** 실행 전 APK·DB·LAN·로그 준비를 확인하고, 사용자 보고 직후 logcat·JSONL·DB를 대조해 다음 한 단계만
   지시한다. 사용자가 실행하지 않았다고 말한 단계를 완료로 추정하지 않는다.
+
+## 2026-09-08 Quest 앱 라이브러리 미표시 후속
+
+### 확인된 상태
+
+- Render Scale 1.0과 파트너 로고 mip bias -0.5를 반영한 Development APK를 Quest 2에 설치했다.
+- APK Manifest에는 `android.hardware.vr.headtracking`, `android.intent.action.MAIN`,
+  `android.intent.category.LAUNCHER`, `com.oculus.intent.category.VR`이 모두 포함되어 있다.
+- Quest의 현재 사용자 0에서 package `com.tycheworks.immersa.safetyvr`는 `installed=true`,
+  `hidden=false`, `suspended=false`, `enabled=0`으로 조회됐고 `UnityPlayerGameActivity`도 MAIN/VR
+  실행 대상으로 정상 조회됐다.
+- ADB 직접 실행에서는 앱이 기동됐지만 사용자가 Quest 앱 라이브러리의 `알 수 없는 출처`에서 앱 타일을
+  찾지 못했다. 설치 성공이나 직접 실행 성공을 라이브러리 노출 성공으로 합쳐 쓰지 않는다.
+
+### 시도했지만 해결되지 않은 항목
+
+1. 동일 APK를 `adb install -r`로 갱신하고 앱을 한 번 실행한 뒤 Quest 홈으로 복귀했다.
+2. 앱 데이터는 보존한 채 `cmd package uninstall -k` 후 다시 설치해 신규 package 등록을 발생시켰다.
+3. `com.oculus.vrshell`만 강제 종료하고 HOME intent로 재기동했다. 새 런처 PID와 앱 package 경로는
+   확인됐지만 사용자는 앱 타일이 계속 보이지 않는다고 보고했다.
+4. USB 연결이 한 차례 끊겼으나 ADB 서버 재시작 뒤 Quest 2가 `device` 상태로 복구됐다. 같은 시점의
+   전면 Activity는 `com.oculus.vrshell/.HomeActivity`였으므로 Quest Link 화면 안에서 PC 라이브러리를
+   보고 있던 상태로 확정하지 않는다.
+
+### 중단 상태와 다음 작업
+
+- 사용자 요청에 따라 Quest 전체 재부팅은 이번 작업에서 실행하지 않고 후속으로 남긴다.
+- 앱 데이터 삭제, package 이름 변경, version code 증가, Meta Quest PC 라이브러리 등록은 시도하지 않았다.
+  Android Development APK는 Quest Link의 PC 앱 라이브러리에 표시되는 대상이 아니다.
+- 다음 실기에서는 USB 케이블을 분리한 상태로 Quest를 완전히 재부팅하고 독립 실행형 홈의
+  `알 수 없는 출처`를 먼저 확인한다. 그래도 비어 있으면 개발자 모드와 현재 Quest 계정 상태,
+  package 추가 시점의 `vrshell` 로그를 수집한다.
+- 라이브러리 노출 원인이 확정되기 전에는 package/Manifest를 다시 변경하지 않는다. 화질 비교만 필요하면
+  현재 설치본을 ADB로 직접 실행하되, 그 결과는 앱 라이브러리 노출 검증과 분리한다.
+
+## 2026-09-08 선생님 Quest 3 현장 설치 중단과 code 6 후속
+
+### 이번 요청과 보존할 동작
+
+- 이번 요청은 선생님 소유 Quest 3에 현재 화질 개선 설정이 반영된 앱을 설치하는 것이다.
+- 기존 Meta Alpha code 5 배포본, 집 Quest 2의 Development 설치본과 6개 조합 기준 JSONL은 삭제하거나
+  덮어쓰지 않는다. 현장 설치 문제를 해결하기 위해 앱 흐름, 입력, 오디오, 텔레메트리 동작을 변경하지 않는다.
+- 화질 개선 기준은 `Assets/Settings/Mobile_RPAsset.asset`의 Render Scale 1.0과 파트너 로고 3종의
+  mipmaps, Trilinear, aniso 8, mip bias -0.5다. 원본 해상도가 작은 로고는 이 설정만으로 원본 한계를
+  없앨 수 없으며 고해상도 공식 원본 확보를 별도 후속으로 유지한다.
+
+### 현장에서 확인된 사실
+
+- PC의 Windows 장치 계층에는 `Quest 3`, `Reality Labs Composite ADB Interface`와 MTP가 정상으로
+  표시됐다. 케이블이 충전 전용이거나 ADB 드라이버가 전혀 없는 상태는 아니다.
+- MQDH와 MQDH 내장 `metavr device list`, `adb devices -l`에서 대상 Quest 3는 모두
+  `unauthorized`로 표시됐다. MQDH 내장 설치 명령도
+  `Installation failed: Device unauthorized. Please accept the debugging prompt on the device`로 실패했다.
+- HMD는 선생님 프로필로 로그인돼 있고 개발자 모드가 켜졌다고 확인됐지만, HMD에는 `USB 연결됨`과
+  `Link 연결`만 표시되고 `USB 디버깅 허용` 대화상자는 나타나지 않았다. USB 재연결, ADB 재시작,
+  새 임시 ADB 키 요청, Meta Horizon Link 서비스 일시 중지 후 재요청으로도 상태가 바뀌지 않았다.
+  임시 키는 제거했고 Meta Horizon Link 서비스는 `Running`으로 원상복구했다.
+- APK를 MQDH의 장치 `Apps` 영역이 아니라 App Distribution 업로드 영역에 놓았을 때
+  `APK_VERSION_DUPLICATE`가 발생했다. Meta 서버에 `versionCode 5`가 이미 존재한다는 뜻이며,
+  HMD 직접 설치 실패와는 별개의 오류다.
+- 선생님 Quest 3는 Meta 라이브러리에서 기존 code 5 Release를 다운로드했다. 이것은 현장 사용 가능한
+  기존 배포본이지만, 이번 세션에서 마지막으로 조정한 화질 개선판과 동일하다고 확정하지 않는다.
+- 최종 화질 후보 Development APK는
+  `Builds/MetaHorizonAlpha/ChemicalSafetyVR_TelemetryDev_0_1_0_5.apk`, 크기 277,724,175 bytes,
+  SHA-256 `81C59E9375AD347330992230A8382BECF88B8D021DDEE56FD7FE5D77A8E84DAF`다.
+  `DEBUGGABLE`인 Development APK이므로 Meta Alpha 배포본으로 업로드하지 않는다.
+- 다음 Release를 준비하기 위해 `ProjectSettings/ProjectSettings.asset`의
+  `AndroidBundleVersionCode`를 6으로 올렸다. code 6 Release APK 빌드와 업로드는 아직 실행하지 않았다.
+
+### 근본 원인과 영향 범위
+
+- 현장 직접 설치의 확정 차단점은 APK가 아니라 Quest 3의 USB ADB 인증 미완료다. 개발자 모드가 실제
+  장치 정책에 반영되지 않았는지, 기존 인증 거부 상태인지, Quest OS 인증 UI 결함인지까지는 확정하지 않았다.
+- `APK_VERSION_DUPLICATE`는 code 5를 Meta 서버에 다시 업로드하려 한 결과다. 직접 설치에는 version code
+  증가가 필요 없지만, 새로운 Alpha Release 업로드에는 code 6 이상의 고유 version code가 필요하다.
+- 선생님 HMD가 받은 기존 code 5로 당일 사용은 가능하지만, 이를 최신 화질 개선 검증 완료로 보고하지 않는다.
+  최신 반영 여부는 code 6 Release 생성·업로드·라이브러리 업데이트와 HMD 실기 확인 뒤에만 완료 처리한다.
+
+### 집에서 이어갈 후속 작업
+
+1. Unity 6000.4.8f1에서 프로젝트를 열고 import, script compile과 domain reload가 끝났는지 확인한다.
+   `AndroidBundleVersionCode=6`과 Render Scale 1.0, 로고 3종 import 설정을 다시 읽는다.
+2. `PPELocomotionPpeRegressionValidationHarness`의 화질 설정 검사와 Meta Quest Android, Scene Dependency
+   검사를 실행한다. `Tools/MetaAlphaSubmissionGateHarness.mjs`는 현재 code 5 경로와 값을 기준으로 하므로,
+   code 6을 새 기준으로 확정할 때 기대 version과 Release 경로를 함께 갱신한 뒤 실행한다.
+3. Unity의 `Tools > XR > Build Meta Quest Alpha Release`를 실행해
+   `Builds/MetaHorizonAlpha/ChemicalSafetyVR_Alpha_0_1_0_6.apk`를 생성한다. Development APK를 Release
+   이름으로 바꾸거나 Alpha 채널에 대신 올리지 않는다.
+4. code 6 APK에서 package `com.tycheworks.immersa.safetyvr`, `versionCode=6`, Target SDK 34,
+   landscape, install location auto, ARM64, Meta VR headtracking/category, APK Signature Scheme v2,
+   `DEBUGGABLE` 비활성과 개발 LAN 비밀값 미포함을 검사하고 크기와 SHA-256을 문서에 추가한다.
+5. 검증된 code 6 Release만 Meta App Distribution의 Alpha 채널에 업로드한다. 업로드 완료와 채널 할당을
+   구분해 확인하며, 기존 code 5 배포본을 삭제하지 않는다.
+6. 선생님 Meta 계정에 Alpha 채널 접근 권한이 유지되는지 확인한 뒤 Quest 3 라이브러리에서 업데이트한다.
+   이 경로는 USB ADB 인증과 별개이므로 현장 `unauthorized` 해결을 최신 배포의 선행조건으로 묶지 않는다.
+7. Quest 3에서 앱 version code 6 설치, 독립 실행, 타이틀 파트너 로고와 본문 글자 선명도, 양안 표시와 주변
+   시야 안정성을 확인한다. MQDH/ADB 인증이 복구되면 `dumpsys package`의 installer와 versionCode를 추가로
+   확인하되, 복구되지 않으면 Meta 라이브러리의 업데이트 표시와 HMD 실행 결과를 증거로 별도 기록한다.
+8. USB 직접 설치 문제는 재현 가능한 환경 결함으로 분리한다. 다음 진단에서는 Quest 설정의 USB 디버깅
+   인증 취소/재승인 가능 여부, 선생님 계정의 개발자 조직 검증, MQDH `Set Up New Device` 완료 상태와 Quest OS
+   버전을 확인하고, 원인 확정 전 공장 초기화나 package 변경으로 우회하지 않는다.
+
+### 검증 수준
+
+- **정적 확인:** 화질 개선 Development APK의 파일·해시·Manifest 계열 속성, Windows Quest/ADB 장치와
+  `ProjectSettings`의 code 6 설정을 확인했다.
+- **Unity Editor 확인:** code 6 Release 빌드와 빌드 후 하네스 실행은 아직 하지 않았다.
+- **Quest/OpenXR 확인:** 선생님 Quest 3에서 기존 code 5 다운로드까지만 확인했다. code 6 설치, 최신 화질,
+  양안과 주변 시야는 미검증이다.

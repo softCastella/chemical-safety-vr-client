@@ -932,3 +932,74 @@
 5. 거울에서 PPE만 부족, 태블릿만 부족, 둘 다 부족한 세 경우의 교육 음성을 각각 확인한다.
 6. 훈련은 통합 미완료 음성 1회, 테스트는 교육 교정 음성 없음이 유지되는지 확인한다.
 7. Quest/OpenXR에서 패널 Trigger, SFX, 음성 순서와 타이밍을 확인한다.
+
+## 2026-09-08 후속: 현재 PPE Room의 정상 장화·안전모 최초 Grab 음원 누락
+
+### 이번 요청과 보존할 기존 동작
+
+- 이번 확인은 Alpha 제출 전 `Assets/Scenes/4_PPE_Room.unity`의 교육 모드에서 정상 장화와 정상 안전모를
+  최초 Grab했을 때 전용 안내 음원이 재생되지 않는 현상을 기록하기 위한 것이다.
+- 사용자가 먼저 처리할 작업이 있어 구현·씬 수정·Play 실행·빌드·DB 작업은 중단했다. 이 절에는 진단
+  결과와 후속 수정 조건만 기록한다.
+- 교육 이외의 Training/Test 음성 정책, PPE 사용·폐기 판정, 착용 슬롯, 카드·모달·텔레포트, 퀴즈와
+  기준 JSONL 원본은 변경하지 않는다.
+
+### 재현과 실행 원본 근거
+
+- 사용자가 Unity Editor + Quest 2 USB3 Link에서 `ConfinedSpace/Education`과
+  `LeakResponse/Education`을 각각 완료했고, 두 회차 모두 정상 장화와 정상 안전모의 최초 Grab 안내가
+  들리지 않았다고 확인했다.
+- 두 JSONL 모두 안전모의 `ppe_grab_attempted → ppe_inspection_started →
+  ppe_grab_attempt_resolved(selected)`와 장화의 같은 입력·선택 이벤트를 기록했다. 따라서 장비 Grab 자체가
+  실패한 현상은 아니다.
+- 두 회차의 `voice_playback_started`를 대조한 결과 `4_VO_PPE_EDU_009_NextPPE`는 각각 9회와 8회
+  기록됐지만 `4_VO_PPE_EDU_101_HowToBoots`와 `4_VO_PPE_EDU_104_HowToHelmet`은 두 회차 모두 0회였다.
+  사용자의 청취 결과와 런타임 원본 이벤트가 일치한다.
+- 이 편차는 2026-09-08 기준 데이터 문서에 이미 명시했으며, 두 교육 회차는 시간·행동·퀴즈·PPE 선택
+  비교에는 사용하되 장화·안전모 최초 Grab 음원 정상 재생의 증거로 사용하지 않는다.
+
+### 근본 원인
+
+- 현재 씬의 `PPEVoiceFlowDirector`에는 `m_HelmetGrabVoice`와 `m_BootGrabVoice` AudioClip GUID가 각각
+  기존 `HowToHelmet`, `HowToBoots` 원본으로 정상 연결돼 있다. 음원 파일 또는 AudioClip 참조 누락이 아니다.
+- `SubscribePpeConditionalNarration()`은 `m_HelmetActionPanel`과 `m_BootActionPanels`에 직렬화된 패널의
+  `XRGrabInteractable.selectEntered`에만 Grab 음성 콜백을 연결한다.
+- 현재 `m_HelmetActionPanel`은 `PPE/PPE_A_Helmet_NoStrap` 하자 안전모를 가리킨다. 실제로 사용자가 잡은
+  정상 안전모 `PPE/PPE_A_Helmet_Strap`의 Action Panel은 별도 활성 오브젝트이며 이 참조와 일치하지 않는다.
+- 현재 `m_BootActionPanels` 두 항목도 `PPE_A_Boots_L_Contam`, `PPE_A_Boots_R_Contam`만 가리킨다.
+  실제 정상 장화 `PPE_A_Boots_L_Clean`, `PPE_A_Boots_R_Clean`의 Action Panel은 배열에 없다.
+- 정상 Grab 안내의 `CanPlayRequiredPpeHowTo()`는 Education, 활성 작업계획, Clean 상태와 작업계획 허용
+  PPE를 모두 요구한다. 하자 패널만 구독한 현재 직렬화에서는 하자 패널은 Clean 조건을 통과하지 못하고,
+  정상 패널은 애초에 콜백이 구독되지 않는다. 이것이 두 전용 음원이 0회였던 직접 원인이다.
+- 2026-08-16의 이전 안전모 연결 기록은 당시 대상 씬 `3_PPE_Room_Train_Test_1.unity`를 기준으로 했다.
+  현재 빌드 대상 `4_PPE_Room.unity`의 실제 직렬화 참조를 다시 확인하지 않고 과거 완료 판단을 확장하면
+  안 된다.
+
+### 영향 범위
+
+- 직접 영향은 Education 모드의 정상 안전모·정상 좌우 장화 최초 Grab 전용 안내다.
+- `NextPPE`, 선택 결과, 필수 PPE 판정, 최종 완료, JSONL `mode_session_completed`는 실제 두 회차에서
+  계속 동작했다. 따라서 전체 Education 흐름이 중단된 결함으로 확대 해석하지 않는다.
+- Training/Test는 정상 PPE How-To 음성을 재생하지 않는 기존 정책이므로 이 결함의 직접 수정 대상이 아니다.
+
+### 변경 전 필수 판단과 후속 수정안
+
+1. 기존 Inspector/씬 작성값 중 AudioClip, 위치, UI, 입력, 착용 값을 보존하고 잘못된 Action Panel 참조만
+   최소 범위로 교정한다.
+2. 상태 소유자는 `PPEVoiceFlowDirector`, 장비 상태 소유자는 각 `PPEInspectionState`이며 정상 장비의
+   `PPEActionPanelController`를 구독 기준으로 사용한다.
+3. 입력 경로는 `Quest Grip/Select → XR Interactor → 정상 PPE XRGrabInteractable.selectEntered →
+   PPEInspectionState/PPEActionPanelController → PPEVoiceFlowDirector → AudioManager.PlayVoice`다.
+4. 런타임 자동 탐색·자동 수리로 우회하지 않고 씬 직렬화 참조와 Editor 검증 하네스로 실패를 드러낸다.
+5. 후속 변경의 소비자는 Education 정상 Grab 음성뿐이다. Training/Test, 선택 판정, UI, 텔레포트와 다른
+   PPE 음성을 함께 변경하지 않는다.
+6. 변경 전 기준은 위 두 JSONL의 대상 전용 음원 0회다. 변경 후에는 두 작업계획의 Education에서 정상
+   안전모와 정상 장화 최초 Grab 각각 전용 음원 1회, 재잡기·반대쪽 장화 중복 0회를 비교한다.
+7. 현재 완료 증거는 정적 씬·코드 대조와 Unity Editor + Quest Link 사용자 재현이다. 수정 후에는 정적
+   하네스, Unity Play Mode와 Quest/OpenXR 양쪽의 실제 `voice_playback_started` 원본을 다시 확인한다.
+
+후속 구현에서는 `m_HelmetActionPanel`을 정상 안전모 Action Panel로 교정하고,
+`m_BootActionPanels`에 정상 좌우 장화 Action Panel을 포함하되 기존 하자 선택 처리에 필요한 참조는
+보존한다. 기존 검증 하네스도 단순 non-null/AudioClip GUID 확인을 넘어 정상 패널의 ItemType, Clean 초기
+상태와 배열 포함 여부를 검사하도록 보완한다. 셰이더 Import나 스크립트 컴파일 중에는 Quest/OpenXR Play를
+시작하지 않는다.

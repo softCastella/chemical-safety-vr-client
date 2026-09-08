@@ -502,3 +502,29 @@ Android OpenXR의 Automatic Viewport Dynamic Resolution, Foveated Rendering과 A
   기존 경고만 있고 오류 0개로 통과했다.
 - Unity에서 외부 씬 변경을 Reload한 뒤 Game View와 Quest에서 Ray를 버튼 위에 둔 채 천천히
   Trigger Down→Up 했을 때 기본 회색으로 복귀하는지는 수동 확인이 필요하다.
+
+## 2026-09-08 Quest 월드 공간 UI 선명도 1.0 단일 변수 비교
+
+### 변경 전 기준과 보존 범위
+
+1. 이번 변경은 Quest 독립 실행에서 글자와 그림이 함께 뭉개져 보인다는 사용자 보고에만 대응한다.
+2. 선명도의 단일 비교 변수는 `Assets/Settings/Mobile_RPAsset.asset`의 `m_RenderScale`이다.
+3. 72 Hz 요청, 4x MSAA, 씬·UI 작성값, 텍스처 임포터, TMP 폰트, 입력, 텔레포트, PPE, 거울과 텔레메트리
+   동작은 변경하지 않는다.
+4. 런타임 자동 화질 보정이나 동적 해상도, FSR, 포비에이션 설정을 추가하지 않는다.
+5. 변경 전 code 5 Development APK의 실기기 로그에서 72 Hz 디스플레이 모드와 눈당 `1296×1426`
+   swapchain을 확인했다. 이는 Mobile URP Render Scale `0.9` 기준이다.
+6. 변경 후에는 같은 Quest 2와 같은 PPE Room 위치에서 글자·그림 선명도, 프레임 안정성, 양안과 주변 시야를
+   비교한다.
+7. 정적 설정과 하네스 동기화 후 새 Development APK를 빌드·설치했고, Quest 2 OpenXR 로그에서 눈당
+   `1440×1584` swapchain과 72 Hz 디스플레이 모드를 확인했다. 사용자 체감 선명도와 장시간 안정성 비교는
+   수동 검증으로 남긴다.
+
+### 적용 변경과 예상 영향
+
+- `Mobile_RPAsset.asset`의 Render Scale을 `0.9`에서 `1.0`으로 올렸다. 예상 swapchain은 눈당 약
+  `1440×1584`이며, 변경 전보다 처리 픽셀이 약 23% 증가한다.
+- `PPELocomotionPpeRegressionValidationHarness`의 고정 기준을 1.0으로 동기화했다. 4x MSAA와 Android Mobile
+  quality 연결 검사는 그대로 유지한다.
+- 이번 단계에서는 실기기 렌더 해상도 반영까지만 확인했으며 선명도 개선이나 시야 깨짐 미재현을 완료로
+  판정하지 않는다. 같은 위치의 사용자 체감 비교가 통과한 뒤에만 1.0을 유지할지 결정한다.

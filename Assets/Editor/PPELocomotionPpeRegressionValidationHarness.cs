@@ -492,9 +492,6 @@ public static class PPELocomotionPpeRegressionValidationHarness
         string[] antiShimmerTextures =
         {
             "Assets/UIs/Logo/VrLogo_2d.png",
-            "Assets/UIs/Logo/to21_logo.png",
-            "Assets/UIs/Logo/seoulit_logo.png",
-            "Assets/UIs/Logo/Immersa_Lineup_Logo_nuki.png",
             "Assets/UIs/Guide/controller.png",
             "Assets/UIs/Guide/Controller_tri.png",
             "Assets/UIs/Guide/Controller_gri.png",
@@ -517,6 +514,28 @@ public static class PPELocomotionPpeRegressionValidationHarness
             {
                 failures.Add(
                     $"Anti-shimmer texture requires mipmaps, Trilinear filtering, and aniso >= 8: {path}");
+            }
+        }
+
+        string[] balancedTitlePartnerLogos =
+        {
+            "Assets/UIs/Logo/to21_logo.png",
+            "Assets/UIs/Logo/seoulit_logo.png",
+            "Assets/UIs/Logo/Immersa_Lineup_Logo_nuki.png",
+        };
+        foreach (string path in balancedTitlePartnerLogos)
+        {
+            if (AssetImporter.GetAtPath(path) is not TextureImporter importer)
+            {
+                failures.Add($"Title partner logo texture importer is missing: {path}");
+                continue;
+            }
+
+            if (!importer.mipmapEnabled || importer.filterMode != FilterMode.Trilinear ||
+                importer.anisoLevel < 8 || Mathf.Abs(importer.mipMapBias + 0.5f) > 0.001f)
+            {
+                failures.Add(
+                    $"Title partner logo requires mipmaps, Trilinear filtering, aniso >= 8, and mip bias -0.5: {path}");
             }
         }
 
@@ -627,8 +646,11 @@ public static class PPELocomotionPpeRegressionValidationHarness
     static void ValidateQuestRenderQuality(List<string> failures)
     {
         string mobilePipeline = File.ReadAllText("Assets/Settings/Mobile_RPAsset.asset");
-        if (!mobilePipeline.Contains("m_RenderScale: 0.9", StringComparison.Ordinal))
-            failures.Add("Mobile_RPAsset render scale must remain 0.9 for distant Quest scene clarity.");
+        bool hasFullResolutionRenderScale = mobilePipeline
+            .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+            .Any(line => string.Equals(line.Trim(), "m_RenderScale: 1", StringComparison.Ordinal));
+        if (!hasFullResolutionRenderScale)
+            failures.Add("Mobile_RPAsset render scale must remain 1.0 for Quest world-space UI clarity.");
         if (!mobilePipeline.Contains("m_MSAA: 4", StringComparison.Ordinal))
             failures.Add("Mobile_RPAsset must retain 4x MSAA.");
 

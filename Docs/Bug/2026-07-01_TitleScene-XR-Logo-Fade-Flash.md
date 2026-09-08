@@ -195,3 +195,42 @@ logo2d > Canvas Renderer > Cull Transparent Mesh: Off
 - 정적 설정 대조와 Runtime/Editor C# 빌드는 오류 0개로 통과했다.
 - Unity 배치 하네스는 `com.unity.editor.headless` 라이선스 부재로 Editor 초기화 전에 종료되어 실행하지
   못했다. 일반 Unity Import·메뉴 하네스와 새 APK의 Quest 양안 비교는 아직 필요하다.
+
+## 2026-09-08 후속: Render Scale 1.0과 파트너 로고 선명도 비교
+
+### 사용자 요청과 보존 범위
+
+- Quest 2 독립 실행에서 글자와 이미지가 전반적으로 뭉개져 보인다는 사용자 관찰에 따라 Android용
+  `Mobile_RPAsset`의 Render Scale만 `0.9`에서 `1.0`으로 올렸다.
+- UI RectTransform, Canvas, 로고 원본, 페이드 순서·시간, 오디오, 입력, PPE 상태 전이는 변경하지 않았다.
+- 동적 해상도, Android Foveated Rendering과 업스케일링은 비활성 상태를 유지하고 MSAA 4x도 보존했다.
+
+### 비교 결과와 원인 범위
+
+- Render Scale 0.9 APK의 Quest OpenXR eye texture는 `1296x1426`, Render Scale 1.0 APK는
+  `1440x1584`로 생성됐다. 따라서 새 APK에 1.0 설정이 실제 반영된 사실까지 확인했다.
+- 1.0에서도 파트너 로고가 부드럽고 뭉개져 보인다는 사용자 관찰이 남았다. Android/Standalone 로고는
+  이미 `RGBA32 + Uncompressed`였으므로 블록 압축을 이번 증상의 직접 원인으로 보지 않는다.
+- `to21_logo.png`는 `186x75`, `seoulit_logo.png`는 `283x120`으로 원본 자체가 작다.
+  `Immersa_Lineup_Logo_nuki.png`는 `756x375`, 메인 `VrLogo_2d.png`는 `1536x1024`다. 메인 로고의
+  Glow와 반투명 표현은 원본 이미지에 포함되어 있어 Importer 설정만으로 제거할 수 없다.
+- 파트너 로고 3개를 단일 비교 변수로 `mipmap Off + Bilinear + aniso 1`로 바꾼 APK를 설치했다.
+  사용자는 정지 시 선명도보다 머리 이동 중 로고가 약간 번쩍이는 시머링을 관찰했다. 이 결과로 전체
+  안티앨리어싱과 밉맵을 제거하는 방향은 채택하지 않는다.
+- 최종 후속 후보는 파트너 로고 3개의 `mipmap + Trilinear + aniso 8`을 복구하면서 `mipBias=-0.5`만
+  적용한 균형 설정이다. 해당 APK는 빌드·설치됐지만 Quest 앱 라이브러리 미표시로 사용자 양안 평가는
+  아직 완료하지 못했다.
+
+### 완료한 검증과 후속 작업
+
+- `PPELocomotionPpeRegressionValidationHarness`가 Render Scale 1.0과 파트너 로고의
+  mipmap/Trilinear/aniso 8/mip bias -0.5를 검사하도록 갱신했다.
+- `Assembly-CSharp-Editor.csproj --no-restore`는 경고 0개, 오류 0개로 통과했다. Unity 빌드 전 하네스도
+  중단 없이 통과했고 Development APK 생성이 완료됐다.
+- 최종 Development APK는 277,724,175 bytes, SHA-256
+  `81C59E9375AD347330992230A8382BECF88B8D021DDEE56FD7FE5D77A8E84DAF`이며 package
+  `com.tycheworks.immersa.safetyvr`, version code 5, ARM64, Target SDK 34, zipalign과 APK Signing v2를
+  확인했다.
+- 후속 실기에서는 같은 거리와 머리 이동 조건으로 mip bias -0.5 버전의 정지 선명도와 시간축 안정성을
+  양안 비교한다. 시머링이 남으면 MSAA를 제거하지 않고 고해상도 공식 PNG 또는 SVG 원본을 먼저 확보한다.
+- Quest/OpenXR 사용자 평가 전에는 균형 설정을 최종 화질 해결로 보고하지 않는다.

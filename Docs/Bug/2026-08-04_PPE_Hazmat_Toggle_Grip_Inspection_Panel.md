@@ -1003,3 +1003,31 @@
 보존한다. 기존 검증 하네스도 단순 non-null/AudioClip GUID 확인을 넘어 정상 패널의 ItemType, Clean 초기
 상태와 배열 포함 여부를 검사하도록 보완한다. 셰이더 Import나 스크립트 컴파일 중에는 Quest/OpenXR Play를
 시작하지 않는다.
+
+### 2026-09-08 적용 결과
+
+- `Assets/Scenes/4_PPE_Room.unity`의 `m_HelmetActionPanel`을 하자 안전모
+  `PPE_A_Helmet_NoStrap`에서 정상 안전모 `PPE_A_Helmet_Strap`의 기존 Action Panel로 교정했다.
+- `m_BootActionPanels`에는 기존 하자 좌·우 장화 패널을 그대로 보존하고 정상 좌·우 장화 패널을 추가했다.
+  런타임 자동 탐색이나 자동 수리, AudioClip, 입력, 선택 판정, UI, 텔레포트와 Training/Test 정책은
+  변경하지 않았다.
+- `PPETrainTestModeValidationHarness`가 정상 안전모의 `ConstructionHelmet + Clean` 계약과 장화 배열의
+  `좌·우 × Clean/Contaminated` 네 조합, 중복·누락 참조를 검사하도록 보완했다.
+- **정적 확인:** `git diff --check`를 통과했고 `Assembly-CSharp-Editor.csproj --no-restore`는 기존
+  assembly 충돌·source generator 경고 5개, 오류 0개로 완료됐다.
+- **Unity Editor 확인:** Unity 6000.4.8f1 배치에서
+  `PPETrainTestModeValidationHarness.ValidateBatch`가 PASS했다.
+- **Play Mode 확인:** 아직 수행하지 않았다. Education에서 정상 안전모와 정상 장화 최초 Grab 시
+  `4_VO_PPE_EDU_104_HowToHelmet`, `4_VO_PPE_EDU_101_HowToBoots`가 각각 1회 재생되고 재잡기와 반대쪽
+  장화에서 중복되지 않는지 확인해야 한다.
+- **Quest/OpenXR 확인:** 아직 수행하지 않았다. Quest 양안에서 실제 청취와
+  `voice_playback_started` 원본 이벤트를 함께 대조해야 한다.
+
+### 2026-09-09 Game View 1차 확인
+
+- 사용자는 Game View Play Mode에서 방호복 미착용 상태의 선행조건 안내를 정상 장비 Grab 음성 반복으로
+  처음 오인했으나, 방호복을 먼저 착용한 뒤 다시 확인해 정상 안전모·장화 음성 동작이 확인된 것으로
+  보고했다.
+- 이번 결과는 사용자 표현이 "확인된 것 같다"인 1차 확인이므로 `Play Mode 잠정 통과`로 기록한다.
+  Quest/OpenXR 실제 Grip, 최초 1회와 재잡기 중복 여부, `voice_playback_started` 원본 대조는 최종 Release
+  전 수동 게이트로 유지한다.

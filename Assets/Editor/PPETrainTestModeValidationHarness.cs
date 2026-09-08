@@ -408,6 +408,8 @@ public static class PPETrainTestModeValidationHarness
         foreach (string propertyName in TestVoiceFields)
             RequireObject<AudioClip>(serialized, propertyName, failures);
 
+        ValidateNormalHelmetAndBootNarrationReferences(serialized, failures);
+
         if (modal == null)
             return;
 
@@ -418,6 +420,120 @@ public static class PPETrainTestModeValidationHarness
         RequireObject<Button>(modalSerialized, "ppeEducationModeButton", failures);
         RequireObject<Button>(modalSerialized, "ppeTrainingModeButton", failures);
         RequireObject<Button>(modalSerialized, "ppeTestModeButton", failures);
+    }
+
+    private static void ValidateNormalHelmetAndBootNarrationReferences(
+        SerializedObject directorSerialized,
+        List<string> failures)
+    {
+        PPEActionPanelController helmet = RequireObject<PPEActionPanelController>(
+            directorSerialized,
+            "m_HelmetActionPanel",
+            failures);
+        ValidateNarrationPanel(
+            helmet,
+            PPEItemType.ConstructionHelmet,
+            PPEItemCondition.Clean,
+            "m_HelmetActionPanel",
+            failures);
+
+        SerializedProperty boots = directorSerialized.FindProperty("m_BootActionPanels");
+        if (boots == null || !boots.isArray)
+        {
+            failures.Add("PPEVoiceFlowDirector.m_BootActionPanels is missing or is not an array.");
+            return;
+        }
+
+        bool hasCleanLeft = false;
+        bool hasCleanRight = false;
+        bool hasContaminatedLeft = false;
+        bool hasContaminatedRight = false;
+        HashSet<PPEActionPanelController> uniquePanels = new();
+
+        for (int index = 0; index < boots.arraySize; index++)
+        {
+            PPEActionPanelController panel =
+                boots.GetArrayElementAtIndex(index).objectReferenceValue as PPEActionPanelController;
+            if (panel == null)
+            {
+                failures.Add($"m_BootActionPanels[{index}] is missing or has the wrong type.");
+                continue;
+            }
+
+            if (!uniquePanels.Add(panel))
+                failures.Add($"m_BootActionPanels contains duplicate reference '{panel.name}'.");
+
+            PPEInspectionState inspection = panel.InspectionState;
+            PPEItemIdentity identity = inspection?.PresentationBinding?.ItemIdentity;
+            if (inspection == null || identity == null)
+            {
+                failures.Add($"m_BootActionPanels[{index}] '{panel.name}' is missing its authored inspection identity.");
+                continue;
+            }
+
+            PPEItemCondition condition = GetInitialCondition(inspection, failures, panel.name);
+            if (identity.ItemType == PPEItemType.RubberBootLeft)
+            {
+                hasCleanLeft |= condition == PPEItemCondition.Clean;
+                hasContaminatedLeft |= condition == PPEItemCondition.Contaminated;
+            }
+            else if (identity.ItemType == PPEItemType.RubberBootRight)
+            {
+                hasCleanRight |= condition == PPEItemCondition.Clean;
+                hasContaminatedRight |= condition == PPEItemCondition.Contaminated;
+            }
+            else
+            {
+                failures.Add(
+                    $"m_BootActionPanels[{index}] '{panel.name}' must reference a left or right rubber boot.");
+            }
+        }
+
+        if (!hasCleanLeft || !hasCleanRight)
+            failures.Add("m_BootActionPanels must include the clean left and right boot panels for Education grab narration.");
+        if (!hasContaminatedLeft || !hasContaminatedRight)
+            failures.Add("m_BootActionPanels must preserve the contaminated left and right boot panels for choice handling.");
+    }
+
+    private static void ValidateNarrationPanel(
+        PPEActionPanelController panel,
+        PPEItemType expectedItemType,
+        PPEItemCondition expectedCondition,
+        string propertyName,
+        List<string> failures)
+    {
+        if (panel == null)
+            return;
+
+        PPEInspectionState inspection = panel.InspectionState;
+        PPEItemIdentity identity = inspection?.PresentationBinding?.ItemIdentity;
+        if (!panel.enabled || inspection == null || identity == null)
+        {
+            failures.Add($"{propertyName} must reference an enabled panel with an authored inspection identity.");
+            return;
+        }
+
+        if (identity.ItemType != expectedItemType)
+            failures.Add($"{propertyName} must reference item type {expectedItemType}, found {identity.ItemType}.");
+
+        PPEItemCondition condition = GetInitialCondition(inspection, failures, panel.name);
+        if (condition != expectedCondition)
+            failures.Add($"{propertyName} must reference a {expectedCondition} item, found {condition}.");
+    }
+
+    private static PPEItemCondition GetInitialCondition(
+        PPEInspectionState inspection,
+        List<string> failures,
+        string label)
+    {
+        PPEItemPresentationBinding binding = inspection?.PresentationBinding;
+        if (binding == null)
+        {
+            failures.Add($"{label} is missing PPEInspectionState.presentationBinding.");
+            return default;
+        }
+
+        return binding.InitialCondition;
     }
 
     private static void ValidateQuiz(PPEQuizController quiz, List<string> failures)

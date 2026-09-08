@@ -234,3 +234,46 @@ logo2d > Canvas Renderer > Cull Transparent Mesh: Off
 - 후속 실기에서는 같은 거리와 머리 이동 조건으로 mip bias -0.5 버전의 정지 선명도와 시간축 안정성을
   양안 비교한다. 시머링이 남으면 MSAA를 제거하지 않고 고해상도 공식 PNG 또는 SVG 원본을 먼저 확보한다.
 - Quest/OpenXR 사용자 평가 전에는 균형 설정을 최종 화질 해결로 보고하지 않는다.
+
+## 2026-09-09 후속: 파트너 로고 거리 단일 변수 비교
+
+### 실행 전 필수 판단
+
+1. **기존 Inspector/씬 작성값 보존:** `Assets/Scenes/1_Title.unity`의 `PartnerLogos` 로컬 Z만
+   `0`에서 `-20`으로 변경한다. RectTransform 크기·앵커·피벗, 자식 로고 크기, Canvas Z와 다른 UI 작성값은
+   보존한다.
+2. **단일 기준과 상태 소유자:** 위치 기준은 생산 씬의 `Canvas/PartnerLogos` RectTransform이다.
+   `TitleSplashController`는 alpha만 변경하며 Z를 런타임에 덮어쓰지 않는다.
+3. **입력·렌더링 경로:** 입력 소비자는 없다. 렌더링 경로는 `Main Camera → World Space Canvas →
+   PartnerLogos → 자식 Image/Sprite`이며 Android Mobile URP 설정을 사용한다.
+4. **실패 처리:** 런타임 자동 보정이나 fallback을 추가하지 않는다. 비교 실패 시 씬 작성 Z만 `0`으로
+   복구한다.
+5. **영향 소비자:** Title 씬의 파트너 로고 3종과 XR 양안 깊이·정렬만 직접 영향을 받는다. 메인 로고,
+   PPE, 입력, 오디오, 텔레메트리와 다른 씬은 변경하지 않는다.
+6. **비교 실행:** 변경 전은 Canvas 작성 Z `200`, PartnerLogos 로컬 Z `0`이다. 변경 후에는 로컬 Z `-20`
+   한 값만 달리해 같은 HMD, 시작 자세와 머리 이동에서 정지 선명도·시머링·화면 점유율·메인 로고와의
+   깊이 정렬을 비교한다.
+7. **검증 수준:** 현재는 씬·런타임 대입 경로의 정적 조사만 완료했다. 적용 후 Unity Import와 Game View를
+   확인하고, 최종 채택은 Quest/OpenXR 양안 비교 뒤에만 결정한다.
+
+`-20`은 현재 Canvas 작성 Z `200` 대비 약 10%를 카메라 방향으로 이동시키는 첫 비교값이다. 실제 월드 거리와
+카메라 방향은 Unity에서 `PartnerLogos`를 선택한 공간 진단 결과로 다시 확인하며, 방향이 예상과 다르면
+씬 값을 추가 변경하지 않고 기준값으로 복구한다. 이 단계에서는 Render Scale, mipmap, filter, aniso,
+mip bias와 Android texture format을 변경하지 않는다.
+
+### 적용 및 인수인계 상태
+
+- `Assets/Scenes/1_Title.unity`의 `PartnerLogos` 로컬 Z만 `0`에서 `-20`으로 적용했다.
+- **정적 확인:** Title 씬 diff는 1개 값의 1줄 변경이며 `git diff --check`를 통과했다.
+- **Unity Editor 확인:** 배치 Import에서 `1_Title`이 정상 로드됐고
+  `AppStartupSynchronizationHarness.Validate`가 PASS했다. 이는 씬 로드와 시작 계약 확인이며 시각 품질
+  확인을 대신하지 않는다.
+- **Play Mode 확인:** 미실행이다. 다음 세션에 같은 자세에서 선명도·점유율·깊이 정렬을 비교한다.
+- **Quest/OpenXR 확인:** 미실행이다. 같은 Quest에서 시머링·양안·주변 시야를 비교한 뒤 채택 여부를 정한다.
+
+### 적용 상태
+
+- `Assets/Scenes/1_Title.unity`의 `Canvas/PartnerLogos` 로컬 Z를 `0`에서 `-20`으로 변경했다.
+- 변경 후 diff에서 해당 RectTransform 위치 한 줄만 바뀐 것을 정적으로 확인했다.
+- 현재 Unity Editor에는 `4_PPE_Room`이 열려 있으므로 Title 씬 Game View와 Quest/OpenXR 양안 결과는
+  아직 확인하지 않았다. 이 비교가 끝날 때까지 텍스처 설정은 변경하지 않는다.

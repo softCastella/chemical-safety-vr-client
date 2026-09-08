@@ -2065,8 +2065,10 @@ Meta 업로드 검사가 첫 출시 서명 APK에서 Android Target SDK 36, 자�
   `Builds/MetaHorizonAlpha/ChemicalSafetyVR_TelemetryDev_0_1_0_5.apk`, 크기 277,724,175 bytes,
   SHA-256 `81C59E9375AD347330992230A8382BECF88B8D021DDEE56FD7FE5D77A8E84DAF`다.
   `DEBUGGABLE`인 Development APK이므로 Meta Alpha 배포본으로 업로드하지 않는다.
-- 다음 Release를 준비하기 위해 `ProjectSettings/ProjectSettings.asset`의
-  `AndroidBundleVersionCode`를 6으로 올렸다. code 6 Release APK 빌드와 업로드는 아직 실행하지 않았다.
+- 학원 PC의 `ProjectSettings/ProjectSettings.asset`에서는 다음 Release를 준비하기 위해
+  `AndroidBundleVersionCode=6`으로 올렸다. 현재 이 PC의 작업 트리는 아직
+  `AndroidBundleVersionCode=5`이므로 두 PC의 설정 상태를 합쳐 쓰지 않는다. code 6 Release APK 빌드와
+  업로드는 아직 실행하지 않았다.
 
 ### 근본 원인과 영향 범위
 
@@ -2108,3 +2110,113 @@ Meta 업로드 검사가 첫 출시 서명 APK에서 Android Target SDK 36, 자�
 - **Unity Editor 확인:** code 6 Release 빌드와 빌드 후 하네스 실행은 아직 하지 않았다.
 - **Quest/OpenXR 확인:** 선생님 Quest 3에서 기존 code 5 다운로드까지만 확인했다. code 6 설치, 최신 화질,
   양안과 주변 시야는 미검증이다.
+
+## 2026-09-08 단일 변경 후 검증 실행 계획
+
+### 목적과 기준 데이터
+
+- 알려진 PPE 음성 결함, 파트너 로고 거리와 Android 화질 후보를 한 APK에서 동시에 변경하지 않는다.
+  각 단계는 `한 가지 변경 → 정적/Editor 검증 → Play 또는 Quest 확인 → 채택/복구 결정` 순서로 끝낸 뒤
+  다음 단계로 진행한다.
+- 2026-09-08에 채택한 Unity Editor + Quest Link 6개 회차는 변경 전 행동·시간 기준으로 보존한다.
+  시각 설정 비교마다 6개 회차를 다시 수집하지 않고, 최종 Release 후보가 확정된 뒤 필요한 최소 통합 회차만
+  새 기준과 구분해 수집한다.
+- 현재 저장소 기준은 `main@f6db61b405563c49168f20872bb13430cc03dbb1`이다. 사용자 작업인 Android
+  Keystore 경로 변경은 보존하고 이번 순차 실험의 변수로 취급하지 않는다.
+
+### 1단계 — 정상 장화·안전모 Education Grab 음성
+
+- **대응 요청:** 정상 장화와 정상 안전모를 최초 Grab했을 때 전용 교육 음원이 재생되지 않는 결함만 수정한다.
+- **보존 동작:** Training/Test 음성 정책, 하자 PPE 선택·폐기, PPE 착용 순서, UI, 텔레포트, 화질과
+  텔레메트리 계약을 변경하지 않는다.
+- `PPEVoiceFlowDirector.m_HelmetActionPanel`을 정상 안전모 패널로 교정하고, `m_BootActionPanels`에는 기존
+  하자 좌·우 장화를 보존한 채 정상 좌·우 장화를 추가했다. 정적 C# 빌드와
+  `PPETrainTestModeValidationHarness.ValidateBatch`는 통과했다.
+- **실행 게이트:** Education에서 방호복 착용 후 정상 안전모와 정상 장화 최초 Grab 음성이 각각 1회
+  재생되고, 재잡기·반대쪽 장화에서는 중복되지 않아야 한다. 하자 안전모·장화 선택 처리와 Training/Test의
+  교육 음성 미재생도 보존돼야 한다.
+- Play Mode와 Quest/OpenXR의 실제 청취 및 `voice_playback_started` 대조가 끝나기 전에는 2단계 씬 값을
+  변경하지 않는다.
+
+### 2단계 — 파트너 로고 거리 단일 변수 비교
+
+- **변경 전 공간 기준:** 대상은 `Assets/Scenes/1_Title.unity` 하나이며, World Space Canvas의 작성 Z는
+  `200`, `PartnerLogos`의 현재 로컬 Z는 `0`이다. `TitleSplashController`는 런타임에 CanvasGroup alpha를
+  변경하지만 `PartnerLogos`의 Z 위치를 덮어쓰지 않는다.
+- **선행 진단:** Unity에서 `PartnerLogos`를 선택하고 공간 진단 하네스로 전체 부모 경로, Canvas와 카메라,
+  월드 코너·스케일·거리·양안 방향을 기록한다. 씬 좌표만 보고 카메라 방향을 추정해 값을 바꾸지 않는다.
+- **단일 변경:** `PartnerLogos`의 작성 Z만 한 단계 HMD 쪽으로 이동한다. 로고 RectTransform 크기, 앵커,
+  피벗, 자식 크기, Canvas Z, Render Scale과 TextureImporter는 고정한다.
+- **비교 조건:** 같은 Quest, 같은 시작 자세와 머리 이동 조건에서 정지 선명도, 시머링, 화면 점유율,
+  Title 메인 로고와의 깊이·정렬, 양안 불일치와 시야 가장자리 깨짐을 변경 전 캡처와 비교한다.
+- 개선이 없거나 깊이 분리·시머링이 악화되면 작성 Z를 기준값으로 복구한다. 통과 전에는 텍스처 설정을
+  함께 조정하지 않는다.
+
+### 3단계 — Android 텍스처 렌더링 단일 변수 비교
+
+- 현재 기준은 Mobile URP Render Scale `1.0`, MSAA 4x, 파트너 로고 mipmap On, Trilinear, aniso 8,
+  mip bias `-0.5`, Android `RGBA32 + Uncompressed`다.
+- `to21_logo.png`와 `seoulit_logo.png`는 원본 해상도가 작으므로 압축 포맷 변경이 원본에 없는 픽셀을
+  복원하지 못한다. 가능하면 고해상도 공식 원본 확보를 첫 자산 후보로 삼되, 원본 교체와 Importer 변경을
+  같은 비교에 넣지 않는다.
+- Android 포맷을 비교할 때는 대표 로고 하나에서 `RGBA32 + Uncompressed`와 한 가지 Android 후보만
+  비교한다. 포맷, max size, mipmap, filter, aniso, mip bias와 Render Scale 중 둘 이상을 한 APK에서
+  바꾸지 않는다.
+- 각 후보는 APK의 실제 Android Import 결과, eye texture 크기, 정지 선명도, 머리 이동 시 시머링,
+  GPU frame time과 양안 안정성을 기록한다. Game View 또는 빌드 성공만으로 채택하지 않는다.
+
+### 4단계 — 기준 데이터와 code 6 Release
+
+- 학원 PC에는 `AndroidBundleVersionCode=6`이 적용돼 있고 현재 이 PC에는 code 5가 남아 있다.
+  1~3단계의 채택값이 확정되면 실제 Release를 생성할 단일 PC와 작업 트리를 먼저 확정하고, 그 기준에서
+  `AndroidBundleVersionCode=6`과 `MetaAlphaSubmissionGateHarness`의 기대 version·Release 경로를 함께
+  확인한다. 이미 적용된 학원 PC의 code 6을 미적용 또는 오류 상태로 소급해 기록하지 않는다.
+- 보존된 6개 JSONL은 기준 DB 반영, 상세 조회 대조와 DB 백업을 완료해야 한다. 현재 게이트의
+  `기준 Express 서버 TCP 3000 미기동`, 기준 DB `session 0 / event 0` 상태는 미완료로 유지한다.
+- 최종 code 6 Release는 Android Manifest·ARM64·Target SDK 34·서명 v2·`DEBUGGABLE` 비활성·개발 LAN
+  비밀값 미포함을 검사한 뒤 Alpha 채널에 업로드한다. 업로드, 채널 할당, Quest 3 설치, 실제 실행과 화질
+  확인을 각각 분리해 기록한다.
+
+### 단계별 완료 상태
+
+| 단계 | 정적 확인 | Unity Editor | Play Mode | Quest/OpenXR |
+| --- | --- | --- | --- | --- |
+| 1. 장화·안전모 Grab 음성 | 완료 | 배치 하네스 PASS | 사용자 Game View 잠정 통과 | 미완료 |
+| 2. 파트너 로고 거리 | Z `-20` 단일 diff 확인 | 씬 로드·시작 하네스 PASS | 미실행 | 미실행 |
+| 3. Android 텍스처 | 현재 기준 확인 | 미실행 | 해당 없음 | 미실행 |
+| 4. 기준 DB·code 6 Release | 계획 확정 | 미실행 | 미실행 | 미실행 |
+
+## 2026-09-09 다음 작업 세션 인수인계
+
+### 현재 확정 상태
+
+- 정상 장화·안전모 Education Grab 음성 참조를 교정했고 정적 빌드와
+  `PPETrainTestModeValidationHarness.ValidateBatch`가 PASS했다.
+- 사용자는 방호복을 먼저 착용한 Game View 순서에서 음성 흐름이 확인된 것으로 보고했다. 이 결과는
+  `Play Mode 잠정 통과`이며 Quest/OpenXR 실제 Grip과 원본 텔레메트리 대조는 아직 완료하지 않았다.
+- `Assets/Scenes/1_Title.unity`의 `Canvas/PartnerLogos` 로컬 Z만 `0`에서 `-20`으로 변경했다. 크기,
+  앵커, 피벗, 자식 로고, Canvas Z, Render Scale과 TextureImporter는 변경하지 않았다.
+- 로고 변경 후 Unity 배치 Import에서 `1_Title`이 정상 로드됐고
+  `AppStartupSynchronizationHarness.Validate`가 PASS했다. 이 결과는 씬 로드와 시작 계약 확인이며 Game
+  View와 Quest/OpenXR 시각 결과는 미확인이다.
+
+### 다음 세션 첫 실행 순서
+
+1. Unity의 Play Mode와 컴파일·Import 진행 여부를 확인한다. 사용자가 보존해야 할 `4_PPE_Room`의 미저장
+   변경이 있다면 먼저 저장 여부를 직접 판단한다.
+2. 생산 대상인 `Assets/Scenes/1_Title.unity`만 열고 `PartnerLogos`의 작성 로컬 Z가 `-20`인지 확인한다.
+   다른 Title variant나 다른 씬은 수정하지 않는다.
+3. 같은 시작 자세에서 정지 선명도, 화면 점유율, 메인 로고와의 깊이 정렬을 Game View로 먼저 비교한다.
+4. 같은 Quest와 머리 이동 조건에서 시머링, 양안 불일치와 주변 시야 깨짐을 확인한다.
+5. 개선되면 `-20`을 채택하고 결과를 기존 Title 로고 버그 문서에 기록한다. 개선이 없거나 깊이 불편,
+   시머링 또는 양안 문제가 생기면 다른 값을 탐색하지 않고 로컬 Z만 `0`으로 복구한다.
+6. 로고 거리 결과가 확정되기 전에는 Android texture format, max size, mipmap, filter, aniso, mip bias와
+   Render Scale을 변경하지 않는다.
+
+### 다음 단계와 남은 검증
+
+- 로고 거리 채택 또는 복구가 끝난 뒤에만 Android/AOS 텍스처 후보 하나를 선택해 별도 APK로 비교한다.
+- 학원 PC의 code 6과 현재 PC의 code 5를 혼합하지 않는다. 최종 빌드 PC와 작업 트리를 확정한 뒤 기준 DB
+  반영, Release 빌드, Meta Alpha 업로드 순서로 진행한다.
+- 이번 인수인계 커밋에서는 사용자 개인 환경값인 `ProjectSettings/ProjectSettings.asset`의 Keystore 경로
+  변경을 제외한다.

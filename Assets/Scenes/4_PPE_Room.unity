@@ -36085,10 +36085,12 @@ MonoBehaviour:
   m_HazmatEquipController: {fileID: 1171354034}
   m_EquipmentVisualController: {fileID: 930000000000000010}
   m_MaskActionPanel: {fileID: 960000000000000025}
-  m_HelmetActionPanel: {fileID: 6533387009244938210}
+  m_HelmetActionPanel: {fileID: 1262933554}
   m_BootActionPanels:
   - {fileID: 4582865945966158257}
   - {fileID: 2860174424773008599}
+  - {fileID: 237084934}
+  - {fileID: 2135411548}
   m_TapeActionPanel: {fileID: 8385939045037981441}
   m_EnforceHazmatBeforeGlovesAndBoots: 1
   m_MaskGrabVoice: {fileID: 8300000, guid: 758d940d74814c74da23d9b489fcc54d, type: 3}

@@ -10,7 +10,7 @@
 - 클라이언트 저장소: `softCastella/chemical-safety-vr-client` `main@eba9e1a8d46d964ab4d31f4b07081b28fa861ed7`
 - 실행 데이터 기준: 2026-09-08 Unity Editor와 Quest Link로 수집한 6개 시나리오·모드 조합
 - 이 문서는 위 커밋의 코드와 `Docs/MeetingNotes/2026-08-30_Client_Server_Auth_Channel_Handoff.md`, `Docs/ProductionDeployment.md`의 검증 기록을 기준으로 작성했다.
-- 클라이언트 Release 전송 코드는 정적·Editor 하네스를 통과했고 2026-09-10 code 6 Release APK의 빌드·서명·Manifest 정적 검증도 완료했다. 실제 Meta User Proof 왕복, Quest 단독 실행과 운영 서버 적재·재조회는 아직 검증 전이므로 Quest Release 동작을 확정 사실로 확대하지 않는다.
+- 클라이언트 Release 전송 코드는 정적·Editor 하네스를 통과했고 2026-09-10 code 6 Release APK의 빌드·서명·Manifest 정적 검증을 완료했다. 사용자는 해당 APK의 Meta Alpha 업로드 완료를 확인했지만, 실제 Meta User Proof 왕복, Quest 채널 설치·단독 실행과 운영 서버 적재·재조회는 아직 검증 전이므로 Quest Release 동작을 확정 사실로 확대하지 않는다.
 
 ## 현재 VR 교육 데이터 검증 구조
 
@@ -106,7 +106,7 @@ flowchart LR
 | 검증 단계 | 상태 | 근거와 제한 |
 | --- | --- | --- |
 | 코드에 존재함 | 확인 | 로컬 텔레메트리와 MySQL 텔레메트리 라우터, 저장소와 migration이 존재한다. |
-| 클라이언트 실행에 연결됨 | 부분 확인 | Unity Editor와 Quest Link에서 로컬 JSONL 수집을 확인했고 code 6 Release APK를 생성했다. Quest 단독 Release 앱 업로드는 확인하지 않았다. |
+| 클라이언트 실행에 연결됨 | 부분 확인 | Unity Editor와 Quest Link에서 로컬 JSONL 수집을 확인했고 code 6 Release APK 생성과 Meta Alpha 업로드를 완료했다. Quest 채널 설치와 단독 Release 앱 전송은 확인하지 않았다. |
 | 실행 로그로 수집됨 | 확인 | 6개 시나리오·모드 기준 회차의 로컬 JSONL을 채택했다. |
 | 서버에서 수신·저장됨 | 부분 확인 | 개발 환경 업로드 계약과 일부 복구 경로를 확인했지만 채택한 6개 기준 회차의 DB 대조는 완료되지 않았다. |
 | 대시보드에서 조회됨 | 로컬 확인 | 로컬 JSONL 기반 대시보드를 확인했다. 운영 MySQL 기반 대시보드 조회는 완료되지 않았다. |

@@ -1030,3 +1030,30 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
 - 다음 사용자 단계는 검증된 code 6 APK를 Meta Alpha 채널에 업로드하고 Quest에 채널 설치하는 것이다.
   그 뒤 한 번의 짧은 Release 회차로 인증·원본·서버 적재를 대조한다. 업로드 완료를 Quest 통합 성공으로
   합쳐 쓰지 않는다.
+
+## 2026-09-10 작업 종료 기준: Meta Alpha 업로드 이후
+
+### 현재 확인 상태
+
+- 사용자는 Meta 업로드 화면에서 code 6 APK의 처리 완료를 확인했다. 이 기록은 사용자의 Dashboard 화면
+  확인을 근거로 하며, Codex가 Meta API나 채널 상세 화면에서 독립 조회한 결과는 아니다.
+- 업로드 대상은 정적 검증을 통과한
+  `Builds/MetaHorizonAlpha/ChemicalSafetyVR_Alpha_0_1_0_6.apk`다. 업로드 시 연령대는 앱의 실제 대상에
+  맞춰 `Teens and Adults (13+)`를 선택했다.
+- Meta 목록용 512×512 불투명 PNG 아이콘은
+  `Builds/MetaHorizonAlpha/SubmissionAssets/Meta_Horizon_Icon_512.png`로 준비했다. APK Android 아이콘과
+  Meta App Metadata의 Store/Library 아이콘은 별도 자산이므로, 아이콘 준비를 App Metadata 저장이나
+  Quest 라이브러리 반영 완료로 합쳐 쓰지 않는다.
+
+### 다음 통합 검증 순서
+
+1. Meta Dashboard에서 업로드된 빌드의 `versionCode=6`과 대상 채널 `ALPHA`, 테스트 사용자 할당을 확인한다.
+2. Quest에서 기존 앱을 완전히 종료하고 Alpha 채널의 code 6을 설치한 뒤 단독 실행한다.
+3. 타이틀·파트너 로고, 로딩 12초 연출, PPE 모달, 정상 장화·안전모 최초 Grab 음성, 입력, 양안·주변 시야와
+   프레임 안정성을 확인한다.
+4. 짧은 Release 회차 한 번을 완료하고 Quest 원본 JSONL의 `sessionId`, 이벤트 수와 마지막 `sequence`를
+   확보한다.
+5. Codex가 같은 회차의 Meta proof 인증, 단기 token, 운영 MySQL 세션·이벤트·완료·재조회와 중복 전송
+   결과를 대조한다.
+6. 위 결과가 모두 일치할 때만 `Release 통합 검증 완료`로 상태를 올린다. App Metadata 작성, 정식 Store
+   심사 제출과 대시보드 KPI 확정은 별도 후속 단계다.

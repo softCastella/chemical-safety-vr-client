@@ -2477,3 +2477,36 @@ Meta 업로드 검사가 첫 출시 서명 APK에서 Android Target SDK 36, 자�
    운영 MySQL 재조회를 대조한다.
 5. 위 4단계가 모두 맞을 때만 `Release 통합 검증 완료`로 표시한다. Alpha 업로드 자체와 대시보드 완성은
    별도 상태로 유지한다.
+
+## 2026-09-10 작업 종료 기록: Alpha 업로드와 다음 시작점
+
+### 오늘 완료한 범위
+
+- 사용자는 Meta 업로드 화면에서 code 6 Release APK 처리가 완료됐음을 확인했다. 현재 확정 가능한 상태는
+  `APK 생성·정적 검증·Alpha 업로드 완료`까지다.
+- 업로드 연령대는 아동용 앱이 아닌 화학물질 안전훈련의 실제 대상에 맞춰
+  `Teens and Adults (13+)`를 사용했다.
+- 릴리즈 노트에는 Release 인증·운영 HTTPS 전송, 타이틀·로딩 조정, 정상 장화·안전모 음성 참조 교정과
+  Quest/Android Release 설정 보완을 기록했다.
+- APK에는 프로젝트 아이콘이 포함돼 있지만 Meta Store/Library 목록 아이콘은 App Metadata에서 별도로
+  관리된다. 512×512, 24-bit RGB, 불투명 정사각형 자산
+  `Builds/MetaHorizonAlpha/SubmissionAssets/Meta_Horizon_Icon_512.png`를 준비했으며, 정식 심사 제출 버튼을
+  누르지 않고도 나중에 metadata 초안에 저장할 수 있다.
+
+### 완료로 확장하지 않는 항목
+
+- Alpha 업로드 완료는 테스트 사용자 채널 할당, Quest 설치, 실제 Meta User Proof, 단기 token 발급,
+  운영 서버 전송이나 MySQL 적재 성공을 뜻하지 않는다.
+- 현재 Meta 처리 화면의 주황색 기본 아이콘은 APK 빌드 실패 증거가 아니다. App Metadata 아이콘 저장과
+  Quest 라이브러리 반영은 별도로 확인한다.
+- App Metadata 초안 작성과 Store 심사 제출은 다른 동작이다. Quest Alpha 통합 검증 전에는
+  `Submit for Review`를 누르지 않는다.
+
+### 다음 세션 시작 순서
+
+1. Dashboard에서 `versionCode=6`, `ALPHA`와 테스트 사용자 할당을 캡처 또는 화면으로 확인한다.
+2. Quest에 Alpha code 6을 설치하고 앱 정보의 version code를 확인한다.
+3. 단독 실행에서 타이틀·로딩·PPE 음성·모달·입력·양안과 성능을 짧게 회귀 검증한다.
+4. 한 회차를 완료해 Quest JSONL과 운영 서버 저장·재조회 결과를 같은 ID와 수량으로 대조한다.
+5. 통합 PASS 뒤 App Metadata의 아이콘·설명·제출 이미지를 저장하고, Store 심사 제출 여부는 사용자 결정으로
+   별도 진행한다.

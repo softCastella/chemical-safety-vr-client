@@ -2441,3 +2441,39 @@ Meta 업로드 검사가 첫 출시 서명 APK에서 Android Target SDK 36, 자�
 - 미완료: 실제 Meta User Proof 왕복, code 6 Release APK, Quest 단독 실행, 같은 세션의 운영 서버
   적재·재조회와 Alpha 업로드.
 - 대시보드 화면·KPI 확정은 Alpha 제출 완료 조건이 아니며 7단계까지 보류한다.
+
+## 2026-09-10 단계 5 완료: code 6 Release APK
+
+### 이번 실행 결과
+
+- 역할표의 `5. code 6 Release`를 완료했다. 클라이언트 기준은
+  `main@eba9e1a8d46d964ab4d31f4b07081b28fa861ed7`, 서버 구현 기준은
+  `main@5b8138865991408215011078328f74a0df229982`, 서버 공용 문서 미러 기준은
+  `main@5e13e0206b72f944b9b313f8eecb053d39594537`이다.
+- 생성 파일은 `Builds/MetaHorizonAlpha/ChemicalSafetyVR_Alpha_0_1_0_6.apk`, 크기
+  `219,710,171 bytes`, SHA-256
+  `F092AA929888C713B738806E4624EA0AEB62CB0E7D8CC05289D253C1640AC4AF`다.
+- 첫 빌드는 Unity 종료로 중단됐고, 재시작 뒤 동일 code 6 설정과 개인 서명정보를 다시 입력해 두 번째
+  빌드가 완료됐다. 중단된 첫 시도의 오래된 Tundra 오류와 두 번째 빌드 진행 로그를 분리해 판정했다.
+
+### 검증 수준
+
+- **정적 확인:** package `com.tycheworks.immersa.safetyvr`, `versionCode=6`, `versionName=0.1.0`,
+  최소 SDK 25, Target SDK 34, ARM64, 필수 VR headtracking, Meta VR category,
+  `usesCleartextTraffic=false`, `android:debuggable` 없음, APK Signature Scheme v2를 확인했다.
+- **Unity Editor 확인:** BuildReport의 `[Meta Quest Alpha Build] PASS`와 빌드 뒤 Editor 정상 복귀를
+  확인했다. `MetaAlphaSubmissionGateHarness`는 Release·Development APK, 기준 DB와 로컬 기준 서버를
+  검사해 `READY`를 반환했다.
+- **Quest/OpenXR 확인:** 아직 수행하지 않았다. APK 생성과 Manifest 검증을 실제 HMD 양안·입력·오디오,
+  Meta proof 또는 운영 서버 적재 성공으로 확대하지 않는다.
+
+### 다음 사용자·Codex 순서
+
+1. **사용자:** 이 code 6 APK를 Meta Dashboard의 Alpha 채널에 업로드하고 테스트 계정에 채널을 할당한다.
+2. **사용자:** Quest에서 기존 앱을 완전히 종료한 뒤 Alpha 채널의 code 6을 설치하고 단독 실행한다.
+3. **사용자와 Codex:** 타이틀·로딩·PPE 모달, 장화·안전모 음성, 양안·주변 시야, 입력과 프레임을 짧게
+   확인한다.
+4. **Codex:** 같은 회차의 Quest 원본, Meta 인증 결과, 서버 `sessionId`·이벤트 수·마지막 `sequence`와
+   운영 MySQL 재조회를 대조한다.
+5. 위 4단계가 모두 맞을 때만 `Release 통합 검증 완료`로 표시한다. Alpha 업로드 자체와 대시보드 완성은
+   별도 상태로 유지한다.

@@ -6,11 +6,11 @@
 
 ## 문서 기준
 
-- 서버 저장소 구현·운영 반영 기준: `softCastella/chemical-safety-vr-server` `main@5b8138865991408215011078328f74a0df229982`
-- 클라이언트 저장소: `softCastella/chemical-safety-vr-client` `main@b840b2dc2e4d0235c087fb4693a1486bd21dab9c`
+- 서버 저장소 구현·운영 반영 기준: `softCastella/chemical-safety-vr-server` `main@5b8138865991408215011078328f74a0df229982` (공용 문서 미러 기준 `main@5e13e0206b72f944b9b313f8eecb053d39594537`)
+- 클라이언트 저장소: `softCastella/chemical-safety-vr-client` `main@eba9e1a8d46d964ab4d31f4b07081b28fa861ed7`
 - 실행 데이터 기준: 2026-09-08 Unity Editor와 Quest Link로 수집한 6개 시나리오·모드 조합
 - 이 문서는 위 커밋의 코드와 `Docs/MeetingNotes/2026-08-30_Client_Server_Auth_Channel_Handoff.md`, `Docs/ProductionDeployment.md`의 검증 기록을 기준으로 작성했다.
-- 클라이언트 Release 전송 코드는 정적·Editor 하네스를 통과했지만 code 6 Release APK와 Quest 실기 검증 전이므로 실제 Quest Release 동작을 확정 사실로 확대하지 않는다.
+- 클라이언트 Release 전송 코드는 정적·Editor 하네스를 통과했고 2026-09-10 code 6 Release APK의 빌드·서명·Manifest 정적 검증도 완료했다. 실제 Meta User Proof 왕복, Quest 단독 실행과 운영 서버 적재·재조회는 아직 검증 전이므로 Quest Release 동작을 확정 사실로 확대하지 않는다.
 
 ## 현재 VR 교육 데이터 검증 구조
 
@@ -99,14 +99,14 @@ flowchart LR
 - `GET /api/training-telemetry/participants`
 - `GET /api/training-telemetry/participants/{participantId}`
 
-현재 서버 API는 업로드 Bearer token을 검사한다. 이 개발용 토큰을 입점 후 장기 운영 인증으로 확정하지 않는다. Release 운영 인증은 Meta 검증과 서버가 발급하는 단기 자격 증명, 전송 제한과 권한 정책을 별도로 구현하고 검증해야 한다.
+현재 서버 API는 업로드 Bearer token을 검사한다. Development는 개발용 token을 사용하고, Android Release는 Meta User Proof를 서버에서 검증한 뒤 발급하는 단기 업로드 token을 사용하도록 코드와 운영 환경을 분리했다. 실제 Meta 테스트 사용자의 proof 왕복과 Quest Release 전송은 아직 검증해야 한다.
 
 ## 완료 상태 구분
 
 | 검증 단계 | 상태 | 근거와 제한 |
 | --- | --- | --- |
 | 코드에 존재함 | 확인 | 로컬 텔레메트리와 MySQL 텔레메트리 라우터, 저장소와 migration이 존재한다. |
-| 클라이언트 실행에 연결됨 | 부분 확인 | Unity Editor와 Quest Link에서 로컬 JSONL 수집을 확인했다. Quest 단독 Release 앱 업로드는 확인하지 않았다. |
+| 클라이언트 실행에 연결됨 | 부분 확인 | Unity Editor와 Quest Link에서 로컬 JSONL 수집을 확인했고 code 6 Release APK를 생성했다. Quest 단독 Release 앱 업로드는 확인하지 않았다. |
 | 실행 로그로 수집됨 | 확인 | 6개 시나리오·모드 기준 회차의 로컬 JSONL을 채택했다. |
 | 서버에서 수신·저장됨 | 부분 확인 | 개발 환경 업로드 계약과 일부 복구 경로를 확인했지만 채택한 6개 기준 회차의 DB 대조는 완료되지 않았다. |
 | 대시보드에서 조회됨 | 로컬 확인 | 로컬 JSONL 기반 대시보드를 확인했다. 운영 MySQL 기반 대시보드 조회는 완료되지 않았다. |
@@ -114,8 +114,8 @@ flowchart LR
 
 ## 운영 전 완료 조건
 
-1. Quest Release 앱에서 개발용 장기 토큰과 cleartext HTTP를 제거한다.
-2. 운영과 같은 staging HTTPS 환경에서 인증, 배치 업로드, 중복 방지, 재전송과 세션 완료 복구를 확인한다.
+1. 생성한 code 6 Release APK를 Alpha 채널로 설치해 실제 Meta User Proof와 단기 token 발급을 확인한다.
+2. 운영 HTTPS 환경에서 인증, 배치 업로드, 중복 방지, 재전송과 세션 완료 복구를 확인한다.
 3. 같은 `sessionId`에 대해 Quest 원본 JSONL, 서버 이벤트 수, 마지막 sequence와 MySQL 상세 조회가 일치하는지 확인한다.
 4. 관리자 인증과 VR 데이터 조회 권한을 적용하고 서버 상태 데이터와 교육 데이터를 분리한다.
 5. 운영 데이터의 보존, 백업, 조회 pagination, 전송량 제한과 장애 복구 절차를 마련한다.

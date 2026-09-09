@@ -993,3 +993,40 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
   확인했다.
 - 이는 운영 수신 준비 완료 근거다. 실제 Meta proof 성공, Quest JSONL 업로드와 DB 원본 일치는 code 6
   이전의 실제 기기 통합 검증으로 남긴다.
+
+## 2026-09-10 code 6 Release APK 생성과 정적 제출 검증
+
+### 적용 결과
+
+- 클라이언트 `main@eba9e1a8d46d964ab4d31f4b07081b28fa861ed7`에서 개인 Keystore를 로컬
+  `PlayerSettings`에 지정하고 `MetaQuestAlphaBuild.BuildRelease`로 code 6 Release APK를 생성했다.
+- 출력 파일은 `Builds/MetaHorizonAlpha/ChemicalSafetyVR_Alpha_0_1_0_6.apk`, 파일 크기는
+  `219,710,171 bytes`, SHA-256은
+  `F092AA929888C713B738806E4624EA0AEB62CB0E7D8CC05289D253C1640AC4AF`다.
+- Keystore 경로와 비밀번호는 개인 로컬 설정으로만 사용하며 Git·문서·APK 검증 출력에 비밀값을 기록하지
+  않는다.
+
+### 완료한 검증
+
+- Unity BuildReport는 `[Meta Quest Alpha Build] PASS`를 기록했고 빌드 종료 뒤 Editor가 정상 상태로
+  복귀했다.
+- Android `aapt2`에서 package `com.tycheworks.immersa.safetyvr`, `versionCode=6`,
+  `versionName=0.1.0`, `minSdkVersion=25`, `targetSdkVersion=34`, `install-location=auto`,
+  `android.hardware.vr.headtracking required=true`, Meta VR category와 `arm64-v8a`를 확인했다.
+- `apksigner`에서 APK Signature Scheme v2와 기존 출시 인증서 서명을 확인했다. Manifest에는
+  `android:debuggable`이 없고 `usesCleartextTraffic=false`다.
+- APK에는 `libil2cpp.so`, `libUnityOpenXR.so`, `libUnityOpenXRHands.so`, `libopenxr_loader.so`를 포함한
+  ARM64 네이티브 라이브러리가 있다.
+- `node Tools/MetaAlphaSubmissionGateHarness.mjs`는 code 6 Release·code 5 Development APK, 기준 DB
+  migration 16개, 초기 수집량 `session 0 / event 0`, 로컬 기준 서버 HTTP 상태를 확인하고 `READY`를
+  반환했다.
+
+### 완료 상태와 다음 순서
+
+- **완료:** Release 인증·전송 코드, 서버 운영 반영, code 6 APK 빌드, 서명·Manifest·ABI 정적 검증과
+  제출 하네스 `READY`.
+- **미검증:** 실제 Meta 테스트 사용자의 User Proof 왕복, Alpha 채널 설치, Quest 단독 실행, 양안·입력·
+  오디오·시각 회귀, 같은 세션의 Quest JSONL과 운영 MySQL 원본 일치.
+- 다음 사용자 단계는 검증된 code 6 APK를 Meta Alpha 채널에 업로드하고 Quest에 채널 설치하는 것이다.
+  그 뒤 한 번의 짧은 Release 회차로 인증·원본·서버 적재를 대조한다. 업로드 완료를 Quest 통합 성공으로
+  합쳐 쓰지 않는다.

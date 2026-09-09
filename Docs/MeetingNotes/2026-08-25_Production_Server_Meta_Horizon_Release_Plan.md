@@ -2502,11 +2502,25 @@ Meta 업로드 검사가 첫 출시 서명 APK에서 Android Target SDK 36, 자�
 - App Metadata 초안 작성과 Store 심사 제출은 다른 동작이다. Quest Alpha 통합 검증 전에는
   `Submit for Review`를 누르지 않는다.
 
+### Meta 개발자 정보 제출 확인
+
+- 사용자는 Meta 개발자 정보 화면에서 앱 이미지와 사이트 주소를 포함한 요구 항목을 모두 제출했다고
+  확인했다. 이미지에는 기존 512×512 앱 아이콘과 고가화된 타일용 180×180 불투명 배경,
+  180×180 투명 전경 자산이 포함된다.
+- 고가화된 타일 전경은 공식 `VR` 로고와 `화학물질 안전훈련` 표기를 유지하고, Meta 표시 안전영역인
+  138×138 안에 배치했다. 제출에 사용한 레이어 자산은
+  `Builds/MetaHorizonAlpha/SubmissionAssets/Meta_Horizon_Tile_Background_180.png`와
+  `Builds/MetaHorizonAlpha/SubmissionAssets/Meta_Horizon_Tile_Foreground_180.png`다.
+- 이 상태의 근거는 사용자가 확인한 Meta 화면이다. `개발자 정보 입력·제출 완료`는 확정하지만,
+  입력한 URL의 외부 접근성 검사, Meta의 필드 검증 통과, Store 심사 접수 또는 승인을 완료로 합쳐 쓰지
+  않는다.
+
 ### 다음 세션 시작 순서
 
-1. Dashboard에서 `versionCode=6`, `ALPHA`와 테스트 사용자 할당을 캡처 또는 화면으로 확인한다.
+1. Dashboard에서 `versionCode=6`, `ALPHA`, 테스트 사용자 할당과 개발자 정보의 검증 오류 유무를 캡처
+   또는 화면으로 확인한다.
 2. Quest에 Alpha code 6을 설치하고 앱 정보의 version code를 확인한다.
 3. 단독 실행에서 타이틀·로딩·PPE 음성·모달·입력·양안과 성능을 짧게 회귀 검증한다.
 4. 한 회차를 완료해 Quest JSONL과 운영 서버 저장·재조회 결과를 같은 ID와 수량으로 대조한다.
-5. 통합 PASS 뒤 App Metadata의 아이콘·설명·제출 이미지를 저장하고, Store 심사 제출 여부는 사용자 결정으로
+5. 통합 PASS 뒤 제출한 App Metadata의 처리·반려 상태를 확인하고, Store 심사 제출 여부는 사용자 결정으로
    별도 진행한다.

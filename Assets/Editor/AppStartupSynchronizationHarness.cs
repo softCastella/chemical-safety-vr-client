@@ -103,6 +103,18 @@ public static class AppStartupSynchronizationHarness
         SerializedObject serializedIdentity = new(identityProbe);
         Require(!serializedIdentity.FindProperty("useMetaPlatformSdkInEditor").boolValue,
             "Meta Platform SDK use must remain opt-in for Editor Game View tests.");
+        Require(!serializedIdentity.FindProperty("logAppScopedUserId").boolValue,
+            "Release app scene must not log the raw Meta app-scoped user ID.");
+
+        TycheTrainingTelemetryUploader uploader = FindSingle<TycheTrainingTelemetryUploader>(scene);
+        SerializedObject serializedUploader = new(uploader);
+        string productionServerBaseUrl = serializedUploader
+            .FindProperty("productionServerBaseUrl").stringValue;
+        Require(TycheMetaSessionAuthenticator.TryNormalizeProductionServerBaseUrl(
+                productionServerBaseUrl,
+                out _,
+                out _),
+            "Release telemetry endpoint must be an authored public HTTPS root URL.");
     }
 
     private static void ValidateTitleScene(Scene scene)

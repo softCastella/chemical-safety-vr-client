@@ -63,6 +63,8 @@ public static class TycheTrainingTelemetryUploaderSetup
         SerializedObject serialized = new(uploader);
         serialized.FindProperty("enableEditorTestUpload").boolValue = true;
         serialized.FindProperty("serverBaseUrl").stringValue = "http://127.0.0.1:3000";
+        serialized.FindProperty("productionServerBaseUrl").stringValue =
+            "https://immersa.tycheworks.com";
         serialized.FindProperty("batchSize").intValue = 25;
         serialized.FindProperty("scanIntervalSeconds").floatValue = 5f;
         serialized.FindProperty("maximumRetrySeconds").floatValue = 60f;
@@ -97,8 +99,40 @@ public static class TycheTrainingTelemetryUploaderSetup
             return;
         }
 
+        SerializedObject serializedUploader = new(uploaders[0]);
+        string productionServerBaseUrl = serializedUploader
+            .FindProperty("productionServerBaseUrl")?.stringValue;
+        if (!TycheMetaSessionAuthenticator.TryNormalizeProductionServerBaseUrl(
+                productionServerBaseUrl,
+                out _,
+                out string productionFailure))
+        {
+            Debug.LogError(
+                $"[Tyche Telemetry Upload Setup] Release HTTPS 설정이 유효하지 않습니다. {productionFailure}",
+                uploaders[0]);
+            return;
+        }
+
+        MetaPlatformIdentityProbe identityProbe = scene.GetRootGameObjects()
+            .SelectMany(root => root.GetComponentsInChildren<MetaPlatformIdentityProbe>(true))
+            .SingleOrDefault();
+        if (identityProbe == null)
+        {
+            Debug.LogError(
+                "[Tyche Telemetry Upload Setup] App scene에 MetaPlatformIdentityProbe가 정확히 1개 있어야 합니다.");
+            return;
+        }
+        SerializedObject serializedIdentity = new(identityProbe);
+        if (serializedIdentity.FindProperty("logAppScopedUserId").boolValue)
+        {
+            Debug.LogError(
+                "[Tyche Telemetry Upload Setup] Release 전에 Meta 앱 범위 사용자 ID 원문 로그를 꺼야 합니다.",
+                identityProbe);
+            return;
+        }
+
         Debug.Log(
-            "[Tyche Telemetry Upload Setup] PASS: 새 클라이언트 0_App의 AppMain에 로컬 DB 업로더가 1개 연결되어 있습니다.",
+            "[Tyche Telemetry Upload Setup] PASS: 0_App의 로컬 개발 전송과 Release HTTPS·Meta 인증 설정이 분리되어 있습니다.",
             uploaders[0]);
     }
 

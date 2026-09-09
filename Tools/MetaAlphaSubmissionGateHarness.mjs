@@ -48,6 +48,10 @@ function read(relativePath, root = clientRoot) {
   return fs.readFileSync(path.join(root, relativePath), "utf8");
 }
 
+function normalizeLineEndings(value) {
+  return value.replace(/\r\n?/gu, "\n");
+}
+
 function parseEnv(filePath) {
   const values = new Map();
   if (!fs.existsSync(filePath)) return values;
@@ -147,7 +151,8 @@ if (!fs.existsSync(serverReleasePlanPath)) {
   failures.push("서버 저장소의 공용 출시 문서 미러가 없습니다.");
 } else if (
   fs.existsSync(releasePlanPath) &&
-  fs.readFileSync(releasePlanPath).compare(fs.readFileSync(serverReleasePlanPath)) !== 0
+  normalizeLineEndings(fs.readFileSync(releasePlanPath, "utf8")) !==
+    normalizeLineEndings(fs.readFileSync(serverReleasePlanPath, "utf8"))
 ) {
   failures.push("클라이언트 기준 출시 문서와 서버 미러가 일치하지 않습니다.");
 }
@@ -176,10 +181,73 @@ if (!fs.existsSync(releaseApkPath) || fs.statSync(releaseApkPath).size === 0) {
 }
 
 const uploaderSource = read("Assets/Scripts/TycheTrainingTelemetryUploader.cs");
-if (uploaderSource.includes("Release players never enable this transport"))
+const metaAuthenticatorSource = read(
+  "Assets/Scripts/TycheMetaSessionAuthenticator.cs",
+);
+const appSceneSource = read("Assets/Scenes/0_App.unity");
+if (!uploaderSource.includes("UNITY_ANDROID && !DEVELOPMENT_BUILD && !UNITY_EDITOR"))
   failures.push(
-    "현재 업로더가 Release Player 전송을 차단합니다. 서버 우선 Alpha 전략에 맞는 HTTPS·인증 전송 구현과 실제 적재 검증이 필요합니다.",
+    "Android Release 전송 경계를 찾지 못했습니다.",
   );
+if (!uploaderSource.includes("productionServerBaseUrl"))
+  failures.push("Release 서버 주소가 Inspector 작성값으로 분리되어 있지 않습니다.");
+if (!metaAuthenticatorSource.includes("Users.GetUserProof()"))
+  failures.push("Release 인증기가 Meta User Proof를 요청하지 않습니다.");
+if (!metaAuthenticatorSource.includes("/api/training-telemetry/auth/meta"))
+  failures.push("Release 인증기의 서버 교환 API 경로가 없습니다.");
+if (!metaAuthenticatorSource.includes("uri.Scheme != Uri.UriSchemeHttps"))
+  failures.push("Release 인증기가 공개 HTTPS를 강제하지 않습니다.");
+if (!appSceneSource.includes("productionServerBaseUrl: https://immersa.tycheworks.com"))
+  failures.push("0_App의 Release HTTPS 주소가 운영 호스트와 일치하지 않습니다.");
+if (!appSceneSource.includes("logAppScopedUserId: 0"))
+  failures.push("0_App가 Release에서 Meta 앱 범위 사용자 ID 원문을 로그에 남깁니다.");
+
+if (fs.existsSync(serverRoot)) {
+  const serverAppSource = read("src/app.js", serverRoot);
+  const serverMetaAuthSource = read(
+    "src/modules/training-telemetry/training-telemetry-meta-auth.js",
+    serverRoot,
+  );
+  const serverAuthSource = read(
+    "src/modules/training-telemetry/training-telemetry-auth.js",
+    serverRoot,
+  );
+  const serverRoutesSource = read(
+    "src/modules/training-telemetry/training-telemetry-routes.js",
+    serverRoot,
+  );
+  const serverEnvExample = read(".env.example", serverRoot);
+  const serverNginxTelemetrySource = read(
+    "ops/nginx/tycheworks-immersa-training-telemetry.conf",
+    serverRoot,
+  );
+  if (!serverRoutesSource.includes('router.post("/auth/meta"'))
+    failures.push("서버의 Meta User Proof 교환 API가 연결되어 있지 않습니다.");
+  if (!serverMetaAuthSource.includes("https://graph.oculus.com/user_nonce_validate"))
+    failures.push("서버가 Meta 공식 User Proof 검증 엔드포인트를 사용하지 않습니다.");
+  if (!serverMetaAuthSource.includes('method: "POST"') ||
+      !serverMetaAuthSource.includes('"Content-Type": "application/x-www-form-urlencoded"'))
+    failures.push("서버의 Meta User Proof 검증이 공식 POST 폼 계약을 사용하지 않습니다.");
+  if (!serverMetaAuthSource.includes('tokenType = "training-telemetry-upload"'))
+    failures.push("서버 단기 토큰의 용도 제한 claim이 없습니다.");
+  if (!serverAuthSource.includes("authorizeRead"))
+    failures.push("Release 업로드 토큰과 텔레메트리 조회 권한이 분리되어 있지 않습니다.");
+  if (!serverAppSource.includes("enableMetaTrainingTelemetryAuth"))
+    failures.push("서버의 Meta Release 인증 기능 플래그가 없습니다.");
+  if (!serverNginxTelemetrySource.includes("location ^~ /api/training-telemetry/") ||
+      !serverNginxTelemetrySource.includes("limit_except POST { deny all; }") ||
+      !serverNginxTelemetrySource.includes("proxy_pass http://127.0.0.1:3000"))
+    failures.push("IMMERSA 운영 Nginx의 POST 전용 텔레메트리 프록시 구성이 없습니다.");
+  for (const requiredName of [
+    "ENABLE_META_TRAINING_TELEMETRY_AUTH",
+    "META_PLATFORM_APP_ACCESS_TOKEN",
+    "TRAINING_TELEMETRY_SESSION_TOKEN_SECRET",
+    "TRAINING_TELEMETRY_SESSION_TOKEN_TTL_SECONDS",
+  ]) {
+    if (!serverEnvExample.includes(`${requiredName}=`))
+      failures.push(`서버 .env.example에 Release 인증 설정이 없습니다: ${requiredName}`);
+  }
+}
 const setupSource = read("Assets/Editor/TycheTrainingTelemetryUploaderSetup.cs");
 if (!setupSource.includes("Inject Quest Development LAN Configuration"))
   failures.push("Quest Development LAN 일회성 주입 메뉴를 찾지 못했습니다.");

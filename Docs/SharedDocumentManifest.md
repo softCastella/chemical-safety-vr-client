@@ -18,6 +18,8 @@ Unity XR 클라이언트와 Express 서버를 별도 저장소에서 작업하�
   - Unity 계측, JSONL, Express API와 실데이터 대시보드의 후속 계약 및 검증 기록
 - `Docs/MeetingNotes/2026-08-30_Client_Server_Auth_Channel_Handoff.md`
   - Meta 인증, 로컬 등록·텔레메트리 API, 채널·큐 상태와 교차 저장소 인수인계
+- `Docs/ChemicalSafetyVRSystemArchitecture.md`
+  - 최종 발표용 현재 데이터 검증 구조, Meta Horizon 입점 이후 운영 목표 구조와 완료 조건
 
 ## 동기화 규칙
 

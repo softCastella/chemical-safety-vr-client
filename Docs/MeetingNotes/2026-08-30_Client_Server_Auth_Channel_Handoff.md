@@ -924,3 +924,72 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
 - `ConfinedSpace/Test`의 일반 로컬 DB 전송은 종료 이벤트 전 sequence까지만 반영되어 서버 상태가 아직
   `open`이고, 나머지 PPE Room 직접 시작 회차는 자동 업로드되지 않았다. 따라서 현재 채택은 로컬 JSONL과
   보존 복사본 기준이며, 기준 DB 반영·상세 조회 대조·DB 백업은 아직 완료되지 않았다.
+
+## 2026-09-09 Alpha 제출용 Release 인증·전송 구현 인수인계
+
+### 이번 변경과 보존한 동작
+
+- 이번 변경은 Alpha 제출용 Android Release 앱이 Meta 검증을 거쳐 공개 HTTPS로 원본 JSONL을 업로드하게
+  한다. PPE 흐름, JSONL 우선 기록, ACK checkpoint, 지수형 재시도, 재실행 복구와 기존 Editor·Android
+  Development 전송은 그대로 보존한다.
+- Release에서 장기 공용 token이나 Meta App Secret을 APK에 넣지 않는다. 앱은 앱 범위 Meta ID와 일회용
+  `User Proof`만 서버에 보내고, 서버가 검증 후 15분 기본 수명의 업로드 전용 Bearer token을 발급한다.
+- Release token은 세션 생성·이벤트·완료 POST에만 사용할 수 있다. 텔레메트리 GET 조회는 기존 개발용
+  token으로 분리하며, 검증된 Meta 사용자와 세션의 `metaUserId`가 다르면 업로드를 거부한다.
+
+### 교차 저장소 계약
+
+1. 클라이언트는 `Users.GetUserProof()`와 `MetaPlatformIdentityProbe.CurrentAppScopedUserId`를 사용한다.
+2. `POST /api/training-telemetry/auth/meta` 요청은 `metaUserId`, `userProof`만 포함한다.
+3. 서버는 Meta `user_nonce_validate`에 proof, 사용자 ID와 서버 전용 App Access Token을 HTTPS POST 폼으로
+   전달하며 비밀값을 URL 쿼리에 넣지 않는다.
+4. 성공 응답은 `data.accessToken`, `data.tokenType=Bearer`, `data.expiresIn`, `data.metaUserId`를 반환한다.
+5. 클라이언트는 만료 60초 전 token을 갱신하고 업로드 HTTP 401이면 캐시를 폐기한다.
+6. Android Release만 `productionServerBaseUrl`을 사용한다. `0_App` 작성값은
+   `https://immersa.tycheworks.com`이며 기본 443 포트의 공개 HTTPS 루트만 허용한다.
+
+서버 환경 변수 이름은 다음과 같고 실제 값은 Git·문서·클라이언트에 기록하지 않는다.
+
+- `ENABLE_META_TRAINING_TELEMETRY_AUTH`
+- `META_PLATFORM_APP_ACCESS_TOKEN`
+- `TRAINING_TELEMETRY_SESSION_TOKEN_SECRET`
+- `TRAINING_TELEMETRY_SESSION_TOKEN_TTL_SECONDS`
+
+### 검증 상태
+
+- **서버 코드·자동 테스트:** Meta proof 성공·실패, token 발급·만료·변조, Meta ID 불일치, Release GET
+  차단, 공식 검증 URL 계약과 필수 설정 누락을 포함해 최신 `main`의 `npm test` 93개가 통과했다.
+- **클라이언트 정적·Editor 확인:** `Assembly-CSharp.csproj`와 `Assembly-CSharp-Editor.csproj` 빌드가
+  오류 0으로 통과했다. Unity Editor 재컴파일 뒤 `App Startup Synchronization`,
+  `PPE Training Data Contract`, `Documentation Policy` 하네스 실행도 모두 PASS했다.
+- **제출 게이트:** Release 전송 차단 FAIL은 해소됐다. `MetaAlphaSubmissionGateHarness`는 code 6 Release
+  APK가 아직 없어서만 `WAIT`다. 로컬 기준 Express PM2 프로세스와 health·확인 페이지·인증 조회는
+  HTTP 200이다.
+- **운영 반영:** 운영 HTTPS 환경 변수, migration과 POST 전용 Nginx 프록시는 적용했다. 실제 Meta proof
+  왕복, Quest Release 한 세션의 서버 적재·재조회, 양안·입력·음성과 Alpha 채널 설치는 아직 수행하지 않았다.
+
+### 다음 실행 순서
+
+1. Meta 테스트 사용자 한 명의 실제 User Proof로 인증·세션·이벤트·완료·중복 재전송을 대조한다.
+2. 그 뒤 사용자와 함께 짧은 Quest 수동 회귀를 수행하고 code 6 Release APK를 만든다.
+3. code 6을 Alpha 채널에 업로드한 뒤 같은 세션의 Quest JSONL과 서버 원본을 최종 대조한다.
+
+### 2026-09-09 운영 반영 결과
+
+- 서버 구현 커밋 `main@5b8138865991408215011078328f74a0df229982`를 GitHub와 Vultr의
+  `/home/linuxuser/workspace/chemical-safety-vr`에 fast-forward로 반영했다.
+- 적용 전 `.env`를 `/home/linuxuser/.config/tycheworks/env-backups/`에 권한 `600`으로 백업했다. 운영 DB는
+  `--no-tablespaces --single-transaction`으로 백업했고 압축 무결성·완료 마커와 SHA-256
+  `ff524514c7ea1187cb4f496e305b5c2dc67fbd7f8e1ad92d6c694dc22262`를 확인했다. 비밀값과 DB 원문은
+  문서·Git에 넣지 않았다.
+- 운영 `.env`에 Meta 인증과 수집 활성화, 서버 전용 App Access Token, 임의 생성 세션 서명 비밀과 900초
+  TTL을 설정했다. 개발용 장기 업로드 token은 비워 Release 업로드 권한과 운영 조회 권한을 분리했다.
+- migration `009`~`012`를 새로 적용했고 전체 migration은 16개다. 적용 직후 텔레메트리 참여자·세션·
+  이벤트는 모두 0건이었다.
+- PM2를 새 환경으로 재시작해 `online`, 내부 health `200`, 빈 인증 요청 `400`, 비인증 조회 `401`을
+  확인했다. 재시작 직후 기존 오류 로그 크기는 15초 관찰 동안 증가하지 않았다.
+- IMMERSA Nginx 원본을 별도 백업하고 저장소의 POST 전용 프록시 include를 적용했다. `nginx -t` 통과 후
+  reload했으며 공개 인증 POST `400`, 공개 GET `403`, 기존 health·상세페이지 `200`, TLS 검증 성공을
+  확인했다.
+- 이는 운영 수신 준비 완료 근거다. 실제 Meta proof 성공, Quest JSONL 업로드와 DB 원본 일치는 code 6
+  이전의 실제 기기 통합 검증으로 남긴다.

@@ -312,7 +312,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MetaPlatformIdentityProbe
   runOnStart: 1
   useMetaPlatformSdkInEditor: 0
-  logAppScopedUserId: 1
+  logAppScopedUserId: 0
 --- !u!114 &500000005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -327,6 +327,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TycheTrainingTelemetryUploader
   enableEditorTestUpload: 1
   serverBaseUrl: http://127.0.0.1:3000
+  productionServerBaseUrl: https://immersa.tycheworks.com
   batchSize: 25
   scanIntervalSeconds: 5
   maximumRetrySeconds: 60

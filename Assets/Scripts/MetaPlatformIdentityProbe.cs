@@ -51,6 +51,9 @@ public sealed class MetaPlatformIdentityProbe : MonoBehaviour
         AccountWelcomeState.Unknown;
     public static bool IsIdentityRequestInFlight =>
         s_Instance != null && s_Instance._requestInFlight;
+    public static ProbeState CurrentState => s_Instance != null
+        ? s_Instance.State
+        : ProbeState.Idle;
 
     private const string ScenarioCompletedKeyPrefix = "Tyche.MetaScenarioCompleted.";
     private static MetaPlatformIdentityProbe s_Instance;

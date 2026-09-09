@@ -10,9 +10,9 @@ using UnityEngine.Networking;
 
 /// <summary>
 /// Uploads only schema-versioned JSONL records created by the separated
-/// chemical-safety-vr-client project. The current authentication path is for
-/// local Unity Editor integration testing and explicitly configured Android
-/// Development Builds. Release players never enable this transport.
+/// chemical-safety-vr-client project. Editor and Android Development builds
+/// keep their explicit local transport, while Android Release exchanges a
+/// one-time Meta User Proof for a short-lived token over public HTTPS.
 /// </summary>
 [DisallowMultipleComponent]
 [DefaultExecutionOrder(100)]
@@ -45,6 +45,11 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
     [Header("Local Unity Editor Test Only")]
     [SerializeField] private bool enableEditorTestUpload = true;
     [SerializeField] private string serverBaseUrl = "http://127.0.0.1:3000";
+
+    [Header("Release Quest HTTPS")]
+    [SerializeField] private string productionServerBaseUrl = "https://immersa.tycheworks.com";
+
+    [Header("Durable Upload")]
     [SerializeField, Range(1, 50)] private int batchSize = 25;
     [SerializeField, Min(1f)] private float scanIntervalSeconds = 5f;
     [SerializeField, Min(5f)] private float maximumRetrySeconds = 60f;
@@ -211,6 +216,7 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
     bool uploadLoopReady;
     float requestedRecordScanAt = float.PositiveInfinity;
     float retryNotBefore;
+    TycheMetaSessionAuthenticator releaseSessionAuthenticator;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStaticState()
@@ -264,13 +270,32 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
         if (Application.isEditor && !enableEditorTestUpload)
             yield break;
 
-        if (!TryResolveTransport(
-                out string normalizedBaseUrl,
-                out string uploadToken,
+        bool usesReleaseTransport = UsesReleaseTransport;
+        string normalizedBaseUrl = null;
+        string uploadToken = null;
+        if (!usesReleaseTransport &&
+            !TryResolveTransport(
+                out normalizedBaseUrl,
+                out uploadToken,
                 out string transportFailure))
         {
             ReportFailure(transportFailure);
             yield break;
+        }
+
+        if (usesReleaseTransport)
+        {
+            try
+            {
+                releaseSessionAuthenticator = new TycheMetaSessionAuthenticator(
+                    productionServerBaseUrl,
+                    requestTimeoutSeconds);
+            }
+            catch (ArgumentException exception)
+            {
+                ReportFailure(exception.Message);
+                yield break;
+            }
         }
 
         if (!TryGetOrCreateClientInstanceId(out clientInstanceId))
@@ -296,7 +321,37 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
 
             requestedRecordScanAt = float.PositiveInfinity;
             uploadFailedThisScan = false;
-            yield return UploadPendingFiles(normalizedBaseUrl, uploadToken);
+            string verifiedMetaUserId = null;
+            if (usesReleaseTransport)
+            {
+                TycheMetaSessionAuthenticator.Authorization authorization = null;
+                string authenticationFailure = null;
+                yield return releaseSessionAuthenticator.AcquireAuthorization(
+                    (result, failure) =>
+                    {
+                        authorization = result;
+                        authenticationFailure = failure;
+                    });
+                if (authorization == null)
+                {
+                    ReportFailure(authenticationFailure ?? "Release 인증 결과가 없습니다.");
+                    uploadFailedThisScan = true;
+                }
+                else
+                {
+                    normalizedBaseUrl = authorization.ServerBaseUrl;
+                    uploadToken = authorization.AccessToken;
+                    verifiedMetaUserId = authorization.MetaUserId;
+                }
+            }
+
+            if (!uploadFailedThisScan)
+            {
+                yield return UploadPendingFiles(
+                    normalizedBaseUrl,
+                    uploadToken,
+                    verifiedMetaUserId);
+            }
             now = Time.realtimeSinceStartup;
             retrySeconds = uploadFailedThisScan
                 ? Mathf.Min(maximumRetrySeconds, Mathf.Max(scanIntervalSeconds, retrySeconds * 2f))
@@ -309,6 +364,18 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
 
         uploadLoopReady = false;
         UnsubscribeFromRecordNotifications();
+    }
+
+    static bool UsesReleaseTransport
+    {
+        get
+        {
+#if UNITY_ANDROID && !DEVELOPMENT_BUILD && !UNITY_EDITOR
+            return true;
+#else
+            return false;
+#endif
+        }
     }
 
     void SubscribeToRecordNotifications()
@@ -616,7 +683,10 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
     }
 #endif
 
-    IEnumerator UploadPendingFiles(string baseUrl, string token)
+    IEnumerator UploadPendingFiles(
+        string baseUrl,
+        string token,
+        string verifiedMetaUserId)
     {
         string directory = Path.Combine(
             Application.persistentDataPath,
@@ -643,7 +713,12 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
             if (!TryReadNewClientRecords(path, out List<LocalRecord> records))
                 continue;
 
-            yield return UploadFile(baseUrl, token, path, records);
+            yield return UploadFile(
+                baseUrl,
+                token,
+                path,
+                records,
+                verifiedMetaUserId);
             if (uploadFailedThisScan)
                 yield break;
         }
@@ -729,11 +804,20 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
         string baseUrl,
         string token,
         string jsonlPath,
-        List<LocalRecord> records)
+        List<LocalRecord> records,
+        string verifiedMetaUserId)
     {
         LocalRecord first = records[0];
-        if (!TryResolveMetaIdentity(records, out string metaUserId))
+        if (!TryResolveMetaIdentity(
+                records,
+                verifiedMetaUserId,
+                out string metaUserId,
+                out string identityFailure))
+        {
+            ReportFailure(identityFailure);
+            uploadFailedThisScan = true;
             yield break;
+        }
         string statePath = jsonlPath + ".upload-state.json";
         UploadState state = LoadState(statePath, first.sessionId);
         if (state.completed)
@@ -855,6 +939,8 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
         string body = request.downloadHandler?.text ?? "";
         if (!success)
         {
+            if (request.responseCode == 401 && releaseSessionAuthenticator != null)
+                releaseSessionAuthenticator.InvalidateAuthorization();
             ReportFailure(
                 $"POST {DescribeRequest(url)} 실패: HTTP {request.responseCode}, {request.error}");
         }
@@ -927,20 +1013,41 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
 
     static bool TryResolveMetaIdentity(
         IEnumerable<LocalRecord> records,
-        out string metaUserId)
+        string verifiedMetaUserId,
+        out string metaUserId,
+        out string failure)
     {
         metaUserId = records
             .Select(record => record.metaAppScopedUserId)
             .FirstOrDefault(value => !string.IsNullOrEmpty(value));
-        if (!string.IsNullOrEmpty(metaUserId))
-            return true;
+        if (!string.IsNullOrEmpty(verifiedMetaUserId))
+        {
+            if (!string.IsNullOrEmpty(metaUserId) && metaUserId != verifiedMetaUserId)
+            {
+                failure = "JSONL의 Meta 사용자와 Release 인증 사용자가 일치하지 않습니다.";
+                return false;
+            }
 
-        return records.Any(record =>
+            metaUserId = verifiedMetaUserId;
+            failure = null;
+            return true;
+        }
+        if (!string.IsNullOrEmpty(metaUserId))
+        {
+            failure = null;
+            return true;
+        }
+
+        bool anonymousDevelopmentRecord = records.Any(record =>
             record.metaProbeState == "SkippedForEditorTesting" ||
             record.metaProbeState == "Completed" ||
             record.metaProbeState == "CompletedWithoutAgeCategory" ||
             record.metaProbeState == "Failed" ||
             record.eventType == "session_ended");
+        failure = anonymousDevelopmentRecord
+            ? null
+            : "JSONL에서 Meta 또는 개발용 익명 식별 상태를 확인하지 못했습니다.";
+        return anonymousDevelopmentRecord;
     }
 
     static bool TryGetOrCreateClientInstanceId(out string value)

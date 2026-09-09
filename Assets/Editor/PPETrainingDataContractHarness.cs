@@ -23,6 +23,7 @@ public static class PPETrainingDataContractHarness
     const string QuitButtonSourcePath = "Assets/Scripts/QuitApplicationButton.cs";
     const string TelemetrySourcePath = "Assets/Scripts/PPETrainingTelemetryCapture.cs";
     const string TelemetryUploaderSourcePath = "Assets/Scripts/TycheTrainingTelemetryUploader.cs";
+    const string TelemetryMetaAuthenticatorSourcePath = "Assets/Scripts/TycheMetaSessionAuthenticator.cs";
     const string VoiceFlowDirectorSourcePath = "Assets/Scripts/PPEVoiceFlowDirector.cs";
     const string QuizControllerSourcePath = "Assets/Scripts/PPEQuizController.cs";
     const string LocalRegistrationClientSourcePath = "Assets/Scripts/TycheLocalTrainingRegistrationClient.cs";
@@ -336,6 +337,31 @@ public static class PPETrainingDataContractHarness
             TelemetryUploaderSourcePath,
             "EditorUploadTokenFileName = \".editor-upload-token\"",
             "Unity 프로세스가 환경 변수를 읽지 못할 때 사용할 저장소 밖 Editor 전용 토큰 경로가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "productionServerBaseUrl",
+            "Release 업로더의 Inspector 작성 HTTPS 주소가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "UNITY_ANDROID && !DEVELOPMENT_BUILD && !UNITY_EDITOR",
+            "Android Release와 Development 전송 경계가 분리되어 있지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryMetaAuthenticatorSourcePath,
+            "Users.GetUserProof()",
+            "Release 인증기가 일회용 Meta User Proof를 요청하지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryMetaAuthenticatorSourcePath,
+            "/api/training-telemetry/auth/meta",
+            "Release 인증기의 서버 교환 API 경로가 없습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryMetaAuthenticatorSourcePath,
+            "uri.Scheme != Uri.UriSchemeHttps",
+            "Release 인증기가 public HTTPS 외 전송을 거부하지 않습니다.",
             failures);
         ValidateSourceContains(
             TelemetryUploaderSourcePath,

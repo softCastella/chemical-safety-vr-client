@@ -277,3 +277,175 @@ mip bias와 Android texture format을 변경하지 않는다.
 - 변경 후 diff에서 해당 RectTransform 위치 한 줄만 바뀐 것을 정적으로 확인했다.
 - 현재 Unity Editor에는 `4_PPE_Room`이 열려 있으므로 Title 씬 Game View와 Quest/OpenXR 양안 결과는
   아직 확인하지 않았다. 이 비교가 끝날 때까지 텍스처 설정은 변경하지 않는다.
+
+## 2026-09-09 후속: 사용자 거리 효과 확인과 위치 미세 조정
+
+### 사용자 확인
+
+- 사용자는 `PartnerLogos`를 로컬 Z `0`에서 `-20`으로 당긴 뒤 타이틀 로고 렌더링 품질에 효과가 있는
+  것으로 확인했다.
+- 확인한 실행 환경이 Game View인지 Quest/OpenXR 양안인지는 이번 보고만으로 확정하지 않는다. 위치
+  미세 조정 뒤 같은 환경에서 다시 비교하고, Quest/OpenXR 완료 여부는 별도로 기록한다.
+
+### 변경 전 필수 판단
+
+1. **기존 Inspector/씬 작성값 보존:** 생산 대상 `Assets/Scenes/1_Title.unity`의
+   `Canvas/PartnerLogos` RectTransform에서 로컬 Y와 Z만 조정한다. 크기, 앵커, 피벗, 자식 로고,
+   Canvas와 TextureImporter 값은 보존한다.
+2. **단일 기준과 상태 소유자:** 위치의 단일 기준은 `PartnerLogos` RectTransform이다.
+   `TitleSplashController`는 해당 Transform을 변경하지 않고 CanvasGroup alpha만 제어한다.
+3. **입력·렌더링 경로:** 입력 소비자는 없다. 렌더링 경로는 `Main Camera → World Space Canvas →
+   PartnerLogos → Image/Sprite`다.
+4. **실패 처리:** 런타임 자동 보정이나 fallback을 추가하지 않는다. 조정 결과가 나쁘면 로컬 Y `-4.9000015`,
+   Z `-20`의 직전 사용자 확인값으로 복구한다.
+5. **영향 소비자:** Title 파트너 로고 3종의 위치·깊이·선명도만 영향을 받는다. 메인 로고, 페이드, 오디오,
+   입력, PPE와 텔레메트리는 변경하지 않는다.
+6. **변경 전후 비교:** 현재 Y `-4.9000015`, Z `-20`에서 Y `-3.9`, Z `-25`로 한 단계만 이동한다.
+   같은 시작 자세에서 화면 점유율, 메인 로고와의 정렬, 시머링, 깊이 불편과 잘림을 비교한다.
+7. **검증 수준:** 씬 작성값과 런타임 대입 경로의 정적 확인까지 완료했다. 변경 후 Unity Import와 사용자
+   시각 비교가 필요하며, Quest/OpenXR 양안 확인 전에는 최종 완료로 확대하지 않는다.
+
+### 적용 상태
+
+- `PartnerLogos`의 로컬 Z를 `-20`에서 `-25`로, anchored Y를 `-4.9000015`에서 `-3.9`로 변경했다.
+- 씬 diff는 대상 RectTransform의 두 값만 변경됐고 크기·앵커·피벗·자식 Transform과 렌더링 설정은
+  그대로 유지됐다.
+- `git diff --check`는 오류 없이 통과했다. Unity Editor가 생산 `1_Title` 씬을 열고 있지만, 변경 후
+  시각 비교와 Quest/OpenXR 양안 확인은 아직 사용자의 재실행이 필요하다.
+
+## 2026-09-09 후속: 메인 로고 깊이와 파트너 로고 한 높이 이동
+
+### 변경 전 필수 판단
+
+1. **기존 Inspector/씬 작성값 보존:** 생산 `1_Title` 씬에서 `TitleLogo2d`의 로컬 Z와
+   `PartnerLogos`의 로컬 Z·anchored Y만 변경한다. 두 요소의 크기, 앵커, 피벗, X 위치, 자식 로고와
+   렌더링 설정은 보존한다.
+2. **단일 기준과 상태 소유자:** 메인 로고는 `TitleLogo2d`, 파트너 로고는 `PartnerLogos` RectTransform이
+   각각 위치 기준이다. `TitleSplashController`는 두 Transform을 변경하지 않고 alpha만 제어한다.
+3. **입력·렌더링 경로:** 입력 소비자는 없고 `Main Camera → World Space Canvas → 각 로고 Image` 경로만
+   영향을 받는다.
+4. **실패 처리:** 런타임 자동 보정은 추가하지 않는다. 결과가 나쁘면 메인 Z `0`, 파트너 Y `-3.9`,
+   Z `-25`의 직전 값으로 복구한다.
+5. **영향 소비자:** Title 메인 로고와 파트너 로고 3종의 깊이·배치만 영향을 받는다. 페이드, 오디오,
+   입력, PPE, 텔레메트리는 보존한다.
+6. **변경 전후 비교:** 메인 로고는 Z `0 → -10`으로 조금 당긴다. 파트너 로고는 현재 높이 `12`만큼
+   Y `-3.9 → 8.1`로 올리고 Z `-25 → -35`로 더 당긴다. 같은 자세에서 겹침·잘림·선명도·시머링과
+   깊이 불편을 비교한다.
+7. **검증 수준:** 현재 씬 작성값과 런타임 대입 경로를 정적으로 확인했다. 적용 후 Unity와 Quest/OpenXR
+   사용자 시각 비교가 필요하다.
+
+### 적용 상태
+
+- `TitleLogo2d`의 로컬 Z를 `0`에서 `-10`으로 변경했다.
+- `PartnerLogos`의 로컬 Z를 `-25`에서 `-35`로, anchored Y를 현재 높이 `12`만큼
+  `-3.9`에서 `8.1`로 변경했다.
+- 최종 씬 diff에서 대상 두 RectTransform의 세 값만 변경됐고 `git diff --check`는 오류 없이 통과했다.
+- Unity Editor와 Quest/OpenXR 시각 비교는 아직 필요하다. 파트너 로고가 메인 로고와 겹치거나 잘리거나
+  깊이 불편이 생기면 직전 값으로 복구한다.
+
+## 2026-09-09 후속: 파트너 로고 추가 전진과 버전 깊이 정렬
+
+### 사용자 확인과 변경 전 필수 판단
+
+1. 사용자는 파트너 로고를 앞당긴 것이 렌더링 품질 개선에 효과가 있다고 확인했다.
+2. 기존 Inspector 작성값 중 `TitleLogo2d` Z `-10`, `PartnerLogos` anchored Y `8.1`, 크기·앵커·피벗과
+   자식 로고 값은 보존한다.
+3. 위치 기준은 `PartnerLogos`와 기존 씬 작성 `Version` RectTransform이다. `TitleSplashController`는
+   기존 `Version`의 Transform을 덮어쓰지 않고 텍스트·alpha만 갱신한다.
+4. 입력 소비자는 없으며 Title의 파트너 로고와 버전 표시에만 영향을 준다. 오디오, 페이드 순서, PPE와
+   텔레메트리는 변경하지 않는다.
+5. 런타임 자동 보정은 추가하지 않는다. 결과가 나쁘면 파트너 로고 Z `-35`, 버전 Z `0`으로 복구한다.
+6. 파트너 로고는 Z `-35 → -50`으로 더 당기고 `Version`도 동일한 Z `-50`으로 맞춘다. 같은 자세에서
+   선명도·시머링·깊이 불편, 버전 글자의 가독성과 다른 요소와의 겹침을 비교한다.
+7. 현재 검증은 씬 직렬화와 런타임 대입 경로의 정적 확인까지다. 변경 후 Unity와 Quest/OpenXR 사용자
+   시각 확인이 필요하다.
+
+### 적용 상태
+
+- 사용자의 정정에 따라 추가 전진 대상은 메인 타이틀 로고가 아니라 `PartnerLogos`로 확정했다.
+- `PartnerLogos`의 로컬 Z를 `-35`에서 `-50`으로 변경하고, `Version`도 같은 로컬 Z `-50`으로 맞췄다.
+- `TitleLogo2d`는 직전 작성값 Z `-10`, `PartnerLogos`의 anchored Y는 한 높이 올린 `8.1`을 보존했다.
+- 최종 씬 diff에서 `Version`, `TitleLogo2d`, `PartnerLogos`의 의도한 값만 확인했고
+  `git diff --check`는 오류 없이 통과했다. 사용자 시각 비교는 아직 필요하다.
+
+## 2026-09-09 후속: 메인 로고 잔상 회귀와 파트너·버전 추가 전진
+
+### 사용자 재현과 변경 전 필수 판단
+
+1. 사용자는 직전 변경 후 기동 시 `TitleLogo2d`에 투명 셀로판 같은 잔상이 나타났지만, 로고를 당긴 결과
+   선명도는 더 좋아졌다고 확인했다.
+2. 추가 사용자 확인에 따라 메인 로고 로컬 Z `-10`은 선명도 개선값으로 보존한다. 잔상은 현재 변경에서
+   카메라, Shader, Importer나 XR 설정을 함께 바꾸지 않고 별도 미검증 현상으로 남긴다.
+3. 위치 기준은 씬 작성 `TitleLogo2d`, `PartnerLogos`, `Version` RectTransform이다.
+   `TitleSplashController`는 기존 Transform을 덮어쓰지 않고 alpha와 버전 문자열만 갱신한다.
+4. 입력 소비자는 없다. 직접 영향은 Title 메인 로고의 잔상과 파트너 로고·버전의 깊이·가독성이다.
+   오디오, 페이드 순서, PPE와 텔레메트리는 변경하지 않는다.
+5. 런타임 자동 보정은 추가하지 않는다. 잔상을 후속 진단할 때는 새 패치를 추가하기 전에 Z `0` 기준과
+   현재 Z `-10`의 선명도·잔상을 같은 조건에서 비교한다.
+6. 파트너 로고와 버전은 서로 같은 깊이를 유지하며 Z `-50 → -70`으로 이동한다. 파트너 anchored Y `8.1`,
+   크기·앵커·피벗·자식 로고는 보존한다.
+7. 정적 씬 diff 뒤 Unity 기동에서 메인 로고의 선명도와 잔상 변화, 파트너·버전 선명도,
+   겹침·잘림·시머링과 Quest/OpenXR 양안 깊이를 별도로 확인한다.
+
+### 적용 상태
+
+- 추가 사용자 확인에 따라 `TitleLogo2d`는 선명도가 개선된 Z `-10`을 유지했다. 투명 셀로판 같은 잔상은
+  이번 변경에서 다른 렌더링 값을 섞지 않고 후속 비교 대상으로 남겼다.
+- `PartnerLogos`와 `Version`의 로컬 Z를 함께 `-50`에서 `-70`으로 변경했다.
+- 파트너 로고의 anchored Y `8.1`과 모든 크기·앵커·피벗·자식 값은 보존했다.
+
+## 2026-09-09 후속: 편집 모드 Scene View 로고 표시
+
+### 이번 변경이 대응하는 사용자 요청
+
+- 사용자가 생산 `1_Title`과 `3_Loading`의 메인 이미지를 Scene View에서 직접 보며 비율과 배치를 조정할 수 있게 한다.
+- `3_Loading/Canvas/PartnerLogos`는 필요하지 않아 비활성인 것이 정상이며, 활성 상태나 알파를 변경하지 않는다.
+
+### 변경 전 필수 판단
+
+1. **기존 Inspector/씬 작성값 보존:** 메인 로고의 RectTransform, Sprite, 색상과 Loading의 모든 작성값을 보존한다.
+   Title 메인 로고의 편집 모드 가시성을 막는 `CanvasGroup.alpha`만 작성값 `1`로 둔다.
+2. **단일 기준과 상태 소유자:** 편집 배치의 기준은 각 생산 씬의 `Canvas/TitleLogo2d`이다. 재생 중 페이드 상태는
+   `TitleSplashController`가 소유한다.
+3. **입력·렌더링 경로:** 입력 소비자는 없다. 표시 경로는 `World Space Canvas → TitleLogo2d CanvasGroup → Image/Sprite`이다.
+4. **실패 처리:** 누락 참조 자동 생성이나 편집 모드 자동 보정을 추가하지 않는다. 필수 참조 오류는 기존 런타임 경로에서 드러나게 둔다.
+5. **함께 영향받는 소비자:** Title의 편집 모드 로고 표시와 재생 시 페이드만 확인한다. Loading 파트너 로고,
+   입력, 오디오, PPE, 텔레메트리는 변경하지 않는다.
+6. **변경 전후 비교:** 변경 전 Title은 `TitleLogo2d` 활성 상태지만 `CanvasGroup.alpha = 0`이고,
+   `TitleSplashController.Awake()`가 편집 모드에서도 이를 덮어썼다. 변경 후 편집 모드는 alpha `1`을 유지하고,
+   Play Mode 진입 시에만 기존처럼 alpha `0`에서 페이드를 시작해야 한다.
+7. **검증 수준:** 씬·코드 정적 확인과 C# 컴파일까지 수행한다. Scene View의 실제 표시와 조정 결과는 사용자가 Unity에서 확인하고,
+   Play Mode 및 Quest/OpenXR의 페이드·양안 표시는 별도 수동 검증으로 구분한다.
+
+### 적용 및 검증 상태
+
+- `Assets/Scenes/1_Title.unity`의 `Canvas/TitleLogo2d` 작성 alpha를 `1`로 변경했다.
+- `TitleSplashController.Awake()`는 Play Mode일 때만 페이드용 alpha `0` 초기화를 수행하므로 편집 모드 작성값을 덮어쓰지 않는다.
+- `Assets/Scenes/3_Loading.unity`는 변경하지 않았다. 메인 `TitleLogo2d`는 기존대로 활성·alpha `1`,
+  `PartnerLogos`는 기존대로 비활성·alpha `0`이다.
+- `SceneDependencyValidationHarness`에 위 네 계약의 정적 재발 검사를 추가했다.
+- `dotnet build Assembly-CSharp.csproj`은 기존 경고 68개와 오류 0개로 통과했고,
+  `dotnet build Assembly-CSharp-Editor.csproj`은 경고·오류 0개로 통과했다.
+- 실행 중인 Unity는 생산 `1_Title`을 열고 있고 Asset Pipeline Refresh를 완료했다. 자동 UI 연결이 Unity 창을 제공하지 않아
+  Scene View 화면 자체의 가시성은 사용자가 확인해야 한다. Play Mode와 Quest/OpenXR 검증은 아직 수행하지 않았다.
+
+## 2026-09-09 후속: 파트너 로고와 버전 Scene View 동시 표시
+
+### 변경 전 필수 판단
+
+1. `PartnerLogos`와 `Version`의 기존 RectTransform·자식·색·글자 크기·깊이 작성값을 보존하고 CanvasGroup alpha만 `1`로 둔다.
+2. 편집 배치 기준은 씬의 `Canvas/PartnerLogos`와 `Canvas/Version`, 재생 페이드 소유자는 `TitleSplashController`다.
+3. 입력 소비자는 없고 표시 경로는 `World Space Canvas → 각 CanvasGroup → Image/TMP`다.
+4. 편집 모드 자동 보정이나 누락 참조 fallback을 추가하지 않는다.
+5. Title의 편집 가시성과 기존 재생 페이드만 영향받으며 Loading, 입력, 오디오, PPE와 텔레메트리는 보존한다.
+6. 변경 전 두 CanvasGroup은 alpha `0`이라 Scene View에서 보이지 않는다. 변경 후 작성 alpha `1`, Play Mode 진입 시 기존처럼 `0`부터 페이드한다.
+7. 씬 diff와 컴파일을 정적으로 확인하고, Scene View 배치와 Play Mode 표시는 Unity에서 이어서 비교한다. Quest/OpenXR 검증은 별도다.
+
+### 2026-09-09 작업 종료 시점 정리
+
+- 생산 `1_Title`의 최종 작성값은 메인 `TitleLogo2d` 로컬 Z `-10`, `PartnerLogos` 로컬 Z `-70`·anchored position `(1.9, 7.8)`, `Version` 로컬 Z `-70`·anchored position `(-11.5, -14.9)`·TMP font size `1`이다.
+- `TitleLogo2d`, `PartnerLogos`, `Version`의 CanvasGroup 작성 alpha를 `1`로 두어 Scene View에서 함께 편집할 수 있게 했다.
+- `TitleSplashController.Awake()`는 편집 모드에서 즉시 반환하므로 Scene View 작성 alpha를 덮어쓰지 않는다. Play Mode에서는 기존 페이드 흐름을 유지한다.
+- 사용자는 메인 로고와 파트너 로고를 카메라 쪽으로 당긴 결과 선명도가 개선됐다고 확인했다. 기동 시 메인 로고의 투명 셀로판 같은 잔상은 별도 Quest/OpenXR 비교가 필요한 미해결 항목이다.
+- `Version`의 TMP font size를 씬에서 `1`로 조정했지만 현재 `TitleSplashController.EnsureVersionLabel()`이 Play Mode에서 `versionFontSize=3`과 폰트·색·정렬을 다시 대입한다. 따라서 버전의 Inspector 작성값이 재생에서 그대로 유지된다고 확인하지 않았으며, 런타임 표현 덮어쓰기를 제거하는 후속 수정이 필요하다.
+- 정적 씬·코드와 Unity Scene View까지 확인했다. 타이틀 페이드, 잔상, 파트너 로고·버전의 깊이와 가독성은 Quest/OpenXR 양안에서 별도로 검증해야 한다.

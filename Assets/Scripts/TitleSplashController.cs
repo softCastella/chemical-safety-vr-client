@@ -48,6 +48,9 @@ public sealed class TitleSplashController : MonoBehaviour
 
     private void Awake()
     {
+        if (!Application.isPlaying)
+            return;
+
         primaryGroup = GetOrAddCanvasGroup(primaryLogo);
         versionGroup = EnsureVersionLabel();
         partnerGroup = GetOrAddCanvasGroup(partnerLogos);

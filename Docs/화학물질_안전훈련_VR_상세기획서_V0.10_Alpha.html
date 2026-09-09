@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>팀티케 - 화학물질 안전훈련 VR 상세기획서 v0.10 Alpha</title>
-    <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="./img/vr_favicon.png" type="image/png" />
     <style>
       :root {
         --bg: #ffffff;
@@ -4968,7 +4968,7 @@
               <span class="badge">Engine: Unity VR/XR</span>
               <span class="badge">Play: 교육 · 훈련 · 테스트</span>
             </div>
-            <p class="header-meta-line"><b>개정일</b>: 2026.09.08&nbsp;&nbsp;|&nbsp;&nbsp;<b>버전</b>: v0.10 Alpha</p>
+            <p class="header-meta-line"><b>개정일</b>: 2026.09.09&nbsp;&nbsp;|&nbsp;&nbsp;<b>버전</b>: v0.10 Alpha</p>
           </div>
 
         </div>
@@ -5001,7 +5001,7 @@
             <div><span class="k">프로젝트명</span>화학물질 안전훈련 VR</div>
             <div><span class="k">문서 성격</span>상세기획서 · Alpha 기준본</div>
             <div><span class="k">팀</span>1인팀 Tyche(티케) · 최진영</div>
-            <div><span class="k">개정일</span>2026-09-08</div>
+            <div><span class="k">개정일</span>2026-09-09</div>
             <div><span class="k">프로젝트 유형</span>체험형 VR 안전교육</div>
             <div><span class="k">버전</span>v0.10 Alpha</div>
           </div>
@@ -5018,8 +5018,8 @@
               <tbody>
                 <tr class="version-current">
                   <td><span class="version-badge">v0.10</span></td>
-                  <td>2026-09-08</td>
-                  <td>문서 성격을 사전기획서에서 상세기획서로 전환하고 Meta Horizon Alpha 테스트 기준선을 반영했다. 현재 빌드 장면 5개, PPE 작업계획 2종 × 교육·훈련·테스트 3모드, 이름 입력 임시 생략, 로컬 텔레메트리와 Development 전용 서버 업로드 경계를 명시했다. 기능명세·R&amp;D·시스템 연동 문구를 코드·씬·검증 문서 기준으로 정정하고, 변경 항목마다 v0.9 대비 현재 기준과 변경 이유를 남겼다. Meta Horizon 입점 준비는 런타임 기능과 비코드 제출 업무를 분리해 관리한다.</td>
+                  <td>2026-09-09</td>
+                  <td>문서 성격을 사전기획서에서 상세기획서로 전환하고 Meta Horizon Alpha 테스트 기준선을 반영했다. 현재 빌드 장면 5개, PPE 작업계획 2종 × 교육·훈련·테스트 3모드, 이름 입력 임시 생략과 원본 텔레메트리 계약을 명시했다. Android build code 6 설정과 서버 우선 Alpha 전략을 반영해 Release 원본 전송은 제출 전 필수로, 대시보드 지표·화면 확정은 Meta 심사 기간의 후속 작업으로 분리했다.</td>
                   <td>최진영</td>
                 </tr>
                 <tr>
@@ -5090,11 +5090,11 @@
                 <tr><th style="width:150px;">구분</th><th>v0.9 이전 기준</th><th>v0.10 Alpha 현재 기준</th><th>변경 이유·근거</th></tr>
               </thead>
               <tbody>
-                <tr><td><strong>문서 상태</strong></td><td>사전기획서, PPE 3모드 구현 완료 중심</td><td>상세기획서, Meta Horizon Alpha 테스트 중</td><td>현재 단계는 출시 완료가 아니라 코드 5 빌드의 실기기·회귀·제출 게이트를 통과시키는 단계다.</td></tr>
+                <tr><td><strong>문서 상태</strong></td><td>사전기획서, PPE 3모드 구현 완료 중심</td><td>상세기획서, Meta Horizon Alpha 테스트 중</td><td>현재 단계는 출시 완료가 아니라 code 6 Release 후보의 실기기·회귀·제출 게이트를 통과시키는 단계다.</td></tr>
                 <tr><td><strong>콘텐츠 범위</strong></td><td>PPE 착용 시나리오 3모드와 밀폐공간·사고 체험 후속 범위</td><td><code>ConfinedSpace</code>·<code>LeakResponse</code> 작업계획 2종 × 교육·훈련·테스트 3모드의 6개 조합</td><td>현재 PPE Room의 실제 선택 구조와 검증 단위를 문서 기준으로 승격했다. 혼합기동·혼합기 내부는 계속 후속 범위다.</td></tr>
                 <tr><td><strong>실행 경로</strong></td><td><code>6_LoadingScene_0</code>, <code>3_PPE_Room_HandTest_scale_0</code> 중심의 개발 장면 경로</td><td><code>0_App → 1_Title → 2_Intro → 3_Loading → 4_PPE_Room</code></td><td><code>ProjectSettings/EditorBuildSettings.asset</code>의 현재 활성 빌드 장면을 기준으로 정정했다.</td></tr>
                 <tr><td><strong>사용자 식별</strong></td><td>Welcome 뒤 한글 키보드 이름 입력 필수</td><td>Alpha에서는 이름 입력을 임시 생략하고 카드 흐름으로 전이</td><td><code>4_PPE_Room.unity</code>의 <code>m_SkipKeyboardNameInput: 1</code>을 반영했다. 키보드 구현은 삭제하지 않고 비활성 경로로 보존한다.</td></tr>
-                <tr><td><strong>기록·서버</strong></td><td>서버 미연동 또는 향후 연동으로 단순 구분</td><td>Release Alpha는 로컬 JSONL, Editor/Development는 명시적 테스트 업로드, 운영 수집·관리자 조회는 미완료로 분리</td><td>클라이언트 빌드 조건과 서버 API·대시보드의 실제 활성 상태가 서로 다르므로 검증 단계를 구분했다.</td></tr>
+                <tr><td><strong>기록·서버</strong></td><td>서버 미연동 또는 향후 연동으로 단순 구분</td><td>Release Alpha의 로컬 JSONL과 운영 HTTPS 원본 전송을 제출 게이트로 관리하고, 대시보드 지표·화면은 심사 기간에 확정</td><td>원본 수집 기반과 대시보드 완성을 분리해야 지표를 성급히 고정하지 않고 실제 데이터로 설계할 수 있다.</td></tr>
                 <tr><td><strong>Meta Horizon</strong></td><td>Quest 독립 실행형 기술 목표 중심</td><td>런타임 적합성 검증과 스토어 메타데이터·등급·DUC·이미지·배포 채널 업무를 별도 관리</td><td>입점 준비의 대부분은 코드 기능이 아니므로 기능명세·R&amp;D에 억지로 편입하지 않는다.</td></tr>
               </tbody>
             </table>
@@ -5212,7 +5212,7 @@
             </div>
           </div>
           <div class="proposal-note scope">
-            독립형 VR 헤드셋(Meta Quest 2) 한 대로 운영 가능한 1인 체험을 기본으로 합니다. Alpha의 운영 훈련 대시보드는 미완료이므로 현장 운영자는 HMD 착용·앱 시작·종료를 지원하고 결과는 우선 기기 내 기록으로 확인합니다.
+            독립형 VR 헤드셋(Meta Quest 2) 한 대로 운영 가능한 1인 체험을 기본으로 합니다. Alpha는 기기 내 JSONL과 서버 원본 수집 기반을 먼저 확보하고, 운영 대시보드의 최종 지표·화면은 Meta 심사 기간에 실제 원본을 검토하며 확정합니다.
           </div>
 
           <h2 class="proposal-heading" id="cover-s5"><span class="num">5</span>콘텐츠 시나리오 요약</h2>
@@ -5352,7 +5352,7 @@
             <div class="proposal-system-external">
               <div class="proposal-system-boundary">
                 <strong>검증·운영 연동 경계</strong>
-                Editor/Development 테스트와 운영 서비스 상태를 분리
+                Development 검증과 Release 운영 전송, 대시보드 후속 상태를 분리
               </div>
               <div class="proposal-system-connector" aria-hidden="true">
                 <strong class="proposal-system-arrow-desktop">⇢</strong><strong class="proposal-system-arrow-mobile">↓</strong>
@@ -5363,7 +5363,8 @@
                 <h4>Express 서버·운영 화면</h4>
                 <ul>
                   <li>Editor/Development 테스트 업로드 경로</li>
-                  <li>운영 수집·훈련 대시보드 미활성</li>
+                  <li>Release HTTPS·인증 원본 전송 구현 대상</li>
+                  <li>대시보드 지표·화면은 심사 기간 확정</li>
                   <li>LMS 자동 연동 후속</li>
                 </ul>
               </article>
@@ -5373,7 +5374,7 @@
               <div><b>1</b>교육생이 HMD를 쓰고 컨트롤러로 이동·선택·잡기·사용 행동을 입력한다.</div>
               <div><b>2</b>Quest 2가 시선·Ray·버튼·Grab 입력을 Unity VR 앱으로 전달한다.</div>
               <div><b>3</b>앱이 현재 단계와 완료 조건을 판정하고 선택한 ModeProfile에 따라 상세 안내·기본 지시·무안내 중 하나를 적용한다.</div>
-              <div><b>4</b>Release Alpha는 결과를 로컬 JSONL로 기록한다. 서버 전송은 Editor/Development 검증 빌드에서 명시적으로 시험하며 운영 수집 완료로 간주하지 않는다.</div>
+              <div><b>4</b>Release Alpha는 결과를 로컬 JSONL로 보존하고 운영 HTTPS 서버로 원본을 전송한다. 최종 대시보드 지표·화면은 Meta 심사 기간에 실제 원본을 근거로 확정한다.</div>
             </div>
           </div>
 
@@ -6233,8 +6234,8 @@
             <tr>
               <th>평가 단순화</th>
               <td>
-                Release Alpha는 문항·점수·오류·시간을 로컬 JSONL 세션으로 기록한다.
-                Editor/Development의 서버 업로드는 통합 시험용이며 운영 훈련 대시보드 완료를 의미하지 않는다.
+                Release Alpha는 문항·점수·오류·시간을 로컬 JSONL 세션으로 기록하고 서버 원본 전송 기반을 제출 전에 검증한다.
+                서버 원본 수집 완료와 운영 훈련 대시보드의 지표·화면 완성은 서로 다른 완료 상태로 관리한다.
               </td>
             </tr>
           </table>
@@ -7021,8 +7022,8 @@
           <h2>시스템 구성과 데이터 흐름</h2>
           <p>
             Meta Quest 2의 사용자 입력이 Unity 시나리오 판정과 피드백을 거쳐
-            로컬 세션 결과로 저장되는 범위를 정의한다. Release Alpha, Editor/Development 검증,
-            운영 서버·대시보드의 상태를 같은 연동 완료로 합쳐 쓰지 않는다.
+            로컬 JSONL과 서버 원본으로 보존되는 범위를 정의한다. Release Alpha 전송, Editor/Development 검증,
+            운영 서버 원본 수집과 대시보드 완성 상태를 같은 완료로 합쳐 쓰지 않는다.
           </p>
           <div class="cover-page system-architecture-host">
             <div class="proposal-system" aria-label="화학물질 안전훈련 VR 시스템 구성도">
@@ -7068,27 +7069,27 @@
                 </article>
               </div>
               <div class="proposal-system-external">
-                <div class="proposal-system-boundary"><strong>검증·운영 연동 경계</strong>Editor/Development 테스트와 운영 서비스 상태를 분리</div>
+                <div class="proposal-system-boundary"><strong>검증·운영 연동 경계</strong>Development 검증과 Release 운영 전송, 대시보드 후속 상태를 분리</div>
                 <div class="proposal-system-connector" aria-hidden="true">
                   <strong class="proposal-system-arrow-desktop">⇢</strong><strong class="proposal-system-arrow-mobile">↓</strong><small>빌드 조건별 연동</small>
                 </div>
                 <article class="proposal-system-node is-external">
                   <span class="proposal-system-kicker">EXTERNAL · PARTIAL</span>
                   <h4>Express 서버·운영 화면</h4>
-                  <ul><li>Editor/Development 테스트 업로드 경로</li><li>운영 수집·훈련 대시보드 미활성</li><li>LMS 자동 연동 후속</li></ul>
+                  <ul><li>Editor/Development 테스트 업로드 경로</li><li>Release HTTPS·인증 원본 전송 구현 대상</li><li>대시보드 지표·화면은 심사 기간 확정</li><li>LMS 자동 연동 후속</li></ul>
                 </article>
               </div>
               <div class="proposal-system-operation" aria-label="사용자 조작과 시스템 반응 순서">
                 <div><b>1</b>교육생이 HMD를 쓰고 컨트롤러로 이동·선택·잡기·사용 행동을 입력한다.</div>
                 <div><b>2</b>Quest 2가 시선·Ray·버튼·Grab 입력을 Unity VR 앱으로 전달한다.</div>
                 <div><b>3</b>앱이 현재 단계와 완료 조건을 판정하고 선택 ModeProfile에 따라 상세 안내·기본 지시·무안내 정책을 적용한다.</div>
-                <div><b>4</b>Release Alpha는 결과를 로컬 JSONL로 기록한다. 서버 전송은 Editor/Development 검증 빌드에서 명시적으로 시험하며 운영 수집 완료로 간주하지 않는다.</div>
+                <div><b>4</b>Release Alpha는 결과를 로컬 JSONL로 보존하고 운영 HTTPS 서버로 원본을 전송한다. 최종 대시보드 지표·화면은 Meta 심사 기간에 실제 원본을 근거로 확정한다.</div>
               </div>
             </div>
           </div>
           <div class="note-strong">
             <strong>v0.9 대비 시스템 연동 변경 이유</strong>
-            <p><strong>이전:</strong> 서버는 모두 미연동·향후 범위로 표현했다. <strong>현재:</strong> 클라이언트의 로컬 기록, Development 전용 업로드, 서버의 테스트 API, 운영 비활성 상태를 나눠 기록한다. 서버 코드가 존재한다는 사실만으로 Release Alpha의 운영 수집이나 관리자 조회가 완료됐다고 판단할 수 없기 때문이다.</p>
+            <p><strong>이전:</strong> 서버는 모두 미연동·향후 범위로 표현했다. <strong>현재:</strong> 클라이언트 로컬 기록, Development 업로드, Release 운영 전송, 서버 원본 수집과 대시보드 후속 작업을 나눠 기록한다. 서버 코드가 존재한다는 사실만으로 Release Alpha의 실제 적재나 대시보드가 완료됐다고 판단할 수 없기 때문이다.</p>
           </div>
         </section>
         <section data-part="part2" id="controls">
@@ -9485,17 +9486,17 @@
           <div class="section-kicker">PART 4 · 00</div>
           <h2>v0.10 Alpha 기준선과 제출 준비</h2>
           <p>
-            이 절은 2026-09-08의 코드·씬·빌드·서버 확인 결과를 고정한 상태표다.
+            이 절은 2026-09-09의 코드·씬·빌드·서버 확인 결과를 고정한 상태표다.
             <strong>코드 존재, 씬 연결, 실행 로그 수집, 서버 조회, Meta Horizon 제출</strong>을 서로 다른 완료 단계로 관리한다.
           </p>
           <table>
             <tr><th style="width:190px;">항목</th><th>현재 기준</th><th>근거·판정</th></tr>
             <tr><td><strong>제품 상태</strong></td><td>Meta Horizon Alpha 테스트 중</td><td>출시 완료나 Production Ready가 아니다. v1.0은 Alpha 종료 게이트 통과 뒤 부여한다.</td></tr>
-            <tr><td><strong>클라이언트 기준</strong></td><td><code>main / 5a408edb6eb11ab286cfc982d37e634ccdd4d65b</code></td><td>Unity 6000.4.8f1, URP 17.4.0, OpenXR, Quest/Android·PC OpenXR 대상</td></tr>
-            <tr><td><strong>서버 기준</strong></td><td><code>main / 2aa295de135d84af8ab12f8973e334729d4de45a</code></td><td>별도 저장소 <code>softCastella/chemical-safety-vr-server</code>. 클라이언트 저장소에 서버 소스를 복제하지 않는다.</td></tr>
-            <tr><td><strong>앱 식별</strong></td><td><code>com.tycheworks.immersa.safetyvr</code> · <code>0.1.0</code> · Android build code <code>5</code></td><td><code>ProjectSettings/ProjectSettings.asset</code> 기준</td></tr>
+            <tr><td><strong>클라이언트 기준</strong></td><td><code>main / 3b2e692e0aaf75bf3105a0b804eb8c52e1ce87f8</code> + 현재 작업 트리</td><td>Unity 6000.4.8f1, URP 17.4.0, OpenXR, Quest/Android·PC OpenXR 대상</td></tr>
+            <tr><td><strong>서버 기준</strong></td><td><code>main / d380f106e461599641bc3f87a60cf91d16a2c9c9</code> + 현재 작업 트리</td><td>별도 저장소 <code>softCastella/chemical-safety-vr-server</code>. 클라이언트 저장소에 서버 소스를 복제하지 않는다.</td></tr>
+            <tr><td><strong>앱 식별</strong></td><td><code>com.tycheworks.immersa.safetyvr</code> · <code>0.1.0</code> · Android build code <code>6</code></td><td><code>ProjectSettings/ProjectSettings.asset</code>의 현재 미커밋 설정 기준</td></tr>
             <tr><td><strong>활성 빌드 장면</strong></td><td><code>0_App → 1_Title → 2_Intro → 3_Loading → 4_PPE_Room</code></td><td><code>ProjectSettings/EditorBuildSettings.asset</code> 기준. <code>5_MixerRoom</code>·<code>6_InsideMixer</code>는 비활성 후속 장면이다.</td></tr>
-            <tr><td><strong>Alpha APK</strong></td><td>코드 5 Release <code>ChemicalSafetyVR_Alpha_0_1_0_5.apk</code>와 Development <code>ChemicalSafetyVR_TelemetryDev_0_1_0_5.apk</code> 산출물 존재</td><td><code>MetaAlphaSubmissionGateHarness</code> 정적 준비 상태는 READY다. 산출물 존재는 설치·6개 조합 완주·HMD 안정성·텔레메트리 통합 검증 완료를 뜻하지 않는다.</td></tr>
+            <tr><td><strong>Alpha APK</strong></td><td>직전 code 5 Release·Development 산출물은 존재하며 code 6 설정은 적용됐지만 code 6 APK는 아직 생성되지 않음</td><td><code>MetaAlphaSubmissionGateHarness</code>는 code 6 기준 갱신과 Release 서버 전송 구현 전까지 FAIL 상태를 유지해야 한다.</td></tr>
           </table>
 
           <h3>현재 Alpha 콘텐츠와 검증 상태</h3>
@@ -9505,18 +9506,18 @@
             <tr><td><strong>사용자 진입</strong></td><td>Welcome 뒤 이름 입력 생략 설정, 카드·모달·모드 선택으로 전이</td><td>씬 설정 반영</td><td>카드 Trigger, 모달 중 이동 차단, 선택 뒤 이동 복구를 실기기에서 확인</td></tr>
             <tr><td><strong>입력·이동</strong></td><td>Touch Controller, Ray/Trigger, Grip, 이동·텔레포트 경로</td><td>구현 존재·실기기 회귀 필요</td><td>Game View 결과와 분리해 Quest 양손 입력, 벽·설비 관통, 모달·완료 전환 중 입력 차단 확인</td></tr>
             <tr><td><strong>PPE·문서</strong></td><td>마커 Direct Grab, Action Panel, 결함 판정, 착용 시각, 거울·퀴즈</td><td>통합 Alpha 검증 중</td><td>누수 작업계획서 가독성, 미니가이드 가림, 거울 5초 게이트와 양안·성능 확인</td></tr>
-            <tr><td><strong>훈련 기록</strong></td><td>기기 내 JSONL 기록. Editor/Development 조건에서 테스트 서버 업로드 코드와 코드 5 Development APK 존재</td><td>Release 로컬 / 개발 검증 분리</td><td>Development APK 설치·LAN 설정, 6개 조합 업로드 비교, 로컬 경로 설정 일치, 운영 인증·보존·삭제 정책 확정</td></tr>
-            <tr><td><strong>서버·대시보드</strong></td><td>서버 테스트 통과와 일부 API 구현은 확인됐으나 공개 운영의 훈련 수집 API·훈련 대시보드는 비활성</td><td>운영 통합 미완료</td><td>서버 반영, 클라이언트 반영, 통합 검증을 각각 완료하고 근거 로그를 남김</td></tr>
+            <tr><td><strong>훈련 기록</strong></td><td>기기 내 JSONL과 Editor/Development 테스트 업로드 코드 존재</td><td>Release 운영 전송 미구현</td><td>운영 HTTPS·릴리스 인증 구현, code 6 Release에서 최소 한 세션의 원본·서버 적재·재조회 일치 확인</td></tr>
+            <tr><td><strong>서버·대시보드</strong></td><td>서버의 세션·이벤트·완료 API와 원본 저장 기반 존재. 대시보드 최종 항목은 미확정</td><td>서버 반영·Release 통합·대시보드 상태 분리</td><td>Release 원본 수집을 먼저 완료하고 Meta 심사 기간에 실제 원본을 보며 대시보드 지표·화면을 확정</td></tr>
           </table>
 
           <h3>Alpha 차단 이슈와 종료 게이트</h3>
           <table>
             <tr><th style="width:150px;">우선순위</th><th>현재 이슈</th><th>통과 조건</th></tr>
-            <tr><td><strong>P0 · HMD 안정성</strong></td><td>일정 시간 플레이 뒤 주변 시야 왜곡·검은 화면·정지 증상이 재현된 기록이 있다.</td><td>최근 변경 후보를 먼저 격리하고, 동일 코드 5 빌드의 Quest 반복 실행에서 재현되지 않거나 원인·회피 조건이 문서화되어야 한다.</td></tr>
+            <tr><td><strong>P0 · HMD 안정성</strong></td><td>일정 시간 플레이 뒤 주변 시야 왜곡·검은 화면·정지 증상이 재현된 기록이 있다.</td><td>최근 변경 후보를 먼저 격리하고, 동일 code 6 Release 후보의 Quest 반복 실행에서 재현되지 않거나 원인·회피 조건이 문서화되어야 한다.</td></tr>
             <tr><td><strong>P0 · 완주 회귀</strong></td><td>작업계획 2종 × 3모드의 동일 빌드 비교 증거가 아직 완결되지 않았다.</td><td>6개 조합 모두 앱 시작→선택→PPE 수행→퀴즈·결과→종료를 완주하고 차단 오류가 없어야 한다.</td></tr>
             <tr><td><strong>P1 · 공간·입력</strong></td><td>룸스케일 머리·손의 벽/가구 관통, 카드·모달·이동 게이트의 실기기 확인이 남아 있다.</td><td>사용자 공간 경계와 입력 상태표가 실제 Quest 동작과 일치해야 한다.</td></tr>
             <tr><td><strong>P1 · 가독성·거울</strong></td><td>누수 작업계획서, 상세/미니가이드 가림, 거울의 바닥 접지·양안·성능 확인이 남아 있다.</td><td>Game View와 Quest 양안에서 읽기 거리, 가림, 본체/거울 일치와 성능 비교가 기록되어야 한다.</td></tr>
-            <tr><td><strong>P1 · 제출 빌드</strong></td><td>코드 5 Release·Development APK와 정적 제출 게이트는 준비됐으나 기준 DB 수집량은 session 0 / event 0이며 설치·실행 비교가 남아 있다.</td><td>두 APK를 설치해 Release 로컬 기록과 Development 진단·업로드 로그를 비교하고 6개 조합의 근거를 확보해야 한다.</td></tr>
+            <tr><td><strong>P1 · 제출 빌드</strong></td><td>code 6 설정은 적용됐지만 Release APK와 Release 서버 전송 경로가 아직 없다.</td><td>code 6 Release를 생성하고 Quest에서 원본 JSONL과 운영 서버 적재·재조회를 같은 세션으로 확인해야 한다.</td></tr>
           </table>
 
           <h3>Meta Horizon 비코드 제출 체크리스트</h3>
@@ -9898,7 +9899,7 @@
             </div>
             <div class="card-small">
               <strong>우선순위</strong>
-              <p>작업계획 2종 × 교육·훈련·테스트 3모드의 런타임 경로는 존재하지만 Alpha 검증 완료 상태는 아니다. 우선순위는 동일 코드 5 빌드의 6개 조합 Quest 회귀, HMD 안정성, 입력·가독성·거울 검증, Release/Development 기록 대조다. 혼합기동·혼합기 내부 시나리오는 분리된 후속 범위로 관리한다.</p>
+              <p>작업계획 2종 × 교육·훈련·테스트 3모드의 런타임 경로는 존재하지만 Alpha 검증 완료 상태는 아니다. 우선순위는 code 6 Release 후보의 Quest 회귀와 안정성, 운영 HTTPS 원본 전송, 같은 세션의 서버 적재·재조회 대조다. 대시보드 지표·화면과 혼합기동·혼합기 내부 시나리오는 분리된 후속 범위로 관리한다.</p>
             </div>
           </div>
         </section>
@@ -9908,14 +9909,14 @@
           <p>
             현재 Alpha의 실제 구현 범위는 <strong>작업계획 2종 × PPE 점검·착용 교육·훈련·테스트 3모드</strong>다.
             세 모드는 같은 PPE 수행 코어를 사용하면서 안내·오류 피드백·퀴즈·결과 노출을 다르게 적용한다.
-            테스트모드는 소요시간·퀴즈 점수·정답 수·PPE 오선택 횟수를 화면과 로컬 세션 기록에 남긴다. Development 서버 업로드는 검증 경로이고, 운영 사용자별 누적 이력·훈련 대시보드와 혼합기동의 전체 밀폐공간 절차는 후속으로 분리한다.
+            테스트모드는 소요시간·퀴즈 점수·정답 수·PPE 오선택 횟수를 화면과 로컬 세션 기록에 남긴다. Release 운영 전송은 Alpha 제출 게이트이고, 운영 사용자별 누적 이력·훈련 대시보드의 최종 지표·화면과 혼합기동의 전체 밀폐공간 절차는 후속으로 분리한다.
             항목은 <strong>환경 조성</strong>, <strong>유저 액션</strong>, <strong>시스템</strong> 세 영역으로 구분한다.
           </p>
           <div class="card-small" style="margin-bottom: 14px">
             <strong>v0.9 → v0.10 Alpha R&amp;D 변경 대조</strong>
             <table aria-label="R&D 변경 대조">
               <tr><th>대상</th><th>v0.9 이전 기준</th><th>v0.10 Alpha 현재 기준</th><th>변경 이유</th></tr>
-              <tr><td>R-01·R-51</td><td>개발 variant 장면의 실행·로딩 검증</td><td>현재 활성 Build Settings 5개 장면과 코드 5 APK 반복 실행</td><td>실제 제출 빌드 경로를 검증 기준으로 사용</td></tr>
+              <tr><td>R-01·R-51</td><td>개발 variant 장면의 실행·로딩 검증</td><td>현재 활성 Build Settings 5개 장면과 code 6 Release 후보 반복 실행</td><td>실제 제출 빌드 경로를 검증 기준으로 사용</td></tr>
               <tr><td>R-16</td><td>세 실행 루트와 후속 사고 VFX까지 포함한 성능 목표</td><td>현재 6개 PPE 조합, 72Hz 목표, 10분 이상 HMD 안정성 시험</td><td>현재 Alpha 범위와 주변 시야 왜곡·정지 이슈를 우선 검증</td></tr>
               <tr><td>R-20·R-28</td><td><code>PPE_A_SuitWear</code> 루트 기준, 거울·문서 가독성을 완료 항목으로 표시</td><td><code>PPE Body Anchor → hazmat_suit_on_10</code>을 단일 기준으로 사용하고 Quest 양안·성능 및 누수 문서 실제 읽기 거리 증거 확보 전 미완료</td><td>현재 씬의 풀장착 기준을 반영하고 씬/정적 확인을 실기기 시각 검증 완료로 확장하지 않음</td></tr>
               <tr><td>R-55·R-56</td><td>입력 경로 분리와 씬 작성값 보존 원칙</td><td>6개 조합에서 Quest 이벤트·Play Mode 전후 직렬화 비교를 Alpha 게이트로 적용</td><td>Game View hover와 XR Trigger, 런타임 보정과 작성값을 구분</td></tr>

@@ -17,6 +17,10 @@ public static class LoadingSceneBuilder
     const string BarName = "LoadingBar";
     const string DefaultTargetSceneName = "4_PPE_Room";
     const int SegmentCount = 18;
+    const float ProgressFillDuration = 12f;
+    const float SpinDuration = 1.11f;
+    const float SpinPauseDuration = 0.5f;
+    const float MaxSpinFrameStep = 1f / 30f;
 
     static readonly Color GradientStart = new(0.08f, 0.56f, 1f, 1f);
     static readonly Color GradientMiddle = new(0.08f, 0.88f, 0.88f, 1f);
@@ -46,8 +50,8 @@ public static class LoadingSceneBuilder
         CanvasGroup loadingContentGroup = GetOrAdd<CanvasGroup>(canvas.gameObject, out bool contentGroupWasAdded);
         if (contentGroupWasAdded)
         {
-            Undo.RecordObject(loadingContentGroup, "Author loading content prewarm state");
-            loadingContentGroup.alpha = 0f;
+            Undo.RecordObject(loadingContentGroup, "Author loading content Scene View state");
+            loadingContentGroup.alpha = 1f;
             loadingContentGroup.interactable = false;
             loadingContentGroup.blocksRaycasts = false;
             loadingContentGroup.ignoreParentGroups = false;
@@ -60,12 +64,31 @@ public static class LoadingSceneBuilder
         GameObject logo = FindSceneObject(scene, "TitleLogo2d");
         if (logo == null)
             throw new InvalidOperationException("3_Loading is missing TitleLogo2d.");
+        RectTransform logoRect = logo.GetComponent<RectTransform>();
+        if (logoRect == null)
+            throw new InvalidOperationException("TitleLogo2d is missing its RectTransform.");
         CanvasGroup logoGroup = logo.GetComponent<CanvasGroup>();
         if (logoGroup == null)
             throw new InvalidOperationException("TitleLogo2d is missing its CanvasGroup.");
         Undo.RecordObject(logoGroup, "Show loading scene logo");
         logoGroup.alpha = 1f;
         EditorUtility.SetDirty(logoGroup);
+
+        LoadingLogoSpin logoSpin = GetOrAdd<LoadingLogoSpin>(logo, out bool logoSpinWasAdded);
+        if (logoSpinWasAdded)
+        {
+            SerializedObject serializedSpin = new(logoSpin);
+            serializedSpin.FindProperty("logo").objectReferenceValue = logoRect;
+            serializedSpin.FindProperty("loadingContentGroup").objectReferenceValue = loadingContentGroup;
+            serializedSpin.FindProperty("delayAfterVisible").floatValue = 0f;
+            serializedSpin.FindProperty("spinDuration").floatValue = SpinDuration;
+            serializedSpin.FindProperty("pauseBetweenSpins").floatValue = SpinPauseDuration;
+            serializedSpin.FindProperty("edgeAngle").floatValue = 90f;
+            serializedSpin.FindProperty("reverseDirection").boolValue = true;
+            serializedSpin.FindProperty("maxAnimationFrameStep").floatValue = MaxSpinFrameStep;
+            serializedSpin.FindProperty("spinProgress").animationCurveValue = CreateMeasuredSpinCurve();
+            serializedSpin.ApplyModifiedProperties();
+        }
 
         RectTransform progressRoot = FindDirectChild(canvas.transform, ProgressRootName) as RectTransform;
         bool progressRootWasCreated = progressRoot == null;
@@ -112,6 +135,11 @@ public static class LoadingSceneBuilder
 
         SerializedObject serializedController = new(controller);
         SerializedProperty targetSceneProperty = serializedController.FindProperty("nextSceneName");
+        if (controllerWasAdded)
+        {
+            serializedController.FindProperty("prewarmFrames").intValue = 0;
+            serializedController.FindProperty("progressFillDuration").floatValue = ProgressFillDuration;
+        }
         if (controllerWasAdded
             || string.IsNullOrWhiteSpace(targetSceneProperty.stringValue)
             || targetSceneProperty.stringValue == "2_Intro")
@@ -147,6 +175,7 @@ public static class LoadingSceneBuilder
         List<string> failures = new();
         Canvas canvas = FindSingle<Canvas>(scene);
         LoadingSceneController controller = FindSingle<LoadingSceneController>(scene);
+        LoadingLogoSpin logoSpin = FindSingle<LoadingLogoSpin>(scene);
         TitleSplashController splash = FindSingle<TitleSplashController>(scene);
         Camera sceneCamera = FindSingle<Camera>(scene);
         XROrigin xrOrigin = FindSingle<XROrigin>(scene);
@@ -173,9 +202,50 @@ public static class LoadingSceneBuilder
         }
 
         GameObject logo = FindSceneObject(scene, "TitleLogo2d");
+        RectTransform logoRect = logo != null ? logo.GetComponent<RectTransform>() : null;
         CanvasGroup logoGroup = logo != null ? logo.GetComponent<CanvasGroup>() : null;
         if (logoGroup == null || logoGroup.alpha < 0.999f)
             failures.Add("TitleLogo2d must be authored visible.");
+
+        if (logoSpin == null || !logoSpin.enabled || logoSpin.gameObject != logo)
+        {
+            failures.Add("TitleLogo2d must contain exactly one enabled LoadingLogoSpin.");
+        }
+        else
+        {
+            SerializedObject serializedSpin = new(logoSpin);
+            RectTransform referencedLogo = serializedSpin.FindProperty("logo")?.objectReferenceValue as RectTransform;
+            CanvasGroup referencedGroup = serializedSpin
+                .FindProperty("loadingContentGroup")
+                ?.objectReferenceValue as CanvasGroup;
+            float delay = serializedSpin.FindProperty("delayAfterVisible").floatValue;
+            float duration = serializedSpin.FindProperty("spinDuration").floatValue;
+            float pause = serializedSpin.FindProperty("pauseBetweenSpins").floatValue;
+            bool reverse = serializedSpin.FindProperty("reverseDirection").boolValue;
+            float maxFrameStep = serializedSpin.FindProperty("maxAnimationFrameStep").floatValue;
+            AnimationCurve progress = serializedSpin.FindProperty("spinProgress").animationCurveValue;
+
+            if (referencedLogo != logoRect)
+                failures.Add("LoadingLogoSpin Logo must reference the authored TitleLogo2d RectTransform.");
+            if (referencedGroup == null || canvas == null || referencedGroup.gameObject != canvas.gameObject)
+                failures.Add("LoadingLogoSpin Loading Content Group must reference the Canvas CanvasGroup.");
+            if (!Mathf.Approximately(delay, 0f)
+                || !Mathf.Approximately(duration, SpinDuration)
+                || !Mathf.Approximately(pause, SpinPauseDuration)
+                || !reverse
+                || !Mathf.Approximately(maxFrameStep, MaxSpinFrameStep))
+            {
+                failures.Add(
+                    "LoadingLogoSpin must start immediately, use the measured 1.11-second reverse spin, " +
+                    "pause 0.5 seconds, and clamp animation steps to 1/30 second.");
+            }
+            if (progress == null || progress.length < 2
+                || !Mathf.Approximately(progress.Evaluate(0f), 0f)
+                || !Mathf.Approximately(progress.Evaluate(1f), 1f))
+            {
+                failures.Add("LoadingLogoSpin progress curve must be authored from 0 to 1.");
+            }
+        }
 
         if (controller != null)
         {
@@ -188,14 +258,21 @@ public static class LoadingSceneBuilder
             SegmentedGradientProgressGraphic progressBar = serializedController
                 .FindProperty("progressBar")
                 ?.objectReferenceValue as SegmentedGradientProgressGraphic;
+            int prewarmFrames = serializedController.FindProperty("prewarmFrames").intValue;
+            float fillDuration = serializedController.FindProperty("progressFillDuration").floatValue;
+
+            if (prewarmFrames != 0 || !Mathf.Approximately(fillDuration, ProgressFillDuration))
+                failures.Add("LoadingSceneController must show on the first frame and use a 12-second fill duration.");
 
             if (loadingContentGroup == null || loadingContentGroup.gameObject != canvas.gameObject)
                 failures.Add("LoadingContentGroup must reference the Canvas CanvasGroup.");
-            else if (loadingContentGroup.alpha > 0.001f
+            else if (loadingContentGroup.alpha < 0.999f
                 || loadingContentGroup.interactable
                 || loadingContentGroup.blocksRaycasts)
             {
-                failures.Add("LoadingContentGroup must be authored hidden and non-interactive during XR prewarm.");
+                failures.Add(
+                    "LoadingContentGroup must be authored visible and non-interactive for Scene View; " +
+                    "runtime visibility follows LoadingSceneController's authored prewarm setting.");
             }
 
             if (percentageText == null || percentageText.text != "0%")
@@ -267,6 +344,16 @@ public static class LoadingSceneBuilder
                 new GradientAlphaKey(1f, 1f),
             });
         return gradient;
+    }
+
+    static AnimationCurve CreateMeasuredSpinCurve()
+    {
+        return new AnimationCurve(
+            new Keyframe(0f, 0f, 0f, 1.3157895f),
+            new Keyframe(0.076f, 0.1f, 1.3157895f, 7.142857f),
+            new Keyframe(0.132f, 0.5f, 7.142857f, 0.7662835f),
+            new Keyframe(0.654f, 0.9f, 0.7662835f, 0.28901735f),
+            new Keyframe(1f, 1f, 0.28901735f, 0f));
     }
 
     static GameObject CreateUIObject(string objectName, Transform parent)

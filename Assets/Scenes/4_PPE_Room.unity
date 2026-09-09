@@ -58372,7 +58372,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uBC00\uD3D0\uACF5\uAC04 \uC9C4\uC785 \uC804 \uC548\uC804 \uAD50\uC721"
+  m_text: "PPE  \uCC29\uC6A9 \uAD50\uC721"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b6215b980cc39504ca6af8141ee7c242, type: 2}
   m_sharedMaterial: {fileID: -6952480637452792063, guid: b6215b980cc39504ca6af8141ee7c242, type: 2}

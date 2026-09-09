@@ -32,7 +32,7 @@ public sealed class LoadingSceneController : MonoBehaviour
         if (loadingContentGroup == null)
             loadingContentGroup = GetComponent<CanvasGroup>();
 
-        SetContentVisible(false);
+        SetContentVisible(prewarmFrames <= 0);
     }
 
     /// <summary>

@@ -10,7 +10,7 @@ const serverRoot = path.resolve(clientRoot, "..", "chemical-safety-vr-server");
 const releasePlanRelativePath =
   "Docs/MeetingNotes/2026-08-25_Production_Server_Meta_Horizon_Release_Plan.md";
 const releaseApkRelativePath =
-  "Builds/MetaHorizonAlpha/ChemicalSafetyVR_Alpha_0_1_0_5.apk";
+  "Builds/MetaHorizonAlpha/ChemicalSafetyVR_Alpha_0_1_0_6.apk";
 const developmentApkRelativePath =
   "Builds/MetaHorizonAlpha/ChemicalSafetyVR_TelemetryDev_0_1_0_5.apk";
 
@@ -28,6 +28,14 @@ const orderedGateMarkers = [
 const requiredPlayOrder =
   "ConfinedSpace/Test → ConfinedSpace/Training → ConfinedSpace/Education → " +
   "LeakResponse/Test → LeakResponse/Training → LeakResponse/Education";
+const strategicAlphaMarkers = [
+  "## 2026-09-09 결정: 심사 기간을 활용한 서버 우선 Alpha 전략",
+  "대시보드 표시 항목은 Meta 심사 기간에 확정한다",
+  "제출용 Release Alpha는 원본 텔레메트리를 서버로 전송할",
+  "원본 이벤트를 삭제하거나 대시보드 지표에 맞춰 축약하지 않는다",
+  "대시보드 완성 여부를 Alpha 제출 완료 조건으로 묶지 않는다",
+  "서버 전송과 대시보드 완성을 하나의 완료 상태로 합치지 않는다",
+];
 const expectedEnabledScenes = [
   "Assets/Scenes/0_App.unity",
   "Assets/Scenes/1_Title.unity",
@@ -129,6 +137,10 @@ if (!fs.existsSync(releasePlanPath)) {
     failures.push("다른 PC의 Development APK 전달·재빌드 규칙이 출시 문서에 없습니다.");
   if (!releasePlan.includes("아침 검증은 **다른 Quest 기기**에서 수행"))
     failures.push("아침 검증 대상이 다른 Quest라는 인수인계 조건이 출시 문서에 없습니다.");
+  for (const marker of strategicAlphaMarkers) {
+    if (!releasePlan.includes(marker))
+      failures.push(`서버 우선 Alpha 전략 계약이 출시 문서에 없습니다: ${marker}`);
+  }
 }
 
 if (!fs.existsSync(serverReleasePlanPath)) {
@@ -141,8 +153,8 @@ if (!fs.existsSync(serverReleasePlanPath)) {
 }
 
 const projectSettings = read("ProjectSettings/ProjectSettings.asset");
-if (!/^\s*AndroidBundleVersionCode:\s*5\s*$/mu.test(projectSettings))
-  failures.push("AndroidBundleVersionCode가 code 5가 아닙니다.");
+if (!/^\s*AndroidBundleVersionCode:\s*6\s*$/mu.test(projectSettings))
+  failures.push("AndroidBundleVersionCode가 code 6이 아닙니다.");
 
 const buildSettings = read("ProjectSettings/EditorBuildSettings.asset");
 const enabledScenes = [];
@@ -156,7 +168,7 @@ if (JSON.stringify(enabledScenes) !== JSON.stringify(expectedEnabledScenes)) {
 
 const releaseApkPath = path.join(clientRoot, releaseApkRelativePath);
 if (!fs.existsSync(releaseApkPath) || fs.statSync(releaseApkPath).size === 0) {
-  blockers.push(`code 5 Release APK가 없습니다: ${releaseApkRelativePath}`);
+  blockers.push(`code 6 Release APK가 없습니다: ${releaseApkRelativePath}`);
 } else {
   facts.push(
     `Release APK=${releaseApkRelativePath} (${fs.statSync(releaseApkPath).size} bytes)`,
@@ -164,8 +176,10 @@ if (!fs.existsSync(releaseApkPath) || fs.statSync(releaseApkPath).size === 0) {
 }
 
 const uploaderSource = read("Assets/Scripts/TycheTrainingTelemetryUploader.cs");
-if (!uploaderSource.includes("Release players never enable this transport"))
-  failures.push("Release Player의 개발 LAN 업로드 차단 계약을 소스에서 확인하지 못했습니다.");
+if (uploaderSource.includes("Release players never enable this transport"))
+  failures.push(
+    "현재 업로더가 Release Player 전송을 차단합니다. 서버 우선 Alpha 전략에 맞는 HTTPS·인증 전송 구현과 실제 적재 검증이 필요합니다.",
+  );
 const setupSource = read("Assets/Editor/TycheTrainingTelemetryUploaderSetup.cs");
 if (!setupSource.includes("Inject Quest Development LAN Configuration"))
   failures.push("Quest Development LAN 일회성 주입 메뉴를 찾지 못했습니다.");

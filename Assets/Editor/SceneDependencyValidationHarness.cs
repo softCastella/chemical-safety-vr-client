@@ -74,6 +74,7 @@ public static class SceneDependencyValidationHarness
         ValidateBuildSettings(failures);
         ValidateSceneAssets(failures);
         ValidateSerializedTargets(failures);
+        ValidateLogoSceneViewAuthoring(failures);
         ValidateCriticalMixerAssets(failures);
         ValidateProjectOwnedReferences(failures);
 
@@ -87,7 +88,8 @@ public static class SceneDependencyValidationHarness
 
         Debug.Log(
             "[Scene Dependency Validation] PASS: build order, enabled states, GUIDs, " +
-            "serialized transitions, and project-owned scene-name references are consistent.");
+            "serialized transitions, logo Scene View authoring, and project-owned " +
+            "scene-name references are consistent.");
     }
 
     static void ValidateBuildSettings(List<string> failures)
@@ -162,6 +164,72 @@ public static class SceneDependencyValidationHarness
         RequireText("Assets/Scripts/IntroSceneTransition.cs", "nextSceneName = \"4_PPE_Room\"", failures);
     }
 
+    static void ValidateLogoSceneViewAuthoring(List<string> failures)
+    {
+        RequireTextInBlock(
+            "Assets/Scenes/1_Title.unity",
+            "--- !u!225 &1007959342",
+            new[] { "m_GameObject: {fileID: 1007959338}", "m_Alpha: 1" },
+            failures);
+        RequireTextInBlock(
+            "Assets/Scenes/1_Title.unity",
+            "--- !u!225 &1993485561",
+            new[] { "m_GameObject: {fileID: 1993485558}", "m_Alpha: 1" },
+            failures);
+        RequireTextInBlock(
+            "Assets/Scenes/1_Title.unity",
+            "--- !u!225 &555729240",
+            new[] { "m_GameObject: {fileID: 555729238}", "m_Alpha: 1" },
+            failures);
+        RequireTextInBlock(
+            "Assets/Scenes/3_Loading.unity",
+            "--- !u!225 &1219056833",
+            new[] { "m_GameObject: {fileID: 1219056832}", "m_Alpha: 1" },
+            failures);
+        RequireTextInBlock(
+            "Assets/Scenes/3_Loading.unity",
+            "--- !u!225 &9100001040",
+            new[] { "m_GameObject: {fileID: 258024244}", "m_Alpha: 1" },
+            failures);
+        RequireTextInBlock(
+            "Assets/Scenes/3_Loading.unity",
+            "--- !u!1 &980182014",
+            new[] { "m_Name: PartnerLogos", "m_IsActive: 0" },
+            failures);
+        RequireTextInBlock(
+            "Assets/Scenes/3_Loading.unity",
+            "--- !u!114 &1219056837",
+            new[]
+            {
+                "m_EditorClassIdentifier: Assembly-CSharp::LoadingLogoSpin",
+                "logo: {fileID: 1219056836}",
+                "loadingContentGroup: {fileID: 9100001040}",
+                "delayAfterVisible: 0",
+                "spinDuration: 1.11",
+                "pauseBetweenSpins: 0.5",
+                "reverseDirection: 1",
+                "maxAnimationFrameStep: 0.033333335",
+            },
+            failures);
+        RequireTextInBlock(
+            "Assets/Scenes/3_Loading.unity",
+            "--- !u!114 &9100001030",
+            new[] { "prewarmFrames: 0", "progressFillDuration: 12" },
+            failures);
+        RequireText(
+            "Assets/Scripts/TitleSplashController.cs",
+            "if (!Application.isPlaying)\n            return;",
+            failures);
+        RequireText(
+            "Assets/Scripts/LoadingLogoSpin.cs",
+            "while (isActiveAndEnabled)",
+            failures);
+        RequireText(
+            "Assets/Scripts/LoadingLogoSpin.cs",
+            "Mathf.Min(Time.unscaledDeltaTime, maxAnimationFrameStep)",
+            failures);
+    }
+
     static void ValidateCriticalMixerAssets(List<string> failures)
     {
         foreach (KeyValuePair<string, string> asset in CriticalMixerAssets)
@@ -227,8 +295,49 @@ public static class SceneDependencyValidationHarness
             return;
         }
 
-        string contents = File.ReadAllText(path);
+        string contents = NormalizeLineEndings(File.ReadAllText(path));
+        requiredText = NormalizeLineEndings(requiredText);
         if (contents.IndexOf(requiredText, StringComparison.Ordinal) < 0)
             failures.Add($"'{path}' does not contain required text '{requiredText}'.");
+    }
+
+    static void RequireTextInBlock(
+        string path,
+        string blockHeader,
+        IReadOnlyList<string> requiredTexts,
+        List<string> failures)
+    {
+        if (!File.Exists(path))
+        {
+            failures.Add($"Required file is missing: {path}");
+            return;
+        }
+
+        string contents = NormalizeLineEndings(File.ReadAllText(path));
+        int blockStart = contents.IndexOf(blockHeader, StringComparison.Ordinal);
+        if (blockStart < 0)
+        {
+            failures.Add($"'{path}' does not contain block '{blockHeader}'.");
+            return;
+        }
+
+        int nextBlock = contents.IndexOf("\n--- !u!", blockStart + blockHeader.Length, StringComparison.Ordinal);
+        string block = nextBlock < 0
+            ? contents.Substring(blockStart)
+            : contents.Substring(blockStart, nextBlock - blockStart);
+
+        foreach (string requiredText in requiredTexts)
+        {
+            if (block.IndexOf(requiredText, StringComparison.Ordinal) < 0)
+            {
+                failures.Add(
+                    $"Block '{blockHeader}' in '{path}' does not contain '{requiredText}'.");
+            }
+        }
+    }
+
+    static string NormalizeLineEndings(string value)
+    {
+        return value.Replace("\r\n", "\n").Replace('\r', '\n');
     }
 }

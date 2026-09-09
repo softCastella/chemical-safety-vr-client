@@ -2220,3 +2220,152 @@ Meta 업로드 검사가 첫 출시 서명 APK에서 Android Target SDK 36, 자�
   반영, Release 빌드, Meta Alpha 업로드 순서로 진행한다.
 - 이번 인수인계 커밋에서는 사용자 개인 환경값인 `ProjectSettings/ProjectSettings.asset`의 Keystore 경로
   변경을 제외한다.
+
+## 2026-09-09 결정: 심사 기간을 활용한 서버 우선 Alpha 전략
+
+### 결정 이유
+
+- 현재는 대시보드에 최종적으로 어떤 지표와 화면을 보여줄지 확정되지 않았다.
+- 대시보드를 서둘러 고정하면 실제 훈련 데이터와 운영 요구를 확인하기 전에 지표·분류·상세 조회 구조를
+  잘못 확정할 수 있다.
+- 따라서 Alpha를 먼저 제출하고 Meta 심사 기간을 대시보드의 지표·화면·상세 조회 기준을 결정하고
+  구현하는 기간으로 활용한다.
+- 이 전략은 서버 연동을 미루는 뜻이 아니다. **제출용 Release Alpha는 원본 텔레메트리를 서버로 전송할
+  수 있어야 한다.** 그래야 심사 기간에 실제 원본을 근거로 대시보드를 설계하고, 이미 배포된 Alpha의
+  행동 데이터를 잃지 않는다.
+
+### 제출과 심사 기간의 분리 계약
+
+1. **Alpha 제출 전 필수:** Release 빌드에서 로컬 JSONL 원본을 보존하고, 운영 HTTPS와 릴리스용 인증을
+   사용해 서버 수집 API로 전송하는 경로를 구현한다. 개발용 LAN 주소와 개발용 업로드 token을 Release에
+   포함하지 않는다.
+2. **Alpha 제출 전 검증:** Release 후보와 같은 전송 경로에서 `sessionId`, `eventId`, `sequence`,
+   `schemaVersion`, `appVersion`, 원본 event payload의 서버 수락·저장·재조회 일치를 최소 한 세션으로
+   확인한다. 서버 자동 테스트만으로 Quest Release 통합 성공을 대신하지 않는다.
+3. **심사 기간에 확정:** 대시보드 표시 항목은 Meta 심사 기간에 확정한다. 교육·훈련·테스트별 KPI,
+   합격 기준, 집계 카드, 필터와 상세 조회 화면은 원본 데이터와 사용자 결정을 근거로 순차 구현한다.
+4. **원본 보존:** 원본 이벤트를 삭제하거나 대시보드 지표에 맞춰 축약하지 않는다. 대시보드 요구가
+   바뀌어도 서버 원본에서 다시 계산할 수 있도록 스키마 버전, 식별자, 순서와 원본 payload를 보존한다.
+5. **완료 상태 분리:** 대시보드 완성 여부를 Alpha 제출 완료 조건으로 묶지 않는다. 동시에 Release Alpha
+   서버 전송과 대시보드 완성을 하나의 완료 상태로 합치지 않는다. 상태는 `Release 전송 구현`,
+   `서버 반영`, `Release 통합 검증`, `대시보드 설계`, `대시보드 구현`으로 구분한다.
+
+### 현재 상태와 하네스 판정
+
+- **클라이언트 반영:** JSONL 원본 기록과 Editor·Android Development Build의 durable 업로드 경로는
+  존재한다. 현재 `TycheTrainingTelemetryUploader`는 Release Player 전송을 명시적으로 차단하므로 이번
+  전략의 Release 전송 조건은 아직 충족하지 않는다.
+- **서버 반영:** 서버 `main@d380f106e461599641bc3f87a60cf91d16a2c9c9`에는 인증된 텔레메트리 세션·이벤트·완료
+  API와 저장소가 있다. 이번 기록에서는 운영 HTTPS 배포와 Release용 인증의 실제 성공을 새로 검증하지
+  않았다.
+- **통합 검증:** 과거 Editor·Development 경로의 실제 적재 근거는 있지만 Release Alpha의 Quest → 운영
+  서버 적재·재조회는 미검증이다. 이전 Development 성공을 Release 성공으로 확대하지 않는다.
+- `node Tools/MetaAlphaSubmissionGateHarness.mjs`는 위 전략 문구를 검사하고, 업로더에
+  `Release players never enable this transport` 차단 계약이 남아 있으면 FAIL한다. 이는 현재 미완료를
+  숨기지 않기 위한 의도적인 red gate다. 릴리스 인증 구조가 확정되면 하네스에 HTTPS·인증·비밀값 미포함과
+  실제 적재 증거의 positive gate를 추가한다.
+
+### 변경 전 필수 질문 답변
+
+1. **기존 Inspector/씬 작성값을 보존하는가?** 이번 변경은 문서와 Node 하네스만 수정하며 씬,
+   Inspector, UI와 입력 작성값은 변경하지 않는다.
+2. **단일 기준 오브젝트와 상태 소유자는 무엇인가?** 클라이언트 원본은
+   `PPETrainingTelemetryCapture`, 전송 ACK와 재시도는 `TycheTrainingTelemetryUploader`, 서버 원본은
+   training telemetry repository가 소유한다. 대시보드는 원본의 소비자이며 원본 상태 소유자가 아니다.
+3. **입력 전체 경로는 무엇인가?** 이번 변경은 입력 장치, Interactor/Caster, Raycaster, Layer,
+   Collider, press/select action과 handler를 변경하지 않는다.
+4. **실패 시 자동 수리 대신 멈춰야 하는가?** Release 전송 경로가 없거나 실제 적재 증거가 없으면 제출
+   하네스가 명확히 FAIL한다. 하네스가 서버 설정, 씬 또는 대시보드를 자동 생성·수리하지 않는다.
+5. **함께 영향을 받는 소비자는 무엇인가?** Release 전송, 서버 수집·저장, 개인정보 고지와 향후
+   대시보드가 영향을 받는다. UI, 텔레포트, PPE Grab, 거울, XR 양안과 음성 동작은 변경하지 않는다.
+6. **변경 전후 비교 실행은 무엇인가?** 변경 전 하네스는 Release LAN 차단 문구를 필수 계약으로
+   인정했다. 변경 후에는 같은 문구가 남아 있으면 전략 위반으로 FAIL하며 대시보드 미완성 자체는 실패로
+   판정하지 않는다.
+7. **검증 수준은 어디까지인가?** 이번 기록은 문서·하네스 정적 검증까지만 수행한다. Unity Editor,
+   Play Mode, Quest/OpenXR, Release APK 네트워크와 운영 서버 적재는 새 실행 증거가 없으므로 미검증이다.
+
+이번 변경이 대응하는 사용자 요청은 `대시보드 내용을 성급히 확정하지 않고 Meta 심사 기간을 전략적으로
+활용하되, 제출 Alpha부터 서버에 재가공 가능한 원본 데이터를 보내는 판단을 하네스로 고정`하는 것이다.
+보존해야 하는 기존 동작은 로컬 JSONL, durable 재전송, eventId 멱등성, Development LAN 검증과 기존
+교육·훈련·테스트 흐름이며, 대시보드 지표나 새로운 사용자 분류를 이번 변경에서 만들지 않는다.
+
+## 2026-09-09 완료 기록: 타이틀·로딩·보고자료·PPE 모달 점검
+
+### 적용한 변경
+
+- `1_Title`은 타이틀 로고를 카메라 쪽으로 당기고, 파트너 로고를 위쪽·앞쪽으로 이동했으며 버전 텍스트도
+  파트너 로고와 같은 깊이로 맞췄다. 씬에서 직접 크기·위치·깊이를 조정할 수 있도록 세 로고의
+  `CanvasGroup.alpha`를 `1`로 저장하고 런타임은 작성된 RectTransform과 글자 크기를 덮어쓰지 않는다.
+- `3_Loading`은 Scene View에서 메인 로고와 진행 UI를 볼 수 있게 저장하되 원래 요구대로 파트너 로고는
+  비활성 상태를 유지한다. 진행시간은 12초이며 메인 로고는 표시 즉시 반대 Y축 방향으로 약 1.11초 동안
+  한 번 회전하고 0.5초 정지한 뒤 로딩 씬이 끝날 때까지 계속 반복한다.
+- 사용자가 확인한 마우스 동작은 방향이나 너비가 아니라 속도 곡선 측정에만 사용했다. 초반 가속 뒤 길게
+  감속하는 곡선과 프레임당 최대 진행량 `1/30초`를 적용해 초기화 프레임이 첫 회전을 건너뛰는 현상을
+  방지했다.
+- 현재 학원 PC의 `ProjectSettings/ProjectSettings.asset`은 Android build code `6`이다. 기존 code 5
+  Release·Development APK는 존재하지만 code 6 Release APK는 아직 생성되지 않았다.
+- `MetaAlphaSubmissionGateHarness`의 현재 Release 아티팩트와 `AndroidBundleVersionCode` 기대값을
+  code 6으로 갱신했다. 대시보드 미완성은 Alpha 제출 실패로 보지 않지만, code 6 Release APK 부재와
+  Release Player 서버 전송 차단은 계속 명시적인 제출 차단 조건이다.
+- 상세기획서 기준본을 2026-09-09 상태로 갱신하고
+  `https://immersa.tycheworks.com/chemical-safety-training/plan/`에 공개했다. 서버 `main` 반영 커밋은
+  `7c87aa762ec444ff68dfd68c76b4f6fdeabcd589`, 운영 브랜치 반영 커밋은
+  `63d5a424eacfa5b123ebb46d308406926e25eeff`다.
+- 상세기획 요약 PPT 최종본은
+  `Docs/PPT/TYCHE_화학물질_안전훈련_VR_상세기획_요약_6장_v2.pptx`이며, 첫 장에 사용자가 제공한 Trello
+  진행 보드 초대 링크와 공개 상세기획서 주소를 연결했다. 초대 토큰이 포함된 Trello 링크는 외부 배포
+  범위가 넓어지기 전에 읽기 전용 공개 링크로 교체하는 편이 안전하다.
+- `4_PPE_Room`의 실제 흐름에서 사용하는 `Scenario Detail Modal`을 점검했다. 기본 상태는
+  `Modal Canvas=활성`, `Scenario Detail Modal=비활성`, `Modal Panel_1=활성`, `1_EduChoice=활성`,
+  `2_Mode=비활성`, `3_TestWorkPlan=비활성`이다. Canvas를 끄지 않고 모달 루트만 숨기는 현재 상태가
+  XRI Raycaster와 시작 화면 모두에 맞다.
+- 상단 `title_1`은 씬에 작성된 `PPE  착용 교육` 문자열을 유지한다. 이 오브젝트가 실제
+  `titleText`와 `scenarioTitleObjects[0]`에 연결되어 있어 모드 선택·학습모드·작업 시나리오 선택 경로에서
+  `ScenarioDetailModal.Show()`가 시나리오 데이터의 제목으로 덮어쓰지 않는다. 현재 문자열의 `PPE` 뒤
+  공백 두 칸은 작성값 그대로 보존했다.
+
+### 근본 원인과 결정
+
+- 타이틀·로딩 이미지를 Scene View에서 조정할 수 없었던 직접 원인은 작성된 오브젝트가 아니라 저장된
+  `CanvasGroup.alpha=0`과 런타임 표시 전제였다. 작성값을 보이게 저장하고 런타임이 위치·크기를 덮지
+  않도록 역할을 분리했다.
+- 로딩 첫 회전이 늦게 보인 원인은 시작 지연 자체뿐 아니라 OpenXR 초기화의 큰 첫 프레임 시간이 회전
+  전체를 소비할 수 있었기 때문이다. 첫 프레임 표시와 회전 진행량 상한을 분리했다.
+- 대시보드 항목을 아직 확정하지 못한 상태에서 화면부터 고정하지 않는다. Release Alpha의 재가공 가능한
+  원본 서버 전송을 먼저 확보하고 Meta 심사 기간에 실제 원본을 보며 지표·필터·상세 화면을 결정한다.
+- PPE 모달 타이틀 덮어쓰기 우려는 실제 직렬화 참조와 런타임 분기를 대조한 결과 현재 코드에서 재현되지
+  않는다. 씬 작성 타이틀 배열이 존재하는 동안 동적 `detail.Title` 대입 경로는 실행되지 않는다.
+
+### 영향 범위
+
+- 변경 소비자는 `1_Title`의 타이틀·파트너·버전 표시, `3_Loading`의 메인 로고 회전·12초 진행,
+  Alpha 제출 하네스, 상세기획서와 PPT다.
+- PPE 모달은 사용자가 작성한 타이틀 문자열 한 건만 씬에 반영됐고 입력, Raycaster, 모드 전이,
+  텔레포트, PPE Grab, 오디오와 퀴즈 동작은 변경하지 않았다.
+- 서버에는 상세기획서 정적 파일과 참조 이미지, 공용 출시 문서만 반영했다. 클라이언트 저장소에 서버
+  소스를 복제하지 않았고 운영 PM2·DB·마이그레이션은 변경하지 않았다.
+
+### 완료한 검증
+
+- 사용자는 PPE 음성이 정상이라고 확인했고, 타이틀 로고와 파트너 로고를 카메라 쪽으로 당긴 결과가 더
+  선명하다고 확인했다.
+- Unity Editor Play Mode에서 로딩 로고의 즉시 시작, 반대 방향, 계속 반복, 0.5초 회전 간격과 12초
+  로딩을 사용자 피드백으로 조정했다.
+- `dotnet build Assembly-CSharp.csproj --no-restore`와
+  `dotnet build Assembly-CSharp-Editor.csproj --no-restore`는 로딩 작업 최종 상태에서 오류 0개였다.
+- PPT 6장을 PNG로 렌더링해 잘림·겹침을 확인했고 PPT 패키지의 Trello·상세기획서 하이퍼링크와 6개
+  슬라이드 구조를 확인했다.
+- 서버 자동 테스트 86개, 운영 서버 `nginx -t`, 공개 상세기획서와 대표 이미지의 HTTPS `200` 응답을
+  확인했다. 정적 파일 배포이므로 PM2 재시작과 DB 변경은 수행하지 않았다.
+- PPE 모달은 `4_PPE_Room.unity`, `PPEVoiceFlowDirector`, `ScenarioDetailModal`의 참조·활성 상태·문자열
+  대입 분기를 정적으로 대조했다. 이 점검만으로 Quest 표시 성공을 주장하지 않는다.
+
+### 아직 필요한 수동 검증
+
+- Quest/OpenXR 양안에서 타이틀·파트너·버전 로고의 선명도, 투명 잔상과 가장자리 시머링을 확인한다.
+- Quest에서 로딩 첫 프레임 크기·위치가 튀지 않는지, 반대 Y축 회전과 0.5초 정지가 12초 동안 안정적으로
+  반복되는지 확인한다.
+- `PPE 착용 교육` 타이틀이 모드 선택·학습모드·두 작업 시나리오 선택에서 계속 유지되는지 Play Mode와
+  Quest에서 확인한다. 현재 작성값의 공백 두 칸을 한 칸으로 정리할지는 별도 UI 작성 결정으로 남긴다.
+- code 6 Release APK를 생성하고 Quest 실제 실행, 운영 HTTPS 인증 업로드, 같은 세션의 서버 적재·원본
+  재조회 일치를 확인해야 Meta Alpha 제출용 서버 연동 완료로 판단할 수 있다.

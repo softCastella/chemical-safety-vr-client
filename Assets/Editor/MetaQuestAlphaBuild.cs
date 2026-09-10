@@ -12,6 +12,19 @@ public static class MetaQuestAlphaBuild
     [MenuItem("Tools/XR/Build Meta Quest Alpha Release")]
     public static void BuildRelease()
     {
+        IDisposable signingScope = MetaQuestSigningConfiguration.ApplyForBuild();
+        try
+        {
+            BuildReleaseWithConfiguredSigning();
+        }
+        finally
+        {
+            signingScope.Dispose();
+        }
+    }
+
+    private static void BuildReleaseWithConfiguredSigning()
+    {
         SceneDependencyValidationHarness.Validate();
         MetaQuestAndroidBuildValidationHarness.Validate();
         ValidateSigningConfiguration();

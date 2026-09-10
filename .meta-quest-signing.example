@@ -1,0 +1,7 @@
+# Copy this file to .meta-quest-signing.local and fill it only on the build PC.
+# The local file is ignored by Git. Process environment variables with the same
+# names take precedence when both sources are present.
+CHEMICAL_SAFETY_VR_KEYSTORE_PATH=C:/AndroidKeystores/chemical-safety-vr-release.keystore
+CHEMICAL_SAFETY_VR_KEYSTORE_PASSWORD=
+CHEMICAL_SAFETY_VR_KEYALIAS_NAME=chemical-safety-vr
+CHEMICAL_SAFETY_VR_KEYALIAS_PASSWORD=

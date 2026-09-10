@@ -1163,3 +1163,41 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
    비정상 종료로 추정하되 원인을 충돌·전원 종료로 확정하지 않는다. heartbeat 기반 세부 판정은 후속이다.
 6. 로컬 APK가 의도적으로 없으므로 `MetaAlphaSubmissionGateHarness`의 APK 없음 `WAIT`는 예상 결과다.
    실제 Quest·서버 검증을 통과한 뒤 대시보드 상세 조회와 입점 신청 자료 후속으로 이동한다.
+
+## 2026-09-10 Android Release 서명정보의 로컬 분리
+
+### 이번 변경이 대응하는 사용자 요청과 보존 범위
+
+- 여러 PC가 서로 다른 절대 Keystore 경로를 `ProjectSettings/ProjectSettings.asset`에 저장해 Git pull이
+  반복 차단되는 문제를 제거한다.
+- Android build code, 앱 식별자, OpenXR, 빌드 씬과 기존 `MetaQuestAlphaBuild`의 Release APK 출력 규칙은
+  보존한다. UI·입력·텔레포트·PPE·음성·텔레메트리 런타임은 변경하지 않는다.
+- 상태 소유자는 Editor 전용 `MetaQuestSigningConfiguration`과 `MetaQuestAlphaBuild`다. 필수 로컬 값이
+  없으면 경로나 비밀번호를 추정하거나 자동 생성하지 않고, 누락된 환경변수 이름을 포함한 오류로 빌드를
+  중단한다.
+
+### 적용과 근본 원인
+
+- 근본 원인은 Git이 추적하는 `ProjectSettings.asset`에 사용자별 절대 경로와 Alias가 저장돼 있던 것이다.
+  추적 설정에서는 `AndroidKeystoreName`, `AndroidKeyaliasName`을 비우고 `androidUseCustomKeystore`를
+  비활성화했다.
+- 각 PC는 저장소 루트의 `.meta-quest-signing.example`을 `.meta-quest-signing.local`로 복사해 경로,
+  Alias와 두 비밀번호를 한 번 설정한다. `.meta-quest-signing.local`은 `.gitignore` 대상이며 비밀값을
+  Git·문서·로그에 출력하지 않는다. 같은 이름의 프로세스 환경변수가 있으면 로컬 파일보다 우선한다.
+- `Tools > XR > Build Meta Quest Alpha Release`는 빌드 범위에서만 로컬 값을 `PlayerSettings.Android`에
+  주입하고 성공·실패와 관계없이 이전 값을 `finally`에서 복원한다. 따라서 Unity 종료나 Git pull 전에
+  PC별 경로를 `ProjectSettings.asset`에 다시 저장할 필요가 없다.
+
+### 검증과 남은 수동 확인
+
+- `Tools > XR > Validate Meta Quest Signing Isolation`은 추적 설정에 PC별 서명값이 없는지와 로컬 파일의
+  Git 제외·예제 파일 계약을 검사한다. `Validate Local Meta Quest Signing`은 로컬 네 값과 Keystore 파일
+  존재를 검사하되 비밀값을 출력하지 않는다.
+- Unity `6000.4.8f1` 배치 실행에서 새 Editor 코드 컴파일과
+  `Validate Meta Quest Signing Isolation`, `DocumentationPolicyHarness.Validate`가 종료 코드 `0`으로
+  통과했다. `git diff --check`와 공용 문서의 양쪽 SHA-256 일치도 확인했다.
+- 이 PC의 `.meta-quest-signing.local`에는 기존 Keystore 경로와 Alias만 옮겼고 알 수 없는 두 비밀번호는
+  비워 두었다. 사용자가 두 값을 한 번 입력한 뒤 `Validate Local Meta Quest Signing`과 실제 Release APK
+  빌드, 인증서 지문을 별도로 확인해야 한다. 현재 결과를 서명·Meta 업로드 성공으로 확대하지 않는다.
+- 서버 API·DB·인증·텔레메트리 계약은 변경하지 않았다. 이 항목의 서버 저장소 반영은 공용 문서 미러
+  동기화뿐이며 서버 코드 반영이나 클라이언트·서버 통합 검증 완료를 뜻하지 않는다.

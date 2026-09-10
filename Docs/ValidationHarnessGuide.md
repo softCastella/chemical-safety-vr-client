@@ -53,6 +53,7 @@
 | Near/Far 레티클·입력 안전 | `Tools > XR > Validate Near-Far Reticle Safety` | `XRNearFarReticleSafetyHarness.Validate`; Hover와 Click/Select 성공 구분 |
 | XR 세션 시작 방향 | `Tools > XR > Validate Session Forward Alignment` | `XRSessionForwardAlignmentValidationHarness.Validate`; Quest 시작 방향 별도 확인 |
 | Meta Quest Android 설정 | `Tools > XR > Validate Meta Quest Android Build` | 생성 APK Manifest와 기기 실행 별도 확인 |
+| Meta Quest 서명정보 격리 | `Tools > XR > Validate Meta Quest Signing Isolation`, `Validate Local Meta Quest Signing` | 첫 메뉴는 추적 설정의 PC별 값 부재를, 둘째 메뉴는 Git에서 제외된 로컬 파일 또는 환경변수와 Keystore 존재를 확인; 실제 APK 서명은 별도 확인 |
 | Quest 72Hz 설정 | `Tools > XR > Validate Meta Quest 72 Hz` | 실제 런타임 refresh rate와 성능 확인 |
 | Meta Alpha 당일 제출 전체 게이트 | `node Tools/MetaAlphaSubmissionGateHarness.mjs` | Release 원본 텔레메트리 서버 전송 기반과 Development 검증, 기준 DB, Meta 채널 설치 증거를 분리하고 대시보드 완성은 제출 조건으로 묶지 않음; `WAIT`의 첫 미완료 게이트부터 진행 |
 | 텔레메트리·CSV·대시보드·보고자료 | `Tools > PPE > Validate Training Data Contract` | `PPETrainingDataContractHarness.Validate`; 최신 JSONL, 서버 적재와 조회를 각각 확인 |

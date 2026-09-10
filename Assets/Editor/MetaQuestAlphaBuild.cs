@@ -12,15 +12,9 @@ public static class MetaQuestAlphaBuild
     [MenuItem("Tools/XR/Build Meta Quest Alpha Release")]
     public static void BuildRelease()
     {
-        IDisposable signingScope = MetaQuestSigningConfiguration.ApplyForBuild();
-        try
-        {
-            BuildReleaseWithConfiguredSigning();
-        }
-        finally
-        {
-            signingScope.Dispose();
-        }
+        // 서명 정보는 Unity Player Settings에서 직접 관리한다.
+        // 별도 로컬 파일을 주입하거나 빌드 후 값을 되돌리지 않는다.
+        BuildReleaseWithConfiguredSigning();
     }
 
     private static void BuildReleaseWithConfiguredSigning()

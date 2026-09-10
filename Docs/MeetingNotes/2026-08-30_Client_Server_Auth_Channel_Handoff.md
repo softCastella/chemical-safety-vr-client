@@ -1277,3 +1277,32 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
 사용자에게 운영 배포 승인을 먼저 확인한다. 승인받으면 서버 `0ef1619…`을 운영에 반영한 뒤, 이미 완료된
 세션의 정확히 같은 이벤트 재전송은 `200`과 `duplicates`로 응답하고 새 이벤트는 계속 `409`인지 확인한다.
 그 결과가 PASS인 뒤에만 Quest에서 연속 모드 두 회차와 정상 완료 후 `Welcome_Old`를 검증한다.
+
+## 2026-09-11 Build 8 Alpha 배포와 중도 퇴장 확인
+
+### 오늘 적용한 변경
+
+- 로딩 씬의 `progressFillDuration`을 8초로 조정했다.
+- Android 앱 버전을 정식 릴리즈 표기 `1.0.0`, `versionCode=8`로 맞춰 Build 8을 생성했다.
+- 이전 APK와 동일하게 Unity Player Settings의 Custom Keystore, alias, 비밀번호를 직접 사용하는 방식으로
+  되돌렸다. 별도 `.meta-quest-signing.local` 주입과 ProjectSettings 격리 검증은 제거했다.
+- 현재 씬 구조에 존재하지 않는 `PartnerLogos` 블록을 강제하던 Scene Dependency 검증을 제거하고,
+  로딩 시간 검증 기준을 8초로 갱신했다.
+
+### 실행 및 배포 확인
+
+- Build 8 APK가 Meta Horizon Alpha 채널에 업로드됐고, 처리 완료 후 Quest에서 자동 업데이트됐다.
+- Quest에서 앱 실행과 중도 퇴장·`종료하기` 흐름을 수행했으며, 종료 후 Quest 라이브러리로 복귀하는 동작을
+  확인했다.
+- Unity AI Assistant의 `generators.ai.unity.com` 접속 오류 로그는 프로젝트 컴파일 오류가 아닌 별도 서비스
+  로그로 분류했다.
+
+### 후속 작업
+
+1. 운영 조회용 토큰을 서버 환경에 설정한 뒤, 이번 Build 8 세션의 `sessionId`와 `EXIT Point 중도 중단`,
+   종료 이벤트 및 서버 `completed` 상태를 운영 조회 API에서 대조한다.
+2. `종료하기`에 의한 `application_quitting`과 `EXIT Point 중도 중단` 이벤트를 서로 구분해 결과를 기록한다.
+3. 정상 모드 완료 1회와 동일 앱 실행 중 다른 모드 1회를 추가로 수행해 별도 `modeSessionId`와
+   `mode_session_completed`가 생성되는지 확인한다.
+4. 이번 변경으로 제거한 `PartnerLogos` 검증이 실제 제품 요구사항과 일치하는지 다음 씬 정리 작업에서
+   재검토한다. 현재 확인은 Build 8 배포·실행 수준이며 양안 렌더링과 전체 교육 회귀 검증은 미완료다.

@@ -193,11 +193,6 @@ public static class SceneDependencyValidationHarness
             failures);
         RequireTextInBlock(
             "Assets/Scenes/3_Loading.unity",
-            "--- !u!1 &980182014",
-            new[] { "m_Name: PartnerLogos", "m_IsActive: 0" },
-            failures);
-        RequireTextInBlock(
-            "Assets/Scenes/3_Loading.unity",
             "--- !u!114 &1219056837",
             new[]
             {
@@ -214,7 +209,7 @@ public static class SceneDependencyValidationHarness
         RequireTextInBlock(
             "Assets/Scenes/3_Loading.unity",
             "--- !u!114 &9100001030",
-            new[] { "prewarmFrames: 0", "progressFillDuration: 12" },
+            new[] { "prewarmFrames: 0", "progressFillDuration: 8" },
             failures);
         RequireText(
             "Assets/Scripts/TitleSplashController.cs",

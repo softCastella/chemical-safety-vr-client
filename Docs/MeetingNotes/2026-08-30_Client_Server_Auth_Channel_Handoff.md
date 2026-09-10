@@ -1246,3 +1246,34 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
 2. 한 앱 실행에서 서로 다른 모드 두 회차를 완료해 별도 `modeSessionId`와 각 1개의
    `mode_session_completed`를 확인한다.
 3. 정상 완료 후 재실행에서 동일 Meta 사용자의 `Returning` 및 `Welcome_Old`를 확인한다.
+
+## 2026-09-10 Codex Desktop 중단 대비 최종 인수인계
+
+### Git과 실행 상태
+
+- 클라이언트 기능·서명 분리 기준은 `main@5c1204539f98e398536982043676787462df4e37`, code 7 실제 검증
+  문서 반영은 `main@4e51c8b1b95d75aa2a0c4d2306358fe22726d4b2`이며 모두 `origin/main`에
+  푸시됐다.
+- 서버 재전송 수정은 `main@0ef1619c70d1fbfa9d448463da3d0244ad9724ab`, 공용 문서 미러는
+  `main@ab2c5147767085a679af07411fa88cb10eeb1ac0`이며 모두 `origin/main`에 푸시됐다.
+- 서버 작업 트리는 깨끗하다. 클라이언트 작업 트리에는 사용자 소유 XR Simulation `.meta` 변경 2개와
+  미추적 `Assets/XR/Temp`, `Assets/_Recovery`가 남아 있으며 이번 작업에서 수정·삭제·커밋하지 않았다.
+- Quest 2 기기 `1WMHHA65BK2493`는 ADB에서 `device`로 인식되고 앱 프로세스는 종료된 상태다.
+
+### 복구 자료와 주의점
+
+- Quest에서 추출한 code 7 원본 JSONL 백업은 Git 제외 경로
+  `.codex-tmp/quest-code7-telemetry-20260910`에 있다. 운영 DB와 정확히 대조한 과거 세션 ACK 복구 파일은
+  `.codex-tmp/quest-code7-state-repair`에 있으며 두 폴더 모두 원격 Git 보존 대상이 아니다.
+- ACK 수동 복구는 운영 DB에서 같은 세션 ID, 이벤트 수, 연속 sequence와 `completed`를 확인한 세션에만
+  적용했다. 다음 세션에서 근거 없이 다른 ACK를 생성하거나 JSONL 원본을 편집하지 않는다.
+- 운영 서버 checkout 확인 기준은 `e3dc59b24acd6eba12724955e7dc395baa32d898`다. GitHub의 서버 수정
+  `0ef1619…`은 아직 운영에 배포하지 않았고 PM2 재시작·DB migration·운영 데이터 변경도 수행하지 않았다.
+- 서버 수정은 migration 없이 애플리케이션 저장소 로직만 바꾼다. `npm test` 93개 PASS는 로컬 자동
+  검증이며 운영 재전송 성공을 뜻하지 않는다.
+
+### 재개 시 단일 다음 작업
+
+사용자에게 운영 배포 승인을 먼저 확인한다. 승인받으면 서버 `0ef1619…`을 운영에 반영한 뒤, 이미 완료된
+세션의 정확히 같은 이벤트 재전송은 `200`과 `duplicates`로 응답하고 새 이벤트는 계속 `409`인지 확인한다.
+그 결과가 PASS인 뒤에만 Quest에서 연속 모드 두 회차와 정상 완료 후 `Welcome_Old`를 검증한다.

@@ -62,9 +62,17 @@
 
 ## 남은 실제 검증
 
-1. Android `versionCode=7` Release APK를 생성해 Alpha 채널에 올린다.
-2. Quest에서 한 모드를 시작한 뒤 앱 내부 `종료하기`를 누르고 라이브러리로 복귀한다.
-3. 앱을 다시 실행하지 않은 상태에서 운영 서버가 같은 세션을 `completed`,
+1. Android `versionCode=7` Release APK는
+   `Builds/MetaHorizonAlpha/ChemicalSafetyVR_Alpha_0_1_0_7.apk`로 생성했다. Unity BuildReport는
+   `Success`, 실제 파일 크기는 `219,634,992 bytes`, SHA-256은
+   `A1F500B135304F81033CC738CCDADC63C6170A15CB06A2DCB687E4E7C15D7B9A`다.
+2. `aapt2`에서 package `com.tycheworks.immersa.safetyvr`, `versionCode=7`, Android 25/34,
+   ARM64, Quest VR category와 필수 head tracking을 확인했다. Manifest의 `usesCleartextTraffic=false`,
+   `android:debuggable` 부재와 `apksigner`의 출시 인증서 APK Signature Scheme v2 검증도 통과했다.
+3. code 7 APK를 Alpha 채널에 올리고 Quest에 설치한다.
+4. Quest에서 한 모드를 시작한 뒤 앱 내부 `종료하기`를 누르고 라이브러리로 복귀하며 ADB에서 앱 PID가
+   사라지는지 확인한다.
+5. 앱을 다시 실행하지 않은 상태에서 운영 서버가 같은 세션을 `completed`,
    `endReason=application_quitting`으로 저장했는지 확인한다.
-4. 한 앱 실행에서 서로 다른 시나리오·모드 두 개를 연속 완료하고 두 개의 서로 다른 `modeSessionId`와
+6. 한 앱 실행에서 서로 다른 시나리오·모드 두 개를 연속 완료하고 두 개의 서로 다른 `modeSessionId`와
    각각 한 개의 `mode_session_completed`가 기록됐는지 확인한다.

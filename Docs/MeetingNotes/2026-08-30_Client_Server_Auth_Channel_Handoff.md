@@ -1119,3 +1119,17 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
 - `PPETrainingDataContractHarness`에 종료 ACK 순서, 종료 이벤트 중복 방지, 새 `modeSessionId` 생성과 복귀
   초기화 검사를 추가했고 Unity Editor에서 PASS를 확인했다. 실제 Quest 검증은 code 7 Alpha 설치 후
   `앱 내부 종료 직후 서버 completed`와 `연속 실행의 서로 다른 modeSessionId`를 각각 확인해야 한다.
+
+### code 7 Release APK 생성 결과
+
+- 클라이언트 종료·연속 실행 분리 변경은 `main@d16c0b31d536fbb05777c06e8a927dc899141442`로 GitHub에
+  푸시됐다. Android `versionCode`를 7로 올리고 서명 준비 상태를 확인한 뒤 Release APK를 생성했다.
+- 출력은 `Builds/MetaHorizonAlpha/ChemicalSafetyVR_Alpha_0_1_0_7.apk`, 파일 크기는
+  `219,634,992 bytes`, SHA-256은
+  `A1F500B135304F81033CC738CCDADC63C6170A15CB06A2DCB687E4E7C15D7B9A`다.
+- Unity BuildReport `Success`, package `com.tycheworks.immersa.safetyvr`, `versionCode=7`, Android 25/34,
+  ARM64/OpenXR, Quest VR category, 필수 head tracking, `usesCleartextTraffic=false`, `android:debuggable`
+  부재와 기존 출시 인증서의 APK Signature Scheme v2 서명을 확인했다.
+- `MetaAlphaSubmissionGateHarness`는 code 7 APK와 기준 DB migration 16개를 확인했지만, 실행 시점에 로컬
+  Express TCP 3000이 닫혀 있어 `WAIT`였다. 이는 APK 정적 검증 실패가 아니며 Alpha 업로드·Quest 실제 종료
+  및 연속 회차 분리 검증은 아직 수행하지 않았다.

@@ -10,7 +10,7 @@ const serverRoot = path.resolve(clientRoot, "..", "chemical-safety-vr-server");
 const releasePlanRelativePath =
   "Docs/MeetingNotes/2026-08-25_Production_Server_Meta_Horizon_Release_Plan.md";
 const releaseApkRelativePath =
-  "Builds/MetaHorizonAlpha/ChemicalSafetyVR_Alpha_0_1_0_6.apk";
+  "Builds/MetaHorizonAlpha/ChemicalSafetyVR_Alpha_0_1_0_7.apk";
 const developmentApkRelativePath =
   "Builds/MetaHorizonAlpha/ChemicalSafetyVR_TelemetryDev_0_1_0_5.apk";
 
@@ -158,8 +158,8 @@ if (!fs.existsSync(serverReleasePlanPath)) {
 }
 
 const projectSettings = read("ProjectSettings/ProjectSettings.asset");
-if (!/^\s*AndroidBundleVersionCode:\s*6\s*$/mu.test(projectSettings))
-  failures.push("AndroidBundleVersionCode가 code 6이 아닙니다.");
+if (!/^\s*AndroidBundleVersionCode:\s*7\s*$/mu.test(projectSettings))
+  failures.push("AndroidBundleVersionCode가 code 7이 아닙니다.");
 
 const buildSettings = read("ProjectSettings/EditorBuildSettings.asset");
 const enabledScenes = [];
@@ -173,7 +173,7 @@ if (JSON.stringify(enabledScenes) !== JSON.stringify(expectedEnabledScenes)) {
 
 const releaseApkPath = path.join(clientRoot, releaseApkRelativePath);
 if (!fs.existsSync(releaseApkPath) || fs.statSync(releaseApkPath).size === 0) {
-  blockers.push(`code 6 Release APK가 없습니다: ${releaseApkRelativePath}`);
+  blockers.push(`code 7 Release APK가 없습니다: ${releaseApkRelativePath}`);
 } else {
   facts.push(
     `Release APK=${releaseApkRelativePath} (${fs.statSync(releaseApkPath).size} bytes)`,

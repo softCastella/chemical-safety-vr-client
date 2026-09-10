@@ -105,6 +105,8 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
     AudioClip activeVoiceClip;
     float activeVoiceStartedAt;
     bool applicationPaused;
+    bool sessionEnding;
+    bool sessionEnded;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStaticNotifications()
@@ -186,6 +188,15 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
             quizQuestionCount:quizQuestionCount,
             ppeWrongCount:ppeWrongCount,
             modeElapsedSec:modeElapsedSec);
+    }
+
+    public static string RecordApplicationExitRequested()
+    {
+        if (instance == null)
+            return null;
+
+        instance.RecordSessionEnded();
+        return instance.sessionId;
     }
 
     void Awake()
@@ -560,9 +571,26 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
 
     void OnApplicationQuitting()
     {
-        foreach (PendingGrabAttempt attempt in new List<PendingGrabAttempt>(pendingGrabAttempts.Values))
-            ResolveGrabAttempt(attempt, "session_ended_before_resolution", attempt.candidateItemType);
-        Write("session_ended", note:"application_quitting");
+        RecordSessionEnded();
+    }
+
+    void RecordSessionEnded()
+    {
+        if (sessionEnding || sessionEnded)
+            return;
+
+        sessionEnding = true;
+        try
+        {
+            foreach (PendingGrabAttempt attempt in new List<PendingGrabAttempt>(pendingGrabAttempts.Values))
+                ResolveGrabAttempt(attempt, "session_ended_before_resolution", attempt.candidateItemType);
+            Write("session_ended", note:"application_quitting");
+            sessionEnded = true;
+        }
+        finally
+        {
+            sessionEnding = false;
+        }
     }
 
     void OnApplicationPause(bool paused)
@@ -607,7 +635,7 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         int ppeWrongCount = 0,
         float modeElapsedSec = 0f)
     {
-        if (string.IsNullOrEmpty(outputPath))
+        if (sessionEnded || string.IsNullOrEmpty(outputPath))
             return;
 
         int sequence = ++nextSequence;

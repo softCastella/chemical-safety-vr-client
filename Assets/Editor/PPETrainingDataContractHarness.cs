@@ -115,6 +115,7 @@ public static class PPETrainingDataContractHarness
             ValidateExitRouteContract(previewScene, finaleController, failures);
             ValidateGripTelemetryContract(previewScene, failures);
             ValidateModeCompletionBoundary(failures);
+            ValidateSequentialModeSessionContract(failures);
 
             if (failures.Count > 0)
             {
@@ -260,13 +261,28 @@ public static class PPETrainingDataContractHarness
             failures);
         ValidateSourceContains(
             QuitButtonSourcePath,
+            "PPETrainingTelemetryCapture.RecordApplicationExitRequested();",
+            "앱 종료 버튼이 현재 세션의 종료 이벤트를 먼저 기록하지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            QuitButtonSourcePath,
+            "TycheTrainingTelemetryUploader.FlushSessionAndWaitForCompletion(",
+            "앱 종료 버튼이 서버 세션 완료 ACK를 기다리지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            QuitButtonSourcePath,
             "Application.Quit();",
-            "시나리오 카드 종료 버튼의 앱 종료 호출을 확인할 수 없습니다.",
+            "앱 종료 버튼의 최종 HMD 앱 종료 호출을 확인할 수 없습니다.",
             failures);
         ValidateSourceContains(
             TelemetrySourcePath,
-            "Write(\"session_ended\", note:\"application_quitting\");",
-            "현재 텔레메트리의 application_quitting 종료 시점 기록을 확인할 수 없습니다.",
+            "if (sessionEnding || sessionEnded)",
+            "명시적 종료 요청과 Application.quitting이 session_ended를 중복 기록할 수 있습니다.",
+            failures);
+        ValidateSourceContains(
+            TelemetryUploaderSourcePath,
+            "LoadState(jsonlPath + \".upload-state.json\", sessionId).completed",
+            "종료 대기 경로가 서버 완료 ACK의 durable 상태를 확인하지 않습니다.",
             failures);
         ValidateSourceContains(
             LocalRegistrationClientSourcePath,
@@ -675,6 +691,25 @@ public static class PPETrainingDataContractHarness
             VoiceFlowDirectorSourcePath,
             "PPETrainingTelemetryCapture.RecordModeSessionCompleted(",
             "모드 선택 모달 복귀 뒤 정상 완료를 기록하는 호출이 없습니다.",
+            failures);
+    }
+
+    static void ValidateSequentialModeSessionContract(List<string> failures)
+    {
+        ValidateSourceContains(
+            TelemetrySourcePath,
+            "string modeSessionId = Guid.NewGuid().ToString(\"N\");",
+            "연속 모드 실행마다 고유 modeSessionId를 생성하지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            VoiceFlowDirectorSourcePath,
+            "m_ModeSessionId = PPETrainingTelemetryCapture.RecordModeSessionStarted(",
+            "새 모드 선택이 새 modeSessionId 기록 경로에 연결되지 않습니다.",
+            failures);
+        ValidateSourceContains(
+            FinaleSourcePath,
+            "m_VoiceFlowDirector.ResetModeSessionForNextSelection();",
+            "모드 복귀 후 다음 선택을 위한 실행 상태 초기화가 없습니다.",
             failures);
     }
 

@@ -1085,3 +1085,37 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
 - 이 원격 보존은 Quest의 code 5 앱을 삭제해도 채택한 6개 기준 원본을 복구할 수 있게 하는 조치다.
 - 원격 Git 보존 완료를 기준 DB 반영, 운영 MySQL 대조 또는 code 6 Release 통합 검증 완료로 합쳐 쓰지
   않는다.
+
+## 2026-09-10 Quest code 6 실제 연동과 앱 내부 종료 후속
+
+### 기준 저장소와 실제 통합 결과
+
+- 클라이언트 변경 전 기준은 `main@be7709bca652cbeb4b20babb00ccd314edd8c475`, 서버 확인 기준은
+  `main@bb7595b6ea0e1c387262d10e7d3312bec746d91f`다. 서버는 `main...origin/main`으로 동기화돼 있었다.
+- Quest Alpha code 6의 실제 Meta 인증이 성공했고 운영 DB 참여자 identity type은 `meta`로 확인했다.
+- `LeakResponse/Training` 세션 `5df09877…`은 `mode_session_completed`를 포함해 이벤트 165개,
+  `sequence 1~165`, `session_ended/application_quitting`으로 운영 MySQL에 저장됐다. 마지막 종료 데이터는
+  종료 순간이 아니라 다음 앱 실행의 durable recovery에서 전송됐다.
+- Quest 원본 JSONL을 ADB로 직접 추출해 파일 단위로 대조하지는 않았다. 위 결과는 운영 DB의 연속 sequence,
+  이벤트 종류와 서버 세션 상태를 근거로 한다.
+
+### 앱 내부 종료 재현과 클라이언트 수정
+
+- 사용자가 앱 내부 `종료하기`를 눌러 Quest 라이브러리로 복귀한 최신 세션 `0cb9366f…`은 서버에서
+  `eventCount=135`, `lastSequence=135`, `endedAt/endReason=null`, `status=open`으로 남았다. 마지막 수신은
+  `voice_playback_ended`였고 `application_paused`와 `session_ended`는 도착하지 않았다.
+- 원인은 `QuitApplicationButton`이 서버 업로드 완료를 기다리지 않고 즉시 `Application.Quit()`을 호출한
+  것이다. 클라이언트는 종료 이벤트를 먼저 한 번만 기록하고 현재 세션의 이벤트와 `/complete` ACK를 최대
+  5초 기다린 뒤 앱을 종료하도록 변경했다. timeout 때는 기존 durable recovery를 유지한다.
+- 서버 API·DB 계약과 배포 코드는 변경하지 않았다. code 7 Quest 실제 종료 검증 전까지 정적·Editor 검증
+  완료와 Release 통합 완료를 구분한다.
+
+### 연속 시나리오·모드 분리 계약
+
+- 한 앱 `sessionId` 안에서 사용자가 복귀 후 다른 시나리오 또는 Education·Training·Test를 연속 선택하는
+  동작은 허용한다.
+- 각 실행은 새 GUID `modeSessionId`로 시작하고 `mode`, `workPlan`, PPE·퀴즈·완료 이벤트를 그 ID에
+  연결한다. 복귀 시 모드 추적 상태를 초기화하되 앱 전체 세션은 닫지 않는다.
+- `PPETrainingDataContractHarness`에 종료 ACK 순서, 종료 이벤트 중복 방지, 새 `modeSessionId` 생성과 복귀
+  초기화 검사를 추가했고 Unity Editor에서 PASS를 확인했다. 실제 Quest 검증은 code 7 Alpha 설치 후
+  `앱 내부 종료 직후 서버 completed`와 `연속 실행의 서로 다른 modeSessionId`를 각각 확인해야 한다.

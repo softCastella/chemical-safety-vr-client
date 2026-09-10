@@ -265,6 +265,35 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
         ScheduleRecordScan(paused ? 0f : RecordScanDebounceSeconds);
     }
 
+    public static IEnumerator FlushSessionAndWaitForCompletion(
+        string sessionId,
+        float timeoutSeconds,
+        Action<bool> completed)
+    {
+        TycheTrainingTelemetryUploader uploader = instance;
+        if (uploader == null || !uploader.isActiveAndEnabled || !uploader.uploadLoopReady ||
+            string.IsNullOrEmpty(sessionId))
+        {
+            completed?.Invoke(false);
+            yield break;
+        }
+
+        uploader.ScheduleRecordScan(0f);
+        float deadline = Time.realtimeSinceStartup + Mathf.Max(0.1f, timeoutSeconds);
+        while (Time.realtimeSinceStartup < deadline)
+        {
+            if (IsSessionUploadCompleted(sessionId))
+            {
+                completed?.Invoke(true);
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        completed?.Invoke(IsSessionUploadCompleted(sessionId));
+    }
+
     IEnumerator Start()
     {
         if (Application.isEditor && !enableEditorTestUpload)
@@ -1102,6 +1131,25 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
         {
             // Server writes are idempotent, so a broken local ACK file safely restarts at sequence zero.
             return new UploadState { sessionId = sessionId };
+        }
+    }
+
+    static bool IsSessionUploadCompleted(string sessionId)
+    {
+        string directory = Path.Combine(
+            Application.persistentDataPath,
+            "tyche-training-telemetry");
+        try
+        {
+            string jsonlPath = Directory
+                .GetFiles(directory, $"session-*-{sessionId}.jsonl")
+                .SingleOrDefault();
+            return !string.IsNullOrEmpty(jsonlPath) &&
+                LoadState(jsonlPath + ".upload-state.json", sessionId).completed;
+        }
+        catch (Exception)
+        {
+            return false;
         }
     }
 

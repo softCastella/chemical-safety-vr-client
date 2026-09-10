@@ -1133,3 +1133,33 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
 - `MetaAlphaSubmissionGateHarness`는 code 7 APK와 기준 DB migration 16개를 확인했지만, 실행 시점에 로컬
   Express TCP 3000이 닫혀 있어 `WAIT`였다. 이는 APK 정적 검증 실패가 아니며 Alpha 업로드·Quest 실제 종료
   및 연속 회차 분리 검증은 아직 수행하지 않았다.
+
+### code 7 Alpha 업로드와 집 후속작업 인수인계
+
+- 사용자는 Meta Dashboard에서 code 7 Alpha 업로드 완료를 확인했다. Codex가 Meta API 또는 채널 상세에서
+  독립 조회한 결과는 아니므로 Quest 라이브러리의 설치 버전 확인 전까지 배포·설치 완료로 합쳐 쓰지 않는다.
+- 용량 확보 요청에 따라 `Builds/MetaHorizonAlpha` 아래 APK 7개, 총 `2,027,034,856 bytes`를 삭제했고 남은
+  APK는 0개다. code 7도 로컬에서 삭제됐으며 Meta Alpha 재설치 또는 같은 출시 Keystore 재빌드로만 다시
+  확보할 수 있다. Git의 소스·기준 JSONL·문서와 서버 데이터는 삭제하지 않았다.
+- 클라이언트는 `main@e06af5846ad0fba66d1da6fa899550560c0047db`, 서버 문서 미러는
+  `main@eebdd673532aa3e1b380992da31a27c610460b8b`에서 원격과 동기화된 상태를 기준으로 인수인계한다.
+- 클라이언트 작업 트리에는 사용자가 작업 중인 `Assets/Scenes/1_Title.unity`,
+  `Assets/Scenes/3_PPE_Room_3mode_loco_cam.unity`, `ProjectSettings/ProjectSettings.asset`의 preloaded asset
+  변경과 미추적 PPT가 남아 있다. `Assets/Settings/Mobile_RPAsset.asset`은 상태가 수정으로 보이지만
+  `git diff` 내용은 없으므로 다음 세션에서 재확인하고 임의 커밋하지 않는다.
+- 현재 브랜치는 클라이언트·서버 모두 `main`이며 별도 작업 브랜치가 없어 추가 병합 대상은 없다. 관련
+  한국어 커밋을 각 `origin/main`에 직접 푸시하는 것이 이번 병합 완료 기준이다.
+
+집에서 재개할 때는 다음 순서로 검증한다.
+
+1. Quest 라이브러리에서 Alpha code 7을 설치하고 표시 버전 또는 ADB package versionCode가 7인지 확인한다.
+2. 한 모드를 시작한 뒤 앱 내부 `종료하기`를 누른다. 라이브러리 복귀 후 ADB `pidof`에서 앱 PID가 없는지
+   확인한다.
+3. 앱을 다시 실행하기 전에 운영 서버의 같은 `sessionId`가 `completed`,
+   `endReason=application_quitting`이며 마지막 sequence까지 수신됐는지 확인한다.
+4. 앱을 한 번 실행한 상태에서 서로 다른 시나리오·모드 두 회차를 연속 완료한다. 같은 앱 `sessionId`
+   아래 서로 다른 `modeSessionId` 두 개와 각 1개의 `mode_session_completed`를 확인한다.
+5. 강제 종료·충돌·전원 차단은 종료 이벤트를 보장할 수 없다. 마지막 이벤트 뒤 장기 `open`인 세션을
+   비정상 종료로 추정하되 원인을 충돌·전원 종료로 확정하지 않는다. heartbeat 기반 세부 판정은 후속이다.
+6. 로컬 APK가 의도적으로 없으므로 `MetaAlphaSubmissionGateHarness`의 APK 없음 `WAIT`는 예상 결과다.
+   실제 Quest·서버 검증을 통과한 뒤 대시보드 상세 조회와 입점 신청 자료 후속으로 이동한다.

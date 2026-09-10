@@ -69,10 +69,21 @@
 2. `aapt2`에서 package `com.tycheworks.immersa.safetyvr`, `versionCode=7`, Android 25/34,
    ARM64, Quest VR category와 필수 head tracking을 확인했다. Manifest의 `usesCleartextTraffic=false`,
    `android:debuggable` 부재와 `apksigner`의 출시 인증서 APK Signature Scheme v2 검증도 통과했다.
-3. code 7 APK를 Alpha 채널에 올리고 Quest에 설치한다.
+3. 사용자가 Meta Alpha에 code 7 업로드 완료를 확인했다. Quest 라이브러리에서 code 7을 설치하고 실제
+   설치 버전을 확인한다.
 4. Quest에서 한 모드를 시작한 뒤 앱 내부 `종료하기`를 누르고 라이브러리로 복귀하며 ADB에서 앱 PID가
    사라지는지 확인한다.
 5. 앱을 다시 실행하지 않은 상태에서 운영 서버가 같은 세션을 `completed`,
    `endReason=application_quitting`으로 저장했는지 확인한다.
 6. 한 앱 실행에서 서로 다른 시나리오·모드 두 개를 연속 완료하고 두 개의 서로 다른 `modeSessionId`와
    각각 한 개의 `mode_session_completed`가 기록됐는지 확인한다.
+
+## Alpha 업로드 후 로컬 정리
+
+- 사용자는 Meta Dashboard에서 code 7 Alpha 업로드 완료를 확인했다. 이는 사용자 화면 확인을 근거로 하며
+  Codex가 Meta API에서 독립 조회한 결과는 아니다.
+- 업로드 확인 후 `Builds/MetaHorizonAlpha`의 APK 7개를 삭제했다. 삭제량은 `2,027,034,856 bytes`이며
+  남은 APK는 0개다. 여기에는 code 7 Release APK도 포함된다.
+- APK는 Git 보존 대상이 아니며 로컬 삭제는 되돌릴 수 없다. code 7 바이너리는 Meta Alpha에서 다시
+  설치하거나 `main`의 같은 versionCode와 출시 Keystore로 재빌드한다.
+- APK 삭제는 Git에 보존된 소스, 기준 JSONL, 문서와 운영 서버 데이터를 삭제하지 않는다.

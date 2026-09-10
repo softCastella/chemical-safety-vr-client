@@ -1057,3 +1057,31 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
    결과를 대조한다.
 6. 위 결과가 모두 일치할 때만 `Release 통합 검증 완료`로 상태를 올린다. App Metadata 작성, 정식 Store
    심사 제출과 대시보드 KPI 확정은 별도 후속 단계다.
+
+## 2026-09-10 기준 데이터 비공개 Git 원격 보존
+
+### 보존 결정
+
+- 2026-09-08 Unity Editor + Quest Link에서 채택한 6개 시나리오·모드 JSONL 기준본은 기존에
+  `.baseline-preservation/editor-link-20260908/`의 로컬 단일 사본으로만 보존돼 있었다.
+- 사용자는 해당 기준 데이터가 본인 수행 데이터임을 확인하고 PC 장애와 앱 삭제에 대비해 비공개
+  `softCastella/chemical-safety-vr-client` 저장소에 원본 그대로 보존하도록 승인했다.
+- 대상은 `B20260908-01`부터 `B20260908-06`까지의 기존 6개 JSONL만이며, 다른 로컬 세션과 Quest 앱
+  데이터는 이번 보존 범위에 포함하지 않는다.
+
+### 개인정보·무결성 확인
+
+- 대상 원본에는 `metaAppScopedUserId`가 포함돼 있다. 인증 token, Meta User Proof, password, secret,
+  email 필드는 없음을 값 출력 없이 필드명 기준으로 확인했다.
+- GitHub 저장소의 가시성은 `PRIVATE`로 확인했다. 저장소를 공개로 전환하거나 원본을 다른 위치에
+  재배포할 때는 개인정보 포함 여부를 다시 검토한다.
+- 6개 파일의 SHA-256은 이 문서의 `2026-09-08 Unity Editor + Quest Link 6개 조합 기준 데이터 채택`
+  절에 기록된 값과 모두 일치한다.
+- `.gitattributes`에서 대상 JSONL을 `-text`로 지정해 `core.autocrlf`에 의한 줄바꿈 변환 없이 원본
+  바이트를 보존한다.
+
+### 검증 경계
+
+- 이 원격 보존은 Quest의 code 5 앱을 삭제해도 채택한 6개 기준 원본을 복구할 수 있게 하는 조치다.
+- 원격 Git 보존 완료를 기준 DB 반영, 운영 MySQL 대조 또는 code 6 Release 통합 검증 완료로 합쳐 쓰지
+  않는다.

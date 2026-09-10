@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Preserve approved telemetry baseline JSONL byte-for-byte in the private repository.
+# CRLF is part of the approved source bytes, so do not flag it as trailing whitespace.
+.baseline-preservation/editor-link-20260908/*.jsonl -text whitespace=-trailing-space

@@ -87,3 +87,54 @@
 - APK는 Git 보존 대상이 아니며 로컬 삭제는 되돌릴 수 없다. code 7 바이너리는 Meta Alpha에서 다시
   설치하거나 `main`의 같은 versionCode와 출시 Keystore로 재빌드한다.
 - APK 삭제는 Git에 보존된 소스, 기준 JSONL, 문서와 운영 서버 데이터를 삭제하지 않는다.
+
+## code 7 Quest 실제 검증과 완료 세션 재전송 결함
+
+### 실제 검증 결과
+
+- Quest 2에 Meta Alpha 채널을 통해 설치된 앱은 package
+  `com.tycheworks.immersa.safetyvr`, `versionCode=7`, installer `com.oculus.ocms`이며
+  `android:debuggable`이 없는 Release 앱으로 확인했다.
+- 첫 검증 세션 `bb539742…`은 로컬 복구 큐를 정리한 뒤 운영 서버에서 `eventCount=23`,
+  `sequence 1~23`, `status=completed`, `endReason=application_quitting`으로 확인됐다.
+- 두 번째 검증 세션 `31bddadc…`은 앱 내부 종료 버튼 실행 직후 ADB에서 PID가 사라졌고,
+  종료 로그에 `Telemetry session completed on the server before quitting.`이 남았다. Quest ACK는
+  `acceptedThroughSequence=32`, `completed=true`, 운영 서버는 `eventCount=32`, `sequence 1~32`,
+  `status=completed`, `endReason=application_quitting`으로 일치했다.
+- 두 실행은 동일한 앱 범위 Meta 사용자로 식별됐지만 정상 모드 완료 없이 카드 단계에서 종료됐다.
+  따라서 `modeSessionId`와 `mode_session_completed`가 없고 다음 실행에서도 `FirstVisit` 및
+  `Welcome_New`가 적용된 것은 현재의 시나리오 완료 기반 기존 사용자 계약과 일치한다.
+
+### 추가로 발견한 근본 원인
+
+- Meta 채널 설치 뒤 Quest에 과거 JSONL이 복원됐지만 일부 `.upload-state.json`은 없거나 실제 서버
+  완료 상태보다 뒤처져 있었다.
+- 해당 과거 세션들은 운영 DB에서 이미 `completed`였지만 클라이언트가 이벤트를 다시 전송하면 서버가
+  완료 세션이라는 이유로 `409`를 반환했다. 업로더는 가장 오래된 실패 파일에서 순회를 중단하므로 새
+  code 7 세션도 그 뒤에서 전송되지 못했다.
+- Quest 원본 JSONL을 PC의 Git 제외 임시 폴더에 먼저 백업하고, 운영 DB에서 세션 ID·이벤트 수·완료
+  상태가 정확히 일치한 네 과거 세션에 한해 로컬 ACK 메타데이터만 복구했다. 원본 JSONL과 운영 DB는
+  수정하지 않았다.
+
+### 서버 후속 수정과 검증 경계
+
+- 서버 저장소 `main@1d9b9fa0a146b4a15925470182ec7a7f2ceff462`를 변경 전 기준으로, 완료 세션에도
+  이미 저장된 이벤트와 ID·sequence·payload hash가 모두 같은 재전송만 중복 성공으로 응답하도록
+  저장소 계약을 수정했다. 서버 코드와 테스트는
+  `main@0ef1619c70d1fbfa9d448463da3d0244ad9724ab`로 GitHub에 반영했다.
+- 완료 세션의 새 이벤트 또는 기존 ID·sequence와 데이터가 다른 이벤트는 계속 `409 CONFLICT`로
+  거부한다. 완료된 원본을 변경하거나 뒤늦은 이벤트를 추가하지 않는다.
+- 인메모리 저장소와 API 회귀 테스트를 함께 보강했고 서버 `npm test`는 93개 모두 PASS했다.
+- 이 서버 수정은 아직 운영 서버에 배포하지 않았다. 따라서 현재 운영에서 확인한 code 7 종료 성공은
+  Quest의 ACK 메타데이터를 제한적으로 복구한 뒤의 결과이며, 수정된 서버의 자동 복구 성공으로 확대하지
+  않는다.
+
+## 다음 실제 검증
+
+1. GitHub에 반영된 서버 수정 커밋을 기준으로 별도 승인을 받아 운영에 배포한다.
+2. 완료 세션의 ACK가 없거나 뒤처진 재현 데이터에서 수동 보정 없이 중복 응답과 최신 파일 전송 재개를
+   확인한다.
+3. 한 앱 실행에서 서로 다른 모드 두 회차를 정상 완료하고 서로 다른 `modeSessionId`와 각 한 개의
+   `mode_session_completed`를 운영 DB에서 확인한다.
+4. 정상 모드 완료 뒤 앱을 재실행해 동일 Meta 사용자가 `Returning`으로 판정되고 `Welcome_Old`가
+   재생되는지 확인한다.

@@ -1363,3 +1363,67 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
 - **문서 검증:** `git diff --check`에서 이번 문서 변경의 공백 오류는 없었다. Unity
   `DocumentationPolicyHarness.Validate`는 학원 PC의 `No valid Unity Editor license found`로 종료 코드
   `198`을 반환해 실행되지 않았으며, 문서 정책 실패로 해석하지 않는다.
+
+## 2026-09-11 Meta Horizon Store 제출 준비와 Build 8 서버 연동 재확인
+
+### 이번 작업의 범위
+
+- 학원 Quest 2에 Meta Alpha 채널의 Build 8(`versionName=1.0.0`, `versionCode=8`)을 설치한 상태에서
+  EXIT Point 복귀, Training·Test·Education 완료, 앱 내부 정상 종료와 기존 사용자 안내를 확인했다.
+- 위 HMD 실행 결과를 근거로 Meta Horizon Store의 제출 바이너리, 무료 가격, 앱 메타데이터, 콘텐츠 등급과
+  공유 설정을 준비했다.
+- 이번 기록은 Store 검토 제출 준비와 서버 수신 검증을 정리한다. 운영 대시보드 연결 완료나 Store 검토
+  승인까지 합쳐서 완료로 기록하지 않는다.
+
+### Meta Horizon Store 제출 설정
+
+- 제출 바이너리는 package `com.tycheworks.immersa.safetyvr`의 `1.0.0` Build 8이며, Alpha 채널에서 실제
+  설치·실행한 같은 빌드를 Production(Store) 제출 대상으로 선택했다.
+- 가격은 무료로 설정했고 콘텐츠 등급은 청소년 이상으로 지정했다.
+- 앱 유형은 `Immersive`, 실행 모드는 `Native`다. 앱에서 실제 지원하는 언어는 한국어만 선택했다.
+- Store 메타데이터의 기본 언어 `English (US)`는 현재 제출 화면에서 제거되지 않았다. 이를 앱의 영어 지원으로
+  해석하지 않고, 영어 기본 Store 설명에는 `Korean language only.`를 명시하고 한국어 현지화 메타데이터를
+  별도로 작성했다.
+- 영어 검색 키워드는 `ChemicalSafety`, `PPE`, `VRTraining`, `WorkplaceSafety`, `ConfinedSpace`로 입력했다.
+- 사양의 지원 입력에서는 실제 구현과 일치하도록 Touch controller만 사용하고 controller-free hand tracking인
+  `Hands`는 제외했다. Social features는 `No`, 앱 지원 언어는 `Korean`으로 설정했다.
+- 개발자와 퍼블리셔는 `Tyche works`, 웹사이트는
+  `https://immersa.tycheworks.com/chemical-safety-training`, 개인정보처리방침은
+  `https://softcastella.github.io/tycheworks-safetytrainingvr-privacy/`로 입력했다. 외부 지원 링크와 서비스
+  약관은 선택 항목이므로 비워 뒀다.
+- 한국어와 영어 메타데이터의 자산은 언어별 입력으로 관리했다. 아이콘은 512x512 불투명 배경 이미지로
+  보완했으며, 앱 메타데이터의 이름·카테고리 분류·사양·상세 정보·자산·콘텐츠 등급은 제출 화면에서 모두
+  초록색 완료 상태를 확인했다.
+- 검수자 노트에는 별도 계정 로그인이 필요하지 않고 시작 화면의 입력값은 테스트용 닉네임이라는 점, 앱 UI·안내·
+  음성이 한국어 전용이라는 점, PPE 시나리오와 Education·Training·Test 진입 방법을 안내했다.
+- 공유 설정 확인 화면에서는 미러링, 라이브스트리밍과 동영상 녹화가 선택된 상태를 확인했다. 이 설정은
+  Quest의 화면·콘텐츠 공유 기능이며 Multi-User의 앱 구매 권한 공유와 구분한다.
+- 사용자가 `검토를 위해 제출`을 진행한다고 확인했지만, 제출 후 `제출됨` 또는 `검토 중` 상태 화면은 아직
+  대조하지 않았다. 따라서 현재 문서 상태는 **제출 준비 완료, 최종 접수 상태 미확인**이다.
+
+### Build 8 실제 서버 전송 근거
+
+- 앱 세션 `0ec97178…`은 Quest 로컬 JSONL과 업로드 ACK에서 이벤트 302개, 마지막 `sequence=302`,
+  `completed=true`로 일치했다. 운영 MySQL의 같은 세션도 이벤트 302개, 마지막 `sequence=302`,
+  `status=completed`, `endReason=application_quitting`으로 일치했다.
+- 같은 앱 실행에서 `Training/LeakResponse`와 `Test/LeakResponse`는 서로 다른 `modeSessionId`와 각 한 개의
+  `mode_session_completed`를 기록했다. Training은 96.15초, Test는 151.52초였고 두 회차 모두 퀴즈 5/5,
+  `ppeWrongCount=0`이었다.
+- 후속 앱 세션 `9db5c193…`의 `LeakResponse/Education` 회차도 정상 완료했다. Quest JSONL·ACK와 운영
+  MySQL이 이벤트 195개, 마지막 `sequence=195`, 완료 상태에서 일치했고 서버에는 `appVersion=1.0.0`과
+  `endReason=application_quitting`이 저장됐다.
+- 위 결과로 **Build 8의 Quest 원본 생성 → 운영 HTTPS 업로드 → 서버 운영 MySQL 저장**은 두 실제 앱 세션에서
+  통합 확인됐다. 이후 모든 네트워크 상태나 모든 미래 세션의 성공을 보장하는 결과로 확대 해석하지 않는다.
+
+### 검증과 남은 후속 작업
+
+- `node Tools/AgentHandoffHarness.mjs`는 PASS했다.
+- `node Tools/MetaAlphaSubmissionGateHarness.mjs`는 현재 `AndroidBundleVersionCode가 code 7이 아닙니다`로
+  FAIL했다. 하네스의 고정 기대값이 Build 8 이전 기준인 것이 원인이며, 위 실제 Build 8 서버 수신 실패를
+  의미하지 않는다. 다음 코드 작업에서 기대 version code를 현재 제출 기준에 맞추고 정적 계약과 실제 HMD
+  통합 증거를 계속 분리한다.
+- EXIT Point 전용 원본 이벤트는 아직 없으므로 중도 퇴장 원인을 확정 지표로 표시하지 않는다.
+- 운영 대시보드의 조회용 HTTP 인증과 실제 화면 조회는 아직 완료하지 않았다. Build 8 서버 수신 완료와
+  대시보드 연결 완료를 구분한다.
+- 최종 Store 접수 상태, Quest 양안·거울 시각 품질, 스킵하지 않은 전체 음성 품질과 성능 체감은 별도 수동
+  확인 항목으로 남긴다.

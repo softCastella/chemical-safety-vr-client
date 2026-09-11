@@ -138,3 +138,30 @@
    `mode_session_completed`를 운영 DB에서 확인한다.
 4. 정상 모드 완료 뒤 앱을 재실행해 동일 Meta 사용자가 `Returning`으로 판정되고 `Welcome_Old`가
    재생되는지 확인한다.
+
+## 2026-09-11 Build 8 학원 Quest 2 검증 결과
+
+- Meta Alpha 설치본 `versionCode=8`, `versionName=1.0.0`에서 앱 세션 `0ec97178…`을 새로 수집했다.
+- EXIT Point로 복귀한 `Education/LeakResponse` 회차는 `mode_session_started`만 있고 같은
+  `modeSessionId`의 `mode_session_completed`는 없었다. `session_ended/application_quitting`도 발생하지
+  않아 중도 복귀가 정상 완료나 앱 종료로 오기록되지 않았다.
+- 같은 앱 실행에서 Training과 Test를 각각 정상 완료했다. 두 회차는 서로 다른 `modeSessionId`를 사용했고
+  각각 한 개의 `mode_session_completed`를 기록했다.
+- 앱 내부 `종료하기` 직후 Quest PID가 사라졌고 로컬 JSONL·ACK와 운영 MySQL은 이벤트 302개,
+  마지막 `sequence=302`, `completed/application_quitting`으로 일치했다. 다음 앱 실행의 durable recovery는
+  필요하지 않았다.
+- 같은 세션의 최초 시작 원본은 `metaWelcomeState=Returning`과
+  `VO_PPE_INTRO_002_Welcome_Old` 재생을 기록했다. 사용자의 기존 사용자 안내 관찰과 일치한다.
+- 서버 운영 checkout은 중복 재전송 수정 `0ef1619…`을 포함한 `094524e…`이고 PM2 프로세스도 해당 수정
+  이후 재시작된 상태로 확인했다.
+
+### 남은 제한
+
+- EXIT Point 전용 텔레메트리 이벤트는 아직 없다. 현재는 상태 복귀와 같은 `modeSessionId`의 완료 이벤트
+  부재로만 중도 복귀를 판정하므로, 대시보드에서 이를 확정 종료 원인으로 표시하지 않는다.
+- 운영 HTTP 조회 token은 설정하지 않았다. 이번 운영 DB 대조는 SSH에서 서버 repository의 읽기 전용
+  조회를 사용했으며 API 조회 권한 검증과는 구분한다.
+- 이번 실행은 종료·연속 모드·기존 사용자 계약을 검증했다. Quest 양안 시각 품질과 전체 Education 정상
+  완료 회귀는 별도 수동 검증으로 남긴다.
+- Unity `DocumentationPolicyHarness.Validate`는 학원 PC의 Unity 라이선스 부재로 종료 코드 `198`을
+  반환해 실행되지 않았다. 이번 문서 변경의 정적 diff에는 새 공백 오류가 없다.

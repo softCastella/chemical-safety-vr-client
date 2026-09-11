@@ -1306,3 +1306,51 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
    `mode_session_completed`가 생성되는지 확인한다.
 4. 이번 변경으로 제거한 `PartnerLogos` 검증이 실제 제품 요구사항과 일치하는지 다음 씬 정리 작업에서
    재검토한다. 현재 확인은 Build 8 배포·실행 수준이며 양안 렌더링과 전체 교육 회귀 검증은 미완료다.
+
+## 2026-09-11 학원 Quest 2 Build 8 연속 실행·종료 통합 검증
+
+### 실행 기준
+
+- 클라이언트 저장소는 `main@dbb2e8f7d9babaa0f039812bdcf679b6163c19c6`, 서버 저장소와 운영 checkout은
+  `main@094524ec1db797a7c8c497086a868a7b0f4fb19e`을 기준으로 확인했다. 서버 checkout은
+  `0ef1619c70d1fbfa9d448463da3d0244ad9724ab`의 완료 세션 중복 재전송 수정도 포함한다.
+- 학원 Quest 2의 설치본은 Meta 설치 관리자 `com.oculus.ocms`를 통한 package
+  `com.tycheworks.immersa.safetyvr`, `versionCode=8`, `versionName=1.0.0`이다.
+- 이번 원본 앱 세션은 `0ec97178…`이며 개인 Meta ID 원문은 문서에 기록하지 않는다.
+
+### EXIT Point와 연속 모드 결과
+
+- 첫 `Education/LeakResponse` 회차 `4a221555…`는 `mode_session_started` 뒤 EXIT Point로 복귀했다.
+  동일 `modeSessionId`의 `mode_session_completed`는 없고, 앱의 `session_ended/application_quitting`도
+  기록되지 않았다. 따라서 정상 완료나 앱 종료로 오기록되지 않았음을 확인했다.
+- 현재 JSONL에는 EXIT Point 전용 이벤트가 없다. 중도 복귀는 `PpeArea → PpeEducationSelected` 상태 전이와
+  해당 `modeSessionId`의 완료 이벤트 부재로만 확인된다. 이 근거만으로 대시보드에서 중도 퇴장 원인을
+  확정하지 않는다.
+- 같은 앱 실행에서 `Training/LeakResponse` 회차 `ca2ae94dd…`와 `Test/LeakResponse` 회차
+  `2ddf9b94…`를 정상 완료했다. 두 회차는 서로 다른 `modeSessionId`를 사용하고 각각 정확히 한 개의
+  `mode_session_completed`로 닫혔다.
+- Training은 `modeElapsedSec=96.15`, Test는 `modeElapsedSec=151.52`였고 두 회차 모두 퀴즈 5/5,
+  `ppeWrongCount=0`으로 기록됐다.
+
+### 종료·서버 대조와 기존 사용자 판정
+
+- 앱 내부 `종료하기` 직후 Quest 앱 PID가 사라졌다. 앱을 다시 실행하기 전에 로컬 JSONL과 업로드 ACK는
+  이벤트 302개, 마지막 `sequence=302`, `completed=true`로 일치했다.
+- 운영 MySQL을 서버 저장소의 읽기 전용 repository 경로로 조회한 결과 같은 세션은 이벤트 302개,
+  마지막 `sequence=302`, `status=completed`, `endReason=application_quitting`으로 일치했다. 다음 실행의
+  durable recovery를 기다리지 않고 종료 ACK가 완료됐다.
+- 오늘 최초 Build 8 실행의 원본은 `metaProbeState=Completed`, `metaWelcomeState=Returning`을 기록했고
+  `VO_PPE_INTRO_002_Welcome_Old`가 시작·종료됐다. 사용자는 최초 실행과 이후 재실행 화면에서 모두 기존
+  사용자 안내를 확인했다. 재실행 관찰은 사용자 실기 증거이며 별도 새 JSONL 세션으로 계측하지 않았다.
+
+### 검증 수준과 남은 항목
+
+- **Quest/OpenXR 확인:** Meta Alpha Build 8 설치, EXIT Point 복귀, Training·Test 정상 완료, 결과 화면
+  복귀, 앱 내부 종료와 기존 사용자 안내를 실제 HMD에서 확인했다.
+- **서버 통합 확인:** Quest 원본과 운영 DB의 세션 ID, 이벤트 수, 마지막 sequence, 두 완료
+  `modeSessionId`, 앱 종료 상태가 일치했다.
+- **미완료:** EXIT Point 전용 원본 이벤트, 운영 조회용 HTTP token과 조회 API, Quest 양안 시각 품질과
+  전체 Education 완료 회귀는 이번 검증에서 완료하지 않았다.
+- **문서 검증:** `git diff --check`에서 이번 문서 변경의 공백 오류는 없었다. Unity
+  `DocumentationPolicyHarness.Validate`는 학원 PC의 `No valid Unity Editor license found`로 종료 코드
+  `198`을 반환해 실행되지 않았으며, 문서 정책 실패로 해석하지 않는다.

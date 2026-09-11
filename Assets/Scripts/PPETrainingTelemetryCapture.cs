@@ -53,7 +53,6 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
         public string metaProbeState;
         public string metaWelcomeState;
         public string metaAppScopedUserId;
-        public string metaAgeCategory;
         public string requiredPpeCheck;
         public string missingRequiredPpe;
         public string audioClip;
@@ -666,7 +665,6 @@ public sealed class PPETrainingTelemetryCapture : MonoBehaviour
             metaAppScopedUserId = MetaPlatformIdentityProbe.CurrentAppScopedUserId == 0
                 ? null
                 : MetaPlatformIdentityProbe.CurrentAppScopedUserId.ToString(),
-            metaAgeCategory = MetaPlatformIdentityProbe.CurrentAgeCategory.ToString(),
             requiredPpeCheck = requiredPpeCheck,
             missingRequiredPpe = missingRequiredPpe,
             audioClip = SanitizeTelemetryText(audioClip),

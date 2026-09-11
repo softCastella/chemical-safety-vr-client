@@ -221,7 +221,6 @@ public sealed class TycheMetaSessionAuthenticator
     static bool IsTerminalIdentityState(MetaPlatformIdentityProbe.ProbeState state)
     {
         return state == MetaPlatformIdentityProbe.ProbeState.Completed ||
-            state == MetaPlatformIdentityProbe.ProbeState.CompletedWithoutAgeCategory ||
             state == MetaPlatformIdentityProbe.ProbeState.SkippedForEditorTesting ||
             state == MetaPlatformIdentityProbe.ProbeState.Failed;
     }

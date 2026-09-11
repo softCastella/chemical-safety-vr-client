@@ -80,7 +80,6 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
         public string metaProbeState;
         public string metaWelcomeState;
         public string metaAppScopedUserId;
-        public string metaAgeCategory;
         public string requiredPpeCheck;
         public string missingRequiredPpe;
         public string audioClip;
@@ -1070,7 +1069,6 @@ public sealed class TycheTrainingTelemetryUploader : MonoBehaviour
         bool anonymousDevelopmentRecord = records.Any(record =>
             record.metaProbeState == "SkippedForEditorTesting" ||
             record.metaProbeState == "Completed" ||
-            record.metaProbeState == "CompletedWithoutAgeCategory" ||
             record.metaProbeState == "Failed" ||
             record.eventType == "session_ended");
         failure = anonymousDevelopmentRecord

@@ -21,7 +21,6 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
     sealed class RegistrationRequest
     {
         public string metaUserId;
-        public string metaAgeCategory;
         public string sessionId;
         public string timestampUtc;
         public string scene;
@@ -34,7 +33,6 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
     sealed class RegistrationData
     {
         public string metaUserId;
-        public string metaAgeCategory;
         public string sessionId;
         public string timestampUtc;
         public string scene;
@@ -215,7 +213,6 @@ public sealed class TycheLocalTrainingRegistrationClient : MonoBehaviour
         return new RegistrationRequest
         {
             metaUserId = MetaPlatformIdentityProbe.CurrentAppScopedUserId.ToString(),
-            metaAgeCategory = MetaPlatformIdentityProbe.CurrentAgeCategory.ToString(),
             sessionId = PPETrainingTelemetryCapture.CurrentSessionId,
             timestampUtc = DateTime.UtcNow.ToString("O"),
             scene = PPETrainingTelemetryCapture.CurrentScenePath,

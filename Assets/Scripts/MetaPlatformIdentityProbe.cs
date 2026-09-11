@@ -22,9 +22,7 @@ public sealed class MetaPlatformIdentityProbe : MonoBehaviour
         Initializing,
         CheckingEntitlement,
         LoadingUser,
-        LoadingAgeCategory,
         Completed,
-        CompletedWithoutAgeCategory,
         SkippedForEditorTesting,
         Failed
     }
@@ -42,11 +40,9 @@ public sealed class MetaPlatformIdentityProbe : MonoBehaviour
 
     public ProbeState State { get; private set; } = ProbeState.Idle;
     public ulong AppScopedUserId { get; private set; }
-    public AccountAgeCategory AgeCategory { get; private set; } = AccountAgeCategory.Unknown;
     public bool UsesPlatformSdkForCurrentRun => !UnityEngine.Application.isEditor || useMetaPlatformSdkInEditor;
 
     public static ulong CurrentAppScopedUserId { get; private set; }
-    public static AccountAgeCategory CurrentAgeCategory { get; private set; } = AccountAgeCategory.Unknown;
     public static AccountWelcomeState CurrentWelcomeState { get; private set; } =
         AccountWelcomeState.Unknown;
     public static bool IsIdentityRequestInFlight =>
@@ -65,7 +61,6 @@ public sealed class MetaPlatformIdentityProbe : MonoBehaviour
     {
         s_Instance = null;
         CurrentAppScopedUserId = 0;
-        CurrentAgeCategory = AccountAgeCategory.Unknown;
         CurrentWelcomeState = AccountWelcomeState.Unknown;
     }
 
@@ -113,7 +108,6 @@ public sealed class MetaPlatformIdentityProbe : MonoBehaviour
         }
 
         AppScopedUserId = 0;
-        AgeCategory = AccountAgeCategory.Unknown;
         CurrentAppScopedUserId = 0;
         CurrentWelcomeState = AccountWelcomeState.Unknown;
 
@@ -238,52 +232,9 @@ public sealed class MetaPlatformIdentityProbe : MonoBehaviour
             : AccountWelcomeState.FirstVisit;
         string userIdResult = logAppScopedUserId ? AppScopedUserId.ToString() : "<redacted>";
         Debug.Log($"[Meta Identity Probe] 앱 범위 사용자 ID 조회 성공. UserId={userIdResult}", this);
-        LoadAgeCategory();
-    }
-
-    private void LoadAgeCategory()
-    {
-        State = ProbeState.LoadingAgeCategory;
-        Debug.Log("[Meta Identity Probe] 사용자 연령대를 조회합니다.", this);
-
-        try
-        {
-            UserAgeCategory.Get().OnComplete(OnAgeCategoryLoaded);
-        }
-        catch (Exception exception)
-        {
-            CompleteWithoutAgeCategory($"연령대 조회 요청 예외: {exception.Message}");
-        }
-    }
-
-    private void OnAgeCategoryLoaded(Message<UserAccountAgeCategory> message)
-    {
-        if (!CanHandleCallback())
-            return;
-
-        if (message == null || message.IsError || message.Data == null)
-        {
-            CompleteWithoutAgeCategory($"연령대 조회 실패: {DescribeError(message)}");
-            return;
-        }
-
-        AgeCategory = message.Data.AgeCategory;
-        CurrentAgeCategory = AgeCategory;
         State = ProbeState.Completed;
         _requestInFlight = false;
-        Debug.Log($"[Meta Identity Probe] 1차 사용자 식별 진단 완료. AgeCategory={AgeCategory}", this);
-    }
-
-    private void CompleteWithoutAgeCategory(string reason)
-    {
-        AgeCategory = AccountAgeCategory.Unknown;
-        CurrentAgeCategory = AccountAgeCategory.Unknown;
-        State = ProbeState.CompletedWithoutAgeCategory;
-        _requestInFlight = false;
-        Debug.LogWarning(
-            $"[Meta Identity Probe] 사용자 ID는 확인했지만 연령대는 확인하지 못했습니다. " +
-            $"DUC 검토 상태와 테스트 계정 권한을 확인하세요. {reason}",
-            this);
+        Debug.Log("[Meta Identity Probe] 사용자 식별 진단 완료.", this);
     }
 
     private void Fail(string stage, string detail)

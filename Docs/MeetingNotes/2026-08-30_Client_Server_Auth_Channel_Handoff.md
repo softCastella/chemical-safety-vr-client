@@ -1349,8 +1349,17 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
   복귀, 앱 내부 종료와 기존 사용자 안내를 실제 HMD에서 확인했다.
 - **서버 통합 확인:** Quest 원본과 운영 DB의 세션 ID, 이벤트 수, 마지막 sequence, 두 완료
   `modeSessionId`, 앱 종료 상태가 일치했다.
-- **미완료:** EXIT Point 전용 원본 이벤트, 운영 조회용 HTTP token과 조회 API, Quest 양안 시각 품질과
-  전체 Education 완료 회귀는 이번 검증에서 완료하지 않았다.
+- **후속 Education 확인:** 별도 앱 세션 `9db5c193…`에서 `LeakResponse/Education` 회차
+  `99727875…`를 정상 완료했다. `mode_session_started(sequence=19)`와
+  `mode_session_completed(sequence=186)`가 같은 `modeSessionId`로 연결됐고, 퀴즈 5/5,
+  `ppeWrongCount=0`, `modeElapsedSec=97.32`로 기록됐다. 음성 안내는 사용자 합의에 따라 스킵했으므로
+  이 회차를 음성 품질 검증 근거로 사용하지 않는다.
+- **후속 종료·서버 대조:** 결과 모달 복귀 후 앱 내부 `종료하기`를 사용했다. Quest PID가 사라졌고 로컬
+  JSONL과 업로드 ACK는 이벤트 195개, 마지막 `sequence=195`, `completed=true`로 일치했다. 운영 MySQL도
+  같은 세션을 이벤트 195개, 마지막 `sequence=195`, `status=completed`,
+  `endReason=application_quitting`, `appVersion=1.0.0`으로 저장했다.
+- **미완료:** EXIT Point 전용 원본 이벤트, 운영 조회용 HTTP token과 조회 API, Quest 양안·거울 시각 품질,
+  스킵하지 않은 음성 품질과 성능 체감은 이번 계측으로 확정하지 않았다.
 - **문서 검증:** `git diff --check`에서 이번 문서 변경의 공백 오류는 없었다. Unity
   `DocumentationPolicyHarness.Validate`는 학원 PC의 `No valid Unity Editor license found`로 종료 코드
   `198`을 반환해 실행되지 않았으며, 문서 정책 실패로 해석하지 않는다.

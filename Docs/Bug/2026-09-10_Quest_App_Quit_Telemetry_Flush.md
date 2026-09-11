@@ -161,7 +161,11 @@
   부재로만 중도 복귀를 판정하므로, 대시보드에서 이를 확정 종료 원인으로 표시하지 않는다.
 - 운영 HTTP 조회 token은 설정하지 않았다. 이번 운영 DB 대조는 SSH에서 서버 repository의 읽기 전용
   조회를 사용했으며 API 조회 권한 검증과는 구분한다.
-- 이번 실행은 종료·연속 모드·기존 사용자 계약을 검증했다. Quest 양안 시각 품질과 전체 Education 정상
-  완료 회귀는 별도 수동 검증으로 남긴다.
+- 후속 앱 세션 `9db5c193…`의 `LeakResponse/Education` 회차 `99727875…`도 정상 완료했다.
+  `mode_session_completed(sequence=186)`에는 퀴즈 5/5, `ppeWrongCount=0`,
+  `modeElapsedSec=97.32`가 기록됐다. 앱 내부 종료 후 로컬 JSONL·ACK와 운영 MySQL은 이벤트 195개,
+  마지막 `sequence=195`, `completed/application_quitting`으로 일치했다.
+- 후속 Education 회차는 음성 안내를 스킵했으므로 음성 품질 검증으로 확대 해석하지 않는다. Quest
+  양안·거울 시각 품질과 성능 체감도 별도 수동 확인 항목으로 남긴다.
 - Unity `DocumentationPolicyHarness.Validate`는 학원 PC의 Unity 라이선스 부재로 종료 코드 `198`을
   반환해 실행되지 않았다. 이번 문서 변경의 정적 diff에는 새 공백 오류가 없다.

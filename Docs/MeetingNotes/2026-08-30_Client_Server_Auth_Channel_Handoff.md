@@ -1518,3 +1518,62 @@ Quest APK 한 세션의 용량이나 운영 사용량으로 확대하지 않는�
   DUC에서 `사용자 연령대` 기능 삭제 후 재제출이다.
 - 기준 구현 커밋은 클라이언트 `73ba5a1`, 서버 `edd9d23`, 공개 개인정보처리방침
   `dc37834`이다. 공용 문서 커밋과 원격 push 결과는 이 기준 구현 커밋과 구분해 최종 보고한다.
+
+## 2026-09-11 종료 기록: Build 9 Alpha 업로드와 Meta 제출 잠금
+
+### 오늘 확인한 상태
+
+- 사용자 연령대 처리를 제거한 클라이언트 기준은 `main@85f9ff6`이다. 앱 버전은 `1.0.0`, Android
+  `versionCode=9`이다.
+- Release APK는 `Builds/MetaHorizonAlpha/ChemicalSafetyVR_Alpha_1_0_0_9.apk`로 생성됐다. 로컬 파일
+  크기는 `219,687,231 bytes`, SHA-256은
+  `9BB569EB92D70C382B13604864C7B6226502FA39C8079ED9C067843AA6B0E993`이다.
+- APK 정적 검사에서 package `com.tycheworks.immersa.safetyvr`, `versionName=1.0.0`, `versionCode=9`,
+  Android 25/34, `android.hardware.vr.headtracking`, `com.oculus.intent.category.VR`, APK Signature Scheme v2
+  서명을 확인했다. Unity BuildReport는 `[Meta Quest Alpha Build] PASS`를 기록했다.
+- Meta Developer Dashboard의 Alpha 릴리스 채널 목록에 `1.0.0 / 코드 9`가 표시됐다. 빌드 상세의
+  연령대는 `청소년 및 성인(13세 이상)`으로 선택돼 있지만 자체 인증은 확정되지 않아 경고가
+  남아 있다. 따라서 Alpha 목록 표시와 배포 완료를 같은 상태로 합쳐 쓰지 않는다.
+- Meta 자동 테스트의 `기본 악성 코드 테스트`는 PASS했다. 보안 취약점 검토에서는 Android
+  Manifest의 `android:allowBackup=false` 미명시 경고가 표시됐다. 이 항목은 오늘 확인한 제출 잠금
+  오류의 원인으로 단정하지 않고, Production 전 별도 보안 보완 후보로 남겨 둔다.
+- 공개 개인정보처리방침은 `2026-09-11 / 1.1`로 갱신됐고
+  `https://softcastella.github.io/tycheworks-safetytrainingvr-privacy/`에서 HTTP 200과 갱신 문구를
+  확인했다. Meta 앱 범위 사용자 ID, 사용 목적과 이메일 삭제 요청 절차를 명시하고 사용자
+  연령대·정확한 나이·생년월일을 요청하거나 저장하지 않는다고 고지한다.
+- DUC 데이터 처리자는 `The Constant Company, LLC (Vultr)`, 용도는 클라우드 저장·처리/IT 서비스,
+  처리 국가는 `대한민국`으로 유지한다. 운영 인스턴스에서 Vultr 메타데이터 `region=ICN`과
+  공인 IP `158.247.238.180`을 읽기 전용으로 확인했다. `ICN`은 Vultr의 Seoul/KR 리전이며 Tokyo/JP
+  리전 `NRT`가 아니다.
+- DUC 요청 검토 화면에서 `추가됨: 사용자 ID`, `변경됨: 없음`, `삭제됨: 없음`을 확인했다.
+  `사용자 연령대`와 `사용자 프로필`은 요청에 추가하지 않았다. 요청 검토 단계까지는 확인했지만
+  최종 제출 완료 화면은 확인하지 못했으므로 제출 완료로 기록하지 않는다.
+
+### Meta 제출 잠금 근거
+
+- Build 9 상세에서 `청소년 및 성인(13+)` 연령대 확인을 시도하면 Meta가
+  `Submission cannot be modified`와 오류 코드 `1891841`을 반환했다. 메시지는 현재 제출이
+  `Approved` 또는 `Under Review`여서 수정할 수 없다고 명시했다.
+- Alpha의 Build 9를 Production(Store) 채널로 복사하는 시도는
+  `Binary cannot be copied to this channel` 및 오류 코드 `891173`으로 거부됐다. 메시지는 현재 제출
+  상태가 해당 채널의 바이너리 갱신을 허용하지 않는다고 명시했다.
+- 위 두 오류와 자동 테스트 완료 화면을 같이 대조하면, APK 패키징 실패나 테스트 진행 중
+  잠금보다 Meta의 현재 앱 제출 상태에 따른 서버 측 수정 잠금으로 판단한다. DUC 보완 제출은
+  필요하지만, DUC 내용을 바꾸는 것만으로 바이너리 잠금이 즉시 해제된다고 판단하지 않는다.
+
+### 2026-09-12 아침 재개 순서
+
+1. Meta DUC 상태에서 `사용자 ID` 1개의 최종 제출 완료 여부를 먼저 확인한다. 미제출이면 오늘
+   확인한 처리자·용도·국가와 요청 기능을 변경하지 않고 제출한다.
+2. 제출 상태가 `Under Review`, `Approved`, `Changes Requested` 중 어떤 값인지 기록하고, 심사 중에는
+   Production 바이너리 복사를 반복 시도하지 않는다.
+3. Alpha 채널에 표시된 Build 9를 테스트 계정의 Quest 라이브러리에서 설치할 수 있는지 확인한다.
+   설치 후에는 `versionCode=9`, Meta 사용자 ID 인증, 기존 사용자 훈련 기록 연결을 실제 Quest에서
+   확인하고 사용자 연령대 값이 신규 JSONL·서버 요청에 없는지 별도로 구분해 기록한다.
+4. Meta 제출 잠금이 해제된 후에만 Build 9의 연령대 `청소년 및 성인(13+)`을 확정하고
+   Production(Store) 복사를 재시도한다. `Mixed Ages`를 선택하거나 `USER_AGE`를 다시 추가하지 않는다.
+5. 잠금 해제 후에도 오류 `1891841` 또는 `891173`이 반복되면 오류 코드, 화면의 추적 ID,
+   앱 ID, Build ID, `1.0.0 / code 9 / Alpha`를 함께 첨부해 Meta Developer Support에 잠금 해제를 요청한다.
+6. `android:allowBackup=false` 경고는 현재 제출 잠금과 분리해 Production 전 보안 보완 필요성을 판단한다.
+   이 항목을 수정하기로 결정하면 기존 Unity 생성 Manifest와 XR 설정을 보존하는 Android manifest merge
+   경로를 사용하고, 새 `versionCode`로 재빌드·서명·Quest 검증한다.

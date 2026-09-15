@@ -5017,9 +5017,9 @@
               </thead>
               <tbody>
                 <tr class="version-current">
-                  <td><span class="version-badge">v0.10</span></td>
-                  <td>2026-09-09</td>
-                  <td>문서 성격을 사전기획서에서 상세기획서로 전환하고 Meta Horizon Alpha 테스트 기준선을 반영했다. 현재 빌드 장면 5개, PPE 작업계획 2종 × 교육·훈련·테스트 3모드, 이름 입력 임시 생략과 원본 텔레메트리 계약을 명시했다. Android build code 6 설정과 서버 우선 Alpha 전략을 반영해 Release 원본 전송은 제출 전 필수로, 대시보드 지표·화면 확정은 Meta 심사 기간의 후속 작업으로 분리했다.</td>
+                  <td><span class="version-badge">v0.11</span></td>
+                  <td>2026-09-15</td>
+                  <td>문서 성격을 상세기획서로 전환하고 현재 클라이언트·서버·운영 대시보드의 통합 기준을 반영했다. 현재 빌드 장면 5개, PPE 작업계획 2종 × 교육·훈련·테스트 3모드, 원본 텔레메트리 계약과 운영 조회 구조를 명시한다. Release 전송 결과는 세션·이벤트 원본과 대시보드 집계로 확인하며, 서버 마이그레이션과 관리자 조회 기능을 현재 구현 기준으로 관리한다.</td>
                   <td>최진영</td>
                 </tr>
                 <tr>
@@ -5352,7 +5352,7 @@
             <div class="proposal-system-external">
               <div class="proposal-system-boundary">
                 <strong>검증·운영 연동 경계</strong>
-                Development 검증과 Release 운영 전송, 대시보드 후속 상태를 분리
+                Development 검증, Release 운영 전송, 운영 대시보드 조회를 하나의 데이터 흐름으로 관리
               </div>
               <div class="proposal-system-connector" aria-hidden="true">
                 <strong class="proposal-system-arrow-desktop">⇢</strong><strong class="proposal-system-arrow-mobile">↓</strong>
@@ -7069,14 +7069,14 @@
                 </article>
               </div>
               <div class="proposal-system-external">
-                <div class="proposal-system-boundary"><strong>검증·운영 연동 경계</strong>Development 검증과 Release 운영 전송, 대시보드 후속 상태를 분리</div>
+                <div class="proposal-system-boundary"><strong>검증·운영 연동 경계</strong>Development 검증, Release 운영 전송, 운영 대시보드 조회를 하나의 데이터 흐름으로 관리</div>
                 <div class="proposal-system-connector" aria-hidden="true">
                   <strong class="proposal-system-arrow-desktop">⇢</strong><strong class="proposal-system-arrow-mobile">↓</strong><small>빌드 조건별 연동</small>
                 </div>
                 <article class="proposal-system-node is-external">
                   <span class="proposal-system-kicker">EXTERNAL · PARTIAL</span>
                   <h4>Express 서버·운영 화면</h4>
-                  <ul><li>Editor/Development 테스트 업로드 경로</li><li>Release HTTPS·인증 원본 전송 구현 대상</li><li>대시보드 지표·화면은 심사 기간 확정</li><li>LMS 자동 연동 후속</li></ul>
+                  <ul><li>Editor/Development 테스트 업로드 경로</li><li>Release HTTPS·인증 원본 전송</li><li>운영 대시보드의 사용자·세션·이벤트 조회와 집계</li><li>LMS 자동 연동은 별도 후속 범위</li></ul>
                 </article>
               </div>
               <div class="proposal-system-operation" aria-label="사용자 조작과 시스템 반응 순서">
@@ -7089,7 +7089,7 @@
           </div>
           <div class="note-strong">
             <strong>v0.9 대비 시스템 연동 변경 이유</strong>
-            <p><strong>이전:</strong> 서버는 모두 미연동·향후 범위로 표현했다. <strong>현재:</strong> 클라이언트 로컬 기록, Development 업로드, Release 운영 전송, 서버 원본 수집과 대시보드 후속 작업을 나눠 기록한다. 서버 코드가 존재한다는 사실만으로 Release Alpha의 실제 적재나 대시보드가 완료됐다고 판단할 수 없기 때문이다.</p>
+                <p><strong>현재 운영 기준:</strong> 클라이언트는 로컬 JSONL을 보존하면서 Release HTTPS 인증 전송을 수행한다. 서버는 참가자·식별자·세션·이벤트 원본을 저장하고, 운영 대시보드는 저장된 원본을 기준으로 사용자·플레이 이력·완료·소요시간·PPE 결과를 조회·집계한다. LMS 자동 연동은 별도 후속 범위로 관리한다.</p>
           </div>
         </section>
         <section data-part="part2" id="controls">
@@ -9213,7 +9213,7 @@
             </tr>
             <tr>
               <th>현재 판정</th>
-              <td>교육·훈련은 5페이지 진행·완료 상태를 관리하고, 테스트는 문항당 20점으로 계산한 점수·정답 수와 PPE 오선택 횟수·소요시간을 화면과 로컬 세션 기록에 남긴다. Development 빌드의 서버 업로드 경로는 별도 검증 대상이며, 운영 사용자별 누적 이력과 훈련 대시보드는 아직 완료되지 않았다.</td>
+              <td>교육·훈련은 5페이지 진행·완료 상태를 관리하고, 테스트는 문항당 20점으로 계산한 점수·정답 수와 PPE 오선택 횟수·소요시간을 화면과 세션 이벤트에 남긴다. Release 빌드는 HTTPS로 원본을 전송하며, 서버는 참가자·식별자·세션·이벤트를 저장하고 운영 대시보드는 사용자별 누적 이력과 훈련 결과를 조회·집계한다.</td>
             </tr>
             <tr>
               <th>교육모드 피드백</th>
@@ -9506,8 +9506,8 @@
             <tr><td><strong>사용자 진입</strong></td><td>Welcome 뒤 이름 입력 생략 설정, 카드·모달·모드 선택으로 전이</td><td>씬 설정 반영</td><td>카드 Trigger, 모달 중 이동 차단, 선택 뒤 이동 복구를 실기기에서 확인</td></tr>
             <tr><td><strong>입력·이동</strong></td><td>Touch Controller, Ray/Trigger, Grip, 이동·텔레포트 경로</td><td>구현 존재·실기기 회귀 필요</td><td>Game View 결과와 분리해 Quest 양손 입력, 벽·설비 관통, 모달·완료 전환 중 입력 차단 확인</td></tr>
             <tr><td><strong>PPE·문서</strong></td><td>마커 Direct Grab, Action Panel, 결함 판정, 착용 시각, 거울·퀴즈</td><td>통합 Alpha 검증 중</td><td>누수 작업계획서 가독성, 미니가이드 가림, 거울 5초 게이트와 양안·성능 확인</td></tr>
-            <tr><td><strong>훈련 기록</strong></td><td>기기 내 JSONL과 Editor/Development 테스트 업로드 코드 존재</td><td>Release 운영 전송 미구현</td><td>운영 HTTPS·릴리스 인증 구현, code 6 Release에서 최소 한 세션의 원본·서버 적재·재조회 일치 확인</td></tr>
-            <tr><td><strong>서버·대시보드</strong></td><td>서버의 세션·이벤트·완료 API와 원본 저장 기반 존재. 대시보드 최종 항목은 미확정</td><td>서버 반영·Release 통합·대시보드 상태 분리</td><td>Release 원본 수집을 먼저 완료하고 Meta 심사 기간에 실제 원본을 보며 대시보드 지표·화면을 확정</td></tr>
+            <tr><td><strong>훈련 기록</strong></td><td>기기 내 JSONL과 Editor/Development·Release HTTPS 원본 전송</td><td>세션 생성·이벤트 배치·완료 API를 통한 서버 적재</td><td>세션·이벤트 원본의 sequence·payload 무결성을 보존하고 완료·종료 상태를 조회</td></tr>
+            <tr><td><strong>서버·대시보드</strong></td><td>참가자·식별자·세션·이벤트 원본과 관리자 조회 기능</td><td>운영 대시보드 배포 및 사용자·플레이·세션 상세 집계</td><td>인증된 관리자 화면에서 원본 기준의 사용자 목록·플레이 이력·완료·소요시간·PPE 결과를 조회</td></tr>
           </table>
 
           <h3>Alpha 차단 이슈와 종료 게이트</h3>
@@ -9899,7 +9899,7 @@
             </div>
             <div class="card-small">
               <strong>우선순위</strong>
-              <p>작업계획 2종 × 교육·훈련·테스트 3모드의 런타임 경로는 존재하지만 Alpha 검증 완료 상태는 아니다. 우선순위는 code 6 Release 후보의 Quest 회귀와 안정성, 운영 HTTPS 원본 전송, 같은 세션의 서버 적재·재조회 대조다. 대시보드 지표·화면과 혼합기동·혼합기 내부 시나리오는 분리된 후속 범위로 관리한다.</p>
+              <p>작업계획 2종 × 교육·훈련·테스트 3모드의 런타임 경로와 운영 전송·조회 경로를 기준으로 관리한다. 클라이언트는 세션·이벤트 원본을 생성하고 서버는 이를 저장하며, 운영 대시보드는 사용자·플레이·세션 상세와 결과 집계를 제공한다. 혼합기동·혼합기 내부 시나리오와 LMS 자동 연동은 별도 후속 범위로 관리한다.</p>
             </div>
           </div>
         </section>
@@ -9909,7 +9909,7 @@
           <p>
             현재 Alpha의 실제 구현 범위는 <strong>작업계획 2종 × PPE 점검·착용 교육·훈련·테스트 3모드</strong>다.
             세 모드는 같은 PPE 수행 코어를 사용하면서 안내·오류 피드백·퀴즈·결과 노출을 다르게 적용한다.
-            테스트모드는 소요시간·퀴즈 점수·정답 수·PPE 오선택 횟수를 화면과 로컬 세션 기록에 남긴다. Release 운영 전송은 Alpha 제출 게이트이고, 운영 사용자별 누적 이력·훈련 대시보드의 최종 지표·화면과 혼합기동의 전체 밀폐공간 절차는 후속으로 분리한다.
+            테스트모드는 소요시간·퀴즈 점수·정답 수·PPE 오선택 횟수를 화면과 세션 이벤트에 남긴다. Release 운영 전송과 서버 원본 저장을 거쳐 운영 대시보드에서 사용자별 누적 이력·훈련 결과·세션 상세를 조회한다. 혼합기동의 전체 밀폐공간 절차와 LMS 자동 연동은 후속 범위로 분리한다.
             항목은 <strong>환경 조성</strong>, <strong>유저 액션</strong>, <strong>시스템</strong> 세 영역으로 구분한다.
           </p>
           <div class="card-small" style="margin-bottom: 14px">
@@ -10869,6 +10869,113 @@
             <strong>근거 적용 원칙</strong>
             <p>안전절차·위험정보·판정값은 A 또는 B 등급을 우선한다. C·D 등급은 시장 동향과 시각 참고로 제한하며, 현장별 PPE·화학물질 정보·허용 기준은 고객사 MSDS와 EHS 검수를 통해 최종 확정한다.</p>
           </div>
+        </section>
+        <section data-part="part2" id="functional-definition">
+          <div class="section-kicker">PART 2 · 02</div>
+          <h2>기능 정의 및 개발 일정</h2>
+          <p>현재 구현된 기능을 클라이언트 코드, 서버 API, 데이터베이스 마이그레이션과 운영 화면 기준으로 정리한다.</p>
+          <h3>기능 요구사항</h3>
+          <table>
+            <tr><th>ID</th><th>기능</th><th>구현 내용</th><th>근거</th></tr>
+            <tr><td>FR-01</td><td>XR 초기화·씬 전환</td><td>앱·타이틀·인트로·로딩·PPE Room 순서로 진입</td><td><code>AppSceneBootstrap.cs</code>, <code>LoadingSceneController.cs</code>, Build Settings</td></tr>
+            <tr><td>FR-02</td><td>컨트롤러 교육</td><td>이동·Ray·Trigger·Grip 기본 조작 안내</td><td><code>PPEControllerEducationEntry.cs</code></td></tr>
+            <tr><td>FR-03</td><td>작업계획·모드 선택</td><td><code>ConfinedSpace</code>·<code>LeakResponse</code>와 Education·Training·Test 선택</td><td><code>PPEVoiceFlowDirector.cs</code>, PPE Room 씬</td></tr>
+            <tr><td>FR-04</td><td>PPE 점검·착용</td><td>마커 Grab, 정상·불량 판정, 사용·폐기, 필수 장비 착용과 거울 확인</td><td><code>PPEMarkerToggleGrab.cs</code>, <code>PPEActionPanelController.cs</code>, <code>PPEEquipmentVisualController.cs</code></td></tr>
+            <tr><td>FR-05</td><td>모드별 안내·퀴즈</td><td>모드별 VOICE·오류 피드백과 작업계획별 퀴즈·점수·정답·오선택·소요시간 표시</td><td><code>PPEVoiceFlowDirector.cs</code>, <code>PPEQuizController.cs</code></td></tr>
+            <tr><td>FR-06</td><td>세션·텔레메트리</td><td>세션 ID·sequence·상태·완료·종료 이벤트를 JSONL에 기록하고 HTTPS로 전송</td><td>텔레메트리 클라이언트 코드, 서버 <code>training-telemetry-routes.js</code></td></tr>
+            <tr><td>FR-07</td><td>운영 조회</td><td>인증된 관리자가 사용자·플레이·세션·이벤트·훈련 결과를 조회</td><td>서버 <code>public/dashboard</code>, 관리자·텔레메트리 API</td></tr>
+          </table>
+          <h3>개발 일정</h3>
+          <table>
+            <tr><th>기간</th><th>개발 단계</th><th>주요 작업</th><th>완료 기준</th></tr>
+            <tr><td>2026.06.20–07.28</td><td>기획 및 범위 확정</td><td>PPE 착용교육 1종과 교육·훈련·테스트 3개 모드 설계</td><td>사전 기획 발표</td></tr>
+            <tr><td>2026.09.23–10.04</td><td>Unity 프로토타입</td><td>PPE룸, 직접 착용, 퀴즈와 음성 안내 구현</td><td>프로토타입 발표</td></tr>
+            <tr><td>2026.08.19–09.02</td><td>데이터·서버 연동</td><td>텔레메트리 계약, Express·MySQL API, 사용자 식별</td><td>로컬·Quest 연동 기준</td></tr>
+            <tr><td>2026.09.03–09.10</td><td>실기 검증·출시 준비</td><td>Quest 빌드 수정, 6개 조합 기준 측정, Release 검증</td><td>Meta 프로덕션 버전 업로드</td></tr>
+            <tr><td>2026.09.11–09.15</td><td>제품화·최종 정리</td><td>Meta Horizon 인증 신청, Build 8 서버 연동, 대시보드, 브랜드·응용 자료 정리</td><td>Meta 프로덕션 버전 제출·최종 발표</td></tr>
+          </table>
+        </section>
+        <section data-part="part2" id="current-data-system">
+          <div class="section-kicker">PART 2 · 03</div>
+          <h2>콘텐츠 데이터·시스템 구성·데이터 흐름</h2>
+          <h3>콘텐츠 데이터</h3>
+          <table>
+            <tr><th>데이터</th><th>내용</th><th>사용 단계</th></tr>
+            <tr><td>작업계획</td><td><code>ConfinedSpace</code>, <code>LeakResponse</code></td><td>작업계획 선택, 세션 식별</td></tr>
+            <tr><td>모드</td><td><code>Education</code>, <code>Training</code>, <code>Test</code></td><td>안내·오류 피드백·결과 노출 정책 결정</td></tr>
+            <tr><td>PPE 항목</td><td>방호복, 장갑 좌·우, 장화 좌·우, 호흡보호구, 안전모, 안전대(등지게)</td><td>선택·점검·사용·폐기·착용·완료 판정</td></tr>
+            <tr><td>퀴즈 결과</td><td>문항 선택, 점수, 정답 수, PPE 오선택 횟수, 소요시간</td><td>테스트 결과 화면과 세션 이벤트</td></tr>
+            <tr><td>세션 이벤트</td><td>세션 ID, sequence, event type, payload, 완료·종료 상태</td><td>로컬 JSONL, HTTPS 업로드, 서버 원본 저장</td></tr>
+          </table>
+          <h3>시스템 구성</h3>
+          <table>
+            <tr><th>구성요소</th><th>책임</th><th>근거</th></tr>
+            <tr><td>Unity XR 클라이언트</td><td>씬 전환, PPE 상호작용, 모드별 안내, 퀴즈, 세션 이벤트 생성</td><td><code>Assets/Scripts</code>, PPE Room 씬</td></tr>
+            <tr><td>Express 서버</td><td>Meta 인증, 세션 생성, 이벤트 배치 저장, 세션 완료·조회 API</td><td><code>src/modules/training-telemetry</code></td></tr>
+            <tr><td>MySQL</td><td>참가자·식별자·세션·이벤트 및 관리자 데이터를 저장</td><td><code>db/migrations/001~018</code>, <code>mysql2</code></td></tr>
+            <tr><td>운영 대시보드</td><td>인증된 관리자에게 사용자·플레이·세션·훈련 결과를 조회·집계</td><td><code>public/dashboard</code></td></tr>
+          </table>
+          <h3>데이터 흐름</h3>
+          <p><strong>클라이언트 세션 시작 → Meta 인증 → 세션 생성 → 이벤트 배치 전송 → 서버 원본 저장 → 세션 완료 → 관리자 대시보드 조회·집계</strong></p>
+          <p>서버 데이터 관계는 <code>training_telemetry_participants</code>를 기준으로 <code>training_telemetry_identities</code>와 <code>training_telemetry_sessions</code>가 연결되고, 각 세션에 <code>training_telemetry_events</code>가 연결되는 구조를 사용한다.</p>
+          <h3>콘텐츠 데이터 상태 관계도</h3>
+          <pre>작업계획 선택
+      ↓
+모드 선택(Education / Training / Test)
+      ↓
+PPE 선택·잡기
+      ↓
+PPE 점검
+   ┌──┴──────────────┐
+   │ 정상             │ 불량
+   ↓                 ↓
+사용 확정         폐기·재선택
+   ↓
+PPE 착용·필수 조건 확인
+      ↓
+거울 확인 시간 충족
+      ↓
+퀴즈·테스트 수행
+      ↓
+점수·정답·오선택·소요시간 기록
+      ↓
+세션 완료·결과 표시·복귀</pre>
+          <table>
+            <tr><th>상태 데이터</th><th>다음 상태 조건</th><th>기록 이벤트</th></tr>
+            <tr><td>작업계획·모드</td><td>작업계획과 모드가 선택됨</td><td>session_started, mode_session_started</td></tr>
+            <tr><td>PPE 선택·점검</td><td>마커 대상 선택 및 정상·불량 판정</td><td>ppe_choice_resolved, ppe_inspection_started/stopped, ppe_condition_changed</td></tr>
+            <tr><td>PPE 사용·폐기</td><td>정상은 사용 확정, 불량은 폐기 후 재선택</td><td>required_ppe_status_changed, ppe_grab_attempt_resolved</td></tr>
+            <tr><td>착용·거울 확인</td><td>필수 PPE와 거울 확인 조건 충족</td><td>required_ppe_status_changed</td></tr>
+            <tr><td>퀴즈·테스트 결과</td><td>문항 처리와 결과 계산 완료</td><td>quiz_answer_resolved, mode_session_completed</td></tr>
+            <tr><td>세션 종료</td><td>정상 완료 또는 종료 사유 확정</td><td>session_ended, application_quitting</td></tr>
+          </table>
+          <h3>서버 데이터베이스 ERD</h3>
+          <pre>users (id PK)
+  └── external_identities (id PK, user_id FK)
+
+training_telemetry_participants (participant_id PK)
+  ├── training_telemetry_identities (identity_id PK, participant_id FK)
+  └── training_telemetry_sessions (session_id PK, participant_id FK)
+        └── training_telemetry_events (id PK, session_id FK)
+
+server_admin (id PK)
+  ├── server_admin_sessions
+  ├── server_admin_audit_log
+  ├── server_admin_allowed_ips
+  ├── server_admin_push_subscriptions
+  └── server_admin_alert_occurrences
+       ├── server_admin_alert_acknowledgements
+       └── server_admin_alert_monitor_state</pre>
+          <table>
+            <tr><th>테이블</th><th>주요 컬럼</th><th>관계·용도</th></tr>
+            <tr><td>users</td><td>id, participant_code, status, play_count</td><td>서비스 사용자 기본 정보</td></tr>
+            <tr><td>external_identities</td><td>user_id, provider, provider_user_id, age_group</td><td>사용자와 외부 공급자 식별자 연결</td></tr>
+            <tr><td>training_telemetry_participants</td><td>participant_id, source_project, first_seen_at, last_seen_at</td><td>텔레메트리 참가자 기준</td></tr>
+            <tr><td>training_telemetry_identities</td><td>identity_id, participant_id, identity_type, identity_value</td><td>Meta 등 외부 식별자 연결</td></tr>
+            <tr><td>training_telemetry_sessions</td><td>session_id, participant_id, status, app_version, scene, mode, work_plan, end_reason</td><td>훈련 회차와 완료·종료 상태</td></tr>
+            <tr><td>training_telemetry_events</td><td>event_id, session_id, sequence, event_type, payload_json, payload_sha256</td><td>세션별 원본 이벤트와 무결성 검증</td></tr>
+            <tr><td>server_admin 계열</td><td>관리자·세션·역할·감사·허용 IP·알림 상태</td><td>운영 대시보드 인증과 운영 관리</td></tr>
+          </table>
         </section>
         <section data-part="part5" id="references">
           <div class="section-kicker">PART 5 · 05</div>

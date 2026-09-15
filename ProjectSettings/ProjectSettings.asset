@@ -146,8 +146,6 @@ PlayerSettings:
   bundleVersion: 1.0.0
   preloadedAssets:
   - {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  - {fileID: -4542623029959321941, guid: b689d03abd37433419b270a07b211bfb, type: 2}
-  - {fileID: 5751100029746635702, guid: 28f997c8d691c1947bca4b5be45637a4, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   xboxOneDisableKinectGpuReservation: 1
@@ -272,7 +270,7 @@ PlayerSettings:
   AndroidAllowedArchitectures: -13
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: C:/AndroidKeystores/chemical-safety-vr-release.keystore
+  AndroidKeystoreName: C:/Users/user/Documents/AndroidKeystores/chemical-safety-vr-release.keystore
   AndroidKeyaliasName: chemical-safety-vr
   AndroidEnableArmv9SecurityFeatures: 0
   AndroidEnableArm64MTE: 0

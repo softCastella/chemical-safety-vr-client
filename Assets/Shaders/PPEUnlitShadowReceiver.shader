@@ -6,6 +6,8 @@ Shader "Chemical Safety VR/PPE Unlit Shadow Receiver"
         [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
         _ShadowTint("Shadow Tint", Color) = (0.42, 0.44, 0.48, 1)
         _ShadowStrength("Shadow Strength", Range(0, 1)) = 0.60
+        _NearShadowBoost("Near Shadow Boost", Range(0, 1)) = 0.40
+        _NearShadowDistance("Near Shadow Distance", Range(0.1, 10)) = 5.0
         [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull", Float) = 2
         _Cutoff("Alpha Cutoff", Range(0, 1)) = 0.5
     }
@@ -45,6 +47,8 @@ Shader "Chemical Safety VR/PPE Unlit Shadow Receiver"
                 half4 _BaseColor;
                 half4 _ShadowTint;
                 half _ShadowStrength;
+                half _NearShadowBoost;
+                half _NearShadowDistance;
                 half _Cutoff;
             CBUFFER_END
 
@@ -86,9 +90,17 @@ Shader "Chemical Safety VR/PPE Unlit Shadow Receiver"
                 half4 baseColor = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv) * _BaseColor;
                 float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
                 Light mainLight = GetMainLight(shadowCoord);
+                float3 cameraDelta = input.positionWS - GetCameraPositionWS();
+                half nearDistance = max(_NearShadowDistance, 0.1h);
+                half nearFactor = 1.0h - saturate(
+                    dot(cameraDelta, cameraDelta) / (nearDistance * nearDistance));
+                half receiverStrength = saturate(
+                    _ShadowStrength + nearFactor * _NearShadowBoost);
                 half shadowAmount =
-                    (1.0h - saturate(mainLight.shadowAttenuation)) * saturate(_ShadowStrength);
-                baseColor.rgb *= lerp(half3(1.0h, 1.0h, 1.0h), _ShadowTint.rgb, shadowAmount);
+                    (1.0h - saturate(mainLight.shadowAttenuation)) * receiverStrength;
+                // Blend toward one authored surface-shadow color so bright speckles in the
+                // base texture do not read as holes inside an otherwise solid shadow.
+                baseColor.rgb = lerp(baseColor.rgb, _ShadowTint.rgb, shadowAmount);
                 return baseColor;
             }
             ENDHLSL

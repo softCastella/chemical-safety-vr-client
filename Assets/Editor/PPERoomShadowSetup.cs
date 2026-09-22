@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Unity.Collections;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -15,6 +16,7 @@ public static class PPERoomShadowSetup
     public const string ProxyName = "XR Player Shadow Proxy";
     public const string FurnitureProxyRootName = "PPE Furniture Shadow Proxies";
     public const string ReceiverShaderName = "Chemical Safety VR/PPE Unlit Shadow Receiver";
+    public const string DuctPath = "PPE Room/PPE_B_Duct";
 
     private const string RoomPath = "PPE Room/Room";
     private const string XrOriginPath = "XR Origin (VR)";
@@ -24,10 +26,23 @@ public static class PPERoomShadowSetup
     private const string FloorPath = "PPE Room/Room/Floor";
     private const string MobilePipelinePath = "Assets/Settings/Mobile_RPAsset.asset";
     private const string ShadowMaterialFolder = "Assets/Materials/PPE/Shadows";
-    private const string FloorReceiverMaterialPath =
+    internal const string ShadowMeshFolder = "Assets/Meshes/PPE/Shadows";
+    internal const string FloorReceiverMaterialPath =
         ShadowMaterialFolder + "/PPE_Room_Floor_ShadowReceiver.mat";
+    internal const string WallReceiverMaterialPath =
+        ShadowMaterialFolder + "/PPE_Room_Wall_ShadowReceiver.mat";
     private const string ShadowCasterMaterialPath =
         ShadowMaterialFolder + "/PPE_ShadowCaster.mat";
+    internal static readonly Quaternion RefinedLightRotation = Quaternion.Euler(90f, 0f, 0f);
+    internal const float RefinedShadowStrength = 0.48f;
+    internal const float RefinedShadowBias = 0.015f;
+    internal const float RefinedShadowNormalBias = 0.05f;
+    internal const float RefinedShadowDistance = 40f;
+    internal const int RefinedShadowCascadeCount = 2;
+    internal const float RefinedShadowCascade2Split = 0.35f;
+    internal const float NearShadowDistance = 5f;
+    internal const float FloorNearShadowBoost = 0.4f;
+    internal const float WallNearShadowBoost = 0.25f;
 
     private static readonly string[] ShadowPartNames =
     {
@@ -80,7 +95,10 @@ public static class PPERoomShadowSetup
 
         Material shadowCasterMaterial = EnsureShadowMaterials();
         ConfigureInteriorShell(room);
+        ConfigureDuctShadow(scene);
         ConfigureMainLight(room);
+        RefineMobilePipeline();
+        RefineReceiverVisibility();
         ConfigureFurnitureShadowProxies(scene, shadowCasterMaterial);
         ConfigurePlayerShadowProxy(
             xrOrigin,
@@ -94,14 +112,77 @@ public static class PPERoomShadowSetup
         PPERoomShadowValidationHarness.Validate();
     }
 
+    [MenuItem("Tools/PPE/Refine Room Shadow Appearance")]
+    public static void RefineAppearance()
+    {
+        Scene scene = RequireTargetScene();
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Stop Play Mode before refining room shadows.");
+        if (scene.isDirty)
+        {
+            throw new InvalidOperationException(
+                "The active PPE scene has unsaved changes. Review or save them before refining room shadows.");
+        }
+
+        Transform room = RequireTransformAtPath(scene, RoomPath);
+        Material shadowCasterMaterial = EnsureShadowMaterials();
+        ConfigureInteriorShell(room);
+        ConfigureDuctShadow(scene);
+        RefineMainLight(room);
+        RefineMobilePipeline();
+        RefineReceiverVisibility();
+        RefineFurnitureShadowProxies(scene, shadowCasterMaterial);
+
+        AssetDatabase.SaveAssets();
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        PPERoomShadowValidationHarness.Validate();
+    }
+
+    [MenuItem("Tools/PPE/Disable Duct Shadow")]
+    public static void DisableDuctShadow()
+    {
+        Scene scene = RequireTargetScene();
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Stop Play Mode before disabling the duct shadow.");
+        if (scene.isDirty)
+        {
+            throw new InvalidOperationException(
+                "The active PPE scene has unsaved changes. Review or save them before disabling the duct shadow.");
+        }
+
+        ConfigureDuctShadow(scene);
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        PPERoomShadowValidationHarness.Validate();
+    }
+
+    private static void ConfigureDuctShadow(Scene scene)
+    {
+        Transform duct = RequireTransformAtPath(scene, DuctPath);
+        Renderer[] renderers = duct.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0)
+            throw new InvalidOperationException($"Duct '{DuctPath}' requires an authored Renderer.");
+
+        foreach (Renderer renderer in renderers)
+        {
+            Undo.RecordObject(renderer, "Disable PPE duct shadow");
+            renderer.shadowCastingMode = ShadowCastingMode.Off;
+            EditorUtility.SetDirty(renderer);
+        }
+    }
+
     private static void ConfigureInteriorShell(Transform room)
     {
         Material floorReceiver =
             AssetDatabase.LoadAssetAtPath<Material>(FloorReceiverMaterialPath);
-        Material wallMaterial = AssetDatabase.LoadAssetAtPath<Material>(
-            "Assets/Materials/PPE/PPE_Room_Wall.mat");
+        Material wallReceiver =
+            AssetDatabase.LoadAssetAtPath<Material>(WallReceiverMaterialPath);
         Material ceilingMaterial = AssetDatabase.LoadAssetAtPath<Material>(
             "Assets/Materials/PPE/PPE_Room_Ceiling.mat");
+
+        if (floorReceiver == null || wallReceiver == null || ceilingMaterial == null)
+            throw new InvalidOperationException("PPE room shadow receiver materials are incomplete.");
 
         foreach (Transform child in room)
         {
@@ -118,7 +199,7 @@ public static class PPERoomShadowSetup
             renderer.sharedMaterial = GetReceiverMaterial(
                 child.name,
                 floorReceiver,
-                wallMaterial,
+                wallReceiver,
                 ceilingMaterial);
             EditorUtility.SetDirty(renderer);
         }
@@ -150,7 +231,15 @@ public static class PPERoomShadowSetup
         EnsureReceiverMaterial(
             FloorReceiverMaterialPath,
             "Assets/Materials/PPE/PPE_Room_Floor.mat",
-            receiverShader);
+            receiverShader,
+            new Color(0.42f, 0.44f, 0.48f, 1f),
+            0.6f);
+        EnsureReceiverMaterial(
+            WallReceiverMaterialPath,
+            "Assets/Materials/PPE/PPE_Room_Wall.mat",
+            receiverShader,
+            new Color(0.56f, 0.62f, 0.70f, 1f),
+            0.42f);
 
         Material shadowCaster =
             AssetDatabase.LoadAssetAtPath<Material>(ShadowCasterMaterialPath);
@@ -175,7 +264,9 @@ public static class PPERoomShadowSetup
     private static void EnsureReceiverMaterial(
         string materialPath,
         string sourceMaterialPath,
-        Shader receiverShader)
+        Shader receiverShader,
+        Color shadowTint,
+        float shadowStrength)
     {
         if (AssetDatabase.LoadAssetAtPath<Material>(materialPath) != null)
             return;
@@ -190,8 +281,8 @@ public static class PPERoomShadowSetup
         };
         receiver.CopyPropertiesFromMaterial(source);
         receiver.shader = receiverShader;
-        receiver.SetColor("_ShadowTint", new Color(0.42f, 0.44f, 0.48f, 1f));
-        receiver.SetFloat("_ShadowStrength", 0.6f);
+        receiver.SetColor("_ShadowTint", shadowTint);
+        receiver.SetFloat("_ShadowStrength", shadowStrength);
         AssetDatabase.CreateAsset(receiver, materialPath);
         AssetDatabase.SaveAssets();
     }
@@ -248,6 +339,148 @@ public static class PPERoomShadowSetup
             renderer.lightProbeUsage = LightProbeUsage.Off;
             renderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
         }
+
+        RefineFurnitureShadowProxies(scene, shadowCasterMaterial);
+    }
+
+    private static void RefineFurnitureShadowProxies(
+        Scene scene,
+        Material shadowCasterMaterial)
+    {
+        Transform proxyRoot = FindTransformAtPath(scene, FurnitureProxyRootName);
+        if (proxyRoot == null)
+        {
+            throw new InvalidOperationException(
+                $"Run Tools/PPE/Configure Room Shadows before refining '{FurnitureProxyRootName}'.");
+        }
+
+        EnsureAssetFolder("Assets", "Meshes");
+        EnsureAssetFolder("Assets/Meshes", "PPE");
+        EnsureAssetFolder("Assets/Meshes/PPE", "Shadows");
+
+        foreach (string targetPath in FurnitureShadowTargetPaths)
+        {
+            Transform target = RequireTransformAtPath(scene, targetPath);
+            Transform proxy = proxyRoot.Find(target.name + " Shadow Proxy");
+            if (proxy == null)
+                throw new InvalidOperationException($"Furniture shadow proxy is missing for '{targetPath}'.");
+
+            UnityEngine.Mesh refinedMesh = BuildCombinedShadowMesh(target);
+            string meshPath = GetShadowMeshAssetPath(target.name);
+            UnityEngine.Mesh savedMesh = AssetDatabase.LoadAssetAtPath<UnityEngine.Mesh>(meshPath);
+            if (savedMesh == null)
+            {
+                AssetDatabase.CreateAsset(refinedMesh, meshPath);
+                savedMesh = refinedMesh;
+            }
+            else
+            {
+                EditorUtility.CopySerialized(refinedMesh, savedMesh);
+                UnityEngine.Object.DestroyImmediate(refinedMesh);
+                EditorUtility.SetDirty(savedMesh);
+            }
+
+            Undo.RecordObject(proxy, "Refine PPE furniture shadow silhouette");
+            proxy.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+            proxy.localScale = Vector3.one;
+
+            MeshFilter filter = proxy.GetComponent<MeshFilter>();
+            if (filter == null)
+                filter = Undo.AddComponent<MeshFilter>(proxy.gameObject);
+            Undo.RecordObject(filter, "Assign PPE furniture shadow silhouette");
+            filter.sharedMesh = savedMesh;
+            EditorUtility.SetDirty(filter);
+
+            Renderer renderer = proxy.GetComponent<Renderer>();
+            if (renderer == null)
+                renderer = Undo.AddComponent<MeshRenderer>(proxy.gameObject);
+            Undo.RecordObject(renderer, "Configure PPE furniture shadow silhouette");
+            renderer.sharedMaterial = shadowCasterMaterial;
+            renderer.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
+            renderer.receiveShadows = false;
+            renderer.lightProbeUsage = LightProbeUsage.Off;
+            renderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
+            EditorUtility.SetDirty(renderer);
+
+            Collider collider = proxy.GetComponent<Collider>();
+            if (collider != null)
+                Undo.DestroyObjectImmediate(collider);
+        }
+    }
+
+    private static UnityEngine.Mesh BuildCombinedShadowMesh(Transform target)
+    {
+        List<Vector3> vertices = new();
+        List<int> triangles = new();
+
+        foreach (MeshFilter filter in target.GetComponentsInChildren<MeshFilter>(true))
+        {
+            Renderer renderer = filter.GetComponent<Renderer>();
+            UnityEngine.Mesh sourceMesh = filter.sharedMesh;
+            if (renderer == null ||
+                !renderer.gameObject.activeInHierarchy ||
+                !renderer.enabled ||
+                sourceMesh == null)
+            {
+                continue;
+            }
+
+            int vertexOffset = vertices.Count;
+            Matrix4x4 localToWorld = filter.transform.localToWorldMatrix;
+            bool reversesWinding = localToWorld.determinant < 0f;
+
+            using UnityEngine.Mesh.MeshDataArray meshDataArray =
+                UnityEngine.Mesh.AcquireReadOnlyMeshData(sourceMesh);
+            UnityEngine.Mesh.MeshData meshData = meshDataArray[0];
+            using NativeArray<Vector3> sourceVertices =
+                new(meshData.vertexCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            meshData.GetVertices(sourceVertices);
+            for (int vertexIndex = 0; vertexIndex < sourceVertices.Length; vertexIndex++)
+                vertices.Add(localToWorld.MultiplyPoint3x4(sourceVertices[vertexIndex]));
+
+            for (int subMeshIndex = 0; subMeshIndex < meshData.subMeshCount; subMeshIndex++)
+            {
+                SubMeshDescriptor subMesh = meshData.GetSubMesh(subMeshIndex);
+                if (subMesh.topology != MeshTopology.Triangles)
+                    continue;
+
+                using NativeArray<int> sourceIndices =
+                    new((int)subMesh.indexCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+                meshData.GetIndices(sourceIndices, subMeshIndex, true);
+                for (int index = 0; index < sourceIndices.Length; index += 3)
+                {
+                    int first = vertexOffset + sourceIndices[index];
+                    int second = vertexOffset + sourceIndices[index + 1];
+                    int third = vertexOffset + sourceIndices[index + 2];
+                    triangles.Add(first);
+                    triangles.Add(reversesWinding ? third : second);
+                    triangles.Add(reversesWinding ? second : third);
+                }
+            }
+        }
+
+        if (vertices.Count == 0 || triangles.Count == 0)
+        {
+            throw new InvalidOperationException(
+                $"Furniture shadow target has no active triangle mesh geometry: '{target.name}'.");
+        }
+
+        UnityEngine.Mesh combinedMesh = new()
+        {
+            name = target.name + "_Shadow",
+            indexFormat = vertices.Count > ushort.MaxValue ? IndexFormat.UInt32 : IndexFormat.UInt16,
+        };
+        combinedMesh.SetVertices(vertices);
+        combinedMesh.SetTriangles(triangles, 0, false);
+        combinedMesh.RecalculateBounds();
+        return combinedMesh;
+    }
+
+    private static string GetShadowMeshAssetPath(string targetName)
+    {
+        foreach (char invalidCharacter in Path.GetInvalidFileNameChars())
+            targetName = targetName.Replace(invalidCharacter, '_');
+        return $"{ShadowMeshFolder}/{targetName}_Shadow.asset";
     }
 
     internal static bool TryGetActiveRendererBounds(Transform target, out Bounds bounds)
@@ -288,7 +521,7 @@ public static class PPERoomShadowSetup
         Undo.RegisterCreatedObjectUndo(lightObject, "Create PPE main shadow light");
         lightObject.transform.SetParent(room, false);
         lightObject.transform.localPosition = Vector3.zero;
-        lightObject.transform.rotation = Quaternion.Euler(72f, -30f, 0f);
+        lightObject.transform.rotation = RefinedLightRotation;
 
         Light light = Undo.AddComponent<Light>(lightObject);
         light.type = LightType.Directional;
@@ -296,11 +529,70 @@ public static class PPERoomShadowSetup
         light.color = new Color(1f, 0.95f, 0.87f, 1f);
         light.intensity = 0.65f;
         light.shadows = LightShadows.Hard;
-        light.shadowStrength = 0.72f;
-        light.shadowBias = 0.05f;
-        light.shadowNormalBias = 0.35f;
+        light.shadowStrength = RefinedShadowStrength;
+        light.shadowBias = RefinedShadowBias;
+        light.shadowNormalBias = RefinedShadowNormalBias;
         light.cullingMask = ~0;
         light.renderMode = LightRenderMode.Auto;
+    }
+
+    private static void RefineMainLight(Transform room)
+    {
+        Transform lightTransform = room.Find(LightName);
+        Light light = lightTransform != null ? lightTransform.GetComponent<Light>() : null;
+        if (light == null)
+        {
+            throw new InvalidOperationException(
+                $"Run Tools/PPE/Configure Room Shadows before refining '{LightName}'.");
+        }
+
+        Undo.RecordObject(lightTransform, "Refine PPE room shadow angle");
+        lightTransform.rotation = RefinedLightRotation;
+        EditorUtility.SetDirty(lightTransform);
+
+        Undo.RecordObject(light, "Refine PPE room shadow density");
+        light.shadowStrength = RefinedShadowStrength;
+        light.shadowBias = RefinedShadowBias;
+        light.shadowNormalBias = RefinedShadowNormalBias;
+        EditorUtility.SetDirty(light);
+    }
+
+    private static void RefineMobilePipeline()
+    {
+        UniversalRenderPipelineAsset mobilePipeline =
+            AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(MobilePipelinePath);
+        if (mobilePipeline == null)
+            throw new InvalidOperationException($"Missing mobile render pipeline asset '{MobilePipelinePath}'.");
+
+        Undo.RecordObject(mobilePipeline, "Refine PPE room near shadow detail");
+        mobilePipeline.shadowDistance = RefinedShadowDistance;
+        mobilePipeline.shadowCascadeCount = RefinedShadowCascadeCount;
+        mobilePipeline.cascade2Split = RefinedShadowCascade2Split;
+        EditorUtility.SetDirty(mobilePipeline);
+    }
+
+    private static void RefineReceiverVisibility()
+    {
+        RefineReceiverMaterial(FloorReceiverMaterialPath, FloorNearShadowBoost);
+        RefineReceiverMaterial(WallReceiverMaterialPath, WallNearShadowBoost);
+    }
+
+    private static void RefineReceiverMaterial(string materialPath, float nearBoost)
+    {
+        Material material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+        if (material == null)
+            throw new InvalidOperationException($"Missing shadow receiver material '{materialPath}'.");
+        if (!material.HasProperty("_NearShadowBoost") ||
+            !material.HasProperty("_NearShadowDistance"))
+        {
+            throw new InvalidOperationException(
+                $"Shadow receiver material '{materialPath}' does not expose near-shadow controls.");
+        }
+
+        Undo.RecordObject(material, "Refine near PPE room shadow visibility");
+        material.SetFloat("_NearShadowBoost", nearBoost);
+        material.SetFloat("_NearShadowDistance", NearShadowDistance);
+        EditorUtility.SetDirty(material);
     }
 
     private static void ConfigurePlayerShadowProxy(
@@ -448,6 +740,7 @@ public static class PPERoomShadowValidationHarness
             previewScene = EditorSceneManager.OpenPreviewScene(PPERoomShadowSetup.ScenePath);
             ValidateMainLight(previewScene, failures);
             ValidateInteriorShell(previewScene, failures);
+            ValidateDuct(previewScene, failures);
             ValidateFurniture(previewScene, failures);
             ValidatePlayerProxy(previewScene, failures);
             ValidateMobilePipeline(failures);
@@ -499,6 +792,14 @@ public static class PPERoomShadowValidationHarness
             failures.Add($"{PPERoomShadowSetup.LightName} must use hard shadows for the Mobile URP path.");
         if (light.intensity <= 0f || light.shadowStrength <= 0f)
             failures.Add($"{PPERoomShadowSetup.LightName} requires positive intensity and shadow strength.");
+        if (Quaternion.Angle(lightTransform.rotation, PPERoomShadowSetup.RefinedLightRotation) > 0.01f)
+            failures.Add($"{PPERoomShadowSetup.LightName} must use the refined authored shadow angle.");
+        if (Mathf.Abs(light.shadowStrength - PPERoomShadowSetup.RefinedShadowStrength) > 0.001f)
+            failures.Add($"{PPERoomShadowSetup.LightName} must use the refined authored shadow strength.");
+        if (Mathf.Abs(light.shadowBias - PPERoomShadowSetup.RefinedShadowBias) > 0.001f)
+            failures.Add($"{PPERoomShadowSetup.LightName} must use the contact-safe shadow bias.");
+        if (Mathf.Abs(light.shadowNormalBias - PPERoomShadowSetup.RefinedShadowNormalBias) > 0.001f)
+            failures.Add($"{PPERoomShadowSetup.LightName} must use the contact-safe normal bias.");
 
         int activeRealtimeShadowLights = 0;
         foreach (GameObject root in scene.GetRootGameObjects())
@@ -546,20 +847,20 @@ public static class PPERoomShadowValidationHarness
                 failures.Add($"Interior shell '{child.name}' must not block the room's main directional light.");
             if (!renderer.receiveShadows)
                 failures.Add($"Interior shell '{child.name}' must receive furniture and player shadows.");
-            bool isFloor = child.name == "Floor" ||
-                           child.name.StartsWith("Floor (", StringComparison.Ordinal);
+            bool isCeiling = child.name == "Ceiling" ||
+                             child.name.StartsWith("Ceiling (", StringComparison.Ordinal);
             bool usesReceiver = renderer.sharedMaterial != null &&
                                 renderer.sharedMaterial.shader != null &&
                                 renderer.sharedMaterial.shader.name == PPERoomShadowSetup.ReceiverShaderName;
-            if (isFloor && !usesReceiver)
+            if (!isCeiling && !usesReceiver)
             {
                 failures.Add(
-                    $"Interior floor '{child.name}' must use the PPE Unlit shadow-receiver material.");
+                    $"Interior floor or wall '{child.name}' must use the PPE Unlit shadow-receiver material.");
             }
-            else if (!isFloor && usesReceiver)
+            else if (isCeiling && usesReceiver)
             {
                 failures.Add(
-                    $"Interior shell '{child.name}' must keep its authored Unlit material; only floors receive shadows.");
+                    $"Interior ceiling '{child.name}' must keep its authored Unlit material.");
             }
         }
 
@@ -619,16 +920,57 @@ public static class PPERoomShadowValidationHarness
                 continue;
             }
 
-            Vector3 expectedScale = new(
-                Mathf.Max(0.08f, targetBounds.size.x * 0.9f),
-                targetBounds.size.y,
-                Mathf.Max(0.08f, targetBounds.size.z * 0.9f));
-            if (Vector3.Distance(proxy.position, targetBounds.center) > 0.001f ||
-                Vector3.Distance(proxy.lossyScale, expectedScale) > 0.001f ||
+            MeshFilter filter = proxy.GetComponent<MeshFilter>();
+            string meshPath = filter != null && filter.sharedMesh != null
+                ? AssetDatabase.GetAssetPath(filter.sharedMesh)
+                : string.Empty;
+            if (filter == null || filter.sharedMesh == null ||
+                !meshPath.StartsWith(PPERoomShadowSetup.ShadowMeshFolder + "/", StringComparison.Ordinal))
+            {
+                failures.Add($"Furniture shadow proxy must use a refined project mesh: '{targetPath}'.");
+                continue;
+            }
+
+            Renderer proxyRenderer = proxy.GetComponent<Renderer>();
+            const float rendererBoundsPaddingTolerance = 0.075f;
+            if (proxyRenderer == null ||
+                Vector3.Distance(proxyRenderer.bounds.center, targetBounds.center) >
+                    rendererBoundsPaddingTolerance ||
+                Vector3.Distance(proxyRenderer.bounds.size, targetBounds.size) >
+                    rendererBoundsPaddingTolerance)
+            {
+                failures.Add($"Furniture shadow silhouette bounds do not match: '{targetPath}'.");
+            }
+
+            if (Vector3.Distance(proxy.position, Vector3.zero) > 0.001f ||
+                Vector3.Distance(proxy.lossyScale, Vector3.one) > 0.001f ||
                 Quaternion.Angle(proxy.rotation, Quaternion.identity) > 0.01f)
             {
-                failures.Add($"Furniture shadow proxy is not aligned to authored bounds: '{targetPath}'.");
+                failures.Add($"Furniture shadow silhouette must keep identity world transform: '{targetPath}'.");
             }
+        }
+    }
+
+    private static void ValidateDuct(Scene scene, List<string> failures)
+    {
+        Transform duct = PPERoomShadowSetup.FindTransformAtPath(scene, PPERoomShadowSetup.DuctPath);
+        if (duct == null)
+        {
+            failures.Add($"Duct is missing: '{PPERoomShadowSetup.DuctPath}'.");
+            return;
+        }
+
+        Renderer[] renderers = duct.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0)
+        {
+            failures.Add($"Duct requires an authored Renderer: '{PPERoomShadowSetup.DuctPath}'.");
+            return;
+        }
+
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer.shadowCastingMode != ShadowCastingMode.Off)
+                failures.Add($"Duct renderer '{renderer.name}' must not cast a room shadow.");
         }
     }
 
@@ -700,6 +1042,21 @@ public static class PPERoomShadowValidationHarness
             failures.Add("Mobile_RPAsset soft shadows must remain disabled for Quest.");
         if (mobilePipeline.mainLightShadowmapResolution < 1024)
             failures.Add("Mobile_RPAsset main-light shadow resolution must be at least 1024.");
+        if (Mathf.Abs(mobilePipeline.shadowDistance - PPERoomShadowSetup.RefinedShadowDistance) > 0.01f)
+        {
+            failures.Add(
+                $"Mobile_RPAsset shadow distance must be {PPERoomShadowSetup.RefinedShadowDistance:0.#} m.");
+        }
+        if (mobilePipeline.shadowCascadeCount != PPERoomShadowSetup.RefinedShadowCascadeCount)
+        {
+            failures.Add(
+                $"Mobile_RPAsset must use {PPERoomShadowSetup.RefinedShadowCascadeCount} shadow cascades.");
+        }
+        if (Mathf.Abs(mobilePipeline.cascade2Split - PPERoomShadowSetup.RefinedShadowCascade2Split) > 0.001f)
+        {
+            failures.Add(
+                $"Mobile_RPAsset two-cascade split must be {PPERoomShadowSetup.RefinedShadowCascade2Split:0.##}.");
+        }
     }
 
     private static void ValidateReceiverShader(List<string> failures)
@@ -727,11 +1084,50 @@ public static class PPERoomShadowValidationHarness
             "UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output)",
             "UNITY_TRANSFER_INSTANCE_ID(input, output)",
             "UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input)",
+            "GetCameraPositionWS()",
+            "_NearShadowBoost",
+            "_NearShadowDistance",
         };
         foreach (string token in requiredStereoTokens)
         {
             if (!source.Contains(token, StringComparison.Ordinal))
                 failures.Add($"PPE shadow-receiver shader is missing XR stereo token '{token}'.");
+        }
+
+        ValidateReceiverNearBoost(
+            PPERoomShadowSetup.FloorReceiverMaterialPath,
+            PPERoomShadowSetup.FloorNearShadowBoost,
+            failures);
+        ValidateReceiverNearBoost(
+            PPERoomShadowSetup.WallReceiverMaterialPath,
+            PPERoomShadowSetup.WallNearShadowBoost,
+            failures);
+    }
+
+    private static void ValidateReceiverNearBoost(
+        string materialPath,
+        float expectedBoost,
+        List<string> failures)
+    {
+        Material material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+        if (material == null)
+        {
+            failures.Add($"Shadow receiver material is missing: '{materialPath}'.");
+            return;
+        }
+
+        if (!material.HasProperty("_NearShadowBoost") ||
+            Mathf.Abs(material.GetFloat("_NearShadowBoost") - expectedBoost) > 0.001f)
+        {
+            failures.Add($"'{material.name}' near-shadow boost must be {expectedBoost:0.##}.");
+        }
+        if (!material.HasProperty("_NearShadowDistance") ||
+            Mathf.Abs(
+                material.GetFloat("_NearShadowDistance") - PPERoomShadowSetup.NearShadowDistance) > 0.001f)
+        {
+            failures.Add(
+                $"'{material.name}' near-shadow distance must be " +
+                $"{PPERoomShadowSetup.NearShadowDistance:0.#} m.");
         }
     }
 }

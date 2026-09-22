@@ -219,7 +219,7 @@ public sealed class PPEActionPanelController : MonoBehaviour
     [SerializeField]
     [Range(0f, 1f)]
     [Tooltip("착용 성공 진동 강도입니다.")]
-    float wearHapticAmplitude = 0.45f;
+    float wearHapticAmplitude = 0.85f;
 
     [SerializeField]
     [Min(0f)]

@@ -429,6 +429,27 @@ public static class PPELocomotionPpeRegressionValidationHarness
         }
 
         string directorSource = File.ReadAllText("Assets/Scripts/PPEVoiceFlowDirector.cs");
+        int midExitMethod = directorSource.IndexOf(
+            "public void NotifyMidExitArrived()",
+            StringComparison.Ordinal);
+        int midExitVoiceGuard = midExitMethod >= 0
+            ? directorSource.IndexOf(
+                "if (m_MidExitStopVoice == null)",
+                midExitMethod,
+                StringComparison.Ordinal)
+            : -1;
+        int midExitMiniHide = midExitMethod >= 0
+            ? directorSource.IndexOf(
+                "SetActive(m_ControllerGuideMini, false);",
+                midExitMethod,
+                StringComparison.Ordinal)
+            : -1;
+        if (midExitMethod < 0 || midExitVoiceGuard < 0 || midExitMiniHide < midExitMethod ||
+            midExitMiniHide > midExitVoiceGuard)
+        {
+            failures.Add(
+                "Mid-exit must hide the mini controller guide before validating or playing its exclusive Voice.");
+        }
         if (!directorSource.Contains("StopFlowPlayback(stopSfx: false);", StringComparison.Ordinal) ||
             !directorSource.Contains("m_MidExitVoiceExclusive = true;", StringComparison.Ordinal))
         {
@@ -1586,10 +1607,10 @@ public static class PPELocomotionPpeRegressionValidationHarness
         RectTransform hudRect = hudRoot as RectTransform;
         if (hudRect == null ||
             Vector2.Distance(hudRect.anchoredPosition, new Vector2(0f, 0.02f)) > 0.0001f ||
-            !Mathf.Approximately(hudRect.localPosition.z, 1.2f) ||
+            !Mathf.Approximately(hudRect.localPosition.z, 0.30f) ||
             Vector3.Distance(hudRect.localScale, Vector3.one * 0.0008f) > 0.0001f)
         {
-            failures.Add("Head-fixed HUD root must retain the authored centered 1.2 m camera pose and 0.0008 scale.");
+            failures.Add("Head-fixed HUD root must retain the authored centered 0.30 m camera pose and 0.0008 scale.");
         }
 
         RectTransform miniRect = miniGuideContent as RectTransform;
@@ -1608,10 +1629,81 @@ public static class PPELocomotionPpeRegressionValidationHarness
 
         RectTransform checklistRect = checklists[0].transform as RectTransform;
         if (checklistRect == null || checklistRect.parent != hudRoot ||
-            Vector2.Distance(checklistRect.anchoredPosition, new Vector2(-800f, 80f)) > 0.0001f ||
-            Vector3.Distance(checklistRect.localScale, Vector3.one * 0.65f) > 0.0001f)
+            Vector2.Distance(checklistRect.anchoredPosition, new Vector2(-867.825f, -32f)) > 0.0001f ||
+            !Mathf.Approximately(checklistRect.localPosition.z, 76f) ||
+            Vector3.Distance(checklistRect.localScale, Vector3.one * 1.04f) > 0.0001f)
         {
-            failures.Add("PPE checklist must remain authored smaller on the left side of the head-fixed HUD.");
+            failures.Add("PPE checklist must retain its authored enlarged, forward-offset pose on the left side of the head-fixed HUD.");
+        }
+
+        ValidateChecklistGroupLayoutStructure(checklistRect, failures);
+    }
+
+    static void ValidateChecklistGroupLayoutStructure(
+        RectTransform checklistRect,
+        List<string> failures)
+    {
+        if (checklistRect == null)
+            return;
+
+        RectTransform confined = checklistRect.Find("Confined") as RectTransform;
+        RectTransform leak = checklistRect.Find("Leak") as RectTransform;
+        if (confined == null || leak == null)
+        {
+            failures.Add("PPE checklist requires authored Confined and Leak layout roots.");
+            return;
+        }
+
+        string[] confinedNames =
+        {
+            "Title",
+            "List_1_Suit",
+            "List_2_Boots",
+            "List_3_Backplate",
+            "List_4_Mask",
+            "List_5_Helmet",
+            "List_6_InnerGlove",
+            "List_7_Glove"
+        };
+        string[] leakNames =
+        {
+            "Title",
+            "List_1_Suit",
+            "List_2_Boots",
+            "List_3_Goggle",
+            "List_4_Face",
+            "List_5_Helmet",
+            "List_6_InnerGlove",
+            "List_7_Glove"
+        };
+
+        ValidateVerticalChecklistGroup(confined, confinedNames, failures);
+        ValidateVerticalChecklistGroup(leak, leakNames, failures);
+    }
+
+    static void ValidateVerticalChecklistGroup(
+        RectTransform group,
+        string[] orderedNames,
+        List<string> failures)
+    {
+        float previousY = float.PositiveInfinity;
+        for (int index = 0; index < orderedNames.Length; index++)
+        {
+            RectTransform item = group.Find(orderedNames[index]) as RectTransform;
+            if (item == null)
+            {
+                failures.Add($"PPE checklist '{group.name}/{orderedNames[index]}' is missing.");
+                continue;
+            }
+
+            if (item.anchoredPosition.y >= previousY)
+            {
+                failures.Add(
+                    $"PPE checklist '{group.name}' must retain its authored top-to-bottom row order.");
+                return;
+            }
+
+            previousY = item.anchoredPosition.y;
         }
     }
 
@@ -2348,14 +2440,21 @@ public static class PPELocomotionPpeRegressionValidationHarness
             if (!panel.PlayWearHaptics)
                 failures.Add($"{panel.name}: wear haptics are disabled.");
 
-            if (panel.WearHapticAmplitude <= 0f || panel.WearHapticAmplitude > 1f)
+            if (Mathf.Abs(
+                    panel.WearHapticAmplitude - PPEWearHapticTuningSetup.WearAmplitude) > 0.001f)
             {
                 failures.Add(
-                    $"{panel.name}: wear haptic amplitude must be within (0, 1].");
+                    $"{panel.name}: wear haptic amplitude must be " +
+                    $"{PPEWearHapticTuningSetup.WearAmplitude:0.##}.");
             }
 
-            if (panel.WearHapticDuration <= 0f)
-                failures.Add($"{panel.name}: wear haptic duration must be positive.");
+            if (Mathf.Abs(
+                    panel.WearHapticDuration - PPEWearHapticTuningSetup.WearDuration) > 0.001f)
+            {
+                failures.Add(
+                    $"{panel.name}: wear haptic duration must remain " +
+                    $"{PPEWearHapticTuningSetup.WearDuration:0.##} seconds.");
+            }
         }
 
         string panelSource = File.ReadAllText("Assets/Scripts/PPEActionPanelController.cs");

@@ -1258,6 +1258,8 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     /// </summary>
     public void NotifyMidExitArrived()
     {
+        SetActive(m_ControllerGuideMini, false);
+
         if (m_MidExitStopVoice == null)
         {
             Debug.LogError(

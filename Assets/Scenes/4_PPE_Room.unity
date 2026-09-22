@@ -6640,7 +6640,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &74310650
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6654,11 +6654,12 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1006754997}
+  - {fileID: 811182145}
   m_Father: {fileID: 1211210026}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.5, y: 0.02}
+  m_AnchoredPosition: {x: 0, y: 0.02}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &74310651
@@ -36053,7 +36054,7 @@ MonoBehaviour:
     repeatDelay: 6
     waitForSignal: 0
     nextState: 6
-  m_ControllerGuideMini: {fileID: 74310649}
+  m_ControllerGuideMini: {fileID: 1006754996}
   m_SkipKeyboardNameInput: 1
   m_SkipUnassignedClips: 1
   m_LogTransitions: 1
@@ -63284,18 +63285,18 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 811182144}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 5815}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.65, y: 0.65, z: 0.65}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1163901668}
   - {fileID: 1184591631}
   - {fileID: 1962525025}
-  m_Father: {fileID: 1466441663}
+  m_Father: {fileID: 74310650}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 408, y: 78}
+  m_AnchoredPosition: {x: -800, y: 80}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &811182146
@@ -77158,7 +77159,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1006754997
 RectTransform:
   m_ObjectHideFlags: 0
@@ -77179,7 +77180,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 525, y: 0}
   m_SizeDelta: {x: 740.1, y: 800}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1006754998
@@ -113489,7 +113490,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 181337462}
-  - {fileID: 811182145}
   - {fileID: 2037041270}
   - {fileID: 798269735}
   m_Father: {fileID: 0}
@@ -113745,7 +113745,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a29b1f37c96ff1746ad5df0a1cffd02e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ControllerGuideMiniActivator
-  m_ControllerGuideMini: {fileID: 74310649}
+  m_ControllerGuideMini: {fileID: 1006754996}
   m_XriInputActions: {fileID: -944628639613478452, guid: c348712bda248c246b8c49b3db54643f, type: 3}
 --- !u!1 &1466654442
 GameObject:

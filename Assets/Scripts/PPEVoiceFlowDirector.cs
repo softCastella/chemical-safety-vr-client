@@ -117,7 +117,7 @@ public sealed class PPEVoiceFlowDirector : MonoBehaviour
     [SerializeField] private VoiceStep[] m_ControllerEduVoiceSteps;
     [Tooltip("Short controller guide narration intended to run after keyboard name submission.")]
     [SerializeField] private VoiceStep[] m_ControllerSimpVoiceSteps;
-    [Tooltip("Assign the authored head-fixed ControllerGuide_mini. Right A may reopen detailed education only while this guide is visible in CardIntro or PpeArea.")]
+    [Tooltip("Assign the authored head-fixed ControllerGuide_mini/Context content. Right A may reopen detailed education only while this guide content is visible in CardIntro or PpeArea.")]
     [SerializeField] private GameObject m_ControllerGuideMini;
 
     [Header("Flow Options")]

@@ -2,14 +2,14 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Toggles the authored mini controller guide when either controller's thumbstick is clicked.
+/// Toggles the authored mini controller guide content when either controller's thumbstick is clicked.
 /// Attach this to an always-active scene object, such as Window Canvas.
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class ControllerGuideMiniActivator : MonoBehaviour
 {
     [Header("Authored Scene Reference")]
-    [Tooltip("Assign Window Canvas/ControllerGuide_mini. This component only activates it; it never changes its authored layout or visibility at startup.")]
+    [Tooltip("Assign ControllerGuide_mini/Context. The parent Canvas remains active for the head-fixed checklist; this component only toggles the authored controller-guide content.")]
     [SerializeField] private GameObject m_ControllerGuideMini;
 
     [Tooltip("Assign the authored XRI Default Input Actions asset. The guide uses its registered left/right Scale Toggle actions for headset thumbstick clicks.")]

@@ -88,6 +88,7 @@ public static class PPELocomotionPpeRegressionValidationHarness
             ValidateHeadRelativeLocomotion(previewScene, failures);
             ValidateHazmatAlreadyEquippedPriority(failures);
             ValidateBodyColliderProximity(failures);
+            ValidateWearHaptics(previewScene, failures);
             ValidateTabletSurfaceSampling(failures);
             ValidatePosterSampling(failures);
             ValidateQuestRenderQuality(failures);
@@ -117,6 +118,7 @@ public static class PPELocomotionPpeRegressionValidationHarness
             "leak harness rejection routing, Meta-account Welcome voices, PPE-area voices, authored controller-guide mapping " +
             "and detailed input feedback, " +
             "body-collider proximity, " +
+            "approved-wear controller haptics, " +
             "Quest render scale/MSAA, mirror location-marker layer visibility, " +
             "tablet/signature anti-shimmer sampling, " +
             "seven-step tablet checklists, Game View tablet marker selection and Editor-only simulator isolation, " +
@@ -1408,9 +1410,10 @@ public static class PPELocomotionPpeRegressionValidationHarness
         Transform exitMarker = context?.Find("3_Exit_Marker");
         Transform miniGuide = FindAll<Transform>(scene)
             .SingleOrDefault(transform => transform.name == "ControllerGuide_mini");
+        Transform miniGuideContent = miniGuide?.Find("Context");
         if (context == null || triggerController == null || gripController == null ||
             joystickController == null || ray == null || marker == null || exitMarker == null ||
-            miniGuide == null)
+            miniGuide == null || miniGuideContent == null)
         {
             failures.Add(
                 "ControllerGuide/Context must contain the authored controller images and " +
@@ -1434,6 +1437,9 @@ public static class PPELocomotionPpeRegressionValidationHarness
         ValidateAuthoredActive(ray, false, failures);
         ValidateAuthoredActive(marker, false, failures);
         ValidateAuthoredActive(exitMarker, true, failures);
+        ValidateAuthoredActive(miniGuide, true, failures);
+        ValidateAuthoredActive(miniGuideContent, false, failures);
+        ValidateHeadFixedHudLayout(scene, miniGuide, miniGuideContent, failures);
 
         ValidateGuideImage(triggerController, "Assets/UIs/Guide/controller.png", failures);
         ValidateGuideImage(gripController, "Assets/UIs/Guide/controller.png", failures);
@@ -1466,7 +1472,7 @@ public static class PPELocomotionPpeRegressionValidationHarness
         ValidateReference(serialized, "m_ControllerMarkerStep", marker.gameObject, failures);
         ValidateReference(serialized, "m_ControllerRayTStep", exitMarker.gameObject, failures);
         ValidateReference(serialized, "m_ControllerPanelStep", null, failures);
-        ValidateReference(serialized, "m_ControllerGuideMini", miniGuide.gameObject, failures);
+        ValidateReference(serialized, "m_ControllerGuideMini", miniGuideContent.gameObject, failures);
 
         SerializedProperty educationSteps = serialized.FindProperty("m_ControllerEduVoiceSteps");
         SerializedProperty simpleSteps = serialized.FindProperty("m_ControllerSimpVoiceSteps");
@@ -1558,6 +1564,55 @@ public static class PPELocomotionPpeRegressionValidationHarness
                 "Assets/Audio/Voice/1_1_ContSimp/VO_PPE_CTRL_SIMP_005_GuideFollow.mp3",
             },
             failures);
+    }
+
+    static void ValidateHeadFixedHudLayout(
+        Scene scene,
+        Transform hudRoot,
+        Transform miniGuideContent,
+        List<string> failures)
+    {
+        Canvas hudCanvas = hudRoot.GetComponent<Canvas>();
+        Camera parentCamera = hudRoot.parent != null
+            ? hudRoot.parent.GetComponent<Camera>()
+            : null;
+        if (parentCamera == null)
+            failures.Add("ControllerGuide_mini HUD root must remain parented to the authored XR camera.");
+        if (hudCanvas == null || hudCanvas.renderMode != RenderMode.WorldSpace)
+            failures.Add("ControllerGuide_mini HUD root requires its authored World Space Canvas.");
+        else if (parentCamera != null && hudCanvas.worldCamera != parentCamera)
+            failures.Add("ControllerGuide_mini HUD Canvas must use its parent XR camera.");
+
+        RectTransform hudRect = hudRoot as RectTransform;
+        if (hudRect == null ||
+            Vector2.Distance(hudRect.anchoredPosition, new Vector2(0f, 0.02f)) > 0.0001f ||
+            !Mathf.Approximately(hudRect.localPosition.z, 1.2f) ||
+            Vector3.Distance(hudRect.localScale, Vector3.one * 0.0008f) > 0.0001f)
+        {
+            failures.Add("Head-fixed HUD root must retain the authored centered 1.2 m camera pose and 0.0008 scale.");
+        }
+
+        RectTransform miniRect = miniGuideContent as RectTransform;
+        if (miniRect == null || miniRect.parent != hudRoot ||
+            Vector2.Distance(miniRect.anchoredPosition, new Vector2(525f, 0f)) > 0.0001f)
+        {
+            failures.Add("Mini controller content must remain authored on the right side of the head-fixed HUD.");
+        }
+
+        PPEEducationWearChecklist[] checklists = FindAll<PPEEducationWearChecklist>(scene);
+        if (checklists.Length != 1)
+        {
+            failures.Add($"Expected one PPEEducationWearChecklist, found {checklists.Length}.");
+            return;
+        }
+
+        RectTransform checklistRect = checklists[0].transform as RectTransform;
+        if (checklistRect == null || checklistRect.parent != hudRoot ||
+            Vector2.Distance(checklistRect.anchoredPosition, new Vector2(-800f, 80f)) > 0.0001f ||
+            Vector3.Distance(checklistRect.localScale, Vector3.one * 0.65f) > 0.0001f)
+        {
+            failures.Add("PPE checklist must remain authored smaller on the left side of the head-fixed HUD.");
+        }
     }
 
     static void ValidateMirrorReflectedLayers(Scene scene, List<string> failures)
@@ -2276,6 +2331,55 @@ public static class PPELocomotionPpeRegressionValidationHarness
         {
             failures.Add(
                 "Scenario mismatch must select EDU 205 in the pre-condition rejection path.");
+        }
+    }
+
+    static void ValidateWearHaptics(Scene scene, List<string> failures)
+    {
+        PPEActionPanelController[] panels = FindAll<PPEActionPanelController>(scene);
+        if (panels.Length == 0)
+        {
+            failures.Add("PPE wear haptics require at least one PPEActionPanelController.");
+            return;
+        }
+
+        foreach (PPEActionPanelController panel in panels)
+        {
+            if (!panel.PlayWearHaptics)
+                failures.Add($"{panel.name}: wear haptics are disabled.");
+
+            if (panel.WearHapticAmplitude <= 0f || panel.WearHapticAmplitude > 1f)
+            {
+                failures.Add(
+                    $"{panel.name}: wear haptic amplitude must be within (0, 1].");
+            }
+
+            if (panel.WearHapticDuration <= 0f)
+                failures.Add($"{panel.name}: wear haptic duration must be positive.");
+        }
+
+        string panelSource = File.ReadAllText("Assets/Scripts/PPEActionPanelController.cs");
+        if (!panelSource.Contains(
+                "choice != PPEActionChoice.Use ||",
+                StringComparison.Ordinal) ||
+            !panelSource.Contains(
+                "result != PPEActionResult.UseApproved ||",
+                StringComparison.Ordinal))
+        {
+            failures.Add("PPE wear haptics must be gated by UseApproved only.");
+        }
+
+        if (!panelSource.Contains(
+                "inspectionState.TryGetSelectingHandedness",
+                StringComparison.Ordinal) ||
+            !panelSource.Contains(
+                "case InteractorHandedness.Left:",
+                StringComparison.Ordinal) ||
+            !panelSource.Contains(
+                "case InteractorHandedness.Right:",
+                StringComparison.Ordinal))
+        {
+            failures.Add("PPE wear haptics must target the controller that selected the PPE.");
         }
     }
 

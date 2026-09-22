@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using UnityEngine.XR.Interaction.Toolkit.Inputs.Haptics;
 using UnityEngine.XR.Interaction.Toolkit.Inputs.Readers;
 
 public enum PPEActionChoice
@@ -210,6 +211,21 @@ public sealed class PPEActionPanelController : MonoBehaviour
     [SerializeField]
     string wrongFeedbackSfxId = "Wrong Answer";
 
+    [Header("Wear haptics")]
+    [SerializeField]
+    [Tooltip("정상 PPE의 착용 승인이 확정된 순간, 현재 PPE를 잡고 있는 컨트롤러에 진동을 한 번 보냅니다.")]
+    bool playWearHaptics = true;
+
+    [SerializeField]
+    [Range(0f, 1f)]
+    [Tooltip("착용 성공 진동 강도입니다.")]
+    float wearHapticAmplitude = 0.45f;
+
+    [SerializeField]
+    [Min(0f)]
+    [Tooltip("착용 성공 진동 지속시간(초)입니다.")]
+    float wearHapticDuration = 0.08f;
+
     [Header("Wrong-choice voice")]
     [Tooltip("Defective PPE에서 사용을 선택해 X 피드백이 표시될 때 재생할 음성입니다.")]
     [SerializeField]
@@ -274,6 +290,9 @@ public sealed class PPEActionPanelController : MonoBehaviour
     public float BodyAttachHoldSeconds => bodyAttachHoldSeconds;
     public float BodyAttachChestDropMeters => bodyAttachChestDropMeters;
     public float BodyAttachHandSideOffsetMeters => bodyAttachHandSideOffsetMeters;
+    public bool PlayWearHaptics => playWearHaptics;
+    public float WearHapticAmplitude => wearHapticAmplitude;
+    public float WearHapticDuration => wearHapticDuration;
     public PPEActionChoice LastChoice { get; private set; }
     public PPEActionResult LastResult { get; private set; }
 
@@ -640,6 +659,7 @@ public sealed class PPEActionPanelController : MonoBehaviour
 
         PlayActionSfx(choice, result);
         PlayFeedbackSfx(result);
+        PlayWearHaptic(choice, result);
         QueueWrongChoiceVoice(result);
 
         ChoiceResolved?.Invoke(choice, result);
@@ -658,6 +678,38 @@ public sealed class PPEActionPanelController : MonoBehaviour
         {
             BeginApprovedResolution(result);
         }
+    }
+
+    void PlayWearHaptic(PPEActionChoice choice, PPEActionResult result)
+    {
+        if (!playWearHaptics ||
+            choice != PPEActionChoice.Use ||
+            result != PPEActionResult.UseApproved ||
+            wearHapticAmplitude <= 0f ||
+            wearHapticDuration <= 0f ||
+            inspectionState == null ||
+            !inspectionState.TryGetSelectingHandedness(out InteractorHandedness handedness))
+        {
+            return;
+        }
+
+        HapticsUtility.Controller controller;
+        switch (handedness)
+        {
+            case InteractorHandedness.Left:
+                controller = HapticsUtility.Controller.Left;
+                break;
+            case InteractorHandedness.Right:
+                controller = HapticsUtility.Controller.Right;
+                break;
+            default:
+                return;
+        }
+
+        HapticsUtility.SendHapticImpulse(
+            Mathf.Clamp01(wearHapticAmplitude),
+            wearHapticDuration,
+            controller);
     }
 
     void PlayActionSfx(PPEActionChoice choice, PPEActionResult result)
